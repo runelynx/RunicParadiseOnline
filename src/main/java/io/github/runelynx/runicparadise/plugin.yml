@@ -1,0 +1,10 @@
+## YAML Template.
+name: RunicParadise
+main: io.github.runelynx.runicparadise.RunicParadise
+version: 0.1
+commands:
+   basic:
+      description: This is a demo command.
+      usage: /<command> [player]
+      permission: runicparadise.basic
+      permission-message: You don't have <permission>
