@@ -6,13 +6,18 @@
 package io.github.runelynx.runicparadise;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Color;
 import org.bukkit.FireworkEffect;
 import org.bukkit.FireworkEffect.Type;
 import org.bukkit.entity.Firework;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.plugin.Plugin;
@@ -46,10 +51,9 @@ public final class RunicParadise extends JavaPlugin implements Listener {
         getLogger().info("RunicParadise Plugin: onDisable has been invoked!");
     }
 
-    
     @EventHandler
     public void onPlayerJoin(final PlayerJoinEvent pje) {
-        
+
         // Launch Firework on player join
         Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(this, new Runnable() {
             public void run() {
@@ -68,9 +72,23 @@ public final class RunicParadise extends JavaPlugin implements Listener {
                         .build());
                 fm.setPower(2);
                 f.setFireworkMeta(fm);
-                 
+
             }
         }, 100); //delay
+    }
+
+    @EventHandler(priority = EventPriority.NORMAL)
+    public void onPlayerDamage(final EntityDamageEvent ede) {
+
+        if (ede.getCause() == DamageCause.VOID) {
+            if (ede instanceof Player) {
+                Player player = (Player) ede;
+                player.setHealth(20);
+                player.teleport(player.getWorld().getSpawnLocation());
+                player.sendMessage(ChatColor.AQUA + "Found someone lost in the void... sending to spawn.");
+            }
+        }
+
     }
 
 }
