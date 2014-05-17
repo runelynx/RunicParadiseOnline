@@ -75,17 +75,19 @@ public final class RunicParadise extends JavaPlugin implements Listener {
 
             }
         }, 100); //delay
+
     }
 
     @EventHandler(priority = EventPriority.NORMAL)
     public void onPlayerDamage(final EntityDamageEvent ede) {
-
+        
+        //If player falls into the void, heal and teleport them to spawn
         if (ede.getCause() == DamageCause.VOID) {
             if (ede instanceof Player) {
                 Player player = (Player) ede;
                 player.setHealth(20);
                 player.teleport(player.getWorld().getSpawnLocation());
-                player.sendMessage(ChatColor.AQUA + "Found someone lost in the void... sending to spawn.");
+                player.sendMessage(ChatColor.AQUA + "[RunicSavior] Found someone lost in the void... sending to spawn.");
             }
         }
 
