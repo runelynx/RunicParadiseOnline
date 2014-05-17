@@ -1,0 +1,12 @@
+## YAML Template.
+name: RunicParadise
+author: runelynx
+description: Bukkit plugin for Runic Paradise server.
+main: io.github.runelynx.runicparadise.RunicParadise
+version: 0.1
+commands:
+   rp:
+      description: Rune's first custom command. Sends you to spawn.
+      usage: /<command> [player]
+      permission: runicparadise.rp
+      permission-message: You don't have permission: <permission>

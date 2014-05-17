@@ -5,8 +5,8 @@ description: Bukkit plugin for Runic Paradise server.
 main: io.github.runelynx.runicparadise.RunicParadise
 version: 0.1
 commands:
-   basic:
+   rp:
       description: Rune's first custom command. Sends you to spawn.
       usage: /<command> [player]
-      permission: runicparadise.basic
-      permission-message: You don't have <permission>
+      permission: runicparadise.rp
+      permission-message: You don't have permission: <permission>
