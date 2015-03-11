@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" output="target/test-classes" path="src/test/java">
+		<attributes>
+			<attribute name="optional" value="true"/>
+			<attribute name="maven.pomderived" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="src" output="target/classes" path="src/main/java">
+		<attributes>
+			<attribute name="optional" value="true"/>
+			<attribute name="maven.pomderived" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry excluding="**/*.java|com/|org/" including="plugin.yml|config.yml|**/*.java" kind="src" path="src"/>
+	<classpathentry exported="true" kind="var" path="M2_REPO/org/bukkit/bukkit/1.8-R0.1-SNAPSHOT/bukkit-1.8-R0.1-SNAPSHOT.jar"/>
+	<classpathentry exported="true" kind="var" path="M2_REPO/javax/mail/mail/1.4.7/mail-1.4.7.jar"/>
+	<classpathentry exported="true" kind="var" path="M2_REPO/javax/activation/activation/1.1.1/activation-1.1.1.jar"/>
+	<classpathentry exported="true" kind="var" path="M2_REPO/WorldEdit/WorldEdit/1.0/WorldEdit-1.0.jar"/>
+	<classpathentry exported="true" kind="var" path="M2_REPO/net/milkbowl/vault/VaultAPI/1.4/VaultAPI-1.4.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/bukkit/craftbukkit/1.8-R0.1-SNAPSHOT/craftbukkit-1.8-R0.1-SNAPSHOT.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7">
+		<attributes>
+			<attribute name="maven.pomderived" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="var" path="M2_REPO"/>
+	<classpathentry kind="output" path="target/classes"/>
+</classpath>

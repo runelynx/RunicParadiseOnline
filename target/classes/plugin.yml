@@ -1,12 +1,104 @@
 ## YAML Template.
 name: RunicParadise
 author: runelynx
-description: Bukkit plugin for Runic Paradise server.
+description: "Bukkit plugin for Runic Paradise server."
 main: io.github.runelynx.runicparadise.RunicParadise
 version: 0.1
 commands:
-   rp:
-      description: Rune's first custom command. Sends you to spawn.
+   say:
+      description: "Runic Paradise /say override command"
       usage: /<command> [player]
-      permission: runicparadise.rp
-      permission-message: You don't have permission: <permission>
+      permission: rp.staff
+      permission-message: "You don't have permission: <permission>"
+   rp:
+      description: "Rune's first custom command. Sends you to spawn."
+      usage: /<command> [player]
+   rpvote:
+      description: "A workaround for voting rewards - console only!!"
+      usage: /<command>
+      permission: rp.NoPlayersAllowed
+      permission-message: "You don't have permission: <permission>"
+   rpjobs:
+      description: "Job mastery command. Console only!"
+      usage: /<command>
+      permission: rp.NoPlayersAllowed
+      permission-message: "You don't have permission: <permission>"
+   grave:
+      description: "RunicReaper's graves command"
+      usage: /<command>
+      permission: rp.graves
+      permission-message: "You don't have permission: <permission>"
+   graves:
+      description: "RunicReaper's graves command"
+      usage: /<command>
+      permission: rp.graves
+      permission-message: "You don't have permission: <permission>"
+   rpchest:
+      description: "Test command for chest inventory saving"
+      usage: /<command>
+      permission: rp.staff
+      permission-message: "You don't have permission: <permission>"
+   rptransfer:
+      description: "Used by command blocks to save/load inventory for special events"
+      usage: /<command>
+      permission: rp.staff
+      permission-message: "You don't have permission: <permission>"
+   rpmail:
+      description: "A test command for the email system"
+      usage: /<command>
+      permission: rp.test
+   rptokens:
+      description: "Used by staff for Runic Carnival"
+      usage: /<command>
+      permission: rp.staff
+   radio:
+      description: "Join our DJ booth!"
+      usage: /<command>
+   ready:
+      description: "Let us know you're ready to start building on the server. This notifies staff you need a promotion to Settler."
+      usage: /<command>
+      permission: rp.ghost
+      permission-message: "Only Ghosts can use this command."
+   music:
+      description: "Join our DJ booth!"
+      usage: /<command>
+   rptest:
+      description: "Sends test messages based on the config file"
+      usage: /<command>
+      permission: runicparadise.rptest
+      permission-message: "You don't have permission: <permission>"
+   staff:
+      description: "Menu of staff commands"
+      permission: rp.staff
+      permission-message: "Only staff (mods/admins) can use this command."
+   staffchat:
+      description: "Channel where staff can chat together"
+      permission: rp.staff
+      permission-message: "Only staff (mods/admins) can use this command."
+   promote:
+      description: "Runic Paradise Promotion Command"
+   rankup:
+      description: "Runic Paradise Promotion Command"
+   ranks:
+      description: "Display requirements for each rank"
+   sc:
+      description: "Channel where staff can chat together"
+      permission: rp.staff
+      permission-message: "Only staff (mods/admins) can use this command."
+   rpreload:
+      description: "Reloads the Runic Paradise plugin config file."
+      usage: /<command>
+      permission: runicparadise.rpreload
+      permission-message: "You don't have permission: <permission>"
+   games:
+      description: "Runic Paradise games menu."
+      usage: /<command> [option]
+   rpgames:
+      description: "Runic Paradise games menu."
+      usage: /<command> [option]
+   events:
+      description: "Runic Paradise events tool."
+      usage: /<command> [option]
+   hmsay:
+      description: "Herobrines Mansion message command."
+      usage: /<command> [option]    
