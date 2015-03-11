@@ -116,7 +116,7 @@ public class Commands implements CommandExecutor {
 							.sendMessageToPlayer(ChatColor.GRAY
 									+ ""
 									+ ChatColor.ITALIC
-									+ "You must have level 25 in a job to achieve mastery");
+									+ "You must have level 25 in a job to achieve mastery.");
 				}
 			} else if (args[0].equals("qualify") && args.length == 2
 					&& !(sender instanceof Player)) {
