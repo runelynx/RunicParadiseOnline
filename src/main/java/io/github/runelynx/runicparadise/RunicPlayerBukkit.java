@@ -385,7 +385,7 @@ public class RunicPlayerBukkit {
 	 * 
 	 */
 
-	public void maintainJobTable() {
+	public static void maintainJobTable() {
 		MySQL MySQL = new MySQL(instance, instance.getConfig().getString(
 				"dbHost"), instance.getConfig().getString("dbPort"), instance
 				.getConfig().getString("dbDatabase"), instance.getConfig()
@@ -488,9 +488,7 @@ public class RunicPlayerBukkit {
 			d.close();
 			getLogger()
 					.log(Level.INFO,
-							"[RpJobMastery] Success: " + this.playerName + ", "
-									+ this.jobsMastered + ", "
-									+ this.jobsMasteredCount);
+							"[RpJobMastery] Maintenance completed. ");
 			// Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "sudo " +
 			// this.playerName + " jobs leave " + oldJob);
 

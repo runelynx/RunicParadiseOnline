@@ -271,8 +271,8 @@ public class Commands implements CommandExecutor {
 
 			} else if (args[0].equals("maintenance") && args.length == 1
 					&& !(sender instanceof Player)) {
-				RunicPlayerBukkit fakeUser = new RunicPlayerBukkit("runelynx");
-				fakeUser.maintainJobTable();
+				
+				RunicPlayerBukkit.maintainJobTable();
 
 			} else if (sender instanceof Player) {
 
