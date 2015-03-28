@@ -48,6 +48,11 @@ import org.bukkit.scheduler.BukkitScheduler;
 
 import com.kill3rtaco.tacoserialization.InventorySerialization;
 
+import de.slikey.effectlib.EffectManager;
+import de.slikey.effectlib.effect.FountainEffect;
+import de.slikey.effectlib.effect.ShieldEffect;
+import de.slikey.effectlib.util.ParticleEffect;
+
 /**
  *
  * @author Andrewxwsaa
@@ -76,6 +81,40 @@ public class Commands implements CommandExecutor {
 		// general approach is that errors will return immediately;
 		// successful runs will return after the switch completes
 		switch (cmd.getName()) {
+		case "rpeffects":
+			if (args.length > 0) {
+				if (args[0].equals("AnchorsDeepFountain")) {
+					EffectManager em = new EffectManager(instance);
+
+					// Blood-particles lays around for 30 ticks (1.5 seconds)
+					// Bleeding takes 15 seconds
+					// period * iterations = time of effect
+					
+					
+					FountainEffect fountainEffect1 = new FountainEffect(em);
+					fountainEffect1.particle = ParticleEffect.DRIP_WATER;
+					fountainEffect1.radius = 2;
+					fountainEffect1.particlesStrand = 50;
+					fountainEffect1.setLocation(new Location(Bukkit.getWorld("RunicRealm"), 1674.5, 65.0, 349.0));
+					fountainEffect1.start();
+					FountainEffect fountainEffect2 = new FountainEffect(em);
+					fountainEffect2.particle = ParticleEffect.DRIP_WATER;
+					fountainEffect2.radius = 2;
+					fountainEffect2.particlesStrand = 50;
+					fountainEffect2.setLocation(new Location(Bukkit.getWorld("RunicRealm"), 1674.5, 65.0, 357.0));
+					fountainEffect2.start();
+				//	fountainEffect.setLocation(new Location(Bukkit.getWorld("RunicRealm"), 1671.0, 68.0, 356.0));
+				//	fountainEffect.start();
+				//	fountainEffect.setLocation(new Location(Bukkit.getWorld("RunicRealm"), 1677.0, 68.0, 350.0));
+				//	fountainEffect.start();
+				//	fountainEffect.setLocation(new Location(Bukkit.getWorld("RunicRealm"), 1677.0, 68.0, 350.0));
+				//	fountainEffect.start();
+					em.disposeOnTermination();
+				}
+			} else {
+				Bukkit.getLogger().log(Level.WARNING, "RPEffects command error, not enough arguments");
+			}
+			break;
 		case "rpjobs":
 			// Master a tier1 job
 			if (args[0].equals("master") && args.length == 2
@@ -249,13 +288,16 @@ public class Commands implements CommandExecutor {
 				command = "graves givesouls " + args[1] + " 1";
 				Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command);
 
+				RunicPlayerBukkit targetPlayer = new RunicPlayerBukkit(args[1]);
+				targetPlayer.incrementPlayerVotes();
+				
 				Random rand = new Random();
 				// int randomNum = rand.nextInt((max - min) + 1) + min;
 				int randomNum = rand.nextInt((100 - 1) + 1) + 1;
 				if (randomNum <= 2) {
 					command = "graves givesouls " + args[1] + " 3";
 					Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command);
-					command = "say Lucky vote!! " + args[1]
+					command = "say §4L§cu§6c§ek§2y §av§bo§3t§1e§9!§d! " + args[1]
 							+ " got 3 extra souls!";
 					Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command);
 				}
@@ -1142,12 +1184,12 @@ public class Commands implements CommandExecutor {
 				targetPlayer.sendMessageToPlayer(ChatColor.DARK_AQUA
 						+ "Runic Paradise Player Info: <PlayerName>");
 				targetPlayer.sendMessageToPlayer(ChatColor.DARK_AQUA
-						+ "✦Your account details at Runic Central Bank");
+						+ "✦Your personal information");
 				targetPlayer.sendMessageToPlayer(ChatColor.GRAY
 						+ "  Runic balance: "
 						+ ChatColor.GOLD
 						+ df.format(RunicParadise.economy
-								.getBalance((OfflinePlayer) sender)));
+								.getBalance((OfflinePlayer) sender)) + ChatColor.GRAY + ", Votes: " + ChatColor.GOLD + targetPlayer.getPlayerVoteCount());
 				targetPlayer.sendMessageToPlayer(ChatColor.GRAY
 						+ "  Date joined: " + ChatColor.GOLD
 						+ sdf.format(targetPlayer.getJoinDate().getTime())

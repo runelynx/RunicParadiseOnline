@@ -157,7 +157,7 @@ public class Ranks {
 			try {
 				Statement dStmt = d.createStatement();
 				ResultSet playerData = dStmt
-						.executeQuery("SELECT `FirstSeen`, `IsNominated` FROM `rp_PlayerInfo` WHERE `PlayerName` = '"
+						.executeQuery("SELECT `FirstSeen`, `IsNominated`, `Votes` FROM `rp_PlayerInfo` WHERE `PlayerName` = '"
 								+ p.getName() + "' ORDER BY `id` ASC LIMIT 1;");
 				playerData.next();
 
@@ -170,8 +170,8 @@ public class Ranks {
 
 				user.sendMessage(ChatColor.GRAY + p.getName() + ": "
 						+ ChatColor.LIGHT_PURPLE + df.format(daysPlayed)
-						+ " days played, " + balance + " R, nominated("
-						+ isNominated + ")");
+						+ " days, " + balance + " R, noms("
+						+ isNominated + "), votes(" + playerData.getInt("Votes") + ")");
 			} catch (SQLException e) {
 				getLogger().log(
 						Level.SEVERE,
@@ -228,7 +228,7 @@ public class Ranks {
 		user.sendMessage(ChatColor.GRAY
 				+ "[RunicRanks] Listing promotion requirements...");
 		user.sendMessage(ChatColor.DARK_GREEN + "Explorer - " + ChatColor.GRAY
-				+ EXPLORER_DAYS + " days, " + EXPLORER_RUNICS + " R.");
+				+ EXPLORER_DAYS + " days or 20 votes, " + EXPLORER_RUNICS + " R.");
 		user.sendMessage(ChatColor.GRAY + EXPLORER_KILLS);
 		user.sendMessage(ChatColor.YELLOW + "Builder - " + ChatColor.GRAY
 				+ BUILDER_DAYS + " days, " + BUILDER_RUNICS + " R, joblevel "
@@ -461,11 +461,20 @@ public class Ranks {
 						+ ChatColor.GRAY + "Days on the server: "
 						+ df.format(daysPlayed) + "; Required: "
 						+ EXPLORER_DAYS);
-			} else {
+			} else if(targetPlayer.getPlayerVoteCount() >= 20) {
+				checkDays = true;
+				failureResponse.add(ChatColor.DARK_GREEN + "[✔ OK] "
+						+ ChatColor.GRAY + "Votes: "
+						+ targetPlayer.getPlayerVoteCount() + "; Required: 20");
+			}
+			else {
 				failureResponse.add(ChatColor.DARK_RED + "[✘ FAIL] "
 						+ ChatColor.GRAY + "Days on the server: "
 						+ df.format(daysPlayed) + "; Required: "
 						+ EXPLORER_DAYS);
+				failureResponse.add(ChatColor.DARK_RED + "[✘ FAIL] "
+						+ ChatColor.GRAY + "You can skip the 7 day requirement with 20 votes! Your votes: "
+						+ targetPlayer.getPlayerVoteCount());
 			}
 			if (balance >= EXPLORER_RUNICS) {
 				checkRunics = true;
@@ -1181,7 +1190,8 @@ public class Ranks {
 
 	}
 
-	public static void logPromotion(String playerName, String newRank, Long timestamp) {
+	public static void logPromotion(String playerName, String newRank,
+			Long timestamp) {
 		final Plugin instance = RunicParadise.getInstance();
 		MySQL MySQL = new MySQL(instance, instance.getConfig().getString(
 				"dbHost"), instance.getConfig().getString("dbPort"), instance
@@ -1198,9 +1208,9 @@ public class Ranks {
 							+ playerName
 							+ "', '"
 							+ newRank
-							+ "', "	+ timestamp + ");");
-				d.close();
-		
+							+ "', "
+							+ timestamp + ");");
+			d.close();
 
 		} catch (SQLException z) {
 			getLogger().log(Level.SEVERE,

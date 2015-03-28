@@ -34,7 +34,7 @@ import org.bukkit.scheduler.BukkitRunnable;
  * @author ABO055
  *
  */
-public class RunicPlayerBukkit implements RunicPlayer {
+public class RunicPlayerBukkit {
 
 	private int tokenBalance;
 	private int lifetimeTokens;
@@ -49,8 +49,9 @@ public class RunicPlayerBukkit implements RunicPlayer {
 	private String jobsMastered;
 	private String currentJob;
 	private Date joinDate;
+	private int voteCount;
 
-	private Plugin instance = RunicParadise.getInstance();
+	private static Plugin instance = RunicParadise.getInstance();
 
 	/**
 	 * Start up the player object using player UUID
@@ -60,6 +61,7 @@ public class RunicPlayerBukkit implements RunicPlayer {
 	 */
 	public RunicPlayerBukkit(UUID playerID) {
 		refreshPlayerObject(Bukkit.getPlayer(playerID));
+
 	}
 
 	/**
@@ -163,6 +165,33 @@ public class RunicPlayerBukkit implements RunicPlayer {
 			getLogger().log(Level.SEVERE,
 					"Failed getPlayerKillCount because: " + e.getMessage());
 			return resultMap;
+		}
+
+	}
+
+	public boolean incrementPlayerVotes() {
+		MySQL MySQL = new MySQL(instance, instance.getConfig().getString(
+				"dbHost"), instance.getConfig().getString("dbPort"), instance
+				.getConfig().getString("dbDatabase"), instance.getConfig()
+				.getString("dbUser"), instance.getConfig().getString(
+				"dbPassword"));
+
+		try {
+			// TODO: Change to update DB based on UUID
+			final Connection d = MySQL.openConnection();
+
+			PreparedStatement dStmt2 = d
+					.prepareStatement("UPDATE rp_PlayerInfo SET Votes = Votes+1 WHERE UUID = ?");
+			dStmt2.setString(1, this.getPlayerUUID());
+			dStmt2.executeUpdate();
+
+			d.close();
+			return true;
+
+		} catch (SQLException e) {
+			getLogger().log(Level.SEVERE,
+					"Failed getPlayerKillCount because: " + e.getMessage());
+			return false;
 		}
 
 	}
@@ -273,9 +302,9 @@ public class RunicPlayerBukkit implements RunicPlayer {
 		}
 	}
 
-	public boolean incrementPlayerKillCount(String columnName) {
+	public static boolean incrementPlayerKillCount(UUID playerUUID, String columnName) {
 		MySQL MySQL = new MySQL(instance, instance.getConfig().getString(
-				"dbHost"), instance.getConfig().getString("dbPort"), instance
+				"dbHost"), instance.getConfig().getString("dbPort"),instance
 				.getConfig().getString("dbDatabase"), instance.getConfig()
 				.getString("dbUser"), instance.getConfig().getString(
 				"dbPassword"));
@@ -289,13 +318,12 @@ public class RunicPlayerBukkit implements RunicPlayer {
 		}
 
 		try {
-			// TODO: Change to update DB based on UUID
 			final Connection d = MySQL.openConnection();
 
 			PreparedStatement dStmt2 = d
 					.prepareStatement("UPDATE rp_PlayerInfo SET " + columnName
 							+ "=" + columnName + "+1 WHERE UUID = ?");
-			dStmt2.setString(1, this.getPlayerUUID());
+			dStmt2.setString(1, playerUUID.toString());
 			dStmt2.executeUpdate();
 
 			d.close();
@@ -314,7 +342,7 @@ public class RunicPlayerBukkit implements RunicPlayer {
 	 * 
 	 * @see io.github.runelynx.runicparadise.RunicPlayer#getPlayerDisplayName()
 	 */
-	@Override
+
 	public String getPlayerDisplayName() {
 		return this.playerDisplayName;
 	}
@@ -323,7 +351,7 @@ public class RunicPlayerBukkit implements RunicPlayer {
 	 * Get mastered jobs
 	 * 
 	 */
-	@Override
+
 	public String getMasteredJobs() {
 		return this.jobsMastered;
 
@@ -333,17 +361,21 @@ public class RunicPlayerBukkit implements RunicPlayer {
 		return this.jobsMasteredCount;
 	}
 
+	public int getPlayerVoteCount() {
+		return this.voteCount;
+	}
+
 	/**
 	 * Get current job
 	 * 
 	 */
-	@Override
+
 	public String getCurrentJob() {
 		return this.currentJob;
 
 	}
 
-	@Override
+
 	public Date getJoinDate() {
 		return this.joinDate;
 	}
@@ -352,15 +384,16 @@ public class RunicPlayerBukkit implements RunicPlayer {
 	 * job table maintenance in DB
 	 * 
 	 */
-	@Override
+
 	public void maintainJobTable() {
 		MySQL MySQL = new MySQL(instance, instance.getConfig().getString(
 				"dbHost"), instance.getConfig().getString("dbPort"), instance
 				.getConfig().getString("dbDatabase"), instance.getConfig()
 				.getString("dbUser"), instance.getConfig().getString(
 				"dbPassword"));
-		
-		Bukkit.dispatchCommand(Bukkit.getConsoleSender(),
+
+		Bukkit.dispatchCommand(
+				Bukkit.getConsoleSender(),
 				"sc Rune's job maintenance has started. This hits the database hard - incoming lag!");
 
 		try {
@@ -391,18 +424,21 @@ public class RunicPlayerBukkit implements RunicPlayer {
 
 			PreparedStatement dStmt3 = d
 					.prepareStatement("SELECT ID,UUID FROM rp_PlayerInfo WHERE UUID_nodashes IS NULL;");
-			getLogger().log(Level.INFO, "rpjobs debug maintenance player table about to execute query");
+			getLogger()
+					.log(Level.INFO,
+							"rpjobs debug maintenance player table about to execute query");
 			ResultSet playerData3 = dStmt3.executeQuery();
 			counter = 0;
-			getLogger().log(Level.INFO, "rpjobs debug maintenance player table about to start");
+			getLogger().log(Level.INFO,
+					"rpjobs debug maintenance player table about to start");
 			if (playerData3.isBeforeFirst()) {
 				// result found!
-				getLogger().log(Level.INFO, "rpjobs debug maintenance player table starting");
+				getLogger().log(Level.INFO,
+						"rpjobs debug maintenance player table starting");
 				while (playerData3.next()) {
 					dStmt.executeUpdate("UPDATE `rp_PlayerInfo` SET UUID_nodashes='"
-							+ playerData3.getString("UUID").replace("-","")
-							+ "' WHERE ID="
-							+ playerData3.getInt("ID") + ";");
+							+ playerData3.getString("UUID").replace("-", "")
+							+ "' WHERE ID=" + playerData3.getInt("ID") + ";");
 					counter++;
 				}
 
@@ -469,7 +505,7 @@ public class RunicPlayerBukkit implements RunicPlayer {
 	 * Master a job
 	 * 
 	 */
-	@Override
+
 	public boolean executeJobMastery() {
 		MySQL MySQL = new MySQL(instance, instance.getConfig().getString(
 				"dbHost"), instance.getConfig().getString("dbPort"), instance
@@ -599,7 +635,7 @@ public class RunicPlayerBukkit implements RunicPlayer {
 	 * 
 	 * @see io.github.runelynx.runicparadise.RunicPlayer#getPlayerUUID()
 	 */
-	@Override
+	
 	public String getPlayerUUID() {
 		return this.playerUUID.toString();
 	}
@@ -609,7 +645,7 @@ public class RunicPlayerBukkit implements RunicPlayer {
 	 * 
 	 * @see io.github.runelynx.runicparadise.RunicPlayer#sendMessageToPlayer()
 	 */
-	@Override
+	
 	public void sendMessageToPlayer(String message) {
 		Bukkit.getPlayer(this.playerUUID).sendMessage(message);
 	}
@@ -619,7 +655,7 @@ public class RunicPlayerBukkit implements RunicPlayer {
 	 * 
 	 * @see io.github.runelynx.runicparadise.RunicPlayer#isPlayerStaff()
 	 */
-	@Override
+	
 	public boolean isPlayerStaff() {
 		if (this.isStaff) {
 			return true;
@@ -633,7 +669,7 @@ public class RunicPlayerBukkit implements RunicPlayer {
 	 * 
 	 * @see io.github.runelynx.runicparadise.RunicPlayer#getPlayerTokenBalance()
 	 */
-	@Override
+	
 	public int getPlayerTokenBalance() {
 		// refreshPlayerObject(Bukkit.getPlayer(this.playerUUID));
 		return this.tokenBalance;
@@ -646,7 +682,7 @@ public class RunicPlayerBukkit implements RunicPlayer {
 	 * io.github.runelynx.runicparadise.RunicPlayer#getPlayerIceMazeCompletions
 	 * ()
 	 */
-	@Override
+	
 	public int getPlayerIceMazeCompletions() {
 		// refreshPlayerObject(Bukkit.getPlayer(this.playerUUID));
 		return this.iceMazeCompletions;
@@ -658,7 +694,7 @@ public class RunicPlayerBukkit implements RunicPlayer {
 	 * @see io.github.runelynx.runicparadise.RunicPlayer#getPlayerLifetimeTokens
 	 * ()
 	 */
-	@Override
+	
 	public int getPlayerLifetimeTokens() {
 		// refreshPlayerObject(Bukkit.getPlayer(this.playerUUID));
 		return this.lifetimeTokens;
@@ -669,7 +705,7 @@ public class RunicPlayerBukkit implements RunicPlayer {
 	 * 
 	 * @see io.github.runelynx.runicparadise.RunicPlayer#getPlayerSouls ()
 	 */
-	@Override
+	
 	public int getPlayerSouls() {
 		// refreshPlayerObject(Bukkit.getPlayer(this.playerUUID));
 		return this.soulCount;
@@ -682,7 +718,7 @@ public class RunicPlayerBukkit implements RunicPlayer {
 	 * io.github.runelynx.runicparadise.RunicPlayer#getPlayerHedgeMazeCompletions
 	 * ()
 	 */
-	@Override
+	
 	public int getPlayerHedgeMazeCompletions() {
 		// refreshPlayerObject(Bukkit.getPlayer(this.playerUUID));
 		return this.hedgeMazeCompletions;
@@ -694,7 +730,7 @@ public class RunicPlayerBukkit implements RunicPlayer {
 	 * @see
 	 * io.github.runelynx.runicparadise.RunicPlayer#setPlayerLifetimeTokens()
 	 */
-	@Override
+	
 	public boolean setPlayerLifetimeTokens(int increment) {
 		MySQL MySQL = new MySQL(instance, instance.getConfig().getString(
 				"dbHost"), instance.getConfig().getString("dbPort"), instance
@@ -730,7 +766,7 @@ public class RunicPlayerBukkit implements RunicPlayer {
 	 * @see
 	 * io.github.runelynx.runicparadise.RunicPlayer#setPlayerMazeCompletions()
 	 */
-	@Override
+	
 	public boolean setPlayerMazeCompletions(String maze, int increment) {
 		MySQL MySQL = new MySQL(instance, instance.getConfig().getString(
 				"dbHost"), instance.getConfig().getString("dbPort"), instance
@@ -787,7 +823,7 @@ public class RunicPlayerBukkit implements RunicPlayer {
 	 * 
 	 * @see io.github.runelynx.runicparadise.RunicPlayer#setPlayerSouls()
 	 */
-	@Override
+	
 	public boolean setPlayerSouls(int newSoulCount) {
 		MySQL MySQL = new MySQL(instance, instance.getConfig().getString(
 				"dbHost"), instance.getConfig().getString("dbPort"), instance
@@ -822,7 +858,7 @@ public class RunicPlayerBukkit implements RunicPlayer {
 	 * 
 	 * @see io.github.runelynx.runicparadise.RunicPlayer#setPlayerTokenBalance()
 	 */
-	@Override
+	
 	public boolean setPlayerTokenBalance(int newBalance) {
 		MySQL MySQL = new MySQL(instance, instance.getConfig().getString(
 				"dbHost"), instance.getConfig().getString("dbPort"), instance
@@ -860,7 +896,7 @@ public class RunicPlayerBukkit implements RunicPlayer {
 	 * 
 	 * @see io.github.runelynx.runicparadise.RunicPlayer#translateChatColors()
 	 */
-	@Override
+	
 	public String translateChatColors() {
 		// TODO Auto-generated method stub
 		return null;
@@ -871,7 +907,7 @@ public class RunicPlayerBukkit implements RunicPlayer {
 	 * 
 	 * @see io.github.runelynx.runicparadise.RunicPlayer#getPlayerName()
 	 */
-	@Override
+	
 	public String getPlayerName() {
 		return this.playerName;
 	}
@@ -881,7 +917,7 @@ public class RunicPlayerBukkit implements RunicPlayer {
 	 * 
 	 * @see io.github.runelynx.runicparadise.RunicPlayer#refreshPlayerObject()
 	 */
-	@Override
+	
 	public void refreshPlayerObject(Player player) {
 
 		this.playerName = player.getName();
@@ -911,11 +947,6 @@ public class RunicPlayerBukkit implements RunicPlayer {
 			PreparedStatement dStmt2 = d
 					.prepareStatement("SELECT job,level FROM Jobs_jobs WHERE player_uuid = UNHEX(?) LIMIT 1;");
 			dStmt2.setString(1, this.getPlayerUUID().replace("-", ""));
-
-			getLogger().log(
-					Level.INFO,
-					"rpjobs debug RPBline 541: " + this.playerName + " - "
-							+ this.getPlayerUUID().replace('-', '\u0000'));
 
 			ResultSet jobData = dStmt2.executeQuery();
 
@@ -949,6 +980,7 @@ public class RunicPlayerBukkit implements RunicPlayer {
 				this.jobsMasteredCount = playerData.getInt("JobsMasteredCount");
 				this.jobsMastered = playerData.getString("JobsMastered");
 				this.joinDate = new Date(playerData.getLong("FirstSeen"));
+				this.voteCount = playerData.getInt("Votes");
 				d.close();
 			}
 		} catch (SQLException e) {
@@ -995,7 +1027,7 @@ public class RunicPlayerBukkit implements RunicPlayer {
 	 * @see io.github.runelynx.runicparadise.RunicPlayer#
 	 * checkPlayerInventoryItemstackCount()
 	 */
-	@Override
+	
 	public int checkPlayerInventoryItemstackCount() {
 
 		ItemStack[] items = Bukkit.getPlayer(this.playerUUID).getInventory()
@@ -1019,7 +1051,7 @@ public class RunicPlayerBukkit implements RunicPlayer {
 	 * @see io.github.runelynx.runicparadise.RunicPlayer#
 	 * checkPlayerWearingArmor()
 	 */
-	@Override
+	
 	public boolean checkPlayerWearingArmor() {
 
 		ItemStack[] items = Bukkit.getPlayer(this.playerUUID).getInventory()
@@ -1048,7 +1080,7 @@ public class RunicPlayerBukkit implements RunicPlayer {
 	 * @see io.github.runelynx.runicparadise.RunicPlayer#
 	 * checkPlayerInventoryForItemDataCount()
 	 */
-	@Override
+	
 	public int checkPlayerInventoryForItemDataCount(int id, int dataValue) {
 		PlayerInventory inventory = Bukkit.getPlayer(this.playerUUID)
 				.getInventory();
@@ -1065,7 +1097,7 @@ public class RunicPlayerBukkit implements RunicPlayer {
 		return has;
 	}
 
-	@Override
+	
 	public int removePlayerInventoryItemData(int id, int dataValue) {
 		PlayerInventory inventory = Bukkit.getPlayer(this.playerUUID)
 				.getInventory();
@@ -1074,7 +1106,7 @@ public class RunicPlayerBukkit implements RunicPlayer {
 
 	}
 
-	@Override
+	
 	public void givePlayerItemData(int count, int id, int dataValue,
 			int loreCount, String displayName, String lore1, String lore2,
 			String lore3) {
@@ -1095,7 +1127,7 @@ public class RunicPlayerBukkit implements RunicPlayer {
 		inventory.addItem(newItem);
 	}
 
-	@Override
+	
 	public void givePlayerItemStack(ItemStack[] items) {
 
 		PlayerInventory inventory = Bukkit.getPlayer(this.playerUUID)
@@ -1108,7 +1140,7 @@ public class RunicPlayerBukkit implements RunicPlayer {
 
 		}
 		new BukkitRunnable() {
-			@Override
+			
 			public void run() {
 				for (Player p : Bukkit.getOnlinePlayers())
 					p.updateInventory();

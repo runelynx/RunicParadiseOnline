@@ -47,6 +47,7 @@ import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitScheduler;
 
 import net.milkbowl.vault.permission.Permission;
+import net.minecraft.server.v1_8_R1.ItemStack;
 
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -57,8 +58,11 @@ import org.bukkit.plugin.RegisteredServiceProvider;
 
 import de.slikey.effectlib.EffectLib;
 import de.slikey.effectlib.EffectManager;
+import de.slikey.effectlib.effect.ExplodeEffect;
+import de.slikey.effectlib.effect.FountainEffect;
 import de.slikey.effectlib.effect.MusicEffect;
 import de.slikey.effectlib.effect.ShieldEffect;
+import de.slikey.effectlib.effect.SkyRocketEffect;
 import de.slikey.effectlib.effect.SmokeEffect;
 import de.slikey.effectlib.util.ParticleEffect;
 
@@ -82,8 +86,6 @@ public final class RunicParadise extends JavaPlugin implements Listener {
 	@SuppressWarnings("deprecation")
 	public void onEnable() {
 		instance = this;
-
-		
 
 		getConfig().options().copyDefaults(true);
 		saveConfig();
@@ -136,6 +138,7 @@ public final class RunicParadise extends JavaPlugin implements Listener {
 		getCommand("rptransfer").setExecutor(new Commands());
 		getCommand("rpvote").setExecutor(new Commands());
 		getCommand("rpjobs").setExecutor(new Commands());
+		getCommand("rpeffects").setExecutor(new Commands());
 
 		Bukkit.getServer().getPluginManager().registerEvents(this, this);
 
@@ -273,31 +276,32 @@ public final class RunicParadise extends JavaPlugin implements Listener {
 		// rf[5Adminf] {jobs} 5{name}f: %2$s
 		// ADMINS
 		if (event.getPlayer().hasPermission("rp.staff.admin")) {
-			event.setFormat(ChatColor.DARK_PURPLE + "" + ChatColor.ITALIC
-					+ "Admin" + ChatColor.RESET + ChatColor.GRAY + " {jobs} "
+			event.setFormat(ChatColor.DARK_PURPLE + "" + ChatColor.UNDERLINE
+					+ "Admin" + ChatColor.RESET + " " + ChatColor.DARK_PURPLE
+					+ perms.getPrimaryGroup(event.getPlayer()) +ChatColor.GRAY + " {jobs} "
 					+ ChatColor.DARK_PURPLE
 					+ event.getPlayer().getDisplayName() + ChatColor.WHITE
 					+ ": %2$s");
 			// ELDER MOD
 		} else if (event.getPlayer().hasPermission("rp.staff.mod+")) {
-			event.setFormat(ChatColor.DARK_RED + "" + ChatColor.ITALIC
-					+ "Mod+ " + ChatColor.RESET + ChatColor.DARK_RED
+			event.setFormat(ChatColor.DARK_RED + "" + ChatColor.UNDERLINE
+					+ "Mod+" + ChatColor.RESET + " " + ChatColor.DARK_RED
 					+ perms.getPrimaryGroup(event.getPlayer()) + ChatColor.GRAY
 					+ " {jobs} " + ChatColor.DARK_RED
 					+ event.getPlayer().getDisplayName() + ChatColor.WHITE
 					+ ": %2$s");
 			// MOD
 		} else if (event.getPlayer().hasPermission("rp.staff.mod")) {
-			event.setFormat(ChatColor.RED + "" + ChatColor.ITALIC + "Mod "
-					+ ChatColor.RESET + ChatColor.RED
+			event.setFormat(ChatColor.RED + "" + ChatColor.UNDERLINE + "Mod"
+					+ ChatColor.RESET + " " + ChatColor.RED
 					+ perms.getPrimaryGroup(event.getPlayer()) + ChatColor.GRAY
 					+ " {jobs} " + ChatColor.RED
 					+ event.getPlayer().getDisplayName() + ChatColor.WHITE
 					+ ": %2$s");
 			// HELPER
 		} else if (event.getPlayer().hasPermission("rp.staff.helper")) {
-			event.setFormat(ChatColor.LIGHT_PURPLE + "" + ChatColor.ITALIC
-					+ "Helper " + ChatColor.RESET + ChatColor.LIGHT_PURPLE
+			event.setFormat(ChatColor.LIGHT_PURPLE + "" + ChatColor.UNDERLINE
+					+ "Helper" + ChatColor.RESET + " "+ ChatColor.LIGHT_PURPLE
 					+ perms.getPrimaryGroup(event.getPlayer()) + ChatColor.GRAY
 					+ " {jobs} " + ChatColor.LIGHT_PURPLE
 					+ event.getPlayer().getDisplayName() + ChatColor.WHITE
@@ -503,22 +507,58 @@ public final class RunicParadise extends JavaPlugin implements Listener {
 		// If player falls into the void, heal and teleport them to spawn
 		if (edbe.getDamager() instanceof Player
 				&& edbe.getDamager().getName().equals("runelynx")) {
-			RunicPlayerBukkit targetPlayer = new RunicPlayerBukkit(edbe
-					.getDamager().getUniqueId());
-			targetPlayer.sendMessageToPlayer(ChatColor.GOLD + ""
-					+ ChatColor.ITALIC + "Your sword's strike sings!");
-			
-			EffectManager em = new EffectManager(instance);
-			ShieldEffect shieldEffect = new ShieldEffect(em);
+			if (Bukkit.getPlayer(edbe.getDamager().getName()).getItemInHand()
+					.getType().equals(Material.DIAMOND_SWORD)) {
 
-			// Blood-particles lays around for 30 ticks (1.5 seconds)
-			// Bleeding takes 15 seconds
-			// period * iterations = time of effect
-			shieldEffect.particle = ParticleEffect.NOTE;
-			shieldEffect.iterations = 5;
-			shieldEffect.setLocation(edbe.getDamager().getLocation());
-			shieldEffect.start();
-			em.disposeOnTermination();
+				RunicPlayerBukkit targetPlayer = new RunicPlayerBukkit(edbe
+						.getDamager().getUniqueId());
+				targetPlayer.sendMessageToPlayer(ChatColor.GOLD + ""
+						+ ChatColor.ITALIC + "Your sword's strike sings!");
+
+				EffectManager em = new EffectManager(instance);
+				
+				ExplodeEffect explosionEffect = new ExplodeEffect(em);
+
+				// Blood-particles lays around for 30 ticks (1.5 seconds)
+				// Bleeding takes 15 seconds
+				// period * iterations = time of effect
+				explosionEffect.setLocation(edbe.getEntity().getLocation());
+				explosionEffect.start();
+				
+				SkyRocketEffect skyRocketEffect = new SkyRocketEffect(em);
+
+				// Blood-particles lays around for 30 ticks (1.5 seconds)
+				// Bleeding takes 15 seconds
+				// period * iterations = time of effect
+				skyRocketEffect.power = 30;
+				skyRocketEffect.setTargetEntity(edbe.getEntity());
+				skyRocketEffect.start();
+				
+
+
+				em.disposeOnTermination();
+			} else if (Bukkit.getPlayer(edbe.getDamager().getName())
+					.getItemInHand().getType().equals(Material.BOW)) {
+				RunicPlayerBukkit targetPlayer = new RunicPlayerBukkit(edbe
+						.getDamager().getUniqueId());
+				targetPlayer.sendMessageToPlayer(ChatColor.GOLD + ""
+						+ ChatColor.ITALIC + "Wheeeeeeee!!");
+
+				EffectManager em = new EffectManager(instance);
+				
+				ShieldEffect shieldEffect = new ShieldEffect(em);
+
+				// Blood-particles lays around for 30 ticks (1.5 seconds)
+				// Bleeding takes 15 seconds
+				// period * iterations = time of effect
+				shieldEffect.particle = ParticleEffect.NOTE;
+				shieldEffect.iterations = 5;
+				shieldEffect.setLocation(edbe.getDamager().getLocation());
+				shieldEffect.start();
+
+				em.disposeOnTermination();
+
+			}
 		}
 
 	}
@@ -538,8 +578,6 @@ public final class RunicParadise extends JavaPlugin implements Listener {
 				// so nothing recorded!
 				return;
 			}
-			final RunicPlayerBukkit targetPlayer = new RunicPlayerBukkit(
-					monsterEnt.getKiller().getUniqueId());
 
 			// Launch Firework on player join
 			Bukkit.getServer().getScheduler()
@@ -561,132 +599,132 @@ public final class RunicParadise extends JavaPlugin implements Listener {
 
 							switch (mobType) {
 							case "ZOMBIE":
-								targetPlayer
-										.incrementPlayerKillCount("KillZombie");
+								RunicPlayerBukkit
+										.incrementPlayerKillCount(monsterEnt.getKiller().getUniqueId(), "KillZombie");
 								break;
 							case "IRON_GOLEM":
-								targetPlayer
-										.incrementPlayerKillCount("KillIronGolem");
+								RunicPlayerBukkit
+										.incrementPlayerKillCount(monsterEnt.getKiller().getUniqueId(), "KillIronGolem");
 								break;
 							case "WITHER":
-								targetPlayer
-										.incrementPlayerKillCount("KillWither");
+								RunicPlayerBukkit
+										.incrementPlayerKillCount(monsterEnt.getKiller().getUniqueId(), "KillWither");
 								break;
 							case "SKELETON":
-								targetPlayer
-										.incrementPlayerKillCount("KillSkeleton");
+								RunicPlayerBukkit
+										.incrementPlayerKillCount(monsterEnt.getKiller().getUniqueId(), "KillSkeleton");
 								break;
 							case "SLIME":
-								targetPlayer
-										.incrementPlayerKillCount("KillSlime");
+								RunicPlayerBukkit
+										.incrementPlayerKillCount(monsterEnt.getKiller().getUniqueId(), "KillSlime");
 								break;
 							case "MAGMA_CUBE":
-								targetPlayer
-										.incrementPlayerKillCount("KillMagmaCube");
+								RunicPlayerBukkit
+										.incrementPlayerKillCount(monsterEnt.getKiller().getUniqueId(), "KillMagmaCube");
 								break;
 							case "WITCH":
-								targetPlayer
-										.incrementPlayerKillCount("KillWitch");
+								RunicPlayerBukkit
+										.incrementPlayerKillCount(monsterEnt.getKiller().getUniqueId(), "KillWitch");
 								break;
 							case "SILVERFISH":
-								targetPlayer
-										.incrementPlayerKillCount("KillSilverfish");
+								RunicPlayerBukkit
+										.incrementPlayerKillCount(monsterEnt.getKiller().getUniqueId(), "KillSilverfish");
 								break;
 							case "GIANT":
-								targetPlayer
-										.incrementPlayerKillCount("KillGiant");
+								RunicPlayerBukkit
+										.incrementPlayerKillCount(monsterEnt.getKiller().getUniqueId(), "KillGiant");
 								break;
 							case "BLAZE":
-								targetPlayer
-										.incrementPlayerKillCount("KillBlaze");
+								RunicPlayerBukkit
+										.incrementPlayerKillCount(monsterEnt.getKiller().getUniqueId(), "KillBlaze");
 								break;
 							case "CREEPER":
-								targetPlayer
-										.incrementPlayerKillCount("KillCreeper");
+								RunicPlayerBukkit
+										.incrementPlayerKillCount(monsterEnt.getKiller().getUniqueId(), "KillCreeper");
 								break;
 							case "ENDERMAN":
-								targetPlayer
-										.incrementPlayerKillCount("KillEnderman");
+								RunicPlayerBukkit
+										.incrementPlayerKillCount(monsterEnt.getKiller().getUniqueId(), "KillEnderman");
 								break;
 							case "SPIDER":
-								targetPlayer
-										.incrementPlayerKillCount("KillSpider");
+								RunicPlayerBukkit
+										.incrementPlayerKillCount(monsterEnt.getKiller().getUniqueId(), "KillSpider");
 								break;
 							case "CAVE_SPIDER":
-								targetPlayer
-										.incrementPlayerKillCount("KillCaveSpider");
+								RunicPlayerBukkit
+										.incrementPlayerKillCount(monsterEnt.getKiller().getUniqueId(), "KillCaveSpider");
 								break;
 							case "SQUID":
-								targetPlayer
-										.incrementPlayerKillCount("KillSquid");
+								RunicPlayerBukkit
+										.incrementPlayerKillCount(monsterEnt.getKiller().getUniqueId(), "KillSquid");
 								break;
 							case "ENDER_DRAGON":
-								targetPlayer
-										.incrementPlayerKillCount("KillEnderDragon");
+								RunicPlayerBukkit
+										.incrementPlayerKillCount(monsterEnt.getKiller().getUniqueId(), "KillEnderDragon");
 								break;
 							case "PIG_ZOMBIE":
-								targetPlayer
-										.incrementPlayerKillCount("KillPigZombie");
+								RunicPlayerBukkit
+										.incrementPlayerKillCount(monsterEnt.getKiller().getUniqueId(), "KillPigZombie");
 								break;
 							case "GHAST":
-								targetPlayer
-										.incrementPlayerKillCount("KillGhast");
+								RunicPlayerBukkit
+										.incrementPlayerKillCount(monsterEnt.getKiller().getUniqueId(), "KillGhast");
 								break;
 							case "CHICKEN":
-								targetPlayer
-										.incrementPlayerKillCount("KillChicken");
+								RunicPlayerBukkit
+										.incrementPlayerKillCount(monsterEnt.getKiller().getUniqueId(), "KillChicken");
 								break;
 							case "COW":
-								targetPlayer
-										.incrementPlayerKillCount("KillCow");
+								RunicPlayerBukkit
+										.incrementPlayerKillCount(monsterEnt.getKiller().getUniqueId(), "KillCow");
 								break;
 							case "SHEEP":
-								targetPlayer
-										.incrementPlayerKillCount("KillSheep");
+								RunicPlayerBukkit
+										.incrementPlayerKillCount(monsterEnt.getKiller().getUniqueId(), "KillSheep");
 								break;
 							case "PIG":
-								targetPlayer
-										.incrementPlayerKillCount("KillPig");
+								RunicPlayerBukkit
+										.incrementPlayerKillCount(monsterEnt.getKiller().getUniqueId(), "KillPig");
 								break;
 							case "OCELOT":
-								targetPlayer
-										.incrementPlayerKillCount("KillOcelot");
+								RunicPlayerBukkit
+										.incrementPlayerKillCount(monsterEnt.getKiller().getUniqueId(), "KillOcelot");
 								break;
 							case "BAT":
-								targetPlayer
-										.incrementPlayerKillCount("KillBat");
+								RunicPlayerBukkit
+										.incrementPlayerKillCount(monsterEnt.getKiller().getUniqueId(), "KillBat");
 								break;
 							case "MUSHROOM_COW":
-								targetPlayer
-										.incrementPlayerKillCount("KillMooshroom");
+								RunicPlayerBukkit
+										.incrementPlayerKillCount(monsterEnt.getKiller().getUniqueId(), "KillMooshroom");
 								break;
 							case "RABBIT":
-								targetPlayer
-										.incrementPlayerKillCount("KillRabbit");
+								RunicPlayerBukkit
+										.incrementPlayerKillCount(monsterEnt.getKiller().getUniqueId(), "KillRabbit");
 								break;
 							case "WOLF":
-								targetPlayer
-										.incrementPlayerKillCount("KillWolf");
+								RunicPlayerBukkit
+										.incrementPlayerKillCount(monsterEnt.getKiller().getUniqueId(), "KillWolf");
 								break;
 							case "ENDERMITE":
-								targetPlayer
-										.incrementPlayerKillCount("KillEndermite");
+								RunicPlayerBukkit
+										.incrementPlayerKillCount(monsterEnt.getKiller().getUniqueId(), "KillEndermite");
 								break;
 							case "GUARDIAN":
-								targetPlayer
-										.incrementPlayerKillCount("KillGuardian");
+								RunicPlayerBukkit
+										.incrementPlayerKillCount(monsterEnt.getKiller().getUniqueId(), "KillGuardian");
 								break;
 							case "ELDER_GUARDIAN":
-								targetPlayer
-										.incrementPlayerKillCount("KillElderGuardian");
+								RunicPlayerBukkit
+										.incrementPlayerKillCount(monsterEnt.getKiller().getUniqueId(), "KillElderGuardian");
 								break;
 							case "SNOWMAN":
-								targetPlayer
-										.incrementPlayerKillCount("KillSnowGolem");
+								RunicPlayerBukkit
+										.incrementPlayerKillCount(monsterEnt.getKiller().getUniqueId(), "KillSnowGolem");
 								break;
 							case "VILLAGER":
-								targetPlayer
-										.incrementPlayerKillCount("KillVillager");
+								RunicPlayerBukkit
+										.incrementPlayerKillCount(monsterEnt.getKiller().getUniqueId(), "KillVillager");
 								break;
 							default:
 								break;
