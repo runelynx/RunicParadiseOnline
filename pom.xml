@@ -60,7 +60,12 @@
 			<version>1.8-R0.1-SNAPSHOT</version>
 			<scope>provided</scope>
 		</dependency>
-
+		<dependency>
+			<groupId>mkremins</groupId>
+			<artifactId>fanciful</artifactId>
+			<version>0.3.3-SNAPSHOT</version>
+			<scope>compile</scope>
+		</dependency>
 	</dependencies>
 
 	<build>
@@ -74,6 +79,28 @@
 					<target>1.7</target>
 				</configuration>
 			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-shade-plugin</artifactId>
+				<version>1.6</version>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>shade</goal>
+						</goals>
+						<configuration>
+							<transformers>
+								<transformer
+									implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+									<mainClass>com.group.id.Launcher1</mainClass>
+								</transformer>
+							</transformers>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
 		</plugins>
 		<resources>
 			<resource>
@@ -103,6 +130,15 @@
 			<id>elmakers-repo</id>
 			<url>http://maven.elmakers.com/repository/ </url>
 		</repository>
+		<repository>
+			<id>fanciful-mvn-repo</id>
+			<url>http://repo.franga2000.com/artifactory/public</url>
+			<snapshots>
+				<enabled>true</enabled>
+				<updatePolicy>always</updatePolicy>
+			</snapshots>
+		</repository>
+
 	</repositories>
 
 </project>

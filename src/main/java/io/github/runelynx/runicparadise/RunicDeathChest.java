@@ -1,6 +1,16 @@
 package io.github.runelynx.runicparadise;
 
 import static org.bukkit.Bukkit.getLogger;
+import static org.bukkit.ChatColor.AQUA;
+import static org.bukkit.ChatColor.DARK_AQUA;
+import static org.bukkit.ChatColor.DARK_RED;
+import static org.bukkit.ChatColor.GOLD;
+import static org.bukkit.ChatColor.GRAY;
+import static org.bukkit.ChatColor.GREEN;
+import static org.bukkit.ChatColor.RED;
+import static org.bukkit.ChatColor.UNDERLINE;
+import static org.bukkit.ChatColor.WHITE;
+import static org.bukkit.ChatColor.YELLOW;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -11,6 +21,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map.Entry;
 import java.util.logging.Level;
+
+import mkremins.fanciful.FancyMessage;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -500,9 +512,9 @@ public class RunicDeathChest {
 			String searchQuery = "";
 			if (!playerSearch.equals("all")) {
 				searchQuery = "SELECT * FROM `rp_PlayerGraves` WHERE `PlayerName` LIKE '%"
-						+ playerSearch + "%' ORDER BY `id` ASC LIMIT 20;";
+						+ playerSearch + "%' ORDER BY `id` DESC LIMIT 30;";
 			} else {
-				searchQuery = "SELECT * FROM `rp_PlayerGraves` ORDER BY `id` ASC LIMIT 50;";
+				searchQuery = "SELECT * FROM `rp_PlayerGraves` ORDER BY `id` DESC LIMIT 30;";
 			}
 			ResultSet graveData = dStmt.executeQuery(searchQuery);
 			// if (!playerData.first() && !playerData.next()) {
@@ -510,30 +522,80 @@ public class RunicDeathChest {
 				// No results
 				commandSender.sendMessage(ChatColor.DARK_GRAY
 						+ "[RunicReaper] " + ChatColor.GRAY
-						+ " Searching for graves owned by " + playerSearch);
+						+ " Searching for recent 30 graves owned by "
+						+ playerSearch);
 				commandSender.sendMessage(ChatColor.GRAY + "No graves found.");
 			} else {
 				// results found!
 				commandSender.sendMessage(ChatColor.DARK_GRAY
 						+ "[RunicReaper] " + ChatColor.GRAY
-						+ " Searching for graves owned by " + playerSearch);
+						+ " Searching for recent 30 graves owned by "
+						+ playerSearch);
+				
 				while (graveData.next()) {
-					commandSender.sendMessage(ChatColor.GRAY + "ID "
-							+ ChatColor.YELLOW + graveData.getInt("ID")
-							+ ChatColor.GRAY + ", Owner " + ChatColor.YELLOW
-							+ graveData.getString("PlayerName")
-							+ ChatColor.GRAY + ", Status " + ChatColor.YELLOW
-							+ graveData.getString("Status") + ChatColor.GRAY
-							+ ", Looter " + ChatColor.YELLOW
-							+ graveData.getString("LooterName"));
+					
+					switch(graveData.getString("Status")) {
+					case "Gone":
+						new FancyMessage("ID").color(GRAY)
+						.then("" + graveData.getInt("ID")).color(AQUA)
+						.then(" ").color(GRAY)
+						.then(graveData.getString("Status"))
+						.color(GREEN).then(", Owner ").color(GRAY)
+						.then(graveData.getString("PlayerName"))
+						.color(YELLOW).then(", Looter ").color(GRAY)
+						.then(graveData.getString("LooterName"))
+						.color(YELLOW).then(", ").color(GRAY)
+						.then("Loc").color(GRAY)
+						.tooltip(graveData.getString("Location"))
+						.send(commandSender);
+						break;
+					case "Locked":
+						new FancyMessage("ID").color(GRAY)
+						.then("" + graveData.getInt("ID")).color(AQUA)
+						.then(" ").color(GRAY)
+						.then(graveData.getString("Status"))
+						.color(YELLOW).then(", Owner ").color(GRAY)
+						.then(graveData.getString("PlayerName"))
+						.color(YELLOW).then(", ").color(GRAY)
+						.then("Loc").color(GRAY)
+						.tooltip(graveData.getString("Location"))
+						.send(commandSender);
+						break;
+					case "Unlocked":
+						new FancyMessage("ID").color(GRAY)
+						.then("" + graveData.getInt("ID")).color(AQUA)
+						.then(" ").color(GRAY)
+						.then(graveData.getString("Status"))
+						.color(RED).then(", Owner ").color(GRAY)
+						.then(graveData.getString("PlayerName"))
+						.color(YELLOW).then(", ").color(GRAY)
+						.then("Loc").color(GRAY)
+						.tooltip(graveData.getString("Location"))
+						.send(commandSender);
+						break;
+					}
+					
+
+
+					/*
+					 * commandSender.sendMessage(ChatColor.GRAY + "ID" +
+					 * ChatColor.YELLOW + graveData.getInt("ID") +
+					 * ChatColor.GRAY + ", Owner. " + ChatColor.YELLOW +
+					 * graveData.getString("PlayerName") + ChatColor.GRAY + ", "
+					 * + ChatColor.YELLOW + graveData.getString("Status") +
+					 * ChatColor.GRAY + ", Looter " + ChatColor.YELLOW +
+					 * graveData.getString("LooterName"));
+					 */
 				}
 
 				d.close();
 			}
 
 		} catch (SQLException z) {
-			getLogger().log(Level.SEVERE,
-					"Failed DB check for restore grave cuz " + z.getMessage());
+			getLogger().log(
+					Level.SEVERE,
+					"Failed DB check for RunicDeathChest.ListDeaths cuz "
+							+ z.getMessage());
 		}
 
 	}

@@ -6,6 +6,7 @@
 package io.github.runelynx.runicparadise;
 
 import static io.github.runelynx.runicparadise.RunicParadise.economy;
+import static org.bukkit.ChatColor.*;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -52,6 +53,7 @@ import de.slikey.effectlib.EffectManager;
 import de.slikey.effectlib.effect.FountainEffect;
 import de.slikey.effectlib.effect.ShieldEffect;
 import de.slikey.effectlib.util.ParticleEffect;
+import mkremins.fanciful.FancyMessage;
 
 /**
  *
@@ -81,6 +83,73 @@ public class Commands implements CommandExecutor {
 		// general approach is that errors will return immediately;
 		// successful runs will return after the switch completes
 		switch (cmd.getName()) {
+		case "powers":
+			if (args.length == 0) {
+				sender.sendMessage("Possible args: resetmap ... addskill <col> <p> ... disableskill <col> <p> ... enableskill <col> <p> ... listmap");
+			} else if (args[0].equals("resetmap")) {
+				sender.sendMessage("Clearing powersMap now.");
+				RunicParadise.powersMap.clear();
+				sender.sendMessage("Rebuilding powersMap now.");
+				for (Player p : Bukkit.getOnlinePlayers()) {
+					RunicParadise.powersMap.put(p.getUniqueId(),
+							new Powers(p.getUniqueId()));
+					sender.sendMessage("Powers Debug: Mapped "
+							+ p.getName()
+							+ "; Beasts "
+							+ RunicParadise.powersMap.get(p.getUniqueId())
+									.getSkillBeasts()
+							+ "; BeastsState "
+							+ RunicParadise.powersMap.get(p.getUniqueId())
+									.getStatusBeasts());
+				}
+			} else if (args[0].equals("addskill")) {
+				if (RunicParadise.powersMap.get(
+						Bukkit.getPlayer(args[2]).getUniqueId())
+						.incrementSkill(args[1])) {
+					// if true returned, the skill was processed successfully
+					sender.sendMessage("Skill increase succeeded.");
+				} else {
+					sender.sendMessage("Skill increase failed.");
+				}
+			} else if (args[0].equals("enableskill")) {
+				if (RunicParadise.powersMap.get(
+						Bukkit.getPlayer(args[2]).getUniqueId()).enableSkill(
+						args[1])) {
+					// if true returned, the skill was processed successfully
+					sender.sendMessage("Skill enable succeeded.");
+				} else {
+					sender.sendMessage("Skill enable failed.");
+				}
+			} else if (args[0].equals("disableskill")) {
+				if (RunicParadise.powersMap.get(
+						Bukkit.getPlayer(args[2]).getUniqueId()).disableSkill(
+						args[1])) {
+					// if true returned, the skill was processed successfully
+					sender.sendMessage("Skill disable succeeded.");
+				} else {
+					sender.sendMessage("Skill disable failed.");
+				}
+			} else if (args[0].equals("listmap")) {
+				for (Player p : Bukkit.getOnlinePlayers()) {
+					RunicParadise.powersMap.put(p.getUniqueId(),
+							new Powers(p.getUniqueId()));
+					sender.sendMessage("Powers Debug: Mapped "
+							+ p.getName()
+							+ "; Beasts "
+							+ RunicParadise.powersMap.get(p.getUniqueId())
+									.getSkillBeasts()
+							+ "; BeastsState "
+							+ RunicParadise.powersMap.get(p.getUniqueId())
+									.getStatusBeasts());
+				}
+			}  else if (args[0].equals("castsoj")) {
+				Player p = (Player)sender;
+				Powers.spellSwordOfJupiter(p.getName(), p.getLocation());
+			}else {
+				sender.sendMessage("Something went wrong with you arguments... I fell out of the if tree :(");
+			}
+
+			break;
 		case "rpeffects":
 			if (args.length > 0) {
 				if (args[0].equals("AnchorsDeepFountain")) {
@@ -89,30 +158,39 @@ public class Commands implements CommandExecutor {
 					// Blood-particles lays around for 30 ticks (1.5 seconds)
 					// Bleeding takes 15 seconds
 					// period * iterations = time of effect
-					
-					
+
 					FountainEffect fountainEffect1 = new FountainEffect(em);
 					fountainEffect1.particle = ParticleEffect.DRIP_WATER;
 					fountainEffect1.radius = 2;
 					fountainEffect1.particlesStrand = 50;
-					fountainEffect1.setLocation(new Location(Bukkit.getWorld("RunicRealm"), 1674.5, 65.0, 349.0));
+					fountainEffect1.setLocation(new Location(Bukkit
+							.getWorld("RunicRealm"), 1674.5, 65.0, 349.0));
 					fountainEffect1.start();
 					FountainEffect fountainEffect2 = new FountainEffect(em);
 					fountainEffect2.particle = ParticleEffect.DRIP_WATER;
 					fountainEffect2.radius = 2;
 					fountainEffect2.particlesStrand = 50;
-					fountainEffect2.setLocation(new Location(Bukkit.getWorld("RunicRealm"), 1674.5, 65.0, 357.0));
+					fountainEffect2.setLocation(new Location(Bukkit
+							.getWorld("RunicRealm"), 1674.5, 65.0, 357.0));
 					fountainEffect2.start();
-				//	fountainEffect.setLocation(new Location(Bukkit.getWorld("RunicRealm"), 1671.0, 68.0, 356.0));
-				//	fountainEffect.start();
-				//	fountainEffect.setLocation(new Location(Bukkit.getWorld("RunicRealm"), 1677.0, 68.0, 350.0));
-				//	fountainEffect.start();
-				//	fountainEffect.setLocation(new Location(Bukkit.getWorld("RunicRealm"), 1677.0, 68.0, 350.0));
-				//	fountainEffect.start();
+
+					// fountainEffect.setLocation(new
+					// Location(Bukkit.getWorld("RunicRealm"), 1671.0, 68.0,
+					// 356.0));
+					// fountainEffect.start();
+					// fountainEffect.setLocation(new
+					// Location(Bukkit.getWorld("RunicRealm"), 1677.0, 68.0,
+					// 350.0));
+					// fountainEffect.start();
+					// fountainEffect.setLocation(new
+					// Location(Bukkit.getWorld("RunicRealm"), 1677.0, 68.0,
+					// 350.0));
+					// fountainEffect.start();
 					em.disposeOnTermination();
 				}
 			} else {
-				Bukkit.getLogger().log(Level.WARNING, "RPEffects command error, not enough arguments");
+				Bukkit.getLogger().log(Level.WARNING,
+						"RPEffects command error, not enough arguments");
 			}
 			break;
 		case "rpjobs":
@@ -271,7 +349,7 @@ public class Commands implements CommandExecutor {
 
 			} else if (args[0].equals("maintenance") && args.length == 1
 					&& !(sender instanceof Player)) {
-				
+
 				RunicPlayerBukkit.maintainJobTable();
 
 			} else if (sender instanceof Player) {
@@ -290,15 +368,15 @@ public class Commands implements CommandExecutor {
 
 				RunicPlayerBukkit targetPlayer = new RunicPlayerBukkit(args[1]);
 				targetPlayer.incrementPlayerVotes();
-				
+
 				Random rand = new Random();
 				// int randomNum = rand.nextInt((max - min) + 1) + min;
 				int randomNum = rand.nextInt((100 - 1) + 1) + 1;
 				if (randomNum <= 2) {
 					command = "graves givesouls " + args[1] + " 3";
 					Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command);
-					command = "say §4L§cu§6c§ek§2y §av§bo§3t§1e§9!§d! " + args[1]
-							+ " got 3 extra souls!";
+					command = "say §4L§cu§6c§ek§2y §av§bo§3t§1e§9!§d! "
+							+ args[1] + " got 3 extra souls!";
 					Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command);
 				}
 			}
@@ -1053,6 +1131,104 @@ public class Commands implements CommandExecutor {
 				rank.showRequirements((Player) sender);
 			}
 			break;
+		case "punish":
+
+			if (args.length == 0 && sender instanceof Player) {
+				sender.sendMessage(ChatColor.DARK_AQUA
+						+ "Correct usage: /punish playername");
+			} else if (args.length == 1) {
+
+				new FancyMessage(args[0])
+						.color(DARK_RED)
+						.then(": ")
+						.color(WHITE)
+						//
+						.then("Info")
+						.color(GREEN)
+						.style(UNDERLINE)
+						.suggest("/bminfo " + args[0])
+						.tooltip("Retrieves history of player on RP")
+						.then(" ")
+						//
+						.then("Warn")
+						.suggest("/warn " + args[0] + " ")
+						.tooltip(
+								"Prepares command to issue a warning. Always add a reason!")
+						.color(AQUA)
+						.style(UNDERLINE)
+						.then(" ")
+						//
+						.then("Kick")
+						.suggest("/kick " + args[0] + " ")
+						.tooltip(
+								"Prepares command to kick. Always add a reason!")
+						.color(DARK_AQUA)
+						.style(UNDERLINE)
+						.then(" ")
+						//
+						.then("Mute")
+						.color(GRAY)
+						.then(" ")
+						//
+						.then("1m")
+						.suggest("/tempmute " + args[0] + " 1m ")
+						.tooltip(
+								"Prepares command to issue a 1 minute mute. Always add a reason!")
+						.color(YELLOW)
+						.style(UNDERLINE)
+						.then(" ")
+						//
+						.then("5m")
+						.suggest("/tempmute " + args[0] + " 5m ")
+						.tooltip(
+								"Prepares command to issue a 5 minute mute. Always add a reason!")
+						.color(GOLD)
+						.style(UNDERLINE)
+						.then(" ")
+						//
+						.then("10m")
+						.suggest("/tempmute " + args[0] + " 10m ")
+						.tooltip(
+								"Prepares command to issue a 10 minute mute. Always add a reason!")
+						.color(RED).style(UNDERLINE).then(" ")
+						.send(Bukkit.getPlayer(sender.getName()));
+				//
+				new FancyMessage("Ban")
+						.color(GRAY)
+						.then(" ")
+						//
+						.then("12h")
+						.suggest("/tempban " + args[0] + " 12h ")
+						.tooltip(
+								"Prepares command to issue a 12 hour tempban. Always add a reason!")
+						.color(YELLOW)
+						.style(UNDERLINE)
+						.then(" ")
+						//
+						.then("36h")
+						.suggest("/tempban " + args[0] + " 36h ")
+						.tooltip(
+								"Prepares command to issue a 36 hour tempban. Always add a reason!")
+						.color(GOLD)
+						.style(UNDERLINE)
+						.then(" ")
+						//
+						.then("5d")
+						.suggest("/tempban " + args[0] + " 5d ")
+						.tooltip(
+								"Prepares command to issue a 5 day tempban. Always add a reason!")
+						.color(RED)
+						.style(UNDERLINE)
+						.then(" ")
+						//
+						.then("Perm")
+						.suggest("/ban " + args[0] + " ")
+						.tooltip(
+								"Prepares command to issue a 5 day tempban. Always add a reason!")
+						.color(DARK_RED).style(UNDERLINE)
+						.send(Bukkit.getPlayer(sender.getName()));
+			}
+			break;
 		case "staff":
 			if (sender instanceof Player) {
 				if (args.length == 0 || args.length > 2) {
@@ -1091,6 +1267,10 @@ public class Commands implements CommandExecutor {
 							+ " Teleport to a grave. Find graves with LG.");
 					sender.sendMessage(ChatColor.AQUA + "/staff ug <grave id>"
 							+ ChatColor.GRAY + " Unlocks a locked grave.");
+					sender.sendMessage(ChatColor.BLUE + "Misc Commands & Tools");
+					sender.sendMessage(ChatColor.AQUA + "/punish <name>"
+							+ ChatColor.GRAY
+							+ " Tool to help with punish commands");
 				} else if (args[0].equals("PE") || args[0].equals("pe")) {
 					rank.playerStats((Player) sender);
 				} else if (args[0].equals("GG") || args[0].equals("gg")) {
@@ -1189,7 +1369,9 @@ public class Commands implements CommandExecutor {
 						+ "  Runic balance: "
 						+ ChatColor.GOLD
 						+ df.format(RunicParadise.economy
-								.getBalance((OfflinePlayer) sender)) + ChatColor.GRAY + ", Votes: " + ChatColor.GOLD + targetPlayer.getPlayerVoteCount());
+								.getBalance((OfflinePlayer) sender))
+						+ ChatColor.GRAY + ", Votes: " + ChatColor.GOLD
+						+ targetPlayer.getPlayerVoteCount());
 				targetPlayer.sendMessageToPlayer(ChatColor.GRAY
 						+ "  Date joined: " + ChatColor.GOLD
 						+ sdf.format(targetPlayer.getJoinDate().getTime())
@@ -1294,35 +1476,27 @@ public class Commands implements CommandExecutor {
 		case "RPTEST":
 		case "Rptest":
 
-			if (args.length == 0) {
-				Bukkit.getServer().broadcastMessage(
-						ChatColor.GRAY
-								+ instance.getConfig().getString(
-										"testAnnouncement"));
-				if (sender instanceof Player) {
-					final Player player = (Player) sender;
-					player.sendMessage(ChatColor.GRAY
-							+ "[RunicTester] "
-							+ instance.getConfig().getString(
-									"testPersonalMessage"));
+			if (sender instanceof Player && args.length == 0) {
+				final Player player = (Player) sender;
+				player.sendMessage(ChatColor.GRAY + "[RunicTester] "
+						+ instance.getConfig().getString("testPersonalMessage"));
+				;
 
-					BukkitScheduler scheduler = Bukkit.getServer()
-							.getScheduler();
-					int taskId = 0;
-					taskId = scheduler.scheduleAsyncRepeatingTask(instance,
-							new Runnable() {
-								@Override
-								public void run() {
-									player.getWorld().playEffect(
-											player.getLocation(),
-											Effect.MOBSPAWNER_FLAMES, 0);
-								}
-							}, 0L, 20L);
+				BukkitScheduler scheduler = Bukkit.getServer().getScheduler();
+				int taskId = 0;
+				taskId = scheduler.scheduleAsyncRepeatingTask(instance,
+						new Runnable() {
+							@Override
+							public void run() {
+								player.getWorld().playEffect(
+										player.getLocation(),
+										Effect.MOBSPAWNER_FLAMES, 0);
+							}
+						}, 0L, 20L);
 
-					PARTICLE_TASK_IDS.add(taskId);
-
-				}
-			} else if (args.length == 1 && args[0].equals("listtasks")) {
+				PARTICLE_TASK_IDS.add(taskId);
+			}
+			if (args.length == 1 && args[0].equals("listtasks")) {
 
 				Player p = (Player) sender;
 				for (int taskToKill : PARTICLE_TASK_IDS) {
@@ -1421,27 +1595,6 @@ public class Commands implements CommandExecutor {
 					}
 				}
 
-			}
-			break;
-		case "events":
-		case "EVENTS":
-			if (args.length == 0) {
-				Player player = (Player) sender;
-				player.sendMessage(ChatColor.DARK_GRAY
-						+ "StartTownInvasion, StopTownInvasion");
-			} else if (args.length == 1) {
-				if (args[0].equals("StartTownInvasion")) {
-					Events s = new Events();
-					s.spawntonInvasionStartup();
-				}
-				if (args[0].equals("StopTownInvasion")) {
-					Events s = new Events();
-					s.spawntonInvasionStop();
-				}
-				if (args[0].equals("TriggerTownInvasion")) {
-					Events s = new Events();
-					s.spawntonInvasionTrigger();
-				}
 			}
 			break;
 		case "rpgames":
@@ -1598,6 +1751,7 @@ public class Commands implements CommandExecutor {
 						Player player = (Player) sender;
 						player.sendMessage(ChatColor.DARK_GRAY
 								+ "Staff chat. Usage: /sc [message]");
+						return true;
 					} else {
 
 						p.sendMessage(ChatColor.DARK_GRAY + "["
@@ -1605,13 +1759,14 @@ public class Commands implements CommandExecutor {
 								+ ChatColor.AQUA + "Chat" + ChatColor.DARK_GRAY
 								+ "] " + ChatColor.WHITE + senderName + ":"
 								+ ChatColor.AQUA + buffer.toString());
-						getLogger().log(
-								Level.INFO,
-								"[StaffChat] " + senderName + ": "
-										+ buffer.toString());
+
 					}
 				}
 			}
+			getLogger().log(
+					Level.INFO,
+					"[StaffChat] " + senderName + ": "
+							+ buffer.toString());
 		default:
 			break;
 		}

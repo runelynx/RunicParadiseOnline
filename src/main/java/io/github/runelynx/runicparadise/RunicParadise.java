@@ -6,11 +6,15 @@
 package io.github.runelynx.runicparadise;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.UUID;
+import java.util.WeakHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -34,6 +38,7 @@ import org.bukkit.event.block.BlockRedstoneEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
+import org.bukkit.event.entity.EntityTargetEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -53,6 +58,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Guardian;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Zombie;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.plugin.RegisteredServiceProvider;
 
@@ -76,6 +82,8 @@ public final class RunicParadise extends JavaPlugin implements Listener {
 	private static final Logger log = Logger.getLogger("Minecraft");
 	public static Permission perms = null;
 	public static Economy economy = null;
+	public static HashMap<UUID, Powers> powersMap = new HashMap<UUID, Powers>();
+	public static HashMap<String, Zombie> powersSwordOfJupiterMap = new HashMap<String, Zombie>();
 
 	Ranks ranks = new Ranks();
 
@@ -111,6 +119,15 @@ public final class RunicParadise extends JavaPlugin implements Listener {
 
 		RunicDeathChest.syncGraveLocations();
 
+		for (Player p : Bukkit.getOnlinePlayers()) {
+			powersMap.put(p.getUniqueId(), new Powers(p.getUniqueId()));
+			log.log(Level.INFO, "Powers Debug: Mapped " + p.getName()
+					+ "; Beasts "
+					+ powersMap.get(p.getUniqueId()).getSkillBeasts()
+					+ "; BeastsState "
+					+ powersMap.get(p.getUniqueId()).getStatusBeasts());
+		}
+
 		// This will throw a NullPointerException if you don't have the command
 		// defined in your plugin.yml file!
 		getCommand("rp").setExecutor(new Commands());
@@ -118,7 +135,6 @@ public final class RunicParadise extends JavaPlugin implements Listener {
 		getCommand("rpreload").setExecutor(new Commands());
 		getCommand("rpgames").setExecutor(new Commands());
 		getCommand("games").setExecutor(new Commands());
-		getCommand("events").setExecutor(new Commands());
 		getCommand("hmsay").setExecutor(new Commands());
 		getCommand("promote").setExecutor(new Commands());
 		getCommand("rankup").setExecutor(new Commands());
@@ -139,6 +155,8 @@ public final class RunicParadise extends JavaPlugin implements Listener {
 		getCommand("rpvote").setExecutor(new Commands());
 		getCommand("rpjobs").setExecutor(new Commands());
 		getCommand("rpeffects").setExecutor(new Commands());
+		getCommand("punish").setExecutor(new Commands());
+		getCommand("powers").setExecutor(new Commands());
 
 		Bukkit.getServer().getPluginManager().registerEvents(this, this);
 
@@ -151,26 +169,26 @@ public final class RunicParadise extends JavaPlugin implements Listener {
 			System.out
 					.println("[RunicParadise] Config file field dbPort not an integer! Using 3301 as default.");
 		}
-		MySQL MySQL = new MySQL(instance, instance.getConfig().getString(
+		final MySQL MySQL = new MySQL(instance, instance.getConfig().getString(
 				"dbHost"), instance.getConfig().getString("dbPort"), instance
 				.getConfig().getString("dbDatabase"), instance.getConfig()
 				.getString("dbUser"), instance.getConfig().getString(
 				"dbPassword"));
-		final Connection c = MySQL.openConnection();
 
 		// Save online players to DB every minute
 		BukkitScheduler scheduler = Bukkit.getServer().getScheduler();
-		scheduler.scheduleAsyncRepeatingTask(this, new Runnable() {
+		scheduler.runTaskTimerAsynchronously(this, new Runnable() {
 			@Override
 			public void run() {
-				ArrayList<String> PlayerNames = new ArrayList<String>();
+				Connection z = MySQL.openConnection();
+				ArrayList<UUID> PlayerIDs = new ArrayList<UUID>();
 				for (Player all : getServer().getOnlinePlayers()) {
-					PlayerNames.add(all.getName());
+					PlayerIDs.add(all.getUniqueId());
 				}
 
 				try {
 					// clear the table
-					Statement insertStmt = c.createStatement();
+					Statement insertStmt = z.createStatement();
 					insertStmt.executeUpdate("DELETE FROM rp_PlayersOnline;");
 				} catch (SQLException e) {
 					getLogger().log(
@@ -182,17 +200,18 @@ public final class RunicParadise extends JavaPlugin implements Listener {
 				// Clear the table
 				Date date = new Date();
 
-				for (String name : PlayerNames) {
-					if (getServer().getPlayer(name).hasPermission("rp.admin")) {
+				for (UUID uuid : PlayerIDs) {
+					if (Bukkit.getPlayer(uuid).hasPermission("rp.admin")) {
 						try {
-							Statement insertStmt = c.createStatement();
-							insertStmt.executeUpdate("INSERT INTO rp_PlayersOnline (`PlayerName`, `UUID`, `Staff`, `Type`, `Timestamp`) VALUES ('"
-									+ name
-									+ "', '"
-									+ getServer().getPlayer(name).getUniqueId()
-									+ "', '1', 'Admin', '"
-									+ date.getTime()
-									+ "');");
+							Statement insertStmt = z.createStatement();
+							insertStmt
+									.executeUpdate("INSERT INTO rp_PlayersOnline (`PlayerName`, `UUID`, `Staff`, `Type`, `Timestamp`) VALUES ('"
+											+ Bukkit.getPlayer(uuid).getName()
+											+ "', '"
+											+ uuid
+											+ "', '1', 'Admin', '"
+											+ date.getTime() + "');");
+
 						} catch (SQLException e) {
 							getLogger().log(
 									Level.SEVERE,
@@ -200,17 +219,18 @@ public final class RunicParadise extends JavaPlugin implements Listener {
 											+ e.getMessage());
 						}
 
-					} else if (getServer().getPlayer(name).hasPermission(
+					} else if (getServer().getPlayer(uuid).hasPermission(
 							"rp.mod")) {
 						try {
-							Statement insertStmt = c.createStatement();
-							insertStmt.executeUpdate("INSERT INTO rp_PlayersOnline (`PlayerName`, `UUID`, `Staff`, `Type`, `Timestamp`) VALUES ('"
-									+ name
-									+ "', '"
-									+ getServer().getPlayer(name).getUniqueId()
-									+ "', '1', 'Mod', '"
-									+ date.getTime()
-									+ "');");
+							Statement insertStmt = z.createStatement();
+							insertStmt
+									.executeUpdate("INSERT INTO rp_PlayersOnline (`PlayerName`, `UUID`, `Staff`, `Type`, `Timestamp`) VALUES ('"
+											+ Bukkit.getPlayer(uuid).getName()
+											+ "', '"
+											+ uuid.toString()
+											+ "', '1', 'Mod', '"
+											+ date.getTime() + "');");
+
 						} catch (SQLException e) {
 							getLogger().log(
 									Level.SEVERE,
@@ -218,34 +238,36 @@ public final class RunicParadise extends JavaPlugin implements Listener {
 											+ e.getMessage());
 						}
 
-					} else if (getServer().getPlayer(name).hasPermission(
+					} else if (getServer().getPlayer(uuid).hasPermission(
 							"rp.staff.helper")) {
 						try {
-							Statement insertStmt = c.createStatement();
-							insertStmt.executeUpdate("INSERT INTO rp_PlayersOnline (`PlayerName`, `UUID`, `Staff`, `Type`, `Timestamp`) VALUES ('"
-									+ name
-									+ "', '"
-									+ getServer().getPlayer(name).getUniqueId()
-									+ "', '1', 'Helper', '"
-									+ date.getTime()
-									+ "');");
+							Statement insertStmt = z.createStatement();
+							insertStmt
+									.executeUpdate("INSERT INTO rp_PlayersOnline (`PlayerName`, `UUID`, `Staff`, `Type`, `Timestamp`) VALUES ('"
+											+ Bukkit.getPlayer(uuid).getName()
+											+ "', '"
+											+ uuid.toString()
+											+ "', '1', 'Helper', '"
+											+ date.getTime() + "');");
+
 						} catch (SQLException e) {
 							getLogger().log(
 									Level.SEVERE,
-									"Could not update PlayersOnline MOD! because: "
+									"Could not update PlayersOnline  because: "
 											+ e.getMessage());
 						}
 
 					} else {
 						try {
-							Statement insertStmt = c.createStatement();
-							insertStmt.executeUpdate("INSERT INTO rp_PlayersOnline (`PlayerName`, `UUID`, `Staff`, `Type`, `Timestamp`) VALUES ('"
-									+ name
-									+ "', '"
-									+ getServer().getPlayer(name).getUniqueId()
-									+ "', '0', 'None', '"
-									+ date.getTime()
-									+ "');");
+							Statement insertStmt = z.createStatement();
+							insertStmt
+									.executeUpdate("INSERT INTO rp_PlayersOnline (`PlayerName`, `UUID`, `Staff`, `Type`, `Timestamp`) VALUES ('"
+											+ Bukkit.getPlayer(uuid).getName()
+											+ "', '"
+											+ uuid.toString()
+											+ "', '0', 'None', '"
+											+ date.getTime() + "');");
+
 						} catch (SQLException e) {
 							getLogger().log(
 									Level.SEVERE,
@@ -254,20 +276,28 @@ public final class RunicParadise extends JavaPlugin implements Listener {
 						}
 
 					}
+
+				}
+
+				try {
+
+					z.close();
+				} catch (SQLException e) {
+					getLogger().log(
+							Level.SEVERE,
+							"Could not update close PlayersOnline update  conn! because: "
+									+ e.getMessage());
 				}
 			}
-		}, 0L, 400L);
-
-		// reset the SpawntownInvasion event
-		Events e = new Events();
-
-		e.spawntonInvasionStop();
+		}, 0L, 1200L);
 
 	}
 
 	public void onDisable() {
 		// TODO Insert logic to be performed when the plugin is disabled
 		getLogger().info("RunicParadise Plugin: onDisable has been invoked!");
+		powersMap.clear();
+		getLogger().info("RP Powers: Powers map has been cleared.");
 		// em.dispose();
 	}
 
@@ -276,34 +306,34 @@ public final class RunicParadise extends JavaPlugin implements Listener {
 		// rf[5Adminf] {jobs} 5{name}f: %2$s
 		// ADMINS
 		if (event.getPlayer().hasPermission("rp.staff.admin")) {
-			event.setFormat(ChatColor.DARK_PURPLE + "" + ChatColor.UNDERLINE
+			event.setFormat(ChatColor.DARK_PURPLE + "" + ChatColor.ITALIC
 					+ "Admin" + ChatColor.RESET + " " + ChatColor.DARK_PURPLE
-					+ perms.getPrimaryGroup(event.getPlayer()) +ChatColor.GRAY + " {jobs} "
-					+ ChatColor.DARK_PURPLE
+					+ perms.getPrimaryGroup(event.getPlayer()) + ChatColor.GRAY
+					+ " {jobs}" + ChatColor.DARK_PURPLE
 					+ event.getPlayer().getDisplayName() + ChatColor.WHITE
 					+ ": %2$s");
 			// ELDER MOD
 		} else if (event.getPlayer().hasPermission("rp.staff.mod+")) {
-			event.setFormat(ChatColor.DARK_RED + "" + ChatColor.UNDERLINE
-					+ "Mod+" + ChatColor.RESET + " " + ChatColor.DARK_RED
+			event.setFormat(ChatColor.DARK_RED + "" + ChatColor.ITALIC + "Mod+"
+					+ ChatColor.RESET + " " + ChatColor.DARK_RED
 					+ perms.getPrimaryGroup(event.getPlayer()) + ChatColor.GRAY
-					+ " {jobs} " + ChatColor.DARK_RED
+					+ " {jobs}" + ChatColor.DARK_RED
 					+ event.getPlayer().getDisplayName() + ChatColor.WHITE
 					+ ": %2$s");
 			// MOD
 		} else if (event.getPlayer().hasPermission("rp.staff.mod")) {
-			event.setFormat(ChatColor.RED + "" + ChatColor.UNDERLINE + "Mod"
+			event.setFormat(ChatColor.RED + "" + ChatColor.ITALIC + "Mod"
 					+ ChatColor.RESET + " " + ChatColor.RED
 					+ perms.getPrimaryGroup(event.getPlayer()) + ChatColor.GRAY
-					+ " {jobs} " + ChatColor.RED
+					+ " {jobs}" + ChatColor.RED
 					+ event.getPlayer().getDisplayName() + ChatColor.WHITE
 					+ ": %2$s");
 			// HELPER
 		} else if (event.getPlayer().hasPermission("rp.staff.helper")) {
-			event.setFormat(ChatColor.LIGHT_PURPLE + "" + ChatColor.UNDERLINE
-					+ "Helper" + ChatColor.RESET + " "+ ChatColor.LIGHT_PURPLE
+			event.setFormat(ChatColor.LIGHT_PURPLE + "" + ChatColor.ITALIC
+					+ "Helper" + ChatColor.RESET + " " + ChatColor.LIGHT_PURPLE
 					+ perms.getPrimaryGroup(event.getPlayer()) + ChatColor.GRAY
-					+ " {jobs} " + ChatColor.LIGHT_PURPLE
+					+ " {jobs}" + ChatColor.LIGHT_PURPLE
 					+ event.getPlayer().getDisplayName() + ChatColor.WHITE
 					+ ": %2$s");
 			// EVERYONE ELSE
@@ -323,6 +353,7 @@ public final class RunicParadise extends JavaPlugin implements Listener {
 
 	}
 
+	/*
 	@EventHandler
 	public void onBlockRedstone(BlockRedstoneEvent event) {
 
@@ -333,6 +364,7 @@ public final class RunicParadise extends JavaPlugin implements Listener {
 		}
 
 	}
+	*/
 
 	@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = false)
 	public void onBreakBlock(BlockBreakEvent event) {
@@ -445,40 +477,38 @@ public final class RunicParadise extends JavaPlugin implements Listener {
 	public void onPlayerJoin(final PlayerJoinEvent pje) {
 
 		// Launch Firework on player join
-		Bukkit.getServer().getScheduler()
-				.scheduleSyncDelayedTask(this, new Runnable() {
-					public void run() {
-						updatePlayerInfo(pje.getPlayer().getName(), true, false);
-						ranks.convertRanks(pje.getPlayer());
-						Firework f = (Firework) pje
-								.getPlayer()
-								.getWorld()
-								.spawn(pje.getPlayer().getLocation(),
-										Firework.class);
-						FireworkMeta fm = f.getFireworkMeta();
-
-						fm.addEffect(FireworkEffect.builder().flicker(false)
-								.trail(true).with(Type.BALL)
-								.with(Type.BALL_LARGE).with(Type.STAR)
-								.withColor(Color.ORANGE)
-								.withColor(Color.YELLOW).withFade(Color.RED)
-								.withFade(Color.PURPLE).build());
-						fm.setPower(2);
-						f.setFireworkMeta(fm);
-					}
-				}, 100); // delay
+		powersMap.put(pje.getPlayer().getUniqueId(), new Powers(pje.getPlayer()
+				.getUniqueId()));
+		log.log(Level.INFO, "RP Powers: Added " + pje.getPlayer().getName()
+				+ " to powers map.");
+		updatePlayerInfoOnJoin(pje.getPlayer().getName(), pje.getPlayer()
+				.getUniqueId());
+		/*
+		 * Bukkit.getServer().getScheduler() .scheduleSyncDelayedTask(this, new
+		 * Runnable() { public void run() {
+		 * 
+		 * ranks.convertRanks(pje.getPlayer()); Firework f = (Firework) pje
+		 * .getPlayer() .getWorld() .spawn(pje.getPlayer().getLocation(),
+		 * Firework.class); FireworkMeta fm = f.getFireworkMeta();
+		 * 
+		 * fm.addEffect(FireworkEffect.builder().flicker(false)
+		 * .trail(true).with(Type.BALL) .with(Type.BALL_LARGE).with(Type.STAR)
+		 * .withColor(Color.ORANGE) .withColor(Color.YELLOW).withFade(Color.RED)
+		 * .withFade(Color.PURPLE).build()); fm.setPower(2);
+		 * f.setFireworkMeta(fm); } }, 20); // delay
+		 */
 
 	}
 
 	@EventHandler
 	public void onPlayerQuit(final PlayerQuitEvent pje) {
 
-		Bukkit.getServer().getScheduler()
-				.scheduleSyncDelayedTask(this, new Runnable() {
-					public void run() {
-						updatePlayerInfo(pje.getPlayer().getName(), false, true);
-					}
-				}, 100); // delay
+		powersMap.remove(pje.getPlayer().getUniqueId());
+		log.log(Level.INFO, "RP Powers: Removed " + pje.getPlayer().getName()
+				+ " from powers map.");
+
+		updatePlayerInfoOnQuit(pje.getPlayer().getName(), pje.getPlayer()
+				.getUniqueId());
 
 	}
 
@@ -491,12 +521,36 @@ public final class RunicParadise extends JavaPlugin implements Listener {
 				Player player = (Player) ede.getEntity();
 				player.setHealth(20);
 				// player.teleport(player.getWorld().getSpawnLocation());
-				String cmd = "sudo " + player.getName() + " warp travel";
+				String cmd = "sudo " + player.getName() + " spawn";
 				Bukkit.dispatchCommand(Bukkit.getConsoleSender(), cmd);
 
 				player.sendMessage(ChatColor.AQUA
 						+ "[RunicSavior] Found you lost in the void... watch your step next time!");
 			}
+			/*
+			 * } else if (ede.getEntity() instanceof Player &&
+			 * powersSwordOfJupiterMap.containsKey(ede.getEntity().getName())) {
+			 * //check if player has a sword of jupiter zombie in the hashmap
+			 * log.log(Level.INFO,
+			 * "Recvd player dmg event. Player has a SOJ zombie record in map."
+			 * ); if
+			 * (powersSwordOfJupiterMap.get(ede.getEntity().getUniqueId()).
+			 * isDead() ||
+			 * powersSwordOfJupiterMap.get(ede.getEntity().getUniqueId
+			 * ()).isEmpty()) { //if zombie doesnt exist anymore, then clear the
+			 * record from hashmap log.log(Level.INFO,
+			 * "Recvd player dmg event. Player had a SOJ zombie that is now gone. Clearing map."
+			 * ); powersSwordOfJupiterMap.remove(ede.getEntity().getUniqueId());
+			 * } else if (ede.getEntity().getLastDamageCause().getEntity()
+			 * instanceof LivingEntity) {
+			 * powersSwordOfJupiterMap.get(ede.getEntity
+			 * ().getUniqueId()).setTarget
+			 * ((LivingEntity)ede.getEntity().getLastDamageCause().getEntity());
+			 * log.log(Level.INFO,
+			 * "Recvd player dmg event. Player has a SOJ zombie. Set target to damage cause entity."
+			 * ); }
+			 */
+
 		}
 
 	}
@@ -516,7 +570,7 @@ public final class RunicParadise extends JavaPlugin implements Listener {
 						+ ChatColor.ITALIC + "Your sword's strike sings!");
 
 				EffectManager em = new EffectManager(instance);
-				
+
 				ExplodeEffect explosionEffect = new ExplodeEffect(em);
 
 				// Blood-particles lays around for 30 ticks (1.5 seconds)
@@ -524,7 +578,7 @@ public final class RunicParadise extends JavaPlugin implements Listener {
 				// period * iterations = time of effect
 				explosionEffect.setLocation(edbe.getEntity().getLocation());
 				explosionEffect.start();
-				
+
 				SkyRocketEffect skyRocketEffect = new SkyRocketEffect(em);
 
 				// Blood-particles lays around for 30 ticks (1.5 seconds)
@@ -533,8 +587,6 @@ public final class RunicParadise extends JavaPlugin implements Listener {
 				skyRocketEffect.power = 30;
 				skyRocketEffect.setTargetEntity(edbe.getEntity());
 				skyRocketEffect.start();
-				
-
 
 				em.disposeOnTermination();
 			} else if (Bukkit.getPlayer(edbe.getDamager().getName())
@@ -545,7 +597,7 @@ public final class RunicParadise extends JavaPlugin implements Listener {
 						+ ChatColor.ITALIC + "Wheeeeeeee!!");
 
 				EffectManager em = new EffectManager(instance);
-				
+
 				ShieldEffect shieldEffect = new ShieldEffect(em);
 
 				// Blood-particles lays around for 30 ticks (1.5 seconds)
@@ -563,7 +615,6 @@ public final class RunicParadise extends JavaPlugin implements Listener {
 
 	}
 
-	@SuppressWarnings("deprecation")
 	@EventHandler
 	public void onEntityDeath(final EntityDeathEvent ede) {
 
@@ -573,15 +624,16 @@ public final class RunicParadise extends JavaPlugin implements Listener {
 
 			final LivingEntity monsterEnt = (LivingEntity) ede.getEntity();
 			if (monsterEnt.getKiller() == null
+					|| !(monsterEnt.getKiller() instanceof Player)
 					|| ede.getEntity().getWorld().equals("plotworld")) {
 				// [RP] Entity death detected but player=null or world=plotworld
+				// OR killer not a player
 				// so nothing recorded!
 				return;
 			}
 
-			// Launch Firework on player join
 			Bukkit.getServer().getScheduler()
-					.scheduleAsyncDelayedTask(this, new Runnable() {
+					.runTaskAsynchronously(instance, new Runnable() {
 						public void run() {
 
 							String mobType = "";
@@ -599,139 +651,171 @@ public final class RunicParadise extends JavaPlugin implements Listener {
 
 							switch (mobType) {
 							case "ZOMBIE":
-								RunicPlayerBukkit
-										.incrementPlayerKillCount(monsterEnt.getKiller().getUniqueId(), "KillZombie");
+								RunicPlayerBukkit.incrementPlayerKillCount(
+										monsterEnt.getKiller().getUniqueId(),
+										"KillZombie");
 								break;
 							case "IRON_GOLEM":
-								RunicPlayerBukkit
-										.incrementPlayerKillCount(monsterEnt.getKiller().getUniqueId(), "KillIronGolem");
+								RunicPlayerBukkit.incrementPlayerKillCount(
+										monsterEnt.getKiller().getUniqueId(),
+										"KillIronGolem");
 								break;
 							case "WITHER":
-								RunicPlayerBukkit
-										.incrementPlayerKillCount(monsterEnt.getKiller().getUniqueId(), "KillWither");
+								RunicPlayerBukkit.incrementPlayerKillCount(
+										monsterEnt.getKiller().getUniqueId(),
+										"KillWither");
 								break;
 							case "SKELETON":
-								RunicPlayerBukkit
-										.incrementPlayerKillCount(monsterEnt.getKiller().getUniqueId(), "KillSkeleton");
+								RunicPlayerBukkit.incrementPlayerKillCount(
+										monsterEnt.getKiller().getUniqueId(),
+										"KillSkeleton");
 								break;
 							case "SLIME":
-								RunicPlayerBukkit
-										.incrementPlayerKillCount(monsterEnt.getKiller().getUniqueId(), "KillSlime");
+								RunicPlayerBukkit.incrementPlayerKillCount(
+										monsterEnt.getKiller().getUniqueId(),
+										"KillSlime");
 								break;
 							case "MAGMA_CUBE":
-								RunicPlayerBukkit
-										.incrementPlayerKillCount(monsterEnt.getKiller().getUniqueId(), "KillMagmaCube");
+								RunicPlayerBukkit.incrementPlayerKillCount(
+										monsterEnt.getKiller().getUniqueId(),
+										"KillMagmaCube");
 								break;
 							case "WITCH":
-								RunicPlayerBukkit
-										.incrementPlayerKillCount(monsterEnt.getKiller().getUniqueId(), "KillWitch");
+								RunicPlayerBukkit.incrementPlayerKillCount(
+										monsterEnt.getKiller().getUniqueId(),
+										"KillWitch");
 								break;
 							case "SILVERFISH":
-								RunicPlayerBukkit
-										.incrementPlayerKillCount(monsterEnt.getKiller().getUniqueId(), "KillSilverfish");
+								RunicPlayerBukkit.incrementPlayerKillCount(
+										monsterEnt.getKiller().getUniqueId(),
+										"KillSilverfish");
 								break;
 							case "GIANT":
-								RunicPlayerBukkit
-										.incrementPlayerKillCount(monsterEnt.getKiller().getUniqueId(), "KillGiant");
+								RunicPlayerBukkit.incrementPlayerKillCount(
+										monsterEnt.getKiller().getUniqueId(),
+										"KillGiant");
 								break;
 							case "BLAZE":
-								RunicPlayerBukkit
-										.incrementPlayerKillCount(monsterEnt.getKiller().getUniqueId(), "KillBlaze");
+								RunicPlayerBukkit.incrementPlayerKillCount(
+										monsterEnt.getKiller().getUniqueId(),
+										"KillBlaze");
 								break;
 							case "CREEPER":
-								RunicPlayerBukkit
-										.incrementPlayerKillCount(monsterEnt.getKiller().getUniqueId(), "KillCreeper");
+								RunicPlayerBukkit.incrementPlayerKillCount(
+										monsterEnt.getKiller().getUniqueId(),
+										"KillCreeper");
 								break;
 							case "ENDERMAN":
-								RunicPlayerBukkit
-										.incrementPlayerKillCount(monsterEnt.getKiller().getUniqueId(), "KillEnderman");
+								RunicPlayerBukkit.incrementPlayerKillCount(
+										monsterEnt.getKiller().getUniqueId(),
+										"KillEnderman");
 								break;
 							case "SPIDER":
-								RunicPlayerBukkit
-										.incrementPlayerKillCount(monsterEnt.getKiller().getUniqueId(), "KillSpider");
+								RunicPlayerBukkit.incrementPlayerKillCount(
+										monsterEnt.getKiller().getUniqueId(),
+										"KillSpider");
 								break;
 							case "CAVE_SPIDER":
-								RunicPlayerBukkit
-										.incrementPlayerKillCount(monsterEnt.getKiller().getUniqueId(), "KillCaveSpider");
+								RunicPlayerBukkit.incrementPlayerKillCount(
+										monsterEnt.getKiller().getUniqueId(),
+										"KillCaveSpider");
 								break;
 							case "SQUID":
-								RunicPlayerBukkit
-										.incrementPlayerKillCount(monsterEnt.getKiller().getUniqueId(), "KillSquid");
+								RunicPlayerBukkit.incrementPlayerKillCount(
+										monsterEnt.getKiller().getUniqueId(),
+										"KillSquid");
 								break;
 							case "ENDER_DRAGON":
-								RunicPlayerBukkit
-										.incrementPlayerKillCount(monsterEnt.getKiller().getUniqueId(), "KillEnderDragon");
+								RunicPlayerBukkit.incrementPlayerKillCount(
+										monsterEnt.getKiller().getUniqueId(),
+										"KillEnderDragon");
 								break;
 							case "PIG_ZOMBIE":
-								RunicPlayerBukkit
-										.incrementPlayerKillCount(monsterEnt.getKiller().getUniqueId(), "KillPigZombie");
+								RunicPlayerBukkit.incrementPlayerKillCount(
+										monsterEnt.getKiller().getUniqueId(),
+										"KillPigZombie");
 								break;
 							case "GHAST":
-								RunicPlayerBukkit
-										.incrementPlayerKillCount(monsterEnt.getKiller().getUniqueId(), "KillGhast");
+								RunicPlayerBukkit.incrementPlayerKillCount(
+										monsterEnt.getKiller().getUniqueId(),
+										"KillGhast");
 								break;
 							case "CHICKEN":
-								RunicPlayerBukkit
-										.incrementPlayerKillCount(monsterEnt.getKiller().getUniqueId(), "KillChicken");
+								RunicPlayerBukkit.incrementPlayerKillCount(
+										monsterEnt.getKiller().getUniqueId(),
+										"KillChicken");
 								break;
 							case "COW":
-								RunicPlayerBukkit
-										.incrementPlayerKillCount(monsterEnt.getKiller().getUniqueId(), "KillCow");
+								RunicPlayerBukkit.incrementPlayerKillCount(
+										monsterEnt.getKiller().getUniqueId(),
+										"KillCow");
 								break;
 							case "SHEEP":
-								RunicPlayerBukkit
-										.incrementPlayerKillCount(monsterEnt.getKiller().getUniqueId(), "KillSheep");
+								RunicPlayerBukkit.incrementPlayerKillCount(
+										monsterEnt.getKiller().getUniqueId(),
+										"KillSheep");
 								break;
 							case "PIG":
-								RunicPlayerBukkit
-										.incrementPlayerKillCount(monsterEnt.getKiller().getUniqueId(), "KillPig");
+								RunicPlayerBukkit.incrementPlayerKillCount(
+										monsterEnt.getKiller().getUniqueId(),
+										"KillPig");
 								break;
 							case "OCELOT":
-								RunicPlayerBukkit
-										.incrementPlayerKillCount(monsterEnt.getKiller().getUniqueId(), "KillOcelot");
+								RunicPlayerBukkit.incrementPlayerKillCount(
+										monsterEnt.getKiller().getUniqueId(),
+										"KillOcelot");
 								break;
 							case "BAT":
-								RunicPlayerBukkit
-										.incrementPlayerKillCount(monsterEnt.getKiller().getUniqueId(), "KillBat");
+								RunicPlayerBukkit.incrementPlayerKillCount(
+										monsterEnt.getKiller().getUniqueId(),
+										"KillBat");
 								break;
 							case "MUSHROOM_COW":
-								RunicPlayerBukkit
-										.incrementPlayerKillCount(monsterEnt.getKiller().getUniqueId(), "KillMooshroom");
+								RunicPlayerBukkit.incrementPlayerKillCount(
+										monsterEnt.getKiller().getUniqueId(),
+										"KillMooshroom");
 								break;
 							case "RABBIT":
-								RunicPlayerBukkit
-										.incrementPlayerKillCount(monsterEnt.getKiller().getUniqueId(), "KillRabbit");
+								RunicPlayerBukkit.incrementPlayerKillCount(
+										monsterEnt.getKiller().getUniqueId(),
+										"KillRabbit");
 								break;
 							case "WOLF":
-								RunicPlayerBukkit
-										.incrementPlayerKillCount(monsterEnt.getKiller().getUniqueId(), "KillWolf");
+								RunicPlayerBukkit.incrementPlayerKillCount(
+										monsterEnt.getKiller().getUniqueId(),
+										"KillWolf");
 								break;
 							case "ENDERMITE":
-								RunicPlayerBukkit
-										.incrementPlayerKillCount(monsterEnt.getKiller().getUniqueId(), "KillEndermite");
+								RunicPlayerBukkit.incrementPlayerKillCount(
+										monsterEnt.getKiller().getUniqueId(),
+										"KillEndermite");
 								break;
 							case "GUARDIAN":
-								RunicPlayerBukkit
-										.incrementPlayerKillCount(monsterEnt.getKiller().getUniqueId(), "KillGuardian");
+								RunicPlayerBukkit.incrementPlayerKillCount(
+										monsterEnt.getKiller().getUniqueId(),
+										"KillGuardian");
 								break;
 							case "ELDER_GUARDIAN":
-								RunicPlayerBukkit
-										.incrementPlayerKillCount(monsterEnt.getKiller().getUniqueId(), "KillElderGuardian");
+								RunicPlayerBukkit.incrementPlayerKillCount(
+										monsterEnt.getKiller().getUniqueId(),
+										"KillElderGuardian");
 								break;
 							case "SNOWMAN":
-								RunicPlayerBukkit
-										.incrementPlayerKillCount(monsterEnt.getKiller().getUniqueId(), "KillSnowGolem");
+								RunicPlayerBukkit.incrementPlayerKillCount(
+										monsterEnt.getKiller().getUniqueId(),
+										"KillSnowGolem");
 								break;
 							case "VILLAGER":
-								RunicPlayerBukkit
-										.incrementPlayerKillCount(monsterEnt.getKiller().getUniqueId(), "KillVillager");
+								RunicPlayerBukkit.incrementPlayerKillCount(
+										monsterEnt.getKiller().getUniqueId(),
+										"KillVillager");
 								break;
 							default:
 								break;
 							}
 
 						}
-					}, 100); // delay
+					}); // delay
 
 		}
 	}
@@ -777,236 +861,377 @@ public final class RunicParadise extends JavaPlugin implements Listener {
 				}
 			}
 
-			RunicGateway Rg = new RunicGateway();
-			Player player = (Player) event.getEntity();
-			String cause = "";
-			String killerName = "";
+			final PlayerDeathEvent innerEvent = event;
 
-			if (Rg.getLastEntityDamager(player) != null) {
-				Entity killer = Rg.getLastEntityDamager(player);
+			Bukkit.getServer().getScheduler()
+					.runTaskAsynchronously(instance, new Runnable() {
+						public void run() {
 
-				if (killer instanceof Player) {
-					Player k = (Player) killer;
-					killerName = k.getName();
+							Player player = (Player) innerEvent.getEntity();
+							String cause = "";
+							String killerName = "";
 
-					cause = "PLAYER_KILL";
-				} else {
-					// Not a player... so maybe a mob :)
-					killerName = killer.getType().toString();
-					EntityDamageEvent ede = player.getLastDamageCause();
-					DamageCause dc = ede.getCause();
-					cause = dc.toString();
-				}
-			} else {
-				// death not caused by an entity; entity check returned null
-				EntityDamageEvent ede = player.getLastDamageCause();
-				DamageCause dc = ede.getCause();
-				cause = dc.toString();
-				killerName = cause;
-			}
+							if (RunicGateway.getLastEntityDamager(player) != null) {
+								Entity killer = RunicGateway
+										.getLastEntityDamager(player);
 
-			String uuid = player.getUniqueId().toString();
-			String name = player.getName();
-			String loc = event.getEntity().getLocation().toString();
+								if (killer instanceof Player) {
+									Player k = (Player) killer;
+									killerName = k.getName();
 
-			// String pvp = event.getEntity().getKiller().toString();
-			long time = new Date().getTime();
+									cause = "PLAYER_KILL";
+								} else {
+									// Not a player... so maybe a mob :)
+									killerName = killer.getType().toString();
+									EntityDamageEvent ede = player
+											.getLastDamageCause();
+									DamageCause dc = ede.getCause();
+									cause = dc.toString();
+								}
+							} else {
+								// death not caused by an entity; entity check
+								// returned null
+								EntityDamageEvent ede = player
+										.getLastDamageCause();
+								DamageCause dc = ede.getCause();
+								cause = dc.toString();
+								killerName = cause;
+							}
 
-			MySQL MySQL = new MySQL(instance, instance.getConfig().getString(
-					"dbHost"), instance.getConfig().getString("dbPort"),
-					instance.getConfig().getString("dbDatabase"), instance
-							.getConfig().getString("dbUser"), instance
-							.getConfig().getString("dbPassword"));
-			final Connection e = MySQL.openConnection();
-			// do the insert
-			try {
-				Statement eStmt = e.createStatement();
-				eStmt.executeUpdate("INSERT INTO rp_PlayerDeath (`PlayerName`, `UUID`, `TimeStamp`, `CauseOfDeath`, `Killer`, `Location`) VALUES "
-						+ "('"
-						+ name
-						+ "', '"
-						+ uuid
-						+ "', '"
-						+ time
-						+ "', '"
-						+ cause + "', '" + killerName + "', '" + loc + "');");
-			} catch (SQLException err) {
-				getLogger().log(
-						Level.SEVERE,
-						"Cant create new row PlayerDeath for " + name
-								+ " because: " + err.getMessage());
-			}
-			// close the connection
-			try {
-				e.close();
-			} catch (SQLException err) {
-				getLogger().log(
-						Level.SEVERE,
-						"Cant close conn PlayerDeath for " + name
-								+ " because: " + err.getMessage());
-			}
+							String uuid = player.getUniqueId().toString();
+							String name = player.getName();
+							String loc = innerEvent.getEntity().getLocation()
+									.toString();
 
+							// String pvp =
+							// event.getEntity().getKiller().toString();
+							long time = new Date().getTime();
+
+							MySQL MySQL = new MySQL(instance, instance
+									.getConfig().getString("dbHost"), instance
+									.getConfig().getString("dbPort"), instance
+									.getConfig().getString("dbDatabase"),
+									instance.getConfig().getString("dbUser"),
+									instance.getConfig()
+											.getString("dbPassword"));
+							final Connection e = MySQL.openConnection();
+							// do the insert
+							try {
+								Statement eStmt = e.createStatement();
+								eStmt.executeUpdate("INSERT INTO rp_PlayerDeath (`PlayerName`, `UUID`, `TimeStamp`, `CauseOfDeath`, `Killer`, `Location`) VALUES "
+										+ "('"
+										+ name
+										+ "', '"
+										+ uuid
+										+ "', '"
+										+ time
+										+ "', '"
+										+ cause
+										+ "', '"
+										+ killerName + "', '" + loc + "');");
+							} catch (SQLException err) {
+								getLogger().log(
+										Level.SEVERE,
+										"Cant create new row PlayerDeath for "
+												+ name + " because: "
+												+ err.getMessage());
+							}
+							// close the connection
+							try {
+								e.close();
+							} catch (SQLException err) {
+								getLogger().log(
+										Level.SEVERE,
+										"Cant close conn PlayerDeath for "
+												+ name + " because: "
+												+ err.getMessage());
+							}
+							player = null;
+						}
+
+					}); // end run task async
+			targetPlayer = null;
 		}
 	}
 
+	/*
+	 * 
+	 * // Maintain table of player info public void updatePlayerInfo(String
+	 * name, boolean join, boolean leave) { final Date now = new Date();
+	 * 
+	 * MySQL MySQL = new MySQL(instance, instance.getConfig().getString(
+	 * "dbHost"), instance.getConfig().getString("dbPort"), instance
+	 * .getConfig().getString("dbDatabase"), instance.getConfig()
+	 * .getString("dbUser"), instance.getConfig().getString( "dbPassword"));
+	 * final Connection d = MySQL.openConnection();
+	 * 
+	 * final String innerName = name; final boolean innerJoin = join; final
+	 * boolean innerLeave = leave;
+	 * 
+	 * Bukkit.getServer().getScheduler() .runTaskAsynchronously(instance, new
+	 * Runnable() { public void run() {
+	 * 
+	 * // run update when players join if (innerJoin) { try {
+	 * 
+	 * Statement dStmt = d.createStatement(); ResultSet res = dStmt
+	 * .executeQuery("SELECT * FROM rp_PlayerInfo WHERE PlayerName = '" +
+	 * innerName + "';"); // if this is true - there's no result from DB if
+	 * (!res.isBeforeFirst()) { // Need to create a new record // Check for a
+	 * date in grieflog to use as // FirstSeen date ResultSet grieflogRes =
+	 * dStmt .executeQuery("SELECT * FROM `blacklist_events` WHERE `player` = '"
+	 * + innerName + "' ORDER BY `id` ASC LIMIT 1;");
+	 * 
+	 * // if this is true - there's no result from // DB if
+	 * (!grieflogRes.isBeforeFirst()) { // No entries found in grief log, use //
+	 * current time as // FirstSeen // Create the new record try {
+	 * dStmt.executeUpdate(
+	 * "INSERT INTO rp_PlayerInfo (`PlayerName`, `UUID`, `FirstSeen`, `LastSeen`) VALUES ('"
+	 * + innerName + "', '" + getServer().getPlayer( innerName) .getUniqueId() +
+	 * "', '" + now.getTime() + "', '" + now.getTime() + "');");
+	 * getLogger().log( Level.INFO,
+	 * "[RP] Created new database entry (without grieflog data) for " +
+	 * innerName); } catch (SQLException e) { getLogger().log( Level.SEVERE,
+	 * "Cant create new row PlayerInfo for " + innerName + " because: " +
+	 * e.getMessage()); } } else { // Entry found in grieflog, use that for //
+	 * FirstSeen // Create the new record grieflogRes.next(); try { String
+	 * logTime = grieflogRes .getString("time") + "000"; dStmt.executeUpdate(
+	 * "INSERT INTO rp_PlayerInfo (`PlayerName`, `UUID`, `FirstSeen`, `LastSeen`) VALUES ('"
+	 * + innerName + "', '" + getServer().getPlayer( innerName) .getUniqueId() +
+	 * "', '" + logTime + "', '" + now.getTime() + "');"); getLogger().log(
+	 * Level.INFO, "[RP] Created new database entry (with grieflog data) for " +
+	 * innerName); } catch (SQLException e) { getLogger().log( Level.SEVERE,
+	 * "Cant create new row PlayerInfo for " + innerName + " because: " +
+	 * e.getMessage()); } } // now process if user does exist already in //
+	 * playerinfo // table } else { // Record already exists, just update //
+	 * LastSeen try {
+	 * dStmt.executeUpdate("UPDATE `rp_PlayerInfo` SET LastSeen='" +
+	 * now.getTime() + "' WHERE PlayerName='" + innerName + "';");
+	 * getLogger().log( Level.INFO, "[RP] Updated player info record for " +
+	 * innerName); } catch (SQLException e) { getLogger().log( Level.SEVERE,
+	 * "Cant update LastSeen on exit for " + innerName + " because: " +
+	 * e.getMessage()); }
+	 * 
+	 * } } catch (SQLException e) { getLogger().log( Level.SEVERE,
+	 * "Could not check for PlayerInfo record because: " + e.getMessage()); }
+	 * 
+	 * } // end if running the "onJoin" part // run update when players leave
+	 * else if (innerLeave) { try { Statement dStmt = d.createStatement();
+	 * ResultSet res = dStmt
+	 * .executeQuery("SELECT * FROM rp_PlayerInfo WHERE PlayerName = '" +
+	 * innerName + "';");
+	 * 
+	 * // this if stmt ensures the resultset is empty // if this is true -
+	 * there's no result from DB if (!res.isBeforeFirst()) { // no record
+	 * exists... somehow. this // shouldnt really happen. // re-run this method
+	 * but on the JOIN side // to get a new // record created.
+	 * updatePlayerInfo(innerName, true, false); } else { // Record already
+	 * exists, good! now just // update LastSeen try {
+	 * dStmt.executeUpdate("UPDATE `rp_PlayerInfo` SET LastSeen='" +
+	 * now.getTime() + "' WHERE PlayerName='" + innerName + "';");
+	 * getLogger().log( Level.INFO, "[RP] Updated player info record for " +
+	 * innerName); } catch (SQLException e) { getLogger().log( Level.SEVERE,
+	 * "Cant update LastSeen on exit for " + innerName + " because: " +
+	 * e.getMessage()); } }
+	 * 
+	 * } catch (SQLException e) { getLogger().log( Level.SEVERE,
+	 * "Could not check for PlayerInfo ONLEAVE record because: " +
+	 * e.getMessage()); } } // end if running the "onLeave" part
+	 * 
+	 * // Close the connection try { d.close(); } catch (SQLException e) {
+	 * getLogger().log( Level.SEVERE,
+	 * "Cant close mysql conn after playerinfo update: " + e.getMessage()); } }
+	 * }); // delay }
+	 */
 	// Maintain table of player info
-	public void updatePlayerInfo(String name, boolean join, boolean leave) {
-		Date now = new Date();
+	public void updatePlayerInfoOnJoin(String name, UUID pUUID) {
+		final Date now = new Date();
+		final String playerName = name;
+		final UUID playerUUID = pUUID;
 
-		MySQL MySQL = new MySQL(instance, instance.getConfig().getString(
-				"dbHost"), instance.getConfig().getString("dbPort"), instance
-				.getConfig().getString("dbDatabase"), instance.getConfig()
-				.getString("dbUser"), instance.getConfig().getString(
-				"dbPassword"));
-		final Connection d = MySQL.openConnection();
+		Bukkit.getServer().getScheduler()
+				.runTaskAsynchronously(instance, new Runnable() {
+					public void run() {
 
-		// run update when players join
-		if (join) {
-			try {
+						MySQL MySQL = new MySQL(instance, instance.getConfig()
+								.getString("dbHost"), instance.getConfig()
+								.getString("dbPort"), instance.getConfig()
+								.getString("dbDatabase"), instance.getConfig()
+								.getString("dbUser"), instance.getConfig()
+								.getString("dbPassword"));
+						final Connection dbConn = MySQL.openConnection();
+						int rowCount = -1;
+						int rowCountnameMatch = -1;
 
-				Statement dStmt = d.createStatement();
-				ResultSet res = dStmt
-						.executeQuery("SELECT * FROM rp_PlayerInfo WHERE PlayerName = '"
-								+ name + "';");
-				// if this is true - there's no result from DB
-				if (!res.isBeforeFirst()) {
-					// Need to create a new record
-					// Check for a date in grieflog to use as FirstSeen date
-					ResultSet grieflogRes = dStmt
-							.executeQuery("SELECT * FROM `blacklist_events` WHERE `player` = '"
-									+ name + "' ORDER BY `id` ASC LIMIT 1;");
-
-					// if this is true - there's no result from DB
-					if (!grieflogRes.isBeforeFirst()) {
-						// No entries found in grief log, use current time as
-						// FirstSeen
-						// Create the new record
 						try {
-							dStmt.executeUpdate("INSERT INTO rp_PlayerInfo (`PlayerName`, `UUID`, `FirstSeen`, `LastSeen`) VALUES ('"
-									+ name
-									+ "', '"
-									+ getServer().getPlayer(name).getUniqueId()
-									+ "', '"
-									+ now.getTime()
-									+ "', '"
-									+ now.getTime() + "');");
-							getLogger().log(
-									Level.INFO,
-									"[RP] Created new database entry (without grieflog data) for "
-											+ name);
+							PreparedStatement dStmt = dbConn
+									.prepareStatement("SELECT COUNT(*) as Total FROM rpgame.rp_PlayerInfo WHERE UUID = ?;");
+							dStmt.setString(1, playerUUID.toString());
+							ResultSet dbResult = dStmt.executeQuery();
+							while (dbResult.next()) {
+								rowCount = dbResult.getInt("Total");
+							}
+							dStmt.close();
+
+							PreparedStatement zStmt = dbConn
+									.prepareStatement("SELECT COUNT(*) as Total FROM rpgame.rp_PlayerInfo WHERE PlayerName = ?;");
+							zStmt.setString(1, playerName);
+							ResultSet zResult = zStmt.executeQuery();
+							while (zResult.next()) {
+								rowCountnameMatch = zResult.getInt("Total");
+							}
+							zStmt.close();
+
 						} catch (SQLException e) {
 							getLogger().log(
 									Level.SEVERE,
-									"Cant create new row PlayerInfo for "
-											+ name + " because: "
+									"Cant check for row count in updatePlayerInfoOnJoin for "
+											+ playerName + " because: "
 											+ e.getMessage());
 						}
-					} else {
-						// Entry found in grieflog, use that for FirstSeen
-						// Create the new record
-						grieflogRes.next();
-						try {
-							String logTime = grieflogRes.getString("time")
-									+ "000";
-							dStmt.executeUpdate("INSERT INTO rp_PlayerInfo (`PlayerName`, `UUID`, `FirstSeen`, `LastSeen`) VALUES ('"
-									+ name
-									+ "', '"
-									+ getServer().getPlayer(name).getUniqueId()
-									+ "', '"
-									+ logTime
-									+ "', '"
-									+ now.getTime()
-									+ "');");
-							getLogger().log(
+
+						if (rowCount != rowCountnameMatch) {
+							Bukkit.dispatchCommand(Bukkit.getConsoleSender(),
+									"sc Name change detected for " + playerName);
+							Bukkit.getLogger().log(
 									Level.INFO,
-									"[RP] Created new database entry (with grieflog data) for "
-											+ name);
+									"[RP] Name change detected for "
+											+ playerName);
+						}
+
+						try {
+
+							// if this player has no rows in the table yet
+							if (rowCount == 0) {
+								PreparedStatement dStmt = dbConn
+										.prepareStatement("INSERT INTO rp_PlayerInfo (`PlayerName`, `UUID`, `FirstSeen`, `LastSeen`) VALUES "
+												+ "(?, ?, ?, ?);");
+								dStmt.setString(1, playerName);
+								dStmt.setString(2, playerUUID.toString());
+								dStmt.setLong(3, now.getTime());
+								dStmt.setLong(4, now.getTime());
+
+								dStmt.executeUpdate();
+								dStmt.close();
+
+								// if this player has 1 row in the table
+							} else if (rowCount == 1) {
+								PreparedStatement dStmt = dbConn
+										.prepareStatement("UPDATE `rp_PlayerInfo` SET LastSeen=?, PlayerName=? WHERE UUID=?;");
+								dStmt.setLong(1, now.getTime());
+								dStmt.setString(2, playerName);
+								dStmt.setString(3, playerUUID.toString());
+								dStmt.executeUpdate();
+								dStmt.close();
+								Bukkit.getLogger().log(
+										Level.INFO,
+										"[RP] PlayerInfo data updated for "
+												+ playerName);
+
+								// if this player has MORE than 1 row in the
+								// table
+							} else if (rowCount > 1) {
+								int counter = 1;
+								PreparedStatement zStmt = dbConn
+										.prepareStatement("SELECT * FROM rpgame.rp_PlayerInfo WHERE UUID = ? ORDER BY ID ASC;");
+								zStmt.setString(1, playerUUID.toString());
+								ResultSet zResult = zStmt.executeQuery();
+								while (zResult.next()) {
+									// The first row is our valid one - update
+									// it!
+									if (counter == 1) {
+										PreparedStatement dStmt = dbConn
+												.prepareStatement("UPDATE `rp_PlayerInfo` SET LastSeen=?, PlayerName=? WHERE UUID=?;");
+										dStmt.setLong(1, now.getTime());
+										dStmt.setString(2, playerName);
+										dStmt.setString(3,
+												playerUUID.toString());
+										dStmt.executeUpdate();
+										dStmt.close();
+
+										Bukkit.getLogger().log(
+												Level.INFO,
+												"[RP] PlayerInfo data [row "
+														+ zResult.getInt("ID")
+														+ "] updated for "
+														+ playerName);
+										// All further rows are invalid, delete
+										// them!
+									} else if (counter > 1) {
+										PreparedStatement dStmt = dbConn
+												.prepareStatement("DELETE FROM `rp_PlayerInfo` WHERE ID = ? LIMIT 1;");
+										dStmt.setInt(1, zResult.getInt("ID"));
+										dStmt.executeUpdate();
+										dStmt.close();
+										Bukkit.getLogger().log(
+												Level.INFO,
+												"[RP] PlayerInfo dupe row cleanup (name change?)! Deleted row "
+														+ zResult.getInt("ID"));
+									}
+
+									counter++;
+								}
+								zStmt.close();
+
+							}
+
+							dbConn.close();
+
 						} catch (SQLException e) {
 							getLogger().log(
 									Level.SEVERE,
-									"Cant create new row PlayerInfo for "
-											+ name + " because: "
+									"Cant work with DB updatePlayerInfoOnJoin for "
+											+ playerName + " because: "
 											+ e.getMessage());
 						}
+
 					}
-					// now process if user does exist already in playerinfo
-					// table
-				} else {
-					// Record already exists, just update LastSeen
-					try {
-						dStmt.executeUpdate("UPDATE `rp_PlayerInfo` SET LastSeen='"
-								+ now.getTime()
-								+ "' WHERE PlayerName='"
-								+ name
-								+ "';");
-						getLogger().log(Level.INFO,
-								"[RP] Updated player info record for " + name);
-					} catch (SQLException e) {
-						getLogger().log(
-								Level.SEVERE,
-								"Cant update LastSeen on exit for " + name
-										+ " because: " + e.getMessage());
+				}); // end run task async
+
+	}
+
+	// Maintain table of player info
+	public void updatePlayerInfoOnQuit(String name, UUID pUUID) {
+		final Date now = new Date();
+		final String playerName = name;
+		final UUID playerUUID = pUUID;
+
+		Bukkit.getServer().getScheduler()
+				.runTaskAsynchronously(instance, new Runnable() {
+					public void run() {
+
+						MySQL MySQL = new MySQL(instance, instance.getConfig()
+								.getString("dbHost"), instance.getConfig()
+								.getString("dbPort"), instance.getConfig()
+								.getString("dbDatabase"), instance.getConfig()
+								.getString("dbUser"), instance.getConfig()
+								.getString("dbPassword"));
+						final Connection dbConn = MySQL.openConnection();
+
+						try {
+
+							PreparedStatement dStmt = dbConn
+									.prepareStatement("UPDATE `rp_PlayerInfo` SET LastSeen=? WHERE UUID=?;");
+							dStmt.setLong(1, now.getTime());
+							dStmt.setString(2, playerUUID.toString());
+							dStmt.executeUpdate();
+							dStmt.close();
+							Bukkit.getLogger().log(
+									Level.INFO,
+									"[RP] PlayerInfo data updated for "
+											+ playerName);
+							dbConn.close();
+
+						} catch (SQLException e) {
+							getLogger().log(
+									Level.SEVERE,
+									"Cant work with DB updatePlayerInfoOnquit for "
+											+ playerName + " because: "
+											+ e.getMessage());
+						}
+
 					}
+				}); // end run task async
 
-				}
-			} catch (SQLException e) {
-				getLogger().log(
-						Level.SEVERE,
-						"Could not check for PlayerInfo record because: "
-								+ e.getMessage());
-			}
-
-		} // end if running the "onJoin" part
-			// run update when players leave
-		else if (leave) {
-			try {
-				Statement dStmt = d.createStatement();
-				ResultSet res = dStmt
-						.executeQuery("SELECT * FROM rp_PlayerInfo WHERE PlayerName = '"
-								+ name + "';");
-
-				// this if stmt ensures the resultset is empty
-				// if this is true - there's no result from DB
-				if (!res.isBeforeFirst()) {
-					// no record exists... somehow. this shouldnt really happen.
-					// re-run this method but on the JOIN side to get a new
-					// record created.
-					updatePlayerInfo(name, true, false);
-				} else {
-					// Record already exists, good! now just update LastSeen
-					try {
-						dStmt.executeUpdate("UPDATE `rp_PlayerInfo` SET LastSeen='"
-								+ now.getTime()
-								+ "' WHERE PlayerName='"
-								+ name
-								+ "';");
-						getLogger().log(Level.INFO,
-								"[RP] Updated player info record for " + name);
-					} catch (SQLException e) {
-						getLogger().log(
-								Level.SEVERE,
-								"Cant update LastSeen on exit for " + name
-										+ " because: " + e.getMessage());
-					}
-				}
-
-			} catch (SQLException e) {
-				getLogger().log(
-						Level.SEVERE,
-						"Could not check for PlayerInfo ONLEAVE record because: "
-								+ e.getMessage());
-			}
-		} // end if running the "onLeave" part
-
-		// Close the connection
-		try {
-			d.close();
-		} catch (SQLException e) {
-			getLogger().log(
-					Level.SEVERE,
-					"Cant close mysql conn after playerinfo update: "
-							+ e.getMessage());
-		}
 	}
 
 	private boolean setupPermissions() {

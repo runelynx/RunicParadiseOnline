@@ -10,6 +10,16 @@ commands:
       usage: /<command> [player]
       permission: rp.staff
       permission-message: "You don't have permission: <permission>"
+   powers:
+      description: "Runic Powers command"
+      usage: /<command> 
+      permission: rp.admin
+      permission-message: "You don't have permission: <permission>"
+   punish:
+      description: "Staff tool for keeping the peace"
+      usage: /<command> [player]
+      permission: rp.staff
+      permission-message: "You don't have permission: <permission>"
    rp:
       description: "Rune's first custom command. Sends you to spawn."
       usage: /<command> [player]
