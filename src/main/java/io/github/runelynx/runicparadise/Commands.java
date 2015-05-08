@@ -85,7 +85,7 @@ public class Commands implements CommandExecutor {
 		switch (cmd.getName()) {
 		case "powers":
 			if (args.length == 0) {
-				sender.sendMessage("Possible args: resetmap ... addskill <col> <p> ... disableskill <col> <p> ... enableskill <col> <p> ... listmap");
+				sender.sendMessage("Possible args: resetmap ... addskill <col> <p> ... disableskill <col> <p> ... enableskill <col> <p> ... listmap ... setskill <col> <p> <newval>");
 			} else if (args[0].equals("resetmap")) {
 				sender.sendMessage("Clearing powersMap now.");
 				RunicParadise.powersMap.clear();
@@ -102,7 +102,17 @@ public class Commands implements CommandExecutor {
 							+ RunicParadise.powersMap.get(p.getUniqueId())
 									.getStatusBeasts());
 				}
-			} else if (args[0].equals("addskill")) {
+			} else if (args[0].equals("setskill")) {
+
+				if (RunicParadise.powersMap.get(
+						Bukkit.getPlayer(args[2]).getUniqueId())
+						.setSkill(args[1], Integer.parseInt(args[3]))) {
+					// if true returned, the skill was processed successfully
+					sender.sendMessage("Skill change succeeded.");
+				} else {
+					sender.sendMessage("Skill change failed.");
+				}
+			}else if (args[0].equals("addskill")) {
 				if (RunicParadise.powersMap.get(
 						Bukkit.getPlayer(args[2]).getUniqueId())
 						.incrementSkill(args[1])) {
@@ -372,7 +382,7 @@ public class Commands implements CommandExecutor {
 				Random rand = new Random();
 				// int randomNum = rand.nextInt((max - min) + 1) + min;
 				int randomNum = rand.nextInt((100 - 1) + 1) + 1;
-				if (randomNum <= 2) {
+				if (randomNum <= 5) {
 					command = "graves givesouls " + args[1] + " 3";
 					Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command);
 					command = "say §4L§cu§6c§ek§2y §av§bo§3t§1e§9!§d! "

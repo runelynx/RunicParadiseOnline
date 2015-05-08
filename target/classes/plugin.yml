@@ -13,7 +13,7 @@ commands:
    powers:
       description: "Runic Powers command"
       usage: /<command> 
-      permission: rp.admin
+      permission: rp.staff.powers
       permission-message: "You don't have permission: <permission>"
    punish:
       description: "Staff tool for keeping the peace"

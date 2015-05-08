@@ -114,6 +114,20 @@ public class Recipes {
         newRecipe.addIngredient(1, Material.QUARTZ, 901);
         newRecipe.addIngredient(1, Material.COOKIE);
         Bukkit.getServer().addRecipe(newRecipe);
+        
+        // BEAST TRAINING SWORD
+        newItem = new ItemStack(Material.GOLD_SWORD, 1);
+        newItem.setDurability((short) 99);
+        meta = newItem.getItemMeta();
+        meta.setDisplayName(ChatColor.GOLD + "Beastfang ✯");
+        meta.setLore(Arrays.asList(ChatColor.GRAY + "Empowered Spirit I", " ", ChatColor.YELLOW + "Collects arcane power from", ChatColor.YELLOW + "the spirits of ancient beasts."));
+        newItem.setItemMeta(meta);
+        newItem.addUnsafeEnchantment(RunicParadise.powerEnch, 1);
+        newRecipe = new ShapelessRecipe(newItem);
+        newRecipe.addIngredient(1, Material.GOLD_SWORD);
+        newRecipe.addIngredient(1, Material.SPIDER_EYE);
+        newRecipe.addIngredient(1, Material.BONE);
+        Bukkit.getServer().addRecipe(newRecipe);
     }
 
 }
