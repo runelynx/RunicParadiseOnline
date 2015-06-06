@@ -56,7 +56,7 @@ import de.slikey.effectlib.util.ParticleEffect;
 import mkremins.fanciful.FancyMessage;
 
 /**
- *
+ * 
  * @author Andrewxwsaa
  */
 public class Commands implements CommandExecutor {
@@ -105,14 +105,14 @@ public class Commands implements CommandExecutor {
 			} else if (args[0].equals("setskill")) {
 
 				if (RunicParadise.powersMap.get(
-						Bukkit.getPlayer(args[2]).getUniqueId())
-						.setSkill(args[1], Integer.parseInt(args[3]))) {
+						Bukkit.getPlayer(args[2]).getUniqueId()).setSkill(
+						args[1], Integer.parseInt(args[3]))) {
 					// if true returned, the skill was processed successfully
 					sender.sendMessage("Skill change succeeded.");
 				} else {
 					sender.sendMessage("Skill change failed.");
 				}
-			}else if (args[0].equals("addskill")) {
+			} else if (args[0].equals("addskill")) {
 				if (RunicParadise.powersMap.get(
 						Bukkit.getPlayer(args[2]).getUniqueId())
 						.incrementSkill(args[1])) {
@@ -152,10 +152,10 @@ public class Commands implements CommandExecutor {
 							+ RunicParadise.powersMap.get(p.getUniqueId())
 									.getStatusBeasts());
 				}
-			}  else if (args[0].equals("castsoj")) {
-				Player p = (Player)sender;
+			} else if (args[0].equals("castsoj")) {
+				Player p = (Player) sender;
 				Powers.spellSwordOfJupiter(p.getName(), p.getLocation());
-			}else {
+			} else {
 				sender.sendMessage("Something went wrong with you arguments... I fell out of the if tree :(");
 			}
 
@@ -1093,20 +1093,37 @@ public class Commands implements CommandExecutor {
 		case "rpmail":
 			// Not used.
 			break;
+		case "settler":
+			if (Bukkit.getPlayer(args[0]).hasPermission("rp.ready")) {
+			Bukkit.dispatchCommand(
+					Bukkit.getConsoleSender(),
+					"manpromote " + args[0]
+							+ " settler"); 
+			RunicParadise.perms.playerRemove(Bukkit.getPlayer(args[0]), "rp.ready");
+			sender.sendMessage(ChatColor.GREEN + "Command worked! You just got 2 souls! :)");
+			Bukkit.dispatchCommand(
+					Bukkit.getConsoleSender(),
+					"graves givesouls " + sender.getName()
+							+ " 2"); 
+			} else {
+				sender.sendMessage(ChatColor.RED + "Command failed! Are they Ghost and have they used /ready?");
+			}
+			break;
 		case "ready":
 			if (sender instanceof Player) {
 				boolean promoterFound = false;
 
 				for (Player p : Bukkit.getOnlinePlayers()) {
-					if (p.hasPermission("groupmanager.manpromote")) {
+					if (p.hasPermission("rp.settlerpromotions")) {
 						promoterFound = true;
 						p.sendMessage(ChatColor.GOLD + "[RunicRanks] "
 								+ ChatColor.LIGHT_PURPLE + sender.getName()
 								+ " has completed the tutorial.");
 						p.sendMessage(ChatColor.LIGHT_PURPLE + "Please use "
-								+ ChatColor.AQUA + "/manpromote "
-								+ sender.getName() + " Settler "
-								+ ChatColor.LIGHT_PURPLE + "to promote them.");
+								+ ChatColor.AQUA + "/settler "
+								+ sender.getName()
+								+ ChatColor.LIGHT_PURPLE + " to promote them.");
+						RunicParadise.perms.playerAdd(((Player) sender), "rp.ready");
 					}
 				}
 
@@ -1269,6 +1286,9 @@ public class Commands implements CommandExecutor {
 							+ " Display player carnival token balances");
 					sender.sendMessage(ChatColor.BLUE
 							+ "RunicReaper Commands & Tools");
+					sender.sendMessage(ChatColor.AQUA + "/staff vt <name>"
+							+ ChatColor.GRAY
+							+ " Give a vote reward. DONT ABUSE!");
 					sender.sendMessage(ChatColor.AQUA
 							+ "/staff lg <optional name>" + ChatColor.GRAY
 							+ " Display recent graves");
@@ -1298,11 +1318,16 @@ public class Commands implements CommandExecutor {
 								Integer.parseInt(args[1]));
 					} else {
 						sender.sendMessage(ChatColor.GRAY
-								+ "[ERROR] /staff ug <graveID>");
+								+ "[ERROR] /staff ug <grgaveID>");
 					}
 				} else if (args[0].equals("SR") || args[0].equals("sr")) {
 					rank.showRequirements((Player) sender);
-				} else if (args[0].equals("KC") || args[0].equals("kc")) {
+				} else if (args[0].equals("VT") || args[0].equals("vt")) {
+					String command = "rpvote reward " + args[1];
+					Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command);
+				}
+
+				else if (args[0].equals("KC") || args[0].equals("kc")) {
 					rank.playerkillCounts((Player) sender);
 				} else if (args[0].equals("CT") || args[0].equals("ct")) {
 					carnivalTokenCounts((Player) sender);
@@ -1773,10 +1798,8 @@ public class Commands implements CommandExecutor {
 					}
 				}
 			}
-			getLogger().log(
-					Level.INFO,
-					"[StaffChat] " + senderName + ": "
-							+ buffer.toString());
+			getLogger().log(Level.INFO,
+					"[StaffChat] " + senderName + ": " + buffer.toString());
 		default:
 			break;
 		}

@@ -175,6 +175,7 @@ public final class RunicParadise extends JavaPlugin implements Listener {
 		getCommand("ranks").setExecutor(new Commands());
 		getCommand("sc").setExecutor(new Commands());
 		getCommand("staffchat").setExecutor(new Commands());
+		getCommand("settler").setExecutor(new Commands());
 		getCommand("staff").setExecutor(new Commands());
 		getCommand("music").setExecutor(new Commands());
 		getCommand("radio").setExecutor(new Commands());

@@ -28,6 +28,11 @@ commands:
       usage: /<command>
       permission: rp.NoPlayersAllowed
       permission-message: "You don't have permission: <permission>"
+   settler:
+      description: "For promoting ghosts."
+      usage: /<command>
+      permission: rp.settlerpromotions
+      permission-message: "You don't have permission: <permission>"
    rpjobs:
       description: "Job mastery command. Console only!"
       usage: /<command>
