@@ -5,7 +5,6 @@ import de.slikey.effectlib.EffectManager;
 import de.slikey.effectlib.EffectType;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.Player;
 
 public class TurnEffect extends Effect {
 

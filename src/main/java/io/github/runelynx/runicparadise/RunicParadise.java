@@ -5,21 +5,17 @@
  */
 package io.github.runelynx.runicparadise;
 
-import static org.bukkit.Bukkit.getLogger;
-
-import java.lang.reflect.Field;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Map.Entry;
 import java.util.Random;
 import java.util.UUID;
-import java.util.WeakHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -27,12 +23,7 @@ import net.milkbowl.vault.economy.Economy;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.Color;
-import org.bukkit.FireworkEffect;
-import org.bukkit.FireworkEffect.Type;
 import org.bukkit.Material;
-import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.Firework;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -40,45 +31,29 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.block.BlockRedstoneEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
-import org.bukkit.event.entity.EntityDamageEvent.DamageModifier;
-import org.bukkit.event.entity.EntityTargetEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitScheduler;
 
 import net.milkbowl.vault.permission.Permission;
-import net.minecraft.server.v1_8_R1.ItemStack;
 
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Guardian;
 import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Wolf;
-import org.bukkit.entity.Zombie;
+import org.bukkit.entity.Monster;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.plugin.RegisteredServiceProvider;
-
-import de.slikey.effectlib.EffectLib;
-import de.slikey.effectlib.EffectManager;
-import de.slikey.effectlib.effect.ExplodeEffect;
-import de.slikey.effectlib.effect.FountainEffect;
-import de.slikey.effectlib.effect.MusicEffect;
-import de.slikey.effectlib.effect.ShieldEffect;
-import de.slikey.effectlib.effect.SkyRocketEffect;
-import de.slikey.effectlib.effect.SmokeEffect;
-import de.slikey.effectlib.util.ParticleEffect;
 
 /**
  *
@@ -90,12 +65,12 @@ public final class RunicParadise extends JavaPlugin implements Listener {
 	private static final Logger log = Logger.getLogger("Minecraft");
 	public static Permission perms = null;
 	public static Economy economy = null;
-	public static HashMap<UUID, Powers> powersMap = new HashMap<UUID, Powers>();
-	public static HashMap<String, Zombie> powersSwordOfJupiterMap = new HashMap<String, Zombie>();
-	public static HashMap<UUID, Integer> staffChatSettings = new HashMap<UUID, Integer>();
-	public static Random randomSeed = new Random();
 
-	public static PowerEnchantment powerEnch = new PowerEnchantment(210);
+	public static HashMap<UUID, Faith> faithMap = new HashMap<UUID, Faith>();
+	public static HashMap<String, String[]> faithSettingsMap = new HashMap<String, String[]>();
+	public static HashMap<UUID, Integer> staffChatSettings = new HashMap<UUID, Integer>();
+	public static HashMap<String, ChatColor> rankColors = new HashMap<String, ChatColor>();
+	public static Random randomSeed = new Random();
 
 	Ranks ranks = new Ranks();
 
@@ -128,39 +103,31 @@ public final class RunicParadise extends JavaPlugin implements Listener {
 
 		Recipes.customFoodRecipes();
 
-		try {
-			Field byIdField = PowerEnchantment.class.getDeclaredField("byId");
-			Field byNameField = PowerEnchantment.class
-					.getDeclaredField("byName");
-
-			byIdField.setAccessible(true);
-			byNameField.setAccessible(true);
-
-			@SuppressWarnings("unchecked")
-			HashMap<Integer, PowerEnchantment> byId = (HashMap<Integer, PowerEnchantment>) byIdField
-					.get(null);
-			@SuppressWarnings("unchecked")
-			HashMap<String, PowerEnchantment> byName = (HashMap<String, PowerEnchantment>) byNameField
-					.get(null);
-
-			if (byId.containsKey(210))
-				byId.remove(210);
-
-			if (byName.containsKey(getName()))
-				byName.remove(getName());
-		} catch (Exception ignored) {
-		}
-
 		RunicDeathChest.syncGraveLocations();
 
 		for (Player p : Bukkit.getOnlinePlayers()) {
-			powersMap.put(p.getUniqueId(), new Powers(p.getUniqueId()));
-			log.log(Level.INFO, "Powers Debug: Mapped " + p.getName()
-					+ "; Beasts "
-					+ powersMap.get(p.getUniqueId()).getSkillBeasts()
-					+ "; BeastsState "
-					+ powersMap.get(p.getUniqueId()).getStatusBeasts());
+			faithMap.put(p.getUniqueId(), new Faith(p.getUniqueId()));
+			if (p.hasPermission("rp.faith.user")) {
+				p.sendMessage(ChatColor.GRAY + "[" + ChatColor.BLUE + "Runic"
+						+ ChatColor.DARK_AQUA + "Faith" + ChatColor.GRAY + "] "
+						+ ChatColor.BLUE + "Faith system activated!");
+			}
+
 		}
+
+		Faith.getFaithSettings();
+
+		rankColors.put("Seeker", ChatColor.GREEN);
+		rankColors.put("Runner", ChatColor.DARK_GREEN);
+		rankColors.put("Singer", ChatColor.YELLOW);
+		rankColors.put("Brawler", ChatColor.GOLD);
+		rankColors.put("Keeper", ChatColor.AQUA);
+		rankColors.put("Guard", ChatColor.DARK_AQUA);
+		rankColors.put("Hunter", ChatColor.BLUE);
+		rankColors.put("Slayer", ChatColor.DARK_BLUE);
+		rankColors.put("Warder", ChatColor.LIGHT_PURPLE);
+		rankColors.put("Champion", ChatColor.DARK_PURPLE);
+		rankColors.put("Master", ChatColor.RED);
 
 		// This will throw a NullPointerException if you don't have the command
 		// defined in your plugin.yml file!
@@ -170,6 +137,7 @@ public final class RunicParadise extends JavaPlugin implements Listener {
 		getCommand("rpgames").setExecutor(new Commands());
 		getCommand("games").setExecutor(new Commands());
 		getCommand("hmsay").setExecutor(new Commands());
+		getCommand("tc").setExecutor(new Commands());
 		getCommand("promote").setExecutor(new Commands());
 		getCommand("rankup").setExecutor(new Commands());
 		getCommand("ranks").setExecutor(new Commands());
@@ -192,6 +160,7 @@ public final class RunicParadise extends JavaPlugin implements Listener {
 		getCommand("rpeffects").setExecutor(new Commands());
 		getCommand("punish").setExecutor(new Commands());
 		getCommand("powers").setExecutor(new Commands());
+		getCommand("faith").setExecutor(new Commands());
 
 		Bukkit.getServer().getPluginManager().registerEvents(this, this);
 
@@ -325,86 +294,119 @@ public final class RunicParadise extends JavaPlugin implements Listener {
 				}
 			}
 		}, 0L, 1200L);
-
-		// Check for spirit of wolf spellcast every 3 minutes
-		scheduler.runTaskTimer(this, new Runnable() {
-			@Override
-			public void run() {
-				for (Entry<UUID, Powers> entry : powersMap.entrySet()) {
-					UUID pUUID = entry.getKey();
-					Powers powerObj = entry.getValue();
-
-					Long currentTime = Bukkit.getWorld("RunicRealm").getTime();
-
-					if (currentTime > 14000 && currentTime < 23000) {
-						// Check player's Beasts skill for casting Spirit of
-						// Wolf
-						Bukkit.getConsoleSender().sendMessage(
-								"Current time in Spirit of Wolf check: "
-										+ currentTime);
-						if (powerObj.getSkillBeasts() >= 300) {
-							Powers.spellSpiritOfTheWolf(pUUID, Bukkit
-									.getPlayer(pUUID).getLocation());
-						}
-					}
-
-				}
-
-			}
-		}, 0L, 3600L);
-
+		/*
+		 * // Check for spirit of wolf spellcast every 3 minutes
+		 * scheduler.runTaskTimer(this, new Runnable() {
+		 * 
+		 * @Override public void run() { for (Entry<UUID, Powers> entry :
+		 * powersMap.entrySet()) { UUID pUUID = entry.getKey(); Powers powerObj
+		 * = entry.getValue();
+		 * 
+		 * Long currentTime = Bukkit.getWorld("RunicRealm").getTime();
+		 * 
+		 * if (currentTime > 14000 && currentTime < 23000) { // Check player's
+		 * Beasts skill for casting Spirit of // Wolf
+		 * Bukkit.getConsoleSender().sendMessage(
+		 * "Current time in Spirit of Wolf check: " + currentTime); if
+		 * (powerObj.getSkillBeasts() >= 300) {
+		 * Powers.spellSpiritOfTheWolf(pUUID, Bukkit
+		 * .getPlayer(pUUID).getLocation()); } }
+		 * 
+		 * }
+		 * 
+		 * } }, 0L, 3600L);
+		 */
 	}
 
 	public void onDisable() {
 		// TODO Insert logic to be performed when the plugin is disabled
+		Faith.deactivateFaiths();
+		rankColors.clear();
 		getLogger().info("RunicParadise Plugin: onDisable has been invoked!");
-		powersMap.clear();
-		getLogger().info("RP Powers: Powers map has been cleared.");
+	
 		// em.dispose();
 	}
 
 	@EventHandler
 	public void onPlayerChat(AsyncPlayerChatEvent event) {
-		// rf[5Adminf] {jobs} 5{name}f: %2$s
-		// ADMINS
-		if (event.getPlayer().hasPermission("rp.staff.admin")) {
-			event.setFormat(ChatColor.DARK_RED + "★Admin★" + " "
-					+ perms.getPrimaryGroup(event.getPlayer()) + ChatColor.GRAY
-					+ " {jobs}" + ChatColor.DARK_RED
-					+ event.getPlayer().getDisplayName() + ChatColor.WHITE
-					+ ": %2$s");
-			// ELDER MOD
-		} else if (event.getPlayer().hasPermission("rp.staff.mod+")) {
-			event.setFormat(ChatColor.DARK_RED + "✩Mod+✩" + " "
-					+ perms.getPrimaryGroup(event.getPlayer()) + ChatColor.GRAY
-					+ " {jobs}" + ChatColor.DARK_RED
-					+ event.getPlayer().getDisplayName() + ChatColor.WHITE
-					+ ": %2$s");
-			// MOD
-		} else if (event.getPlayer().hasPermission("rp.staff.mod")) {
-			event.setFormat(ChatColor.DARK_RED + "♒Mod♒" + " "
-					+ perms.getPrimaryGroup(event.getPlayer()) + ChatColor.GRAY
-					+ " {jobs}" + ChatColor.DARK_RED
-					+ event.getPlayer().getDisplayName() + ChatColor.WHITE
-					+ ": %2$s");
-			// HELPER
-		} else if (event.getPlayer().hasPermission("rp.staff.helper")) {
-			event.setFormat(ChatColor.DARK_RED + "" + "♦Helper♦" + " "
-					+ perms.getPrimaryGroup(event.getPlayer()) + ChatColor.GRAY
-					+ " {jobs}" + ChatColor.DARK_RED
-					+ event.getPlayer().getDisplayName() + ChatColor.WHITE
-					+ ": %2$s");
-			// EVERYONE ELSE
+		if (event.getPlayer().hasPermission("rp.ranks.new")) {
+			String staffPrefix = "";
+			if (event.getPlayer().hasPermission("rp.staff")) {
+				if ((event.getPlayer().hasPermission("rp.staff.admin"))) {
+					staffPrefix = ChatColor.DARK_RED + "<Admin> ";
+				} else if ((event.getPlayer().hasPermission("rp.staff.mod+"))) {
+					staffPrefix = ChatColor.DARK_RED + "<Mod+> ";
+				} else if ((event.getPlayer().hasPermission("rp.staff.mod"))) {
+					staffPrefix = ChatColor.DARK_RED + "<Mod> ";
+				} else if ((event.getPlayer().hasPermission("rp.staff.helper"))) {
+					staffPrefix = ChatColor.DARK_RED + "<Helper> ";
+				}
+
+			}
+			event.setFormat(staffPrefix
+					+ RunicParadise.rankColors.get(perms.getPrimaryGroup(event
+							.getPlayer()))
+					+ RunicParadise.faithSettingsMap.get(RunicParadise.faithMap
+							.get(event.getPlayer().getUniqueId())
+							.getPrimaryFaith())[1]
+					+ perms.getPrimaryGroup(event.getPlayer()).toLowerCase()
+					+ ChatColor.GRAY
+					+ " {jobs}"
+					+ RunicParadise.rankColors.get(perms.getPrimaryGroup(event
+							.getPlayer())) + event.getPlayer().getDisplayName()
+					+ ChatColor.WHITE + ": %2$s");
 		} else {
-			event.setFormat(event.getFormat().replace("{staff} ", "")
+			String staffPrefix = "";
+			if (event.getPlayer().hasPermission("rp.staff")) {
+				if ((event.getPlayer().hasPermission("rp.staff.admin"))) {
+					staffPrefix = ChatColor.DARK_RED + "[Admin] ";
+				} else if ((event.getPlayer().hasPermission("rp.staff.mod+"))) {
+					staffPrefix = ChatColor.DARK_RED + "[Mod+] ";
+				} else if ((event.getPlayer().hasPermission("rp.staff.mod"))) {
+					staffPrefix = ChatColor.DARK_RED + "[Mod] ";
+				} else if ((event.getPlayer().hasPermission("rp.staff.helper"))) {
+					staffPrefix = ChatColor.DARK_RED + "[Helper] ";
+				}
+			}
+			event.setFormat(event.getFormat().replace("{staff}", staffPrefix)
 					.replace("{name}", event.getPlayer().getDisplayName()));
 		}
 
+		// rf[5Adminf] {jobs} 5{name}f: %2$s
+		// ADMINS
+		/*
+		 * if (event.getPlayer().hasPermission("rp.staff.admin")) {
+		 * 
+		 * event.setFormat(ChatColor.DARK_RED + "★Admin★" + " " +
+		 * perms.getPrimaryGroup(event.getPlayer()) + ChatColor.GRAY + " {jobs}"
+		 * + ChatColor.DARK_RED + event.getPlayer().getDisplayName() +
+		 * ChatColor.WHITE + ": %2$s"); // ELDER MOD } else if
+		 * (event.getPlayer().hasPermission("rp.staff.mod+")) {
+		 * event.setFormat(ChatColor.DARK_RED + "✩Mod+✩" + " " +
+		 * perms.getPrimaryGroup(event.getPlayer()) + ChatColor.GRAY + " {jobs}"
+		 * + ChatColor.DARK_RED + event.getPlayer().getDisplayName() +
+		 * ChatColor.WHITE + ": %2$s"); // MOD } else if
+		 * (event.getPlayer().hasPermission("rp.staff.mod")) {
+		 * event.setFormat(ChatColor.DARK_RED + "♒Mod♒" + " " +
+		 * perms.getPrimaryGroup(event.getPlayer()) + ChatColor.GRAY + " {jobs}"
+		 * + ChatColor.DARK_RED + event.getPlayer().getDisplayName() +
+		 * ChatColor.WHITE + ": %2$s"); // HELPER } else if
+		 * (event.getPlayer().hasPermission("rp.staff.helper")) {
+		 * event.setFormat(ChatColor.DARK_RED + "" + "♦Helper♦" + " " +
+		 * perms.getPrimaryGroup(event.getPlayer()) + ChatColor.GRAY + " {jobs}"
+		 * + ChatColor.DARK_RED + event.getPlayer().getDisplayName() +
+		 * ChatColor.WHITE + ": %2$s"); // EVERYONE ELSE } else {
+		 * event.setFormat(event.getFormat().replace("{staff} ", "")
+		 * .replace("{name}", event.getPlayer().getDisplayName())); }
+		 */
+
 		// CENSOR!
-		if (event.getMessage().contains("fuck")
-				|| event.getMessage().contains("shit")) {
-			event.setMessage(event.getMessage().replace("fuck", "✗✗✗✗"));
-			event.setMessage(event.getMessage().replace("shit", "✗✗✗✗"));
+		if (event.getMessage().toLowerCase().contains("fuck")
+				|| event.getMessage().toLowerCase().contains("shit")) {
+			event.setMessage(event.getMessage().toLowerCase()
+					.replace("fuck", "✗✗✗✗"));
+			event.setMessage(event.getMessage().toLowerCase()
+					.replace("shit", "✗✗✗✗"));
 		}
 
 	}
@@ -429,9 +431,12 @@ public final class RunicParadise extends JavaPlugin implements Listener {
 						event.getBlock().getLocation()).equals("NoGrave")) {
 
 			event.setCancelled(true);
-			event.getPlayer().sendMessage(
-					ChatColor.DARK_GRAY + "[RunicReaper] " + ChatColor.GRAY
-							+ "Knocking over graves is bad luck!");
+			event.getPlayer()
+					.sendMessage(
+							ChatColor.DARK_GRAY
+									+ "[RunicReaper] "
+									+ ChatColor.GRAY
+									+ "Knocking over graves is bad luck! Right click the bottom!");
 			getServer().dispatchCommand(getServer().getConsoleSender(),
 					"effect " + event.getPlayer().getName() + " 9 10 10");
 		} else if ((event.getBlock().getType() == Material.SIGN || event
@@ -440,9 +445,12 @@ public final class RunicParadise extends JavaPlugin implements Listener {
 						event.getBlock().getLocation().subtract(0, 1, 0))
 						.equals("NoGrave")) {
 			event.setCancelled(true);
-			event.getPlayer().sendMessage(
-					ChatColor.DARK_GRAY + "[RunicReaper] " + ChatColor.GRAY
-							+ "Knocking over graves is bad luck!");
+			event.getPlayer()
+					.sendMessage(
+							ChatColor.DARK_GRAY
+									+ "[RunicReaper] "
+									+ ChatColor.GRAY
+									+ "Knocking over graves is bad luck! Right click the bottom!");
 			getServer().dispatchCommand(getServer().getConsoleSender(),
 					"effect " + event.getPlayer().getName() + " 15 3 5");
 		} else if (event.getBlock().getType() == Material.MOB_SPAWNER
@@ -452,37 +460,23 @@ public final class RunicParadise extends JavaPlugin implements Listener {
 					ChatColor.DARK_RED
 							+ "Hey put that back! Only staff can break that.");
 			// ATTEMPT CASTING BEAST-POWER / SPIRIT OF BEAVER
-		} else if ((event.getBlock().getType() == Material.LOG || event
-				.getBlock().getType() == Material.LOG_2)
-				&& RunicParadise.powersMap.get(event.getPlayer().getUniqueId())
-						.getSkillBeasts() >= 100) {
-			// Player broke a log AND has sufficient skill, so attempt cast
-			Powers.spellSpiritOfTheBeaver(event.getPlayer().getUniqueId(),
-					event.getPlayer().getLocation());
-
-			// ATTEMPT CASTING BEAST-POWER / SPIRIT OF MOLE
 		}
-
-		Bukkit.getServer().getScheduler()
-				.runTaskAsynchronously(instance, new Runnable() {
-					public void run() {
-
-						if ((event.getBlock().getType() == Material.DIRT || event
-								.getBlock().getType() == Material.STONE)
-								&& RunicParadise.powersMap.get(
-										event.getPlayer().getUniqueId())
-										.getSkillBeasts() >= 400) {
-							// Player broke dirt/stone AND has sufficient skill,
-							// so attempt cast
-							Powers.spellSpiritOfTheMole(event.getPlayer()
-									.getUniqueId(), event.getPlayer()
-									.getLocation());
-
-						}
-
-					} // end run()
-				}); // delay // end task method
-
+		/*
+		 * Bukkit.getServer().getScheduler() .runTaskAsynchronously(instance,
+		 * new Runnable() { public void run() {
+		 * 
+		 * if ((event.getBlock().getType() == Material.DIRT || event
+		 * .getBlock().getType() == Material.STONE) &&
+		 * RunicParadise.powersMap.get( event.getPlayer().getUniqueId())
+		 * .getSkillBeasts() >= 400) { // Player broke dirt/stone AND has
+		 * sufficient skill, // so attempt cast
+		 * Powers.spellSpiritOfTheMole(event.getPlayer() .getUniqueId(),
+		 * event.getPlayer() .getLocation());
+		 * 
+		 * }
+		 * 
+		 * } // end run() }); // delay // end task method
+		 */
 	}
 
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -559,10 +553,8 @@ public final class RunicParadise extends JavaPlugin implements Listener {
 	public void onPlayerJoin(final PlayerJoinEvent pje) {
 
 		// Launch Firework on player join
-		powersMap.put(pje.getPlayer().getUniqueId(), new Powers(pje.getPlayer()
+		faithMap.put(pje.getPlayer().getUniqueId(), new Faith(pje.getPlayer()
 				.getUniqueId()));
-		log.log(Level.INFO, "RP Powers: Added " + pje.getPlayer().getName()
-				+ " to powers map.");
 		updatePlayerInfoOnJoin(pje.getPlayer().getName(), pje.getPlayer()
 				.getUniqueId());
 		/*
@@ -585,9 +577,9 @@ public final class RunicParadise extends JavaPlugin implements Listener {
 	@EventHandler
 	public void onPlayerQuit(final PlayerQuitEvent pje) {
 
-		powersMap.remove(pje.getPlayer().getUniqueId());
-		log.log(Level.INFO, "RP Powers: Removed " + pje.getPlayer().getName()
-				+ " from powers map.");
+		faithMap.remove(pje.getPlayer().getUniqueId());
+		log.log(Level.INFO, "RP Faith: Removed " + pje.getPlayer().getName()
+				+ " from faith map.");
 
 		updatePlayerInfoOnQuit(pje.getPlayer().getName(), pje.getPlayer()
 				.getUniqueId());
@@ -610,10 +602,8 @@ public final class RunicParadise extends JavaPlugin implements Listener {
 						+ "[RunicSavior] Found you lost in the void... watch your step!");
 			}
 			/*
-			 * } else if (ede.getEntity() instanceof Player &&
-			 * powersSwordOfJupiterMap.containsKey(ede.getEntity().getName())) {
-			 * //check if player has a sword of jupiter zombie in the hashmap
-			 * log.log(Level.INFO,
+			 * } else if ( { //check if player has a sword of jupiter zombie in
+			 * the hashmap log.log(Level.INFO,
 			 * "Recvd player dmg event. Player has a SOJ zombie record in map."
 			 * ); if
 			 * (powersSwordOfJupiterMap.get(ede.getEntity().getUniqueId()).
@@ -633,6 +623,16 @@ public final class RunicParadise extends JavaPlugin implements Listener {
 			 * ); }
 			 */
 
+		} else if (ede.getEntity() instanceof Player
+				&& faithMap.containsKey(ede.getEntity().getUniqueId())) {
+			if (faithMap.get(ede.getEntity().getUniqueId()).checkFaithLevel(
+					"Sun", Faith.SUN_BURNING_VENGEANCE_LEVEL)) {
+				faithMap.get(ede.getEntity().getUniqueId())
+						.castSun_Sunflare(ede.getEntity().getUniqueId(),
+								(Player) ede.getEntity());
+
+			}
+
 		}
 
 	}
@@ -640,17 +640,16 @@ public final class RunicParadise extends JavaPlugin implements Listener {
 	@EventHandler(priority = EventPriority.LOWEST)
 	public void onEntityDamageByEntity(final EntityDamageByEntityEvent edbe) {
 
-		//
-
 		if (edbe.getDamager() instanceof Player
-				&& !(edbe.getEntity() instanceof Player)
-				&& powersMap.get(edbe.getDamager().getUniqueId())
-						.getSkillBeasts() >= 200) {
-			Player p = (Player) edbe.getDamager();
-			if (p.getItemInHand().getType() == Material.AIR
-					|| p.getItemInHand() == null) {
-				Powers.spellSpiritOfTheTiger(edbe, p.getUniqueId(),
-						p.getLocation());
+				&& edbe.getEntity() instanceof Monster
+				&& faithMap.containsKey(edbe.getDamager().getUniqueId())) {
+			if (faithMap.get(edbe.getDamager().getUniqueId()).checkFaithLevel(
+					"Sun", Faith.SUN_SOLAR_FURY_LEVEL)) {
+
+				RunicParadise.faithMap.get(edbe.getDamager().getUniqueId())
+						.castSun_SolarPower(edbe.getDamager().getUniqueId(),
+								(Player) edbe.getDamager());
+
 			}
 		}
 
@@ -688,22 +687,10 @@ public final class RunicParadise extends JavaPlugin implements Listener {
 
 			final LivingEntity monsterEnt = (LivingEntity) ede.getEntity();
 
-			Boolean entityKilledByWolf = false;
-			Boolean wolfIsTamed = false;
-			String wolfOwner = "";
-
 			EntityDamageEvent e = monsterEnt.getLastDamageCause();
 			if (e instanceof EntityDamageByEntityEvent) {
 				EntityDamageByEntityEvent ee = (EntityDamageByEntityEvent) e;
-				if (ee.getDamager() instanceof Wolf) {
-					Wolf wolf = (Wolf) ee.getDamager();
-					entityKilledByWolf = true;
-					if (wolf.isTamed()) {
-						wolfIsTamed = true;
-						wolfOwner = wolf.getOwner().getName();
-					}
 
-				}
 			}
 
 			if (monsterEnt.getKiller() == null
@@ -713,20 +700,6 @@ public final class RunicParadise extends JavaPlugin implements Listener {
 				// OR killer not a player
 				// so nothing recorded!
 
-			} else if (entityKilledByWolf) {
-				if (wolfIsTamed) {
-					getLogger().log(
-							Level.INFO,
-							"[RP] Powers Debug: A tamed (" + wolfOwner
-									+ ") wolf has killed a "
-									+ monsterEnt.getName());
-				} else {
-					getLogger().log(
-							Level.INFO,
-							"[RP] Powers Debug: A wild wolf has killed a "
-									+ monsterEnt.getName());
-				}
-
 			} else {
 
 				Bukkit.getServer().getScheduler()
@@ -735,13 +708,52 @@ public final class RunicParadise extends JavaPlugin implements Listener {
 
 								String mobType = "";
 								Boolean attemptPowersSkillUp = false;
-								Boolean heldWeaponHasLore;
+								Boolean heldWeaponHasLore = false;
+								int faithStrength = 0;
 
-								if (monsterEnt.getKiller().getItemInHand()
-										.getItemMeta().hasLore()) {
-									heldWeaponHasLore = true;
-								} else {
-									heldWeaponHasLore = false;
+								if (monsterEnt.getKiller().getItemInHand() != null
+										&& monsterEnt.getKiller()
+												.getItemInHand().hasItemMeta()) {
+									if (monsterEnt.getKiller().getItemInHand()
+											.getItemMeta().hasLore()) {
+
+										if (monsterEnt
+												.getKiller()
+												.getItemInHand()
+												.getItemMeta()
+												.getLore()
+												.toString()
+												.contains(
+														"Small chance to increase faith")) {
+											heldWeaponHasLore = true;
+											faithStrength = 1;
+										} else if (monsterEnt
+												.getKiller()
+												.getItemInHand()
+												.getItemMeta()
+												.getLore()
+												.toString()
+												.contains(
+														"Medium chance to increase faith")) {
+											heldWeaponHasLore = true;
+											faithStrength = 2;
+										} else if (monsterEnt
+												.getKiller()
+												.getItemInHand()
+												.getItemMeta()
+												.getLore()
+												.toString()
+												.contains(
+														"Strong chance to increase faith")) {
+											heldWeaponHasLore = true;
+											faithStrength = 3;
+										} else {
+											heldWeaponHasLore = false;
+
+										}
+									} else {
+										heldWeaponHasLore = false;
+									}
 								}
 
 								// check for elder guardians
@@ -978,85 +990,54 @@ public final class RunicParadise extends JavaPlugin implements Listener {
 								}
 
 								if (attemptPowersSkillUp && heldWeaponHasLore) {
-									// new
-									// Powers(monsterEnt.getKiller().getUniqueId())
-									// .trySkillUp(UUID, skill);
+									faithMap.get(
+											monsterEnt.getKiller()
+													.getUniqueId()).trySkillUp(
+											(Player) monsterEnt.getKiller(),
+											faithMap.get(
+													monsterEnt.getKiller()
+															.getUniqueId())
+													.getPrimaryFaith(),
+											faithStrength);
+									monsterEnt
+											.getKiller()
+											.sendMessage(
+													ChatColor.GRAY
+															+ "Attempting to level up faith.");
+								}
 
-									if (monsterEnt.getKiller().getItemInHand()
-											.getItemMeta().getLore().toString()
-											.contains("Empowered Spirit")) {
-
-										String weaponName = monsterEnt
-												.getKiller().getItemInHand()
-												.getItemMeta().getDisplayName();
-				
-
-										if (weaponName.contains("Beastfang")) {
-											if (weaponName.length() == 13) {
-												// 1 star
-												Powers.trySkillUp(monsterEnt
-														.getKiller()
-														.getUniqueId(),
-														"Skill_Beasts", 1);
-
-											} else if (weaponName.length() == 14) {
-												// 2 stars
-												Powers.trySkillUp(monsterEnt
-														.getKiller()
-														.getUniqueId(),
-														"Skill_Beasts", 2);
-											} else {
-												getLogger()
-														.log(Level.SEVERE,
-																"DEBUG: Invalid weapon name length: "
-																		+ weaponName
-																				.length());
-											}
-										} else {
-											getLogger()
-													.log(Level.SEVERE,
-															"DEBUG: Invalid weapon name. Skill up attempt aborted.");
-										}
-
-										/*
-										 * case "Razorthorn ✯":
-										 * Powers.trySkillUp(monsterEnt
-										 * .getKiller().getUniqueId(),
-										 * "Skill_Nature", 1); break; case
-										 * "Razorthorn ✯✯":
-										 * Powers.trySkillUp(monsterEnt
-										 * .getKiller().getUniqueId(),
-										 * "Skill_Nature", 2); break; case
-										 * "Frostfire Dagger ✯":
-										 * Powers.trySkillUp(monsterEnt
-										 * .getKiller().getUniqueId(),
-										 * "Skill_Elements", 1); break; case
-										 * "Frostfire Dagger ✯✯":
-										 * Powers.trySkillUp(monsterEnt
-										 * .getKiller().getUniqueId(),
-										 * "Skill_Elements", 2); break; case
-										 * "Starshard ✯":
-										 * Powers.trySkillUp(monsterEnt
-										 * .getKiller().getUniqueId(),
-										 * "Skill_Stars", 1); break; case
-										 * "Starshard ✯✯":
-										 * Powers.trySkillUp(monsterEnt
-										 * .getKiller().getUniqueId(),
-										 * "Skill_Stars", 2); break; default: //
-										 * Do nothing monsterEnt .getKiller()
-										 * .sendMessage(
-										 * "Powers Debug: WpnDispNm=" +
-										 * monsterEnt .getKiller()
-										 * .getItemInHand() .getItemMeta()
-										 * .getDisplayName() + ", toString=" +
-										 * monsterEnt .getKiller()
-										 * .getItemInHand() .toString());
-										 * 
-										 * break; } // end skillUp switch
-										 */
-
-									} // end if - skillUp
-								}// end if checking for specific lore
+								/*
+								 * if (attemptPowersSkillUp &&
+								 * heldWeaponHasLore) { // new //
+								 * Powers(monsterEnt.getKiller().getUniqueId())
+								 * // .trySkillUp(UUID, skill);
+								 * 
+								 * if (monsterEnt.getKiller().getItemInHand()
+								 * .getItemMeta().getLore().toString()
+								 * .contains("Empowered Spirit")) {
+								 * 
+								 * String weaponName = monsterEnt
+								 * .getKiller().getItemInHand()
+								 * .getItemMeta().getDisplayName();
+								 * 
+								 * if (weaponName.contains("Beastfang")) { if
+								 * (weaponName.length() == 13) { // 1 star
+								 * Powers.trySkillUp(monsterEnt .getKiller()
+								 * .getUniqueId(), "Skill_Beasts", 1);
+								 * 
+								 * } else if (weaponName.length() == 14) { // 2
+								 * stars Powers.trySkillUp(monsterEnt
+								 * .getKiller() .getUniqueId(), "Skill_Beasts",
+								 * 2); } else { getLogger() .log(Level.SEVERE,
+								 * "DEBUG: Invalid weapon name length: " +
+								 * weaponName .length()); } } else { getLogger()
+								 * .log(Level.SEVERE,
+								 * "DEBUG: Invalid weapon name. Skill up attempt aborted."
+								 * ); }
+								 * 
+								 * } // end if - skillUp }// end if checking for
+								 * specific lore
+								 */
 							} // end run()
 						}); // delay // end task method
 			} // end else

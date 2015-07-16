@@ -115,19 +115,49 @@ public class Recipes {
         newRecipe.addIngredient(1, Material.COOKIE);
         Bukkit.getServer().addRecipe(newRecipe);
         
-        // BEAST TRAINING SWORD
+        // FAITH WEAPON 1
         newItem = new ItemStack(Material.GOLD_SWORD, 1);
         newItem.setDurability((short) 99);
         meta = newItem.getItemMeta();
-        meta.setDisplayName(ChatColor.GOLD + "Beastfang ✯");
-        meta.setLore(Arrays.asList(ChatColor.GRAY + "Empowered Spirit I", " ", ChatColor.YELLOW + "Collects arcane power from", ChatColor.YELLOW + "the spirits of ancient beasts."));
+        meta.setDisplayName(ChatColor.GOLD + "Sword of Faith");
+        meta.setLore(Arrays.asList(ChatColor.GRAY + "A blessed blade with a faint glow", " ", ChatColor.YELLOW + "Small chance to increase faith", ChatColor.YELLOW + "Large chance to shatter"));
         newItem.setItemMeta(meta);
-        newItem.addUnsafeEnchantment(RunicParadise.powerEnch, 1);
         newRecipe = new ShapelessRecipe(newItem);
+        newRecipe.addIngredient(1, Material.GOLD_NUGGET);
+        newRecipe.addIngredient(1, Material.REDSTONE);
+        newRecipe.addIngredient(1, Material.INK_SACK, 4);
         newRecipe.addIngredient(1, Material.GOLD_SWORD);
-        newRecipe.addIngredient(1, Material.SPIDER_EYE);
-        newRecipe.addIngredient(1, Material.BONE);
+        Bukkit.getServer().addRecipe(newRecipe);
+        
+        // FAITH WEAPON 2
+        newItem = new ItemStack(Material.GOLD_SWORD, 1);
+        newItem.setDurability((short) 99);
+        meta = newItem.getItemMeta();
+        meta.setDisplayName(ChatColor.DARK_GREEN + "Sword of Ardent Faith");
+        meta.setLore(Arrays.asList(ChatColor.GRAY + "A blessed blade with a pulsing glow", " ", ChatColor.GREEN + "Medium chance to increase faith", ChatColor.GREEN + "Medium chance to shatter"));
+        newItem.setItemMeta(meta);
+        newRecipe = new ShapelessRecipe(newItem);
+        newRecipe.addIngredient(1, Material.GOLD_NUGGET);
+        newRecipe.addIngredient(1, Material.REDSTONE);
+        newRecipe.addIngredient(1, Material.INK_SACK, 4);
+        newRecipe.addIngredient(1, Material.EMERALD);
+        newRecipe.addIngredient(1, Material.GOLD_SWORD);
+        Bukkit.getServer().addRecipe(newRecipe);
+        
+        // FAITH WEAPON 3
+        newItem = new ItemStack(Material.GOLD_SWORD, 1);
+        newItem.setDurability((short) 99);
+        meta = newItem.getItemMeta();
+        meta.setDisplayName(ChatColor.DARK_BLUE + "Sword of Devoted Faith");
+        meta.setLore(Arrays.asList(ChatColor.GRAY + "A blessed blade with a blinding glow", " ", ChatColor.BLUE + "Strong chance to increase faith", ChatColor.BLUE + "Small chance to shatter"));
+        newItem.setItemMeta(meta);
+        newRecipe = new ShapelessRecipe(newItem);
+        newRecipe.addIngredient(1, Material.GOLD_NUGGET);
+        newRecipe.addIngredient(1, Material.REDSTONE);
+        newRecipe.addIngredient(1, Material.INK_SACK, 4);
+        newRecipe.addIngredient(1, Material.EMERALD);
+        newRecipe.addIngredient(1, Material.GOLD_SWORD);
+        newRecipe.addIngredient(1, Material.DIAMOND);
         Bukkit.getServer().addRecipe(newRecipe);
     }
-
 }

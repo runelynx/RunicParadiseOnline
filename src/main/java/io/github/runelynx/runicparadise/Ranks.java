@@ -623,7 +623,8 @@ public class Ranks {
 				}
 
 			}
-			if (user.hasPermission("rp.level" + BUILDER_JOB_LEVEL)) {
+			if (user.hasPermission("rp.level" + BUILDER_JOB_LEVEL)
+					|| user.hasPermission("rp.level.master")) {
 				checkJob = true;
 				failureResponse.add(ChatColor.DARK_GREEN + "[✔ OK] "
 						+ ChatColor.GRAY
@@ -733,7 +734,8 @@ public class Ranks {
 				}
 
 			}
-			if (user.hasPermission("rp.level" + ARCHITECT_JOB_LEVEL)) {
+			if (user.hasPermission("rp.level" + ARCHITECT_JOB_LEVEL)
+					|| user.hasPermission("rp.level.master")) {
 				checkJob = true;
 				failureResponse.add(ChatColor.DARK_GREEN + "[✔ OK] "
 						+ ChatColor.GRAY
@@ -867,7 +869,8 @@ public class Ranks {
 				}
 
 			}
-			if (user.hasPermission("rp.level" + WARDEN_JOB_LEVEL)) {
+			if (user.hasPermission("rp.level" + WARDEN_JOB_LEVEL)
+					|| user.hasPermission("rp.level.master")) {
 				checkJob = true;
 				failureResponse.add(ChatColor.DARK_GREEN + "[✔ OK] "
 						+ ChatColor.GRAY
@@ -999,7 +1002,8 @@ public class Ranks {
 				}
 
 			}
-			if (user.hasPermission("rp.level" + PROTECTOR_JOB_LEVEL)) {
+			if (user.hasPermission("rp.level" + PROTECTOR_JOB_LEVEL)
+					|| user.hasPermission("rp.level.master")) {
 				checkJob = true;
 				failureResponse.add(ChatColor.DARK_GREEN + "[✔ OK] "
 						+ ChatColor.GRAY

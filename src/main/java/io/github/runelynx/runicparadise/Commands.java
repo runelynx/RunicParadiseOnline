@@ -5,7 +5,6 @@
  */
 package io.github.runelynx.runicparadise;
 
-import static io.github.runelynx.runicparadise.RunicParadise.economy;
 import static org.bukkit.ChatColor.*;
 
 import java.sql.Connection;
@@ -17,14 +16,10 @@ import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.logging.Level;
-
-import net.milkbowl.vault.economy.Economy;
-import net.milkbowl.vault.permission.Permission;
 
 import org.bukkit.Bukkit;
 
@@ -51,7 +46,6 @@ import com.kill3rtaco.tacoserialization.InventorySerialization;
 
 import de.slikey.effectlib.EffectManager;
 import de.slikey.effectlib.effect.FountainEffect;
-import de.slikey.effectlib.effect.ShieldEffect;
 import de.slikey.effectlib.util.ParticleEffect;
 import mkremins.fanciful.FancyMessage;
 
@@ -83,80 +77,83 @@ public class Commands implements CommandExecutor {
 		// general approach is that errors will return immediately;
 		// successful runs will return after the switch completes
 		switch (cmd.getName()) {
-		case "powers":
+		case "faith":
 			if (args.length == 0) {
-				sender.sendMessage("Possible args: resetmap ... addskill <col> <p> ... disableskill <col> <p> ... enableskill <col> <p> ... listmap ... setskill <col> <p> <newval>");
-			} else if (args[0].equals("resetmap")) {
-				sender.sendMessage("Clearing powersMap now.");
-				RunicParadise.powersMap.clear();
-				sender.sendMessage("Rebuilding powersMap now.");
+				sender.sendMessage("Help coming soon. Samples:");
+				sender.sendMessage("/faith resetmap");
+				sender.sendMessage("/faith enable runelynx Sun");
+				sender.sendMessage("/faith listmap");
+				sender.sendMessage("/faith setlevel runelynx Sun 5");
+				sender.sendMessage("/faith skillup runelynx Sun");
+				sender.sendMessage("/faith stats");
+			} else if (args[0].toLowerCase().equals("resetmap")) {
+				sender.sendMessage("Clearing FaithMap now.");
+				Faith.deactivateFaiths();
+				sender.sendMessage("Rebuilding FaithMap now.");
+				int counter = 0;
 				for (Player p : Bukkit.getOnlinePlayers()) {
-					RunicParadise.powersMap.put(p.getUniqueId(),
-							new Powers(p.getUniqueId()));
-					sender.sendMessage("Powers Debug: Mapped "
-							+ p.getName()
-							+ "; Beasts "
-							+ RunicParadise.powersMap.get(p.getUniqueId())
-									.getSkillBeasts()
-							+ "; BeastsState "
-							+ RunicParadise.powersMap.get(p.getUniqueId())
-									.getStatusBeasts());
-				}
-			} else if (args[0].equals("setskill")) {
+					RunicParadise.faithMap.put(p.getUniqueId(), new Faith(p.getUniqueId()));
+					if (p.hasPermission("rp.faith.user")) {
+						p.sendMessage(ChatColor.GRAY + "[" + ChatColor.BLUE + "Runic"
+								+ ChatColor.DARK_AQUA + "Faith" + ChatColor.GRAY + "] "
+								+ ChatColor.BLUE + "Faith system activated!");
+					}
+					counter++;
 
-				if (RunicParadise.powersMap.get(
-						Bukkit.getPlayer(args[2]).getUniqueId()).setSkill(
-						args[1], Integer.parseInt(args[3]))) {
-					// if true returned, the skill was processed successfully
+				}
+				sender.sendMessage(counter + " player entries added.");
+				Faith.getFaithSettings();
+								
+				
+			}else if (args[0].toLowerCase().equals("stats") && args.length == 1) {
+				if (sender instanceof Player) {
+					Player p = (Player) sender;
+					String response = RunicParadise.faithMap.get(p.getUniqueId()).getPlayerStats(p.getUniqueId(), p.getUniqueId());
+					if (!response.equals("Success")) {
+						p.sendMessage(ChatColor.DARK_BLUE + "[RunicFaith] " + ChatColor.BLUE
+									+ "Failed! "+ response);
+					}
+				}
+				
+			}  else if (args[0].toLowerCase().equals("setlevel")) {
+				String response = RunicParadise.faithMap.get(Bukkit.getPlayer(args[1]).getUniqueId()).setSkill(Bukkit.getPlayer(args[1]),sender.getName(),
+						args[2], Integer.parseInt(args[3]));
+				if (response.equals("Success")) {
+					// if "Success" returned, the skill was processed successfully
 					sender.sendMessage("Skill change succeeded.");
 				} else {
-					sender.sendMessage("Skill change failed.");
+					sender.sendMessage("Skill change failed: " + response);
 				}
-			} else if (args[0].equals("addskill")) {
-				if (RunicParadise.powersMap.get(
-						Bukkit.getPlayer(args[2]).getUniqueId())
-						.incrementSkill(args[1])) {
+			} else if (args[0].toLowerCase().equals("skillup")) {
+				if (RunicParadise.faithMap.get(
+						Bukkit.getPlayer(args[1]).getUniqueId())
+						.incrementSkill(Bukkit.getPlayer(args[1]), args[2])) {
 					// if true returned, the skill was processed successfully
 					sender.sendMessage("Skill increase succeeded.");
 				} else {
 					sender.sendMessage("Skill increase failed.");
 				}
-			} else if (args[0].equals("enableskill")) {
-				if (RunicParadise.powersMap.get(
-						Bukkit.getPlayer(args[2]).getUniqueId()).enableSkill(
-						args[1])) {
-					// if true returned, the skill was processed successfully
-					sender.sendMessage("Skill enable succeeded.");
-				} else {
-					sender.sendMessage("Skill enable failed.");
+			} else if (args[0].toLowerCase().equals("listmap")) {
+				sender.sendMessage("Faith Map Contents:");
+				for (java.util.UUID pUUID : RunicParadise.faithMap.keySet()) {
+					sender.sendMessage(Bukkit.getPlayer(pUUID).getDisplayName());
 				}
-			} else if (args[0].equals("disableskill")) {
-				if (RunicParadise.powersMap.get(
-						Bukkit.getPlayer(args[2]).getUniqueId()).disableSkill(
-						args[1])) {
-					// if true returned, the skill was processed successfully
-					sender.sendMessage("Skill disable succeeded.");
-				} else {
-					sender.sendMessage("Skill disable failed.");
+			} else if (args[0].toLowerCase().equals("enable") && args.length == 3) {
+				String response = RunicParadise.faithMap.get(Bukkit.getPlayer(args[1]).getUniqueId())
+				.enableFaith(Bukkit.getPlayer(args[1]).getUniqueId(), args[2]);
+				
+				if (response.equals("Success")) {
+					sender.sendMessage(
+					ChatColor.DARK_BLUE + "[RunicFaith] " + ChatColor.BLUE
+							+ "Enabled "+ ChatColor.AQUA + args[2] + ChatColor.BLUE +" for " + ChatColor.GRAY + args[1] + ChatColor.BLUE + ". If other faiths were active, they are now disabled.");
+				} else { 
+					sender.sendMessage(
+							ChatColor.DARK_BLUE + "[RunicFaith] " + ChatColor.BLUE
+									+ "Failed! "+ response);
+						
 				}
-			} else if (args[0].equals("listmap")) {
-				for (Player p : Bukkit.getOnlinePlayers()) {
-					RunicParadise.powersMap.put(p.getUniqueId(),
-							new Powers(p.getUniqueId()));
-					sender.sendMessage("Powers Debug: Mapped "
-							+ p.getName()
-							+ "; Beasts "
-							+ RunicParadise.powersMap.get(p.getUniqueId())
-									.getSkillBeasts()
-							+ "; BeastsState "
-							+ RunicParadise.powersMap.get(p.getUniqueId())
-									.getStatusBeasts());
-				}
-			} else if (args[0].equals("castsoj")) {
-				Player p = (Player) sender;
-				Powers.spellSwordOfJupiter(p.getName(), p.getLocation());
 			} else {
-				sender.sendMessage("Something went wrong with you arguments... I fell out of the if tree :(");
+				sender.sendMessage("Something went wrong with your arguments... I fell out of the if tree :(");
 			}
 
 			break;
@@ -250,6 +247,14 @@ public class Commands implements CommandExecutor {
 				// Qualify for a tier2 job
 				RunicPlayerBukkit targetPlayer = new RunicPlayerBukkit(args[1]);
 				boolean showFail = true;
+				
+				if (targetPlayer.getMasteredJobCount() > 0 &&
+						!targetPlayer.checkPlayerPermission("rp.level.master")) {
+					targetPlayer.sendMessageToPlayer(ChatColor.YELLOW
+							+ "[RunicRanks] Your previous masteries are now visible to Runic Ranks!");
+					String command = "manuaddp " + args[1] + " rp.level.master";
+					Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command);
+				}
 
 				// RANGER
 				if (targetPlayer.getMasteredJobs().contains("Woodsman")
@@ -1760,9 +1765,8 @@ public class Commands implements CommandExecutor {
 				return true;
 			}
 			break;
-		case "staffchat":
-		case "sc":
-
+		case "testerchat":
+		case "tc":
 			String senderName = "";
 			if (sender instanceof Player) {
 				Player player = (Player) sender;
@@ -1781,6 +1785,47 @@ public class Commands implements CommandExecutor {
 
 			for (Player p : Bukkit.getOnlinePlayers()) {
 
+				if (p.hasPermission("rp.testers")) {
+					if (args.length == 0) {
+						Player player = (Player) sender;
+						player.sendMessage(ChatColor.DARK_GRAY
+								+ "Tester chat. Usage: /tc [message]");
+						return true;
+					} else {
+
+						p.sendMessage(ChatColor.DARK_GRAY + "["
+								+ ChatColor.DARK_PURPLE + "Tester"
+								+ ChatColor.LIGHT_PURPLE + "Chat" + ChatColor.DARK_GRAY
+								+ "] " + ChatColor.WHITE + senderName + ":"
+								+ ChatColor.LIGHT_PURPLE + buffer.toString());
+
+					}
+				}
+			}
+			getLogger().log(Level.INFO,
+					"[TesterChat] " + senderName + ": " + buffer.toString());
+			break;
+		case "staffchat":
+		case "sc":
+
+			String senderName1 = "";
+			if (sender instanceof Player) {
+				Player player = (Player) sender;
+				senderName1 = sender.getName();
+			} else {
+				senderName1 = "Console";
+
+			}
+
+			StringBuilder buffer1 = new StringBuilder();
+			// change the starting i value to pick what argument to start from
+			// 1 is the 2nd argument.
+			for (int i = 0; i < args.length; i++) {
+				buffer1.append(' ').append(args[i]);
+			}
+
+			for (Player p : Bukkit.getOnlinePlayers()) {
+
 				if (p.hasPermission("rp.staff")) {
 					if (args.length == 0) {
 						Player player = (Player) sender;
@@ -1792,14 +1837,15 @@ public class Commands implements CommandExecutor {
 						p.sendMessage(ChatColor.DARK_GRAY + "["
 								+ ChatColor.DARK_AQUA + "Staff"
 								+ ChatColor.AQUA + "Chat" + ChatColor.DARK_GRAY
-								+ "] " + ChatColor.WHITE + senderName + ":"
-								+ ChatColor.AQUA + buffer.toString());
+								+ "] " + ChatColor.WHITE + senderName1 + ":"
+								+ ChatColor.AQUA + buffer1.toString());
 
 					}
 				}
 			}
 			getLogger().log(Level.INFO,
-					"[StaffChat] " + senderName + ": " + buffer.toString());
+					"[StaffChat] " + senderName1 + ": " + buffer1.toString());
+			break;
 		default:
 			break;
 		}

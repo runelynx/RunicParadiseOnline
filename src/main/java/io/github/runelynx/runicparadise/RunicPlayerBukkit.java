@@ -179,18 +179,28 @@ public class RunicPlayerBukkit {
 		try {
 			// TODO: Change to update DB based on UUID
 			final Connection d = MySQL.openConnection();
+			Date now = new Date();
 
 			PreparedStatement dStmt2 = d
 					.prepareStatement("UPDATE rp_PlayerInfo SET Votes = Votes+1 WHERE UUID = ?");
 			dStmt2.setString(1, this.getPlayerUUID());
 			dStmt2.executeUpdate();
+			
+			PreparedStatement dStmt3 = d
+					.prepareStatement("INSERT INTO rp_Votes (`PlayerName`, `UUID`, `Timestamp`) VALUES "
+							+ "(?, ?, ?);");
+			dStmt3.setString(1, this.playerName);
+			dStmt3.setString(2, this.getPlayerUUID());
+			dStmt3.setLong(3, now.getTime());
+
+			dStmt3.executeUpdate();
 
 			d.close();
 			return true;
 
 		} catch (SQLException e) {
 			getLogger().log(Level.SEVERE,
-					"Failed getPlayerKillCount because: " + e.getMessage());
+					"Failed incrementPlayerVotes because: " + e.getMessage());
 			return false;
 		}
 

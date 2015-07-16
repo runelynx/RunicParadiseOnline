@@ -37,12 +37,6 @@
 			<version>1.1.1</version>
 		</dependency>
 		<dependency>
-			<groupId>WorldEdit</groupId>
-			<artifactId>WorldEdit</artifactId>
-			<scope>compile</scope>
-			<version>1.0</version>
-		</dependency>
-		<dependency>
 			<groupId>net.milkbowl.vault</groupId>
 			<artifactId>VaultAPI</artifactId>
 			<version>1.4</version>
