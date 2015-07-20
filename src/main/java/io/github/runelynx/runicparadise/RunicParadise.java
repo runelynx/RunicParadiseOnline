@@ -34,6 +34,7 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
+import org.bukkit.event.entity.EntityTargetLivingEntityEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -67,9 +68,10 @@ public final class RunicParadise extends JavaPlugin implements Listener {
 	public static Economy economy = null;
 
 	public static HashMap<UUID, Faith> faithMap = new HashMap<UUID, Faith>();
-	public static HashMap<String, String[]> faithSettingsMap = new HashMap<String, String[]>();
+	public static HashMap<String, String[]> faithSettingsMap =  new HashMap<String, String[]>();
 	public static HashMap<UUID, Integer> staffChatSettings = new HashMap<UUID, Integer>();
 	public static HashMap<String, ChatColor> rankColors = new HashMap<String, ChatColor>();
+	public static HashMap<UUID, String> protectedPlayers = new HashMap<UUID, String>();
 	public static Random randomSeed = new Random();
 
 	Ranks ranks = new Ranks();
@@ -323,7 +325,7 @@ public final class RunicParadise extends JavaPlugin implements Listener {
 		Faith.deactivateFaiths();
 		rankColors.clear();
 		getLogger().info("RunicParadise Plugin: onDisable has been invoked!");
-	
+
 		// em.dispose();
 	}
 
@@ -479,6 +481,14 @@ public final class RunicParadise extends JavaPlugin implements Listener {
 		 */
 	}
 
+	@EventHandler
+	public void onEntityTargetLivingEntityEvent(
+			EntityTargetLivingEntityEvent event) {
+		if (event.getEntity() instanceof Player && protectedPlayers.containsKey(event.getTarget().getUniqueId())) {
+			event.setCancelled(true);
+		}
+	}
+
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public void onPlayerInteract(PlayerInteractEvent event) {
 		if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
@@ -486,7 +496,8 @@ public final class RunicParadise extends JavaPlugin implements Listener {
 			if (event.getClickedBlock().getType()
 					.equals(Material.REDSTONE_LAMP_OFF)
 					|| event.getClickedBlock().getType()
-							.equals(Material.REDSTONE_LAMP_ON)) {
+							.equals(Material.REDSTONE_LAMP_ON) || event.getClickedBlock().getType()
+									.equals(Material.BEDROCK)) {
 
 				String graveOwnerName = RunicDeathChest.checkLocForDeath(event
 						.getClickedBlock().getLocation());
@@ -588,6 +599,13 @@ public final class RunicParadise extends JavaPlugin implements Listener {
 
 	@EventHandler(priority = EventPriority.NORMAL)
 	public void onPlayerDamage(final EntityDamageEvent ede) {
+		boolean daytime;
+		if ((Bukkit.getWorld("RunicRealm").getTime() > 14000 && Bukkit
+				.getWorld("RunicRealm").getTime() < 23000)) {
+			daytime = false;
+		} else {
+			daytime = true;
+		}
 
 		// If player falls into the void, heal and teleport them to spawn
 		if (ede.getCause() == DamageCause.VOID) {
@@ -625,16 +643,27 @@ public final class RunicParadise extends JavaPlugin implements Listener {
 
 		} else if (ede.getEntity() instanceof Player
 				&& faithMap.containsKey(ede.getEntity().getUniqueId())) {
-			if (faithMap.get(ede.getEntity().getUniqueId()).checkFaithLevel(
-					"Sun", Faith.SUN_BURNING_VENGEANCE_LEVEL)) {
+			if ((faithMap.get(ede.getEntity().getUniqueId()).checkEquippedFaithLevel(
+					"Sun", Faith.SUN_BURNING_VENGEANCE_LEVEL)
+					&& daytime && ede.getEntity().getWorld().getName().equals("RunicRealm")) || (faithMap.get(ede.getEntity().getUniqueId()).checkEquippedFaithLevel(
+							"Star", Faith.STAR_SPELL_2_LEVEL)
+							&& daytime)) {
 				faithMap.get(ede.getEntity().getUniqueId())
 						.castSun_Sunflare(ede.getEntity().getUniqueId(),
+								(Player) ede.getEntity());
+
+			} else if ((faithMap.get(ede.getEntity().getUniqueId())
+					.checkEquippedFaithLevel("Moon", Faith.MOON_LUNAR_CALM_LEVEL)
+					&& !daytime && ede.getEntity().getWorld().getName().equals("RunicRealm")) || (faithMap.get(ede.getEntity().getUniqueId()).checkEquippedFaithLevel(
+							"Star", Faith.STAR_SPELL_2_LEVEL)
+							&& !daytime)) {
+				faithMap.get(ede.getEntity().getUniqueId())
+						.castMoon_LunarCalm(ede.getEntity().getUniqueId(),
 								(Player) ede.getEntity());
 
 			}
 
 		}
-
 	}
 
 	@EventHandler(priority = EventPriority.LOWEST)
@@ -643,13 +672,28 @@ public final class RunicParadise extends JavaPlugin implements Listener {
 		if (edbe.getDamager() instanceof Player
 				&& edbe.getEntity() instanceof Monster
 				&& faithMap.containsKey(edbe.getDamager().getUniqueId())) {
-			if (faithMap.get(edbe.getDamager().getUniqueId()).checkFaithLevel(
-					"Sun", Faith.SUN_SOLAR_FURY_LEVEL)) {
+			boolean daytime;
+			if ((Bukkit.getWorld("RunicRealm").getTime() > 14000 && Bukkit
+					.getWorld("RunicRealm").getTime() < 23000)) {
+				daytime = false;
+			} else {
+				daytime = true;
+			}
+			if ((faithMap.get(edbe.getDamager().getUniqueId()).checkEquippedFaithLevel(
+					"Sun", Faith.SUN_SOLAR_FURY_LEVEL)
+					&& daytime && edbe.getEntity().getWorld().getName().equals("RunicRealm")) || (faithMap.get(edbe.getDamager().getUniqueId()).checkEquippedFaithLevel(
+							"Star", Faith.STAR_SPELL_1_LEVEL) && daytime)) {
 
 				RunicParadise.faithMap.get(edbe.getDamager().getUniqueId())
 						.castSun_SolarPower(edbe.getDamager().getUniqueId(),
 								(Player) edbe.getDamager());
-
+			} else if ((faithMap.get(edbe.getDamager().getUniqueId())
+					.checkEquippedFaithLevel("Moon", Faith.MOON_CELESTIAL_HEALING_LEVEL)
+					&& !daytime && edbe.getEntity().getWorld().getName().equals("RunicRealm")) || (faithMap.get(edbe.getDamager().getUniqueId()).checkEquippedFaithLevel(
+							"Star", Faith.STAR_SPELL_1_LEVEL) && !daytime)) {
+				RunicParadise.faithMap.get(edbe.getDamager().getUniqueId())
+						.castMoon_CelestialHealing(edbe.getDamager().getUniqueId(),
+								(Player) edbe.getDamager());
 			}
 		}
 
@@ -724,7 +768,7 @@ public final class RunicParadise extends JavaPlugin implements Listener {
 												.getLore()
 												.toString()
 												.contains(
-														"Small chance to increase faith")) {
+														"A blessed blade with a faint glow")) {
 											heldWeaponHasLore = true;
 											faithStrength = 1;
 										} else if (monsterEnt
@@ -734,7 +778,7 @@ public final class RunicParadise extends JavaPlugin implements Listener {
 												.getLore()
 												.toString()
 												.contains(
-														"Medium chance to increase faith")) {
+														"A blessed blade with a pulsing glow")) {
 											heldWeaponHasLore = true;
 											faithStrength = 2;
 										} else if (monsterEnt
@@ -744,7 +788,7 @@ public final class RunicParadise extends JavaPlugin implements Listener {
 												.getLore()
 												.toString()
 												.contains(
-														"Strong chance to increase faith")) {
+														"A blessed blade with a blinding glow")) {
 											heldWeaponHasLore = true;
 											faithStrength = 3;
 										} else {
@@ -998,12 +1042,7 @@ public final class RunicParadise extends JavaPlugin implements Listener {
 													monsterEnt.getKiller()
 															.getUniqueId())
 													.getPrimaryFaith(),
-											faithStrength);
-									monsterEnt
-											.getKiller()
-											.sendMessage(
-													ChatColor.GRAY
-															+ "Attempting to level up faith.");
+											faithStrength, "FaithWeapon");
 								}
 
 								/*

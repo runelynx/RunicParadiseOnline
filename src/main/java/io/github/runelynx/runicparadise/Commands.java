@@ -733,8 +733,14 @@ public class Commands implements CommandExecutor {
 						&& !(sender instanceof Player)) {
 					RunicPlayerBukkit targetPlayer = new RunicPlayerBukkit(
 							args[1]);
-					targetPlayer.setPlayerSouls(targetPlayer.getPlayerSouls()
-							+ Integer.parseInt(args[2]));
+					int newSouls = targetPlayer.getPlayerSouls()
+							+ Integer.parseInt(args[2]);
+					targetPlayer.sendMessageToPlayer(ChatColor.GRAY + "[" + ChatColor.DARK_RED + "Runic"
+							+ ChatColor.RED + "Reaper" + ChatColor.GRAY + "] "
+							+ ChatColor.LIGHT_PURPLE
+							+ "The Reaper has granted you " +ChatColor.WHITE + args[2] + ChatColor.LIGHT_PURPLE+ " more souls. You now have "+ ChatColor.WHITE+ newSouls + ChatColor.LIGHT_PURPLE +".");
+					
+					targetPlayer.setPlayerSouls(newSouls);
 					getLogger().log(Level.INFO,
 							"[RP] Gave " + args[2] + " souls to " + args[1]);
 				}

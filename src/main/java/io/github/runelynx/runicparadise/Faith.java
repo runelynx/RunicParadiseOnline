@@ -16,12 +16,16 @@ import java.util.logging.Level;
 import org.apache.commons.lang.WordUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Sound;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Monster;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+
+import de.slikey.effectlib.EffectManager;
+import de.slikey.effectlib.effect.ExplodeEffect;
 
 /**
  * @author andrew
@@ -31,6 +35,10 @@ public class Faith {
 
 	public static final int SUN_BURNING_VENGEANCE_LEVEL = 100;
 	public static final int SUN_SOLAR_FURY_LEVEL = 50;
+	public static final int MOON_LUNAR_CALM_LEVEL = 100;
+	public static final int MOON_CELESTIAL_HEALING_LEVEL = 50;
+	public static final int STAR_SPELL_1_LEVEL = 50;
+	public static final int STAR_SPELL_2_LEVEL = 100;
 
 	private String playerUUID;
 	private UUID trueUUID;
@@ -56,6 +64,7 @@ public class Faith {
 		}
 		RunicParadise.faithMap.clear();
 		RunicParadise.faithSettingsMap.clear();
+		RunicParadise.protectedPlayers.clear();
 		getLogger().info("RP Faith: Faith map has been cleared.");
 	}
 
@@ -109,7 +118,8 @@ public class Faith {
 				+ faithList);
 	}
 
-	public boolean checkFaithLevel(String faithName, int level) {
+	public boolean checkEquippedFaithLevel(String faithName, int level) {
+		//Using this map means faith must be "equipped" -- NOT inactive! 
 		if (this.faithLevels.containsKey(faithName)) {
 			if (this.faithLevels.get(faithName) >= level) {
 				return true;
@@ -435,7 +445,7 @@ public class Faith {
 					+ ChatColor.GRAY + "/"
 					+ RunicParadise.faithSettingsMap.get(faithName)[4]);
 
-		} 
+		}
 
 		try {
 			final Connection dbCon = MySQL.openConnection();
@@ -492,6 +502,21 @@ public class Faith {
 					+ this.faithLevels.get(faithName) + ChatColor.GRAY + "/"
 					+ RunicParadise.faithSettingsMap.get(faithName)[4]);
 
+			if (this.checkEquippedFaithLevel(faithName, Integer
+					.parseInt(RunicParadise.faithSettingsMap.get(faithName)[4]))) {
+				for (Player q : Bukkit.getOnlinePlayers()) {
+					if (q.hasPermission("rp.faith.user")) {
+						q.sendMessage(ChatColor.GRAY + "[" + ChatColor.BLUE
+								+ "Runic" + ChatColor.DARK_AQUA + "Faith"
+								+ ChatColor.GRAY + "] " + ChatColor.BLUE
+								+ p.getDisplayName() + ChatColor.BLUE + " just maxxed their "
+								+ ChatColor.WHITE + faithName + ChatColor.BLUE
+								+ " faith!");
+						q.getWorld().playSound(q.getLocation(), Sound.AMBIENCE_THUNDER, 10, 1);
+					}
+				}
+			}
+
 			return true;
 
 		} catch (SQLException e) {
@@ -507,15 +532,16 @@ public class Faith {
 	 * 
 	 * @param faithName
 	 * @param chance
-	 *            Integer chance multiplier... 2% * Chance
+	 *            Integer chance multiplier... 3% * Chance
 	 * @return 0=Error/Failure, 1=Success/NoSkillUp, 2=Success/SkillUp
 	 */
-	public int trySkillUp(Player p, String faithName, int chance) {
+	public int trySkillUp(Player p, String faithName, int chance, String type) {
 		// int randomNum = rand.nextInt((max - min) + 1) + min;
 		int randomNum = RunicParadise.randomSeed.nextInt((100 - 0) + 1) + 0;
 
-		if (this.faithLevels.containsKey(faithName)) {
-			if (randomNum <= (2 * chance)) {
+		if (!this.checkEquippedFaithLevel(faithName, Integer
+				.parseInt(RunicParadise.faithSettingsMap.get(faithName)[4]))) {
+			if (randomNum <= (3 * chance)) {
 				this.incrementSkill(p, faithName);
 
 				p.sendMessage(ChatColor.GRAY + "[" + ChatColor.BLUE + "Runic"
@@ -525,16 +551,47 @@ public class Faith {
 						+ this.faithLevels.get(faithName) + ChatColor.GRAY
 						+ "/"
 						+ RunicParadise.faithSettingsMap.get(faithName)[4]);
+
+				if (RunicParadise.randomSeed.nextInt((100 - 0) + 1) + 0 <= 60
+						&& chance == 1) {
+					p.getWorld().playSound(p.getLocation(), Sound.ANVIL_BREAK, 10, 1);
+					p.setItemInHand(null);
+					p.sendMessage(ChatColor.GRAY + "[" + ChatColor.BLUE
+							+ "Runic" + ChatColor.DARK_AQUA + "Faith"
+							+ ChatColor.GRAY + "] " + ChatColor.BLUE
+							+ "Your faith sword shatters into dust!");
+				} else if (RunicParadise.randomSeed.nextInt((100 - 0) + 1) + 0 <= 30
+						&& chance == 2) {
+					p.getWorld().playSound(p.getLocation(), Sound.ANVIL_BREAK, 10, 1);
+					p.setItemInHand(null);
+					p.sendMessage(ChatColor.GRAY + "[" + ChatColor.BLUE
+							+ "Runic" + ChatColor.DARK_AQUA + "Faith"
+							+ ChatColor.GRAY + "] " + ChatColor.BLUE
+							+ "Your faith sword shatters into dust!");
+
+				} else if (RunicParadise.randomSeed.nextInt((100 - 0) + 1) + 0 <= 15
+						&& chance == 3) {
+					p.getWorld().playSound(p.getLocation(), Sound.ANVIL_BREAK, 10, 1);
+					
+					p.setItemInHand(null);
+					p.sendMessage(ChatColor.GRAY + "[" + ChatColor.BLUE
+							+ "Runic" + ChatColor.DARK_AQUA + "Faith"
+							+ ChatColor.GRAY + "] " + ChatColor.BLUE
+							+ "Your faith sword shatters into dust!");
+
+				}
+
 				return 2;
 			} else {
 				return 1;
 			}
 
 		} else {
-			getLogger().log(
-					Level.SEVERE,
-					"Failed Faith.trySkillUp - tried to skill up Faith that player doesnt have. "
-							+ this.playerName + " " + faithName);
+			// Player is maxxed
+			p.sendMessage(ChatColor.GRAY + "[" + ChatColor.BLUE + "Runic"
+					+ ChatColor.DARK_AQUA + "Faith" + ChatColor.GRAY + "] "
+					+ ChatColor.BLUE + "Your " + faithName + ChatColor.BLUE
+					+ " faith cannot grow any stronger!");
 			return 0;
 		}
 	}
@@ -572,6 +629,86 @@ public class Faith {
 		}
 	}
 
+	@SuppressWarnings("deprecation")
+	public void castMoon_LunarCalm(UUID pUUID, final Player p) {
+		// 1% chance to stop mobs from targeting player for 4 seconds
+		String spellName = "Lunar Calm";
+		if ((RunicParadise.randomSeed.nextInt((100 - 0) + 1) + 0) <= 1) {
+
+			// register protection now
+			RunicParadise.protectedPlayers.put(p.getUniqueId(),
+					p.getDisplayName());
+
+			// schedule removal of protection 80 tickets out
+			Bukkit.getServer().getScheduler()
+					.scheduleAsyncDelayedTask(instance, new Runnable() {
+						public void run() {
+							RunicParadise.protectedPlayers.remove(p
+									.getUniqueId());
+						}
+					}, 100);
+
+			// stop all nearby monsters from targeting players
+			final List<Entity> nearby = p.getNearbyEntities(15, 15, 15);
+			for (Entity tmp : nearby) {
+				if (tmp instanceof Monster) {
+					((Monster) tmp).setTarget(null);
+					((Monster) tmp).setTarget(null);
+				}
+			}
+
+			// schedule removal of protection 80 tickets out
+			Bukkit.getServer().getScheduler()
+					.scheduleAsyncDelayedTask(instance, new Runnable() {
+						public void run() {
+							for (Entity tmp : nearby) {
+								if (tmp instanceof Monster) {
+									((Monster) tmp).setTarget(null);
+									((Monster) tmp).setTarget(null);
+								}
+							}
+						}
+					}, 20);
+			Bukkit.getServer().getScheduler()
+					.scheduleAsyncDelayedTask(instance, new Runnable() {
+						public void run() {
+							for (Entity tmp : nearby) {
+								if (tmp instanceof Monster) {
+									((Monster) tmp).setTarget(null);
+									((Monster) tmp).setTarget(null);
+								}
+							}
+						}
+					}, 40);
+			Bukkit.getServer().getScheduler()
+					.scheduleAsyncDelayedTask(instance, new Runnable() {
+						public void run() {
+							for (Entity tmp : nearby) {
+								if (tmp instanceof Monster) {
+									((Monster) tmp).setTarget(null);
+									((Monster) tmp).setTarget(null);
+								}
+							}
+						}
+					}, 60);
+
+			int count = nearby.size();
+			boolean playerProtected;
+			if (RunicParadise.protectedPlayers.containsKey(p.getUniqueId())) {
+				playerProtected = true;
+			} else {
+				playerProtected = false;
+			}
+			sendCastMessage(p, spellName, "Moon");
+			getLogger().log(
+					Level.INFO,
+					"Faith Info: " + p.getName() + " just cast " + spellName
+							+ "! Calmed " + count + " mobs. Player protected= "
+							+ playerProtected);
+
+		}
+	}
+
 	public void castSun_SolarPower(UUID pUUID, Player p) {
 		// 2% chance on receiving damage to set all nearby monsters on fire
 		String spellName = "Solar Power";
@@ -582,6 +719,22 @@ public class Faith {
 					PotionEffectType.INCREASE_DAMAGE, 300, 1));
 
 			sendCastMessage(p, spellName, "Sun");
+			getLogger().log(
+					Level.INFO,
+					"Faith Info: " + p.getName() + " just cast " + spellName
+							+ "!");
+		}
+	}
+
+	public void castMoon_CelestialHealing(UUID pUUID, Player p) {
+		// 1% chance to gain regeneration
+		String spellName = "Celestial Healing";
+		if ((RunicParadise.randomSeed.nextInt((100 - 0) + 1) + 0) <= 1) {
+			p.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION,
+					300, 0));
+			p.addPotionEffect(new PotionEffect(PotionEffectType.HEAL, 1, 0));
+
+			sendCastMessage(p, spellName, "Moon");
 			getLogger().log(
 					Level.INFO,
 					"Faith Info: " + p.getName() + " just cast " + spellName

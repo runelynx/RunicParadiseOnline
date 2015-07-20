@@ -23,6 +23,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.Effect;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Sign;
@@ -124,8 +125,8 @@ public class RunicDeathChest {
 		deathArmor.put(newDeathID, player.getInventory().getArmorContents());
 		deathInventory.put(newDeathID, player.getInventory().getContents());
 
-		// 48hr expiry time
-		long expiryTime = new Date().getTime() + 172800000;
+		// 12hr expiry time
+		long expiryTime = new Date().getTime() + 43200000;
 
 		String armorString = InventorySerialization
 				.serializeInventoryAsString(deathArmor.get(newDeathID));
@@ -172,7 +173,7 @@ public class RunicDeathChest {
 		// resync hashmap with graves to keep the redstone lamp on...
 		syncGraveLocations();
 
-		loc.getBlock().setType(Material.REDSTONE_LAMP_ON);
+		loc.getBlock().setType(Material.BEDROCK);
 		Block b = loc.add(0, 1, 0).getBlock();
 		b.setType(Material.SIGN_POST);
 		BlockState state = b.getState();
@@ -469,6 +470,8 @@ public class RunicDeathChest {
 							+ graveData.getInt("ID") + ";");
 
 					loc.getWorld().playEffect(loc, Effect.MOBSPAWNER_FLAMES, 0);
+					loc.getWorld().playEffect(loc, Effect.POTION_BREAK, 0);
+					loc.getWorld().playSound(loc, Sound.CHEST_CLOSE, 10, 1);
 					loc.getBlock().setType(Material.AIR);
 					loc.add(0, 1, 0).getBlock().setType(Material.AIR);
 					loc.getWorld().playEffect(loc, Effect.SMOKE, 0);
