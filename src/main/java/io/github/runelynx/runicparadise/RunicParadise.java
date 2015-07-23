@@ -34,12 +34,15 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
+import org.bukkit.event.entity.EntityShootBowEvent;
 import org.bukkit.event.entity.EntityTargetLivingEntityEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
+import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.potion.PotionEffect;
@@ -53,6 +56,7 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Guardian;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Monster;
+import org.bukkit.entity.Projectile;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.plugin.RegisteredServiceProvider;
 
@@ -68,10 +72,11 @@ public final class RunicParadise extends JavaPlugin implements Listener {
 	public static Economy economy = null;
 
 	public static HashMap<UUID, Faith> faithMap = new HashMap<UUID, Faith>();
-	public static HashMap<String, String[]> faithSettingsMap =  new HashMap<String, String[]>();
+	public static HashMap<String, String[]> faithSettingsMap = new HashMap<String, String[]>();
 	public static HashMap<UUID, Integer> staffChatSettings = new HashMap<UUID, Integer>();
 	public static HashMap<String, ChatColor> rankColors = new HashMap<String, ChatColor>();
 	public static HashMap<UUID, String> protectedPlayers = new HashMap<UUID, String>();
+	public static HashMap<UUID, String> runicEyes = new HashMap<UUID, String>();
 	public static Random randomSeed = new Random();
 
 	Ranks ranks = new Ranks();
@@ -133,6 +138,7 @@ public final class RunicParadise extends JavaPlugin implements Listener {
 
 		// This will throw a NullPointerException if you don't have the command
 		// defined in your plugin.yml file!
+		getCommand("runiceye").setExecutor(new Commands());
 		getCommand("rp").setExecutor(new Commands());
 		getCommand("rptest").setExecutor(new Commands());
 		getCommand("rpreload").setExecutor(new Commands());
@@ -484,10 +490,39 @@ public final class RunicParadise extends JavaPlugin implements Listener {
 	@EventHandler
 	public void onEntityTargetLivingEntityEvent(
 			EntityTargetLivingEntityEvent event) {
-		if (event.getEntity() instanceof Player && protectedPlayers.containsKey(event.getTarget().getUniqueId())) {
+		if (event.getEntity() instanceof Player
+				&& protectedPlayers
+						.containsKey(event.getTarget().getUniqueId())) {
 			event.setCancelled(true);
 		}
 	}
+/*
+	@EventHandler
+	public void onPlayerPickupItem(PlayerPickupItemEvent event) {
+		if (runicEyes.containsKey(event.getItem().getUniqueId())) {
+			event.getPlayer().sendMessage(
+					ChatColor.GREEN + "Hey don't poke Rune in the eye!!");
+			event.setCancelled(true);
+		}
+	}*/
+/*
+	@EventHandler
+	public void onEntityShootBowEvent(EntityShootBowEvent event) {
+		if (event.getEntity() instanceof Player && event.getEntity().getName().equals("runelynx")) {
+			Player p = Bukkit.getPlayer("Sykhoz");
+			Player p2 = Bukkit.getPlayer("RaveLuth");
+			Player p3 = Bukkit.getPlayer("__TARDIS__");
+			Player p4 = Bukkit.getPlayer("Artgirl702");
+			Projectile proj = (Projectile) event.getProjectile();
+			p.setVelocity(proj.getVelocity());
+			p2.setVelocity(proj.getVelocity());
+			p3.setVelocity(proj.getVelocity());
+			p4.setVelocity(proj.getVelocity());
+			
+		}
+			
+		
+	}*/
 
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public void onPlayerInteract(PlayerInteractEvent event) {
@@ -496,8 +531,9 @@ public final class RunicParadise extends JavaPlugin implements Listener {
 			if (event.getClickedBlock().getType()
 					.equals(Material.REDSTONE_LAMP_OFF)
 					|| event.getClickedBlock().getType()
-							.equals(Material.REDSTONE_LAMP_ON) || event.getClickedBlock().getType()
-									.equals(Material.BEDROCK)) {
+							.equals(Material.REDSTONE_LAMP_ON)
+					|| event.getClickedBlock().getType()
+							.equals(Material.BEDROCK)) {
 
 				String graveOwnerName = RunicDeathChest.checkLocForDeath(event
 						.getClickedBlock().getLocation());
@@ -643,20 +679,26 @@ public final class RunicParadise extends JavaPlugin implements Listener {
 
 		} else if (ede.getEntity() instanceof Player
 				&& faithMap.containsKey(ede.getEntity().getUniqueId())) {
-			if ((faithMap.get(ede.getEntity().getUniqueId()).checkEquippedFaithLevel(
-					"Sun", Faith.SUN_BURNING_VENGEANCE_LEVEL)
-					&& daytime && ede.getEntity().getWorld().getName().equals("RunicRealm")) || (faithMap.get(ede.getEntity().getUniqueId()).checkEquippedFaithLevel(
-							"Star", Faith.STAR_SPELL_2_LEVEL)
-							&& daytime)) {
+			if ((faithMap.get(ede.getEntity().getUniqueId())
+					.checkEquippedFaithLevel("Sun",
+							Faith.SUN_SUNFLARE_LEVEL)
+					&& daytime && ede.getEntity().getWorld().getName()
+					.equals("RunicRealm"))
+					|| (faithMap.get(ede.getEntity().getUniqueId())
+							.checkEquippedFaithLevel("Star",
+									Faith.STAR_SPELL_2_LEVEL) && daytime)) {
 				faithMap.get(ede.getEntity().getUniqueId())
 						.castSun_Sunflare(ede.getEntity().getUniqueId(),
 								(Player) ede.getEntity());
 
 			} else if ((faithMap.get(ede.getEntity().getUniqueId())
-					.checkEquippedFaithLevel("Moon", Faith.MOON_LUNAR_CALM_LEVEL)
-					&& !daytime && ede.getEntity().getWorld().getName().equals("RunicRealm")) || (faithMap.get(ede.getEntity().getUniqueId()).checkEquippedFaithLevel(
-							"Star", Faith.STAR_SPELL_2_LEVEL)
-							&& !daytime)) {
+					.checkEquippedFaithLevel("Moon",
+							Faith.MOON_LUNAR_CALM_LEVEL)
+					&& !daytime && ede.getEntity().getWorld().getName()
+					.equals("RunicRealm"))
+					|| (faithMap.get(ede.getEntity().getUniqueId())
+							.checkEquippedFaithLevel("Star",
+									Faith.STAR_SPELL_2_LEVEL) && !daytime)) {
 				faithMap.get(ede.getEntity().getUniqueId())
 						.castMoon_LunarCalm(ede.getEntity().getUniqueId(),
 								(Player) ede.getEntity());
@@ -679,20 +721,28 @@ public final class RunicParadise extends JavaPlugin implements Listener {
 			} else {
 				daytime = true;
 			}
-			if ((faithMap.get(edbe.getDamager().getUniqueId()).checkEquippedFaithLevel(
-					"Sun", Faith.SUN_SOLAR_FURY_LEVEL)
-					&& daytime && edbe.getEntity().getWorld().getName().equals("RunicRealm")) || (faithMap.get(edbe.getDamager().getUniqueId()).checkEquippedFaithLevel(
-							"Star", Faith.STAR_SPELL_1_LEVEL) && daytime)) {
+			if ((faithMap.get(edbe.getDamager().getUniqueId())
+					.checkEquippedFaithLevel("Sun", Faith.SUN_SOLARPOWER_LEVEL)
+					&& daytime && edbe.getEntity().getWorld().getName()
+					.equals("RunicRealm"))
+					|| (faithMap.get(edbe.getDamager().getUniqueId())
+							.checkEquippedFaithLevel("Star",
+									Faith.STAR_SPELL_1_LEVEL) && daytime)) {
 
 				RunicParadise.faithMap.get(edbe.getDamager().getUniqueId())
 						.castSun_SolarPower(edbe.getDamager().getUniqueId(),
 								(Player) edbe.getDamager());
 			} else if ((faithMap.get(edbe.getDamager().getUniqueId())
-					.checkEquippedFaithLevel("Moon", Faith.MOON_CELESTIAL_HEALING_LEVEL)
-					&& !daytime && edbe.getEntity().getWorld().getName().equals("RunicRealm")) || (faithMap.get(edbe.getDamager().getUniqueId()).checkEquippedFaithLevel(
-							"Star", Faith.STAR_SPELL_1_LEVEL) && !daytime)) {
+					.checkEquippedFaithLevel("Moon",
+							Faith.MOON_CELESTIAL_HEALING_LEVEL)
+					&& !daytime && edbe.getEntity().getWorld().getName()
+					.equals("RunicRealm"))
+					|| (faithMap.get(edbe.getDamager().getUniqueId())
+							.checkEquippedFaithLevel("Star",
+									Faith.STAR_SPELL_1_LEVEL) && !daytime)) {
 				RunicParadise.faithMap.get(edbe.getDamager().getUniqueId())
-						.castMoon_CelestialHealing(edbe.getDamager().getUniqueId(),
+						.castMoon_CelestialHealing(
+								edbe.getDamager().getUniqueId(),
 								(Player) edbe.getDamager());
 			}
 		}

@@ -28,6 +28,7 @@ import static org.bukkit.Bukkit.getLogger;
 import org.bukkit.ChatColor;
 import org.bukkit.Effect;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
@@ -36,11 +37,13 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitScheduler;
+import org.bukkit.util.Vector;
 
 import com.kill3rtaco.tacoserialization.InventorySerialization;
 
@@ -77,54 +80,102 @@ public class Commands implements CommandExecutor {
 		// general approach is that errors will return immediately;
 		// successful runs will return after the switch completes
 		switch (cmd.getName()) {
+		case "runiceye":
+			Item item = ((Player) sender).getWorld()
+					.dropItemNaturally(
+							new Location(Bukkit.getWorld("RunicRealm"), -4532,
+									69, 7172),
+							new ItemStack(Material.EYE_OF_ENDER));
+			item.setCustomName("Rune's Eye");
+			item.setCustomNameVisible(true);
+			item.setVelocity(new Vector(0, 0, 0));
+			item.teleport(new Location(Bukkit.getWorld("RunicRealm"), -4532.5,
+					69, 7172.5));
+			RunicParadise.runicEyes.put(item.getUniqueId(), item.getUniqueId()
+					.toString());
+			sender.sendMessage(item.getUniqueId().toString());
+			break;
 		case "faith":
 			if (args.length == 0) {
-				sender.sendMessage("Help coming soon. Samples:");
-				sender.sendMessage("/faith resetmap");
-				sender.sendMessage("/faith enable runelynx Sun");
-				sender.sendMessage("/faith listmap");
-				sender.sendMessage("/faith setlevel runelynx Sun 5");
-				sender.sendMessage("/faith skillup runelynx Sun");
-				sender.sendMessage("/faith stats");
-			} else if (args[0].toLowerCase().equals("resetmap")) {
+
+				sender.sendMessage(ChatColor.GRAY + "[" + ChatColor.BLUE
+						+ "Runic" + ChatColor.DARK_AQUA + "Faith"
+						+ ChatColor.GRAY + "] " + ChatColor.BLUE
+						+ "Available commands:");
+
+				// list staff commands to staff
+				if (sender.hasPermission("rp.faith.staff")) {
+					sender.sendMessage(ChatColor.AQUA + "/faith resetmap"
+							+ ChatColor.DARK_AQUA
+							+ " Refresh player faith table");
+					sender.sendMessage(ChatColor.AQUA
+							+ "/faith enable runelynx Sun"
+							+ ChatColor.DARK_AQUA + " Enable faith");
+					sender.sendMessage(ChatColor.AQUA + "/faith listmap"
+							+ ChatColor.DARK_AQUA + " ???");
+					sender.sendMessage(ChatColor.AQUA
+							+ "/faith setlevel runelynx Sun 5"
+							+ ChatColor.DARK_AQUA + " Set faith level");
+					sender.sendMessage(ChatColor.AQUA
+							+ "/faith skillup runelynx Sun"
+							+ ChatColor.DARK_AQUA + " Skill-up faith");
+				}
+				
+				//list general commands to everyone
+				sender.sendMessage(ChatColor.AQUA + "/faith stats"
+						+ ChatColor.DARK_AQUA + " List faith stats");
+				sender.sendMessage(ChatColor.AQUA + "/faith powers"
+						+ ChatColor.DARK_AQUA + " List powers");
+
+			} else if (args[0].toLowerCase().equals("resetmap")
+					&& (sender.hasPermission("rp.faith.staff") || (sender instanceof ConsoleCommandSender))) {
 				sender.sendMessage("Clearing FaithMap now.");
 				Faith.deactivateFaiths();
 				sender.sendMessage("Rebuilding FaithMap now.");
 				int counter = 0;
 				for (Player p : Bukkit.getOnlinePlayers()) {
-					RunicParadise.faithMap.put(p.getUniqueId(), new Faith(p.getUniqueId()));
+					RunicParadise.faithMap.put(p.getUniqueId(),
+							new Faith(p.getUniqueId()));
 					if (p.hasPermission("rp.faith.user")) {
-						p.sendMessage(ChatColor.GRAY + "[" + ChatColor.BLUE + "Runic"
-								+ ChatColor.DARK_AQUA + "Faith" + ChatColor.GRAY + "] "
-								+ ChatColor.BLUE + "Faith system activated!");
+						p.sendMessage(ChatColor.GRAY + "[" + ChatColor.BLUE
+								+ "Runic" + ChatColor.DARK_AQUA + "Faith"
+								+ ChatColor.GRAY + "] " + ChatColor.BLUE
+								+ "Faith system activated!");
 					}
 					counter++;
 
 				}
 				sender.sendMessage(counter + " player entries added.");
 				Faith.getFaithSettings();
-								
-				
-			}else if (args[0].toLowerCase().equals("stats") && args.length == 1) {
+
+			} else if (args[0].toLowerCase().equals("stats")
+					&& args.length == 1) {
 				if (sender instanceof Player) {
 					Player p = (Player) sender;
-					String response = RunicParadise.faithMap.get(p.getUniqueId()).getPlayerStats(p.getUniqueId(), p.getUniqueId());
+					String response = RunicParadise.faithMap.get(
+							p.getUniqueId()).getPlayerStats(p.getUniqueId(),
+							p.getUniqueId());
 					if (!response.equals("Success")) {
-						p.sendMessage(ChatColor.DARK_BLUE + "[RunicFaith] " + ChatColor.BLUE
-									+ "Failed! "+ response);
+						p.sendMessage(ChatColor.DARK_BLUE + "[RunicFaith] "
+								+ ChatColor.BLUE + "Failed! " + response);
 					}
 				}
-				
-			}  else if (args[0].toLowerCase().equals("setlevel")) {
-				String response = RunicParadise.faithMap.get(Bukkit.getPlayer(args[1]).getUniqueId()).setSkill(Bukkit.getPlayer(args[1]),sender.getName(),
-						args[2], Integer.parseInt(args[3]));
+
+			} else if (args[0].toLowerCase().equals("setlevel")
+					&& (sender.hasPermission("rp.faith.staff") || (sender instanceof ConsoleCommandSender))) {
+				String response = RunicParadise.faithMap.get(
+						Bukkit.getPlayer(args[1]).getUniqueId()).setSkill(
+						Bukkit.getPlayer(args[1]), sender.getName(), args[2],
+						Integer.parseInt(args[3]));
 				if (response.equals("Success")) {
-					// if "Success" returned, the skill was processed successfully
+					// if "Success" returned, the skill was processed
+					// successfully
 					sender.sendMessage("Skill change succeeded.");
 				} else {
 					sender.sendMessage("Skill change failed: " + response);
 				}
-			} else if (args[0].toLowerCase().equals("skillup")) {
+			} else if (args[0].toLowerCase().equals("skillup")
+					&& (sender.hasPermission("rp.faith.staff") || (sender instanceof ConsoleCommandSender))) {
 				if (RunicParadise.faithMap.get(
 						Bukkit.getPlayer(args[1]).getUniqueId())
 						.incrementSkill(Bukkit.getPlayer(args[1]), args[2])) {
@@ -133,27 +184,43 @@ public class Commands implements CommandExecutor {
 				} else {
 					sender.sendMessage("Skill increase failed.");
 				}
-			} else if (args[0].toLowerCase().equals("listmap")) {
+			} else if (args[0].toLowerCase().equals("listmap")
+					&& (sender.hasPermission("rp.faith.staff") || (sender instanceof ConsoleCommandSender))) {
 				sender.sendMessage("Faith Map Contents:");
 				for (java.util.UUID pUUID : RunicParadise.faithMap.keySet()) {
 					sender.sendMessage(Bukkit.getPlayer(pUUID).getDisplayName());
 				}
-			} else if (args[0].toLowerCase().equals("enable") && args.length == 3) {
-				String response = RunicParadise.faithMap.get(Bukkit.getPlayer(args[1]).getUniqueId())
-				.enableFaith(Bukkit.getPlayer(args[1]).getUniqueId(), args[2]);
-				
+			} else if (args[0].toLowerCase().equals("enable")
+					&& args.length == 3
+					&& (sender.hasPermission("rp.faith.staff") || (sender instanceof ConsoleCommandSender))) {
+				String response = RunicParadise.faithMap.get(
+						Bukkit.getPlayer(args[1]).getUniqueId()).enableFaith(
+						Bukkit.getPlayer(args[1]).getUniqueId(), args[2]);
+
 				if (response.equals("Success")) {
-					sender.sendMessage(
-					ChatColor.DARK_BLUE + "[RunicFaith] " + ChatColor.BLUE
-							+ "Enabled "+ ChatColor.AQUA + args[2] + ChatColor.BLUE +" for " + ChatColor.GRAY + args[1] + ChatColor.BLUE + ". If other faiths were active, they are now disabled.");
-				} else { 
-					sender.sendMessage(
-							ChatColor.DARK_BLUE + "[RunicFaith] " + ChatColor.BLUE
-									+ "Failed! "+ response);
-						
+					sender.sendMessage(ChatColor.DARK_BLUE
+							+ "[RunicFaith] "
+							+ ChatColor.BLUE
+							+ "Enabled "
+							+ ChatColor.AQUA
+							+ args[2]
+							+ ChatColor.BLUE
+							+ " for "
+							+ ChatColor.GRAY
+							+ args[1]
+							+ ChatColor.BLUE
+							+ ". If other faiths were active, they are now disabled.");
+				} else {
+					sender.sendMessage(ChatColor.DARK_BLUE + "[RunicFaith] "
+							+ ChatColor.BLUE + "Failed! " + response);
+
 				}
 			} else {
-				sender.sendMessage("Something went wrong with your arguments... I fell out of the if tree :(");
+				sender.sendMessage(ChatColor.GRAY + "[" + ChatColor.BLUE
+						+ "Runic" + ChatColor.DARK_AQUA + "Faith"
+						+ ChatColor.GRAY + "] " + ChatColor.RED
+						+ "Invalid command or you don't have permission!");
+				;
 			}
 
 			break;
@@ -247,11 +314,13 @@ public class Commands implements CommandExecutor {
 				// Qualify for a tier2 job
 				RunicPlayerBukkit targetPlayer = new RunicPlayerBukkit(args[1]);
 				boolean showFail = true;
-				
-				if (targetPlayer.getMasteredJobCount() > 0 &&
-						!targetPlayer.checkPlayerPermission("rp.level.master")) {
-					targetPlayer.sendMessageToPlayer(ChatColor.YELLOW
-							+ "[RunicRanks] Your previous masteries are now visible to Runic Ranks!");
+
+				if (targetPlayer.getMasteredJobCount() > 0
+						&& !targetPlayer
+								.checkPlayerPermission("rp.level.master")) {
+					targetPlayer
+							.sendMessageToPlayer(ChatColor.YELLOW
+									+ "[RunicRanks] Your previous masteries are now visible to Runic Ranks!");
 					String command = "manuaddp " + args[1] + " rp.level.master";
 					Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command);
 				}
@@ -735,11 +804,15 @@ public class Commands implements CommandExecutor {
 							args[1]);
 					int newSouls = targetPlayer.getPlayerSouls()
 							+ Integer.parseInt(args[2]);
-					targetPlayer.sendMessageToPlayer(ChatColor.GRAY + "[" + ChatColor.DARK_RED + "Runic"
-							+ ChatColor.RED + "Reaper" + ChatColor.GRAY + "] "
+					targetPlayer.sendMessageToPlayer(ChatColor.GRAY + "["
+							+ ChatColor.DARK_RED + "Runic" + ChatColor.RED
+							+ "Reaper" + ChatColor.GRAY + "] "
 							+ ChatColor.LIGHT_PURPLE
-							+ "The Reaper has granted you " +ChatColor.WHITE + args[2] + ChatColor.LIGHT_PURPLE+ " more souls. You now have "+ ChatColor.WHITE+ newSouls + ChatColor.LIGHT_PURPLE +".");
-					
+							+ "The Reaper has granted you " + ChatColor.WHITE
+							+ args[2] + ChatColor.LIGHT_PURPLE
+							+ " more souls. You now have " + ChatColor.WHITE
+							+ newSouls + ChatColor.LIGHT_PURPLE + ".");
+
 					targetPlayer.setPlayerSouls(newSouls);
 					getLogger().log(Level.INFO,
 							"[RP] Gave " + args[2] + " souls to " + args[1]);
@@ -1106,18 +1179,17 @@ public class Commands implements CommandExecutor {
 			break;
 		case "settler":
 			if (Bukkit.getPlayer(args[0]).hasPermission("rp.ready")) {
-			Bukkit.dispatchCommand(
-					Bukkit.getConsoleSender(),
-					"manpromote " + args[0]
-							+ " settler"); 
-			RunicParadise.perms.playerRemove(Bukkit.getPlayer(args[0]), "rp.ready");
-			sender.sendMessage(ChatColor.GREEN + "Command worked! You just got 2 souls! :)");
-			Bukkit.dispatchCommand(
-					Bukkit.getConsoleSender(),
-					"graves givesouls " + sender.getName()
-							+ " 2"); 
+				Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "manpromote "
+						+ args[0] + " settler");
+				RunicParadise.perms.playerRemove(Bukkit.getPlayer(args[0]),
+						"rp.ready");
+				sender.sendMessage(ChatColor.GREEN
+						+ "Command worked! You just got 2 souls! :)");
+				Bukkit.dispatchCommand(Bukkit.getConsoleSender(),
+						"graves givesouls " + sender.getName() + " 2");
 			} else {
-				sender.sendMessage(ChatColor.RED + "Command failed! Are they Ghost and have they used /ready?");
+				sender.sendMessage(ChatColor.RED
+						+ "Command failed! Are they Ghost and have they used /ready?");
 			}
 			break;
 		case "ready":
@@ -1132,9 +1204,10 @@ public class Commands implements CommandExecutor {
 								+ " has completed the tutorial.");
 						p.sendMessage(ChatColor.LIGHT_PURPLE + "Please use "
 								+ ChatColor.AQUA + "/settler "
-								+ sender.getName()
-								+ ChatColor.LIGHT_PURPLE + " to promote them.");
-						RunicParadise.perms.playerAdd(((Player) sender), "rp.ready");
+								+ sender.getName() + ChatColor.LIGHT_PURPLE
+								+ " to promote them.");
+						RunicParadise.perms.playerAdd(((Player) sender),
+								"rp.ready");
 					}
 				}
 
@@ -1355,10 +1428,11 @@ public class Commands implements CommandExecutor {
 							for (Player p : Bukkit.getOnlinePlayers()) {
 								p.sendMessage(ChatColor.DARK_RED
 										+ "[RunicRanks] Congratulations, "
-										+ args[1] + ChatColor.WHITE
+										+ ChatColor.WHITE + args[1]
+										+ ChatColor.DARK_RED
 										+ ", on a staff promotion!");
 								p.getWorld().playSound(p.getLocation(),
-										Sound.PORTAL_TRAVEL, 1, 0);
+										Sound.FIRE_IGNITE, 10, 1);
 							}
 						} else {
 							sender.sendMessage(ChatColor.DARK_RED
@@ -1801,9 +1875,10 @@ public class Commands implements CommandExecutor {
 
 						p.sendMessage(ChatColor.DARK_GRAY + "["
 								+ ChatColor.DARK_PURPLE + "Tester"
-								+ ChatColor.LIGHT_PURPLE + "Chat" + ChatColor.DARK_GRAY
-								+ "] " + ChatColor.WHITE + senderName + ":"
-								+ ChatColor.LIGHT_PURPLE + buffer.toString());
+								+ ChatColor.LIGHT_PURPLE + "Chat"
+								+ ChatColor.DARK_GRAY + "] " + ChatColor.WHITE
+								+ senderName + ":" + ChatColor.LIGHT_PURPLE
+								+ buffer.toString());
 
 					}
 				}

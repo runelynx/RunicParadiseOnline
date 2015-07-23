@@ -5,6 +5,11 @@ description: "Bukkit plugin for Runic Paradise server."
 main: io.github.runelynx.runicparadise.RunicParadise
 version: 0.1
 commands:
+   runiceye:
+      description: "Meh - for Rune!"
+      usage: /<command> [player]
+      permission: rp.admin
+      permission-message: "You don't have permission: <permission>"
    say:
       description: "Runic Paradise /say override command"
       usage: /<command> [player]

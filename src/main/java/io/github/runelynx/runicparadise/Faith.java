@@ -1,6 +1,16 @@
 package io.github.runelynx.runicparadise;
 
 import static org.bukkit.Bukkit.getLogger;
+import static org.bukkit.ChatColor.AQUA;
+import static org.bukkit.ChatColor.DARK_AQUA;
+import static org.bukkit.ChatColor.DARK_RED;
+import static org.bukkit.ChatColor.GOLD;
+import static org.bukkit.ChatColor.GRAY;
+import static org.bukkit.ChatColor.GREEN;
+import static org.bukkit.ChatColor.RED;
+import static org.bukkit.ChatColor.UNDERLINE;
+import static org.bukkit.ChatColor.WHITE;
+import static org.bukkit.ChatColor.YELLOW;
 
 import java.sql.CallableStatement;
 import java.sql.Connection;
@@ -10,8 +20,11 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.UUID;
 import java.util.logging.Level;
+
+import mkremins.fanciful.FancyMessage;
 
 import org.apache.commons.lang.WordUtils;
 import org.bukkit.Bukkit;
@@ -33,12 +46,12 @@ import de.slikey.effectlib.effect.ExplodeEffect;
  */
 public class Faith {
 
-	public static final int SUN_BURNING_VENGEANCE_LEVEL = 100;
-	public static final int SUN_SOLAR_FURY_LEVEL = 50;
+	public static final int SUN_SUNFLARE_LEVEL = 100;
+	public static final int SUN_SOLARPOWER_LEVEL = 50;
 	public static final int MOON_LUNAR_CALM_LEVEL = 100;
 	public static final int MOON_CELESTIAL_HEALING_LEVEL = 50;
-	public static final int STAR_SPELL_1_LEVEL = 50;
-	public static final int STAR_SPELL_2_LEVEL = 100;
+	public static final int STAR_SPELL_1_LEVEL = 75;
+	public static final int STAR_SPELL_2_LEVEL = 150;
 
 	private String playerUUID;
 	private UUID trueUUID;
@@ -67,6 +80,95 @@ public class Faith {
 		RunicParadise.protectedPlayers.clear();
 		getLogger().info("RP Faith: Faith map has been cleared.");
 	}
+	
+	private UUID getUUID () {
+		return this.trueUUID;
+	}
+	
+	public String listPowers() {
+	 
+		Bukkit.getPlayer(this.getUUID()).sendMessage(ChatColor.GRAY + "[" + ChatColor.BLUE + "Runic"
+					+ ChatColor.DARK_AQUA + "Faith" + ChatColor.GRAY + "] "
+					+ ChatColor.BLUE
+					+ "Searching for powers granted by your current faiths...");
+		Bukkit.getPlayer(this.getUUID()).sendMessage(ChatColor.GRAY + "" + ChatColor.ITALIC + "Hover mouse over power name for details");
+		
+		//Iterate through all available faiths... check each one to see if player has it equipped. If they do, list those powers.
+		for(Entry<String, String[]> entry : RunicParadise.faithSettingsMap.entrySet()) {
+		    String faithName = entry.getKey();
+		    
+
+
+		    if(this.checkEquippedFaithLevel(faithName, 0)){
+		    	//Player has this faith equipped, so list its powers!
+		    	
+		    	Bukkit.getPlayer(this.getUUID()).sendMessage(ChatColor.GRAY + " " + ChatColor.BLUE + faithName
+						+ ChatColor.BLUE + " Powers:");
+		    	
+		    	MySQL MySQL = new MySQL(instance, instance.getConfig().getString(
+						"dbHost"), instance.getConfig().getString("dbPort"), instance
+						.getConfig().getString("dbDatabase"), instance.getConfig()
+						.getString("dbUser"), instance.getConfig().getString(
+						"dbPassword"));
+
+				try {
+
+					final Connection dbCon = MySQL.openConnection();
+					Statement dbStmt = dbCon.createStatement();
+					ResultSet powerResult = dbStmt
+							.executeQuery("SELECT * FROM rp_MasterPowers WHERE FaithName='"+ faithName +"' ORDER BY RequiredLevel ASC;");
+					if (!powerResult.isBeforeFirst()) {
+						// No results
+						// do nothing
+						Bukkit.getPlayer(this.getUUID()).sendMessage("Oops! Couldn't find any powers for the " + faithName + " faith.");
+						dbCon.close();
+					} else {
+						// results found!
+						while (powerResult.next()) {
+							//Found powers for a faith that player has equipped!
+							
+							ChatColor levelColor;
+							if (this.checkEquippedFaithLevel(faithName, powerResult.getInt("RequiredLevel"))) {
+								// player qualifies for this power
+								levelColor = ChatColor.GREEN;
+							} else {
+								// player does NOT qualify for this power
+								levelColor = ChatColor.GRAY;
+							}
+							
+							new FancyMessage("   Level ")
+							.color(ChatColor.BLUE)
+							//
+							.then(powerResult.getString("RequiredLevel"))
+							.color(levelColor)
+							//
+							.then(": ")
+							.color(WHITE)
+							//
+							.then(powerResult.getString("PowerName"))
+							.color(levelColor)
+							.tooltip(powerResult.getString("Description"))
+							.send(Bukkit.getPlayer(this.getUUID()));
+							
+						}
+						dbStmt.close();
+						dbCon.close();
+					}
+
+				} catch (SQLException z) {
+					getLogger().log(Level.SEVERE,
+							"Failed Faith.listPowers when trying to get powers for a faith: " + z.getMessage());
+					return "Error: Database Failure";
+				}
+		    } // end if checking whether player has the faith equipped 
+		    else {
+		    	//Player does not have this faith equipped
+		    }
+		} // end for looping through all possible faiths
+		
+		return "Success";
+		
+	} //end method
 
 	public static void getFaithSettings() {
 		RunicParadise.faithSettingsMap.clear();
@@ -710,7 +812,7 @@ public class Faith {
 	}
 
 	public void castSun_SolarPower(UUID pUUID, Player p) {
-		// 2% chance on receiving damage to set all nearby monsters on fire
+		// 2% chance to empower player when dealing damage to monsters 
 		String spellName = "Solar Power";
 		if ((RunicParadise.randomSeed.nextInt((100 - 0) + 1) + 0) <= 2) {
 			p.addPotionEffect(new PotionEffect(
