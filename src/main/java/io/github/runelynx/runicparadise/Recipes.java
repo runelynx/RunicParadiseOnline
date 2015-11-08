@@ -144,7 +144,7 @@ public class Recipes {
 				+ "60% chance to shatter"));
 		meta.addEnchant(Enchantment.DURABILITY, 10, true);
 		newItem.setItemMeta(meta);
-		newItem.addUnsafeEnchantment(Enchantment.DURABILITY, 10);
+		newItem.addUnsafeEnchantment(Enchantment.DURABILITY, 99);
 		newRecipe = new ShapelessRecipe(newItem);
 		newRecipe.addIngredient(1, Material.GOLD_NUGGET);
 		newRecipe.addIngredient(1, Material.REDSTONE);
@@ -162,12 +162,12 @@ public class Recipes {
 				+ "30% chance to shatter"));
 		meta.addEnchant(Enchantment.DURABILITY, 10, true);
 		newItem.setItemMeta(meta);
-		newItem.addUnsafeEnchantment(Enchantment.DURABILITY, 10);
+		newItem.addUnsafeEnchantment(Enchantment.DURABILITY, 99);
 		newRecipe = new ShapelessRecipe(newItem);
 		newRecipe.addIngredient(1, Material.GOLD_NUGGET);
 		newRecipe.addIngredient(1, Material.REDSTONE);
 		newRecipe.addIngredient(1, Material.INK_SACK, 4);
-		newRecipe.addIngredient(1, Material.EMERALD);
+		newRecipe.addIngredient(1, Material.DIAMOND);
 		newRecipe.addIngredient(1, Material.GOLD_SWORD);
 		Bukkit.getServer().addRecipe(newRecipe);
 
@@ -180,7 +180,7 @@ public class Recipes {
 				+ "15% chance to shatter."));
 		meta.addEnchant(Enchantment.DURABILITY, 10, true);
 		newItem.setItemMeta(meta);
-		newItem.addUnsafeEnchantment(Enchantment.DURABILITY, 10);
+		newItem.addUnsafeEnchantment(Enchantment.DURABILITY, 99);
 		newRecipe = new ShapelessRecipe(newItem);
 		newRecipe.addIngredient(1, Material.GOLD_NUGGET);
 		newRecipe.addIngredient(1, Material.REDSTONE);

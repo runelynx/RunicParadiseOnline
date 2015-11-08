@@ -1,4 +1,5 @@
 /*
+
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
@@ -7,6 +8,7 @@ package io.github.runelynx.runicparadise;
 
 import static org.bukkit.ChatColor.*;
 
+import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -19,8 +21,10 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.UUID;
 import java.util.logging.Level;
 
+import org.apache.commons.lang.WordUtils;
 import org.bukkit.Bukkit;
 
 import static org.bukkit.Bukkit.getLogger;
@@ -37,14 +41,18 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Item;
+import org.bukkit.entity.Monster;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitScheduler;
 import org.bukkit.util.Vector;
 
+import com.connorlinfoot.titleapi.TitleAPI;
 import com.kill3rtaco.tacoserialization.InventorySerialization;
 
 import de.slikey.effectlib.EffectManager;
@@ -80,20 +88,534 @@ public class Commands implements CommandExecutor {
 		// general approach is that errors will return immediately;
 		// successful runs will return after the switch completes
 		switch (cmd.getName()) {
+		case "crocomaze":
+			boolean problem = false;
+			boolean empty = true;
+
+			if (args.length == 2 && args[0].equals("enter")) {
+				// check for players in the maze or entry zone
+				for (Entity e : Bukkit.getPlayer(args[1]).getNearbyEntities(
+						200, 100, 200)) {
+					if (e instanceof Player) {
+						if ((e.getLocation().getX() <= -142 && e.getLocation()
+								.getX() >= -192)
+								&& (e.getLocation().getY() <= 121 && e
+										.getLocation().getY() >= 107)
+								&& (e.getLocation().getZ() <= 513 && e
+										.getLocation().getZ() >= 463)) {
+							// A player is in the maze!
+							Bukkit.getPlayer(args[1])
+									.sendMessage(
+											ChatColor.DARK_RED
+													+ "DungeonMaster CrocodileHax"
+													+ ChatColor.GRAY
+													+ ": Sorry, someone is already in the maze. Please wait for them to finish (or fail).");
+							problem = true;
+
+						}
+						if ((e.getLocation().getX() <= -137.5 && e
+								.getLocation().getX() >= -140.5)
+								&& (e.getLocation().getY() <= 120 && e
+										.getLocation().getY() >= 114)
+								&& (e.getLocation().getZ() <= 513.5 && e
+										.getLocation().getZ() >= 506.5)) {
+							// A player is in the maze!
+							Bukkit.getPlayer(args[1])
+									.sendMessage(
+											ChatColor.DARK_RED
+													+ "DungeonMaster CrocodileHax"
+													+ ChatColor.GRAY
+													+ ": Sorry, someone is already in the maze. Please wait for them to finish (or fail).");
+
+							problem = true;
+
+						}
+					}
+
+				}
+
+				// check if the player's inventory is empty
+				for (ItemStack item : Bukkit.getPlayer(args[1]).getInventory()
+						.getContents()) {
+					if (item != null && item.getType() != Material.AIR) {
+						problem = true;
+						empty = false;
+					}
+				}
+				// check if the player's inventory is empty
+				for (ItemStack armor : Bukkit.getPlayer(args[1]).getInventory()
+						.getArmorContents()) {
+					if (armor != null && armor.getType() != Material.AIR) {
+						problem = true;
+						empty = false;
+					}
+				}
+
+				if (!empty) {
+					Bukkit.getPlayer(args[1])
+							.sendMessage(
+									ChatColor.DARK_RED
+											+ "DungeonMaster CrocodileHax"
+											+ ChatColor.GRAY
+											+ ": Your inventory & armor slots must be empty to enter this maze. Why not use that ender chest over there.");
+				}
+
+				if (!problem) {
+					Bukkit.getPlayer(args[1]).teleport(
+							new Location(Bukkit.getWorld("RunicSky"), -138.5,
+									121, 511.5));
+					Bukkit.getPlayer(args[1])
+							.sendMessage(
+									ChatColor.DARK_RED
+											+ "DungeonMaster CrocodileHax"
+											+ ChatColor.GRAY
+											+ ": Welcome to the Dungeon Maze! Only one person may be in the maze at a time. Potion effects are removed when you teleport in. You will not lose a soul if you die - but you will have to start over!");
+					Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "heal "
+							+ args[1]);
+				}
+
+			}
+			break;
+
+		case "adventureparkourprize":
+			if (new RunicPlayerBukkit(args[0]).getPlayerAdvParkourCompletions() > 0) {
+				Bukkit.getPlayer(args[0])
+						.sendMessage(
+								"You already finished this parkour! You only get the prize once.");
+			} else {
+				new RunicPlayerBukkit(args[0]).setPlayerMazeCompletions(
+						"advparkour", 1);
+			}
+			break;
+		case "junglemaze":
+
+			if (args.length > 0) {
+
+				if (args[0].equals("checkpoint") && args.length == 3) {
+
+					Bukkit.getPlayer(args[2]).sendMessage(
+							"Updated your progress for checkpoint " + args[1]);
+
+					if (Integer.parseInt(args[1]) == 1) {
+						// if its the first checkpoint
+						// create new record
+
+						getLogger().log(Level.INFO, "3333");
+
+						try {
+							getLogger().log(
+									Level.INFO,
+									"Creating new jungle maze record for "
+											+ args[2]);
+
+							final Connection d = MySQL.openConnection();
+							Statement dStmt = d.createStatement();
+							PreparedStatement insertStmt = d
+									.prepareStatement("INSERT INTO rp_JungleMaze (UUID, CP1) VALUES "
+											+ "('"
+											+ Bukkit.getPlayer(args[2])
+													.getUniqueId().toString()
+											+ "', 1);");
+							insertStmt.executeUpdate();
+							d.close();
+							dStmt.close();
+
+						} catch (SQLException e) {
+							getLogger().log(
+									Level.SEVERE,
+									"Failed junglemaze record creation "
+											+ e.getMessage());
+						}
+
+					} else {
+						try {
+							final Connection d = MySQL.openConnection();
+							Statement dStmt = d.createStatement();
+							PreparedStatement insertStmt = d
+									.prepareStatement("UPDATE rp_JungleMaze SET CP"
+											+ args[1]
+											+ "= 1 "
+
+											+ "WHERE UUID='"
+											+ Bukkit.getPlayer(args[2])
+													.getUniqueId().toString()
+											+ "';");
+							insertStmt.executeUpdate();
+							d.close();
+							dStmt.close();
+
+						} catch (SQLException e) {
+							getLogger().log(
+									Level.SEVERE,
+									"Failed junglemaze record creation "
+											+ e.getMessage());
+						}
+
+					}
+
+				} else if (args[0].equals("complete")) {
+
+					try {
+						final Connection d = MySQL.openConnection();
+						Statement dStmt = d.createStatement();
+						ResultSet playerData = dStmt
+								.executeQuery("SELECT * FROM rp_JungleMaze WHERE UUID = '"
+										+ Bukkit.getPlayer(args[1])
+												.getUniqueId().toString()
+										+ "';");
+						if (!playerData.isBeforeFirst()) {
+							// No record returned
+							Bukkit.getPlayer(args[1])
+									.sendMessage(
+											"Could not check jungle maze status because you don't have any records yet. Start with checkpoint 1!");
+
+						} else {
+							// record returned!
+							playerData.next();
+
+							if (playerData.getInt("Complete") == 1) {
+								Bukkit.getPlayer(args[1])
+										.sendMessage(
+												"You already completed the jungle maze. You can only get the prize once!");
+								return true;
+							}
+
+							int cpCounter = 1;
+							String build1 = "";
+							String build2 = "";
+
+							int completeCP = 0;
+							ChatColor color;
+
+							while (cpCounter <= 24) {
+
+								if (playerData.getInt("CP" + cpCounter) == 1) {
+									// checkpoint is complete
+									color = ChatColor.GREEN;
+									completeCP++;
+								} else {
+									// checkpoint incomplete
+									color = ChatColor.BLACK;
+								}
+
+								if (cpCounter <= 13) {
+									build1 += ChatColor.DARK_GRAY + "[" + color
+											+ cpCounter + ChatColor.DARK_GRAY
+											+ "]";
+								} else {
+									build2 += ChatColor.DARK_GRAY + "[" + color
+											+ cpCounter + ChatColor.DARK_GRAY
+											+ "] ";
+
+								}
+
+								cpCounter++;
+							}
+							String completeMessage = "";
+
+							if (completeCP < 24) {
+								int remaining = 24 - completeCP;
+								completeMessage = ChatColor.GOLD
+										+ "You still need " + ChatColor.RED
+										+ remaining + ChatColor.GOLD
+										+ " more checkpoints.";
+							} else {
+								completeMessage = ChatColor.DARK_RED
+										+ "Congratulations! You've completed the jungle maze!.";
+
+								for (Player p : Bukkit.getOnlinePlayers()) {
+									TitleAPI.sendTitle(
+											p,
+											2,
+											3,
+											2,
+											ChatColor.DARK_GRAY
+													+ ""
+													+ ChatColor.BOLD
+													+ Bukkit.getPlayer(args[1])
+															.getDisplayName(),
+
+											ChatColor.AQUA
+													+ "just completed the jungle maze!");
+								}
+
+								try {
+
+									PreparedStatement insertStmt = d
+											.prepareStatement("UPDATE rp_JungleMaze SET Complete"
+													+ "= 1 "
+
+													+ "WHERE UUID='"
+													+ Bukkit.getPlayer(args[1])
+															.getUniqueId()
+															.toString() + "';");
+									insertStmt.executeUpdate();
+									d.close();
+									dStmt.close();
+
+								} catch (SQLException e) {
+									getLogger().log(
+											Level.SEVERE,
+											"Failed junglemaze record update "
+													+ e.getMessage());
+								}
+
+								new RunicPlayerBukkit(args[1])
+										.setPlayerMazeCompletions("jungle", 1);
+								new RunicPlayerBukkit(args[1])
+										.adjustPlayerKarma(20);
+
+							}
+
+							Bukkit.getPlayer(args[1])
+									.sendMessage(
+											new String[] {
+													ChatColor.GRAY
+															+ "Your jungle maze completion status:",
+													build1, build2,
+													completeMessage });
+
+						}
+					} catch (SQLException e) {
+						getLogger().log(
+								Level.SEVERE,
+								"Failed junglemaze record creation "
+										+ e.getMessage());
+					}
+
+				} else if (args[0].equals("check")) {
+
+					try {
+						final Connection d = MySQL.openConnection();
+						Statement dStmt = d.createStatement();
+						ResultSet playerData = dStmt
+								.executeQuery("SELECT * FROM rp_JungleMaze WHERE UUID = '"
+										+ Bukkit.getPlayer(args[1])
+												.getUniqueId().toString()
+										+ "';");
+						if (!playerData.isBeforeFirst()) {
+							// No record returned
+							Bukkit.getPlayer(args[1])
+									.sendMessage(
+											"Could not check jungle maze status because you don't have any records yet. Start with checkpoint 1!");
+
+						} else {
+							// record returned!
+							playerData.next();
+
+							if (playerData.getInt("Complete") == 1) {
+								Bukkit.getPlayer(args[1])
+										.sendMessage(
+												"You already completed the jungle maze. You can only get the prize once!");
+								return true;
+							}
+
+							int cpCounter = 1;
+							String build1 = "";
+							String build2 = "";
+
+							int completeCP = 0;
+							ChatColor color;
+
+							while (cpCounter <= 24) {
+
+								if (playerData.getInt("CP" + cpCounter) == 1) {
+									// checkpoint is complete
+									color = ChatColor.GREEN;
+									completeCP++;
+								} else {
+									// checkpoint incomplete
+									color = ChatColor.BLACK;
+								}
+
+								if (cpCounter <= 13) {
+									build1 += ChatColor.DARK_GRAY + " ["
+											+ color + cpCounter
+											+ ChatColor.DARK_GRAY + "]";
+								} else {
+									build2 += ChatColor.DARK_GRAY + " ["
+											+ color + cpCounter
+											+ ChatColor.DARK_GRAY + "]";
+								}
+
+								cpCounter++;
+							}
+							String completeMessage = "";
+
+							if (completeCP < 24) {
+								int remaining = 24 - completeCP;
+								completeMessage = ChatColor.GOLD
+										+ "You still need " + ChatColor.RED
+										+ remaining + ChatColor.GOLD
+										+ " more checkpoints.";
+							} else {
+								completeMessage = ChatColor.DARK_RED
+										+ "Congratulations! You've completed the jungle maze! Head to the finish to claim your prize.";
+
+							}
+
+							Bukkit.getPlayer(args[1])
+									.sendMessage(
+											new String[] {
+													ChatColor.GRAY
+															+ "Your jungle maze completion status:",
+													build1, build2,
+													completeMessage });
+
+						}
+					} catch (SQLException e) {
+						getLogger().log(
+								Level.SEVERE,
+								"Failed junglemaze record creation "
+										+ e.getMessage());
+					}
+
+				}
+			}
+
+			break;
+
+		case "voice":
+		case "discord":
+			sender.sendMessage(ChatColor.LIGHT_PURPLE
+					+ "We use Discord as our voice chat system. ");
+			sender.sendMessage(ChatColor.LIGHT_PURPLE
+					+ "Remember our server rules still apply there! Be respectful to others and keep it clean!");
+			sender.sendMessage(ChatColor.DARK_RED
+					+ "Click here to learn how to use Discord: "
+					+ ChatColor.GRAY + "http://goo.gl/X1dg8W");
+			sender.sendMessage(ChatColor.DARK_RED
+					+ "Click here to join Discord: " + ChatColor.GRAY
+					+ "https://goo.gl/QslFSx");
+			break;
+		case "dailykarma":
+			try {
+
+				Date date = new Date();
+				// get time 24 hours ago
+				long timeCheck = date.getTime() - 86400000;
+
+				final Connection d = MySQL.openConnection();
+				Statement dStmt = d.createStatement();
+				ResultSet playerData = dStmt
+						.executeQuery("SELECT * FROM rp_PlayerInfo WHERE LastSeen > "
+								+ timeCheck
+								+ " AND KillZombie > 1 ORDER BY RAND() LIMIT 1;");
+				if (!playerData.isBeforeFirst()) {
+					// No record returned
+
+				} else {
+					// record returned!
+					playerData.next();
+					RunicPlayerBukkit.adjustOfflinePlayerKarma(
+							playerData.getString("PlayerName"), 10);
+
+					for (Player p : Bukkit.getOnlinePlayers()) {
+						p.sendMessage(ChatColor.GRAY
+								+ "["
+								+ ChatColor.BLUE
+								+ "Runic"
+								+ ChatColor.DARK_AQUA
+								+ "Faith"
+								+ ChatColor.GRAY
+								+ "] "
+								+ ChatColor.GREEN
+								+ playerData.getString("PlayerName")
+								+ ChatColor.BLUE
+								+ " won 10 karma in the daily raffle! Login once a day for your chance to win!");
+
+					}
+
+					Bukkit.dispatchCommand(
+							Bukkit.getConsoleSender(),
+							"mail send "
+									+ playerData.getString("PlayerName")
+									+ " Congrats! You won 10 karma in the daily raffle. :)");
+
+				}
+			} catch (SQLException e) {
+				getLogger()
+						.log(Level.SEVERE,
+								"Failed ItemTransfers Lookup because "
+										+ e.getMessage());
+			}
+
+			break;
+		case "oldrankperks":
+			if (args.length != 1) {
+				sender.sendMessage(ChatColor.DARK_RED
+						+ "Use this command to restore the perks you had from your old highest rank. So if you used to be guardian, type /oldrankperks Guardian. If you used to be Architect, type /oldrankperks Architect. You will not go back to those rank names in chat- but you will regain the perks!");
+				return true;
+			}
+
+			try {
+
+				final Connection dbCon = MySQL.openConnection();
+				Statement dbStmt = dbCon.createStatement();
+				ResultSet powerResult = dbStmt
+						.executeQuery("SELECT * FROM rp_PlayerPromotions WHERE PlayerName='"
+								+ ((Player) sender).getName()
+								+ "' AND NewRank='" + args[0] + "' LIMIT 1;");
+				if (!powerResult.isBeforeFirst()) {
+					// No results
+					// do nothing
+					sender.sendMessage(ChatColor.DARK_RED
+							+ "Sorry, couldn't find any record of you having that rank. Be sure you type it EXACTLY right!! "
+							+ ChatColor.RED
+							+ "Settler, Explorer, Builder, Architect, Warden, Protector, Guardian");
+					Bukkit.getLogger().log(
+							Level.INFO,
+							"Player " + sender.getName()
+									+ " tried to get the perks of " + args[0]
+									+ " and failed.");
+					dbCon.close();
+				} else {
+					// results found!
+					while (powerResult.next()) {
+						// Found powers for a faith that player has
+						// equipped!
+						Bukkit.dispatchCommand(Bukkit.getConsoleSender(),
+								"manuaddsub " + sender.getName() + " "
+										+ args[0]);
+						sender.sendMessage(ChatColor.GREEN
+								+ "You now have the same perks as the "
+								+ ChatColor.AQUA
+								+ " "
+								+ args[0]
+								+ ChatColor.GREEN
+								+ " rank. Just the perks! You're still on the new rank system. :)");
+						Bukkit.getLogger().log(
+								Level.INFO,
+								"Gave " + sender.getName() + " the perks of "
+										+ args[0]);
+					}
+					dbStmt.close();
+					dbCon.close();
+				}
+
+			} catch (SQLException z) {
+				getLogger().log(
+						Level.SEVERE,
+						"Failed Faith.listPowers when trying to get powers for a faith: "
+								+ z.getMessage());
+				sender.sendMessage("Database failure.");
+				return true;
+			}
+			break;
+		case "cactifever":
+			ItemStack skull = new ItemStack(397, 1, (short) 3);
+			SkullMeta meta = (SkullMeta) skull.getItemMeta();
+
+			meta.setOwner("The_King_Cacti");
+			meta.setDisplayName(ChatColor.AQUA + "" + "The_King_Cacti");
+			skull.setItemMeta(meta);
+			((Player) sender).getWorld().dropItemNaturally(
+					((Player) sender).getLocation(), skull);
+			((Player) sender).sendMessage(ChatColor.YELLOW + ""
+					+ ChatColor.BOLD + "You've been infected with CactiFever!");
+			break;
 		case "runiceye":
-			Item item = ((Player) sender).getWorld()
-					.dropItemNaturally(
-							new Location(Bukkit.getWorld("RunicRealm"), -4532,
-									69, 7172),
-							new ItemStack(Material.EYE_OF_ENDER));
-			item.setCustomName("Rune's Eye");
-			item.setCustomNameVisible(true);
-			item.setVelocity(new Vector(0, 0, 0));
-			item.teleport(new Location(Bukkit.getWorld("RunicRealm"), -4532.5,
-					69, 7172.5));
-			RunicParadise.runicEyes.put(item.getUniqueId(), item.getUniqueId()
-					.toString());
-			sender.sendMessage(item.getUniqueId().toString());
+			RunicParadise.loadRunicEyes();
 			break;
 		case "faith":
 			if (args.length == 0) {
@@ -105,33 +627,149 @@ public class Commands implements CommandExecutor {
 
 				// list staff commands to staff
 				if (sender.hasPermission("rp.faith.staff")) {
-					sender.sendMessage(ChatColor.AQUA + "/faith resetmap"
-							+ ChatColor.DARK_AQUA
-							+ " Refresh player faith table");
+					sender.sendMessage(ChatColor.AQUA + "/faith reset"
+							+ ChatColor.GRAY
+							+ " Refresh player faith table, eyes and books");
 					sender.sendMessage(ChatColor.AQUA
-							+ "/faith enable runelynx Sun"
-							+ ChatColor.DARK_AQUA + " Enable faith");
+							+ "/faith enable runelynx Sun" + ChatColor.GRAY
+							+ " Enable faith");
 					sender.sendMessage(ChatColor.AQUA + "/faith listmap"
-							+ ChatColor.DARK_AQUA + " ???");
+							+ ChatColor.GRAY + " ???");
 					sender.sendMessage(ChatColor.AQUA
-							+ "/faith setlevel runelynx Sun 5"
-							+ ChatColor.DARK_AQUA + " Set faith level");
+							+ "/faith setlevel runelynx Sun 5" + ChatColor.GRAY
+							+ " Set faith level");
 					sender.sendMessage(ChatColor.AQUA
-							+ "/faith skillup runelynx Sun"
-							+ ChatColor.DARK_AQUA + " Skill-up faith");
+							+ "/faith skillup runelynx Sun" + ChatColor.GRAY
+							+ " Skill-up faith");
+					sender.sendMessage(ChatColor.AQUA + "/faith report"
+							+ ChatColor.GRAY + " Reporting");
 				}
-				
-				//list general commands to everyone
-				sender.sendMessage(ChatColor.AQUA + "/faith stats"
-						+ ChatColor.DARK_AQUA + " List faith stats");
-				sender.sendMessage(ChatColor.AQUA + "/faith powers"
-						+ ChatColor.DARK_AQUA + " List powers");
 
-			} else if (args[0].toLowerCase().equals("resetmap")
+				// list general commands to everyone
+				sender.sendMessage(ChatColor.AQUA + "/faith stats"
+						+ ChatColor.GRAY + " List faith stats");
+				sender.sendMessage(ChatColor.AQUA + "/faith powers"
+						+ ChatColor.GRAY + " List your faith's powers");
+				sender.sendMessage(ChatColor.AQUA + "/faith allpowers"
+						+ ChatColor.GRAY + " List all powers");
+				sender.sendMessage(ChatColor.AQUA + "/faith video"
+						+ ChatColor.GRAY + " Youtube video about faiths");
+				sender.sendMessage(ChatColor.AQUA + "/faith help"
+						+ ChatColor.GRAY + " Get help");
+
+			} else if (args[0].toLowerCase().equals("checkaccess")) {
+				if (args[2].equals("nether") || args[2].equals("aether")) {
+					if (new RunicPlayerBukkit(Bukkit.getPlayer(args[1]))
+							.getFaithPowerLevel() >= 400) {
+
+						TitleAPI.sendTitle(Bukkit.getPlayer(args[1]), 2, 8, 2,
+								ChatColor.GREEN + "", ChatColor.GREEN
+										+ "You have access to this faith!");
+						Bukkit.dispatchCommand(Bukkit.getConsoleSender(),
+								"manuaddp " + args[1] + " rp.faith.nether");
+						Bukkit.dispatchCommand(Bukkit.getConsoleSender(),
+								"manuaddp " + args[1] + " rp.faith.aether");
+					} else {
+						TitleAPI.sendTitle(
+								Bukkit.getPlayer(args[1]),
+								2,
+								3,
+								2,
+								ChatColor.RED + "",
+								ChatColor.RED
+										+ "You do not have access to this faith! Need 400 faith levels but have "
+										+ new RunicPlayerBukkit(Bukkit
+												.getPlayer(args[1]))
+												.getFaithPowerLevel() + ".");
+					}
+				} else if (Bukkit.getPlayer(args[1]).hasPermission(
+						"rp.faith." + args[2])) {
+
+					TitleAPI.sendTitle(Bukkit.getPlayer(args[1]), 2, 8, 2,
+							ChatColor.GREEN + "", ChatColor.GREEN
+									+ "You have access to this faith!");
+				} else {
+					TitleAPI.sendTitle(Bukkit.getPlayer(args[1]), 2, 3, 2,
+							ChatColor.RED + "", ChatColor.RED
+									+ "You do not have access to this faith!");
+				}
+
+			} else if (args[0].toLowerCase().equals("video")) {
+				sender.sendMessage(ChatColor.GRAY + "[" + ChatColor.BLUE
+						+ "Runic" + ChatColor.DARK_AQUA + "Faith"
+						+ ChatColor.GRAY + "] " + ChatColor.BLUE
+						+ "Faith tutorial video @ " + ChatColor.WHITE
+						+ "https://goo.gl/2WEgT8");
+			} else if (args[0].toLowerCase().equals("help")) {
+				sender.sendMessage(ChatColor.GRAY + "[" + ChatColor.BLUE
+						+ "Runic" + ChatColor.DARK_AQUA + "Faith"
+						+ ChatColor.GRAY + "] " + ChatColor.BLUE
+						+ "Basic Help:");
+				sender.sendMessage(ChatColor.AQUA + "Faith Area:"
+						+ ChatColor.GRAY + " /warp faith");
+				sender.sendMessage(ChatColor.AQUA
+						+ "Change Faiths:"
+						+ ChatColor.GRAY
+						+ " Go to the warp area and step on the plate in the faith temples. New players can use Sun or Moon.");
+				sender.sendMessage(ChatColor.AQUA
+						+ "Leveling Faiths:"
+						+ ChatColor.GRAY
+						+ " Kill monsters with a faith sword or sacrifice items via prayers. Check the 2nd floor at the faith area.");
+				sender.sendMessage(ChatColor.AQUA
+						+ "More Info:"
+						+ ChatColor.GRAY
+						+ " Get the guide book on the 2nd floor of the faith hub!");
+			} else if (args[0].toLowerCase().equals("powers")) {
+				RunicParadise.faithMap.get(((Player) sender).getUniqueId())
+						.listPowers(false);
+
+			} else if (args[0].toLowerCase().equals("allpowers")) {
+				RunicParadise.faithMap.get(((Player) sender).getUniqueId())
+						.listPowers(true);
+
+			} else if (args[0].toLowerCase().equals("report")
+					&& (sender.hasPermission("rp.faith.staff"))) {
+
+				try {
+
+					final Connection dbCon = MySQL.openConnection();
+					Statement dbStmt = dbCon.createStatement();
+					ResultSet reportResult = dbStmt
+							.executeQuery("SELECT SUM(Level) FROM rp_PlayerFaiths;");
+
+					if (!reportResult.isBeforeFirst()) {
+						// No results
+						// do nothing
+
+						dbCon.close();
+					} else {
+						// results found!
+						while (reportResult.next()) {
+							// Got result
+							sender.sendMessage(ChatColor.AQUA
+									+ "Total faith levels: "
+									+ ChatColor.DARK_AQUA + ""
+									+ reportResult.getString(1));
+
+						}
+						dbStmt.close();
+						dbCon.close();
+					}
+
+				} catch (SQLException z) {
+					getLogger().log(Level.SEVERE,
+							"Failed faith report. " + z.getMessage());
+				}
+
+			} else if (args[0].toLowerCase().equals("reset")
 					&& (sender.hasPermission("rp.faith.staff") || (sender instanceof ConsoleCommandSender))) {
 				sender.sendMessage("Clearing FaithMap now.");
 				Faith.deactivateFaiths();
 				sender.sendMessage("Rebuilding FaithMap now.");
+				sender.sendMessage("Reloading Runic Eyes now.");
+				RunicParadise.loadRunicEyes();
+				sender.sendMessage("Reloading Prayer Books now.");
+				RunicParadise.loadPrayerBooks();
 				int counter = 0;
 				for (Player p : Bukkit.getOnlinePlayers()) {
 					RunicParadise.faithMap.put(p.getUniqueId(),
@@ -147,6 +785,7 @@ public class Commands implements CommandExecutor {
 				}
 				sender.sendMessage(counter + " player entries added.");
 				Faith.getFaithSettings();
+				Faith.getPowerSettings();
 
 			} else if (args[0].toLowerCase().equals("stats")
 					&& args.length == 1) {
@@ -198,21 +837,82 @@ public class Commands implements CommandExecutor {
 						Bukkit.getPlayer(args[1]).getUniqueId(), args[2]);
 
 				if (response.equals("Success")) {
-					sender.sendMessage(ChatColor.DARK_BLUE
-							+ "[RunicFaith] "
-							+ ChatColor.BLUE
-							+ "Enabled "
-							+ ChatColor.AQUA
-							+ args[2]
-							+ ChatColor.BLUE
-							+ " for "
-							+ ChatColor.GRAY
-							+ args[1]
-							+ ChatColor.BLUE
-							+ ". If other faiths were active, they are now disabled.");
+					if (sender instanceof ConsoleCommandSender) {
+						// player used command block, notify player
+						Bukkit.getPlayer(args[1]).sendMessage(
+								ChatColor.GRAY
+										+ "["
+										+ ChatColor.BLUE
+										+ "Runic"
+										+ ChatColor.DARK_AQUA
+										+ "Faith"
+										+ ChatColor.GRAY
+										+ "] "
+										+ ChatColor.AQUA
+										+ args[2]
+										+ ChatColor.BLUE
+										+ " is now your active faith! Level: "
+										+ ChatColor.DARK_AQUA
+										+ RunicParadise.faithMap.get(
+												Bukkit.getPlayer(args[1])
+														.getUniqueId())
+												.getPrimaryFaithLevel()
+										+ ChatColor.WHITE
+										+ "/"
+										+ ChatColor.GRAY
+										+ RunicParadise.faithSettingsMap
+												.get(args[2])[4]);
+					} else {
+						// staff used command, notify them and player
+						sender.sendMessage(ChatColor.GRAY
+								+ "["
+								+ ChatColor.BLUE
+								+ "Runic"
+								+ ChatColor.DARK_AQUA
+								+ "Faith"
+								+ ChatColor.GRAY
+								+ "] "
+								+ ChatColor.BLUE
+								+ "Enabled "
+								+ ChatColor.AQUA
+								+ args[2]
+								+ ChatColor.BLUE
+								+ " for "
+								+ ChatColor.GRAY
+								+ args[1]
+								+ ChatColor.BLUE
+								+ ". If other faiths were active, they are now disabled.");
+						Bukkit.getPlayer(args[1]).sendMessage(
+								ChatColor.GRAY
+										+ "["
+										+ ChatColor.BLUE
+										+ "Runic"
+										+ ChatColor.DARK_AQUA
+										+ "Faith"
+										+ ChatColor.GRAY
+										+ "] "
+										+ ChatColor.AQUA
+										+ args[2]
+										+ ChatColor.BLUE
+										+ " is now your active faith! Level: "
+										+ ChatColor.DARK_AQUA
+										+ RunicParadise.faithMap.get(
+												Bukkit.getPlayer(args[1])
+														.getUniqueId())
+												.getPrimaryFaithLevel()
+										+ ChatColor.WHITE
+										+ "/"
+										+ ChatColor.GRAY
+										+ RunicParadise.faithSettingsMap
+												.get(args[2])[4]);
+
+					}
+
 				} else {
-					sender.sendMessage(ChatColor.DARK_BLUE + "[RunicFaith] "
-							+ ChatColor.BLUE + "Failed! " + response);
+					sender.sendMessage(ChatColor.GRAY + "[" + ChatColor.BLUE
+							+ "Runic" + ChatColor.DARK_AQUA + "Faith"
+							+ ChatColor.GRAY + "] " + ChatColor.BLUE
+							+ "Failed! " + response);
 
 				}
 			} else {
@@ -286,7 +986,7 @@ public class Commands implements CommandExecutor {
 					}
 				}
 
-				if (targetPlayer.checkPlayerPermission("rp.jobs.level25")) {
+				if (targetPlayer.getCurrentJobLevel() >= 25) {
 					// Player has sufficient level in a tier 1 job
 					if (targetPlayer.executeJobMastery()) {
 						// Execution succeeded!
@@ -323,6 +1023,56 @@ public class Commands implements CommandExecutor {
 									+ "[RunicRanks] Your previous masteries are now visible to Runic Ranks!");
 					String command = "manuaddp " + args[1] + " rp.level.master";
 					Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command);
+				}
+
+				targetPlayer.sendMessageToPlayer(ChatColor.YELLOW
+						+ "[RunicRanks] You have mastered these jobs: "
+						+ ChatColor.GOLD + targetPlayer.getMasteredJobs());
+
+				// BEASTMASTER
+				if (targetPlayer.getMasteredJobs().contains("Druid")
+						&& targetPlayer.getMasteredJobs().contains("Tamer")
+						&& targetPlayer.getMasteredJobs().contains("Nomad")) {
+					RunicParadise.perms.playerAdd(Bukkit.getPlayer(args[1]),
+							"jobs.join.beastmaster");
+					targetPlayer.sendMessageToPlayer(ChatColor.GREEN
+							+ "You qualify to become a " + ChatColor.DARK_GREEN
+							+ "BEASTMASTER");
+					showFail = false;
+				}
+				// SORCEROR
+				if (targetPlayer.getMasteredJobs().contains("Alchemist")
+						&& targetPlayer.getMasteredJobs().contains("Geomancer")
+						&& targetPlayer.getMasteredJobs().contains("Conjurer")) {
+					RunicParadise.perms.playerAdd(Bukkit.getPlayer(args[1]),
+							"jobs.join.sorcerer");
+					targetPlayer.sendMessageToPlayer(ChatColor.GREEN
+							+ "You qualify to become a " + ChatColor.DARK_GREEN
+							+ "SORCERER");
+					showFail = false;
+				}
+				// GENETICIST
+				if (targetPlayer.getMasteredJobs().contains("Ranger")
+						&& targetPlayer.getMasteredJobs().contains("Nomad")
+						&& targetPlayer.getMasteredJobs().contains("Biologist")) {
+					RunicParadise.perms.playerAdd(Bukkit.getPlayer(args[1]),
+							"jobs.join.geneticist");
+					targetPlayer.sendMessageToPlayer(ChatColor.GREEN
+							+ "You qualify to become a " + ChatColor.DARK_GREEN
+							+ "GENETICIST");
+					showFail = false;
+				}
+				// ARTIFICER
+				if (targetPlayer.getMasteredJobs().contains("Engineer")
+						&& targetPlayer.getMasteredJobs().contains(
+								"Forgemaster")
+						&& targetPlayer.getMasteredJobs().contains("Geomancer")) {
+					RunicParadise.perms.playerAdd(Bukkit.getPlayer(args[1]),
+							"jobs.join.artificer");
+					targetPlayer.sendMessageToPlayer(ChatColor.GREEN
+							+ "You qualify to become a " + ChatColor.DARK_GREEN
+							+ "ARTIFICER");
+					showFail = false;
 				}
 
 				// RANGER
@@ -457,11 +1207,17 @@ public class Commands implements CommandExecutor {
 				// int randomNum = rand.nextInt((max - min) + 1) + min;
 				int randomNum = rand.nextInt((100 - 1) + 1) + 1;
 				if (randomNum <= 5) {
-					command = "graves givesouls " + args[1] + " 3";
+					command = "graves givesouls " + args[1] + " 7";
 					Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command);
 					command = "say §4L§cu§6c§ek§2y §av§bo§3t§1e§9!§d! "
-							+ args[1] + " got 3 extra souls!";
+							+ args[1] + " got 7 extra souls!";
+
 					Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command);
+				}
+
+				if (randomNum <= 20) {
+					command = "graves givesouls " + args[1] + " 7";
+					targetPlayer.adjustPlayerKarma(1);
 				}
 			}
 			break;
@@ -765,6 +1521,22 @@ public class Commands implements CommandExecutor {
 						// 2) {
 						// RunicDeathChest.restoreByCommand(player.getName(),
 						// Integer.parseInt(args[1]));
+					} else if (args[0].equals("restore")
+							&& sender.hasPermission("rp.admin")) {
+						RunicDeathChest.restoreByCommand(args[1],
+								Integer.parseInt(args[2]));
+						// } else if (args[0].equals("quit")) {
+						// Bukkit.dispatchCommand(Bukkit.getConsoleSender(),
+						// "manudelp " + player.getName() + " rp.graves");
+						// } else if (args[0].equals("secret") && args.length ==
+						// 2) {
+						// RunicDeathChest.restoreByCommand(player.getName(),
+						// Integer.parseInt(args[1]));
+					} else if (args[0].equals("create")
+							&& sender.hasPermission("rp.admin")) {
+						RunicDeathChest.savePlayerDeath((Player) sender,
+								((Player) sender).getLocation());
+
 					} else {
 						showHelp = true;
 					}
@@ -807,11 +1579,11 @@ public class Commands implements CommandExecutor {
 					targetPlayer.sendMessageToPlayer(ChatColor.GRAY + "["
 							+ ChatColor.DARK_RED + "Runic" + ChatColor.RED
 							+ "Reaper" + ChatColor.GRAY + "] "
-							+ ChatColor.LIGHT_PURPLE
-							+ "The Reaper has granted you " + ChatColor.WHITE
-							+ args[2] + ChatColor.LIGHT_PURPLE
-							+ " more souls. You now have " + ChatColor.WHITE
-							+ newSouls + ChatColor.LIGHT_PURPLE + ".");
+							+ ChatColor.LIGHT_PURPLE + "The Reaper grants you "
+							+ ChatColor.WHITE + args[2]
+							+ ChatColor.LIGHT_PURPLE + " more souls. You have "
+							+ ChatColor.WHITE + newSouls
+							+ ChatColor.LIGHT_PURPLE + ".");
 
 					targetPlayer.setPlayerSouls(newSouls);
 					getLogger().log(Level.INFO,
@@ -1178,23 +1950,67 @@ public class Commands implements CommandExecutor {
 			// Not used.
 			break;
 		case "settler":
-			if (Bukkit.getPlayer(args[0]).hasPermission("rp.ready")) {
-				Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "manpromote "
-						+ args[0] + " settler");
+		case "seeker":
+			if (Bukkit.getPlayer(args[0]).hasPermission("rp.ready")
+					&& checkAttemptedPromotion(args[0],
+							((Player) sender).getName()) == 0) {
+				Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "manuadd "
+						+ args[0] + " Seeker");
+				Bukkit.dispatchCommand(Bukkit.getConsoleSender(),
+						"faith enable " + args[0] + " Sun");
 				RunicParadise.perms.playerRemove(Bukkit.getPlayer(args[0]),
 						"rp.ready");
-				sender.sendMessage(ChatColor.GREEN
-						+ "Command worked! You just got 2 souls! :)");
+				sender.sendMessage(ChatColor.GREEN + "Command worked! :)");
 				Bukkit.dispatchCommand(Bukkit.getConsoleSender(),
 						"graves givesouls " + sender.getName() + " 2");
+				RunicPlayerBukkit senderPlayer = new RunicPlayerBukkit(
+						((Player) sender).getUniqueId());
+				senderPlayer.adjustPlayerKarma(1);
+
+				addAttemptedPromotion(args[0], senderPlayer.getPlayerName());
+
+			} else if (checkAttemptedPromotion(args[0],
+					((Player) sender).getName()) == 0
+					&& RunicParadise.newReadyPlayer.containsKey(Bukkit
+							.getPlayer(args[0]).getName())) {
+				// command sender has not tried to promote this player yet AND
+				// the player is a valid newbie
+
+				Random rand = new Random();
+				int randomNum = rand.nextInt((100 - 1) + 1) + 1;
+				if (randomNum <= 50) {
+					new RunicPlayerBukkit(((Player) sender).getUniqueId())
+							.adjustPlayerKarma(1);
+					sender.sendMessage(ChatColor.RED
+							+ "You were too slow... but at least you got some karma!");
+				} else {
+					sender.sendMessage(ChatColor.RED
+							+ "You were too slow... and didn't get any karma this time. ");
+				}
+
+				addAttemptedPromotion(args[0], ((Player) sender).getName());
 			} else {
+				// completely invalid attmept
 				sender.sendMessage(ChatColor.RED
-						+ "Command failed! Are they Ghost and have they used /ready?");
+						+ "You can't use that command on that player anymore.");
 			}
 			break;
 		case "ready":
 			if (sender instanceof Player) {
 				boolean promoterFound = false;
+				final String newPlayerName = ((Player) sender).getName();
+
+				if (!RunicParadise.newReadyPlayer.containsKey(newPlayerName)) {
+					RunicParadise.newReadyPlayer.put(
+							((Player) sender).getName(), "unused");
+					Bukkit.getServer().getScheduler()
+							.scheduleAsyncDelayedTask(instance, new Runnable() {
+								public void run() {
+									RunicParadise.newReadyPlayer
+											.remove(newPlayerName);
+								}
+							}, 6000);
+				}
 
 				for (Player p : Bukkit.getOnlinePlayers()) {
 					if (p.hasPermission("rp.settlerpromotions")) {
@@ -1203,7 +2019,7 @@ public class Commands implements CommandExecutor {
 								+ ChatColor.LIGHT_PURPLE + sender.getName()
 								+ " has completed the tutorial.");
 						p.sendMessage(ChatColor.LIGHT_PURPLE + "Please use "
-								+ ChatColor.AQUA + "/settler "
+								+ ChatColor.AQUA + "/seeker "
 								+ sender.getName() + ChatColor.LIGHT_PURPLE
 								+ " to promote them.");
 						RunicParadise.perms.playerAdd(((Player) sender),
@@ -1349,6 +2165,8 @@ public class Commands implements CommandExecutor {
 							+ "] Welcome to the staff menu!");
 					sender.sendMessage(ChatColor.BLUE
 							+ "RunicRanks Commands & Tools");
+					sender.sendMessage(ChatColor.AQUA + "/staff ec"
+							+ ChatColor.GRAY + " Count entities near players");
 					sender.sendMessage(ChatColor.AQUA + "/staff pe"
 							+ ChatColor.GRAY
 							+ " Check player stats for rank promotions");
@@ -1387,6 +2205,54 @@ public class Commands implements CommandExecutor {
 							+ " Tool to help with punish commands");
 				} else if (args[0].equals("PE") || args[0].equals("pe")) {
 					rank.playerStats((Player) sender);
+				} else if (args[0].equals("EC") || args[0].equals("ec")) {
+					int entityCount = 0;
+					int entityCounter = 0;
+					for (Player p : Bukkit.getOnlinePlayers()) {
+						entityCount = 0;
+						ChatColor c;
+
+						entityCount = p.getNearbyEntities(400, 300, 400).size();
+
+						if (entityCount < 100) {
+							c = ChatColor.GREEN;
+						} else if (entityCount < 250) {
+							c = ChatColor.YELLOW;
+						} else if (entityCount < 500) {
+							c = ChatColor.GOLD;
+						} else if (entityCount < 750) {
+							c = ChatColor.RED;
+						} else if (entityCount < 1500) {
+							c = ChatColor.DARK_RED;
+						} else {
+							c = ChatColor.DARK_PURPLE;
+						}
+
+						entityCounter += entityCount;
+						sender.sendMessage(p.getDisplayName() + ": " + c
+								+ entityCount + ChatColor.WHITE
+								+ " entities within 200 blocks.");
+					}
+					sender.sendMessage(ChatColor.RED
+							+ "Total: "
+							+ entityCounter
+							+ " found. If players are near each other this may include double-counts.");
+
+				} else if (args[0].equals("LC") || args[0].equals("lc")) {
+
+					for (Player p : Bukkit.getOnlinePlayers()) {
+						for (Entity e : p.getNearbyEntities(200, 256, 200)) {
+							int size = e.getNearbyEntities(20, 20, 20).size();
+							if (size > 150) {
+								sender.sendMessage(size
+										+ " entities in a small area at "
+										+ e.getLocation().toString());
+
+							}
+						}
+
+					}
+
 				} else if (args[0].equals("GG") || args[0].equals("gg")) {
 					RunicDeathChest.graveTeleport((Player) sender,
 							Integer.parseInt(args[1]));
@@ -1468,8 +2334,18 @@ public class Commands implements CommandExecutor {
 		case "RP":
 		case "Rp":
 			if (sender instanceof Player) {
-				RunicPlayerBukkit targetPlayer = new RunicPlayerBukkit(
-						((Player) sender).getUniqueId());
+
+				UUID pUUID;
+				RunicPlayerBukkit commandPlayer = new RunicPlayerBukkit(
+						sender.getName());
+
+				if (args.length == 0) {
+					pUUID = ((Player) sender).getUniqueId();
+				} else {
+					pUUID = Bukkit.getPlayer(args[0]).getUniqueId();
+				}
+
+				RunicPlayerBukkit targetPlayer = new RunicPlayerBukkit(pUUID);
 				Map<String, Integer> killCounts = targetPlayer
 						.getPlayerKillCounts();
 
@@ -1481,27 +2357,29 @@ public class Commands implements CommandExecutor {
 
 				DecimalFormat df = new DecimalFormat("#,###,###,##0");
 
-				targetPlayer.sendMessageToPlayer(ChatColor.DARK_AQUA
-						+ "Runic Paradise Player Info: <PlayerName>");
-				targetPlayer.sendMessageToPlayer(ChatColor.DARK_AQUA
-						+ "✦Your personal information");
-				targetPlayer.sendMessageToPlayer(ChatColor.GRAY
+				commandPlayer.sendMessageToPlayer(ChatColor.DARK_AQUA
+						+ "Runic Paradise Player Info: "
+						+ Bukkit.getPlayer(pUUID).getDisplayName());
+				commandPlayer.sendMessageToPlayer(ChatColor.DARK_AQUA
+						+ "✦Personal information");
+				commandPlayer.sendMessageToPlayer(ChatColor.GRAY
 						+ "  Runic balance: "
 						+ ChatColor.GOLD
 						+ df.format(RunicParadise.economy
-								.getBalance((OfflinePlayer) sender))
-						+ ChatColor.GRAY + ", Votes: " + ChatColor.GOLD
+								.getBalance((OfflinePlayer) Bukkit
+										.getPlayer(pUUID))) + ChatColor.GRAY
+						+ ", Votes: " + ChatColor.GOLD
 						+ targetPlayer.getPlayerVoteCount());
-				targetPlayer.sendMessageToPlayer(ChatColor.GRAY
+				commandPlayer.sendMessageToPlayer(ChatColor.GRAY
 						+ "  Date joined: " + ChatColor.GOLD
 						+ sdf.format(targetPlayer.getJoinDate().getTime())
 						+ ChatColor.GRAY + ", Days since joining: "
 						+ ChatColor.GOLD + daysSinceJoin);
-				targetPlayer.sendMessageToPlayer(ChatColor.DARK_AQUA
-						+ "✦Your status with Runic Security & Runic Farms");
-				targetPlayer.sendMessageToPlayer(ChatColor.DARK_AQUA
+				commandPlayer.sendMessageToPlayer(ChatColor.DARK_AQUA
+						+ "✦Status with Runic Security & Runic Farms");
+				commandPlayer.sendMessageToPlayer(ChatColor.DARK_AQUA
 						+ " Monster Kills");
-				targetPlayer.sendMessageToPlayer(ChatColor.GRAY + "  Wither: "
+				commandPlayer.sendMessageToPlayer(ChatColor.GRAY + "  Wither: "
 						+ ChatColor.GOLD + killCounts.get("KillWither")
 						+ ChatColor.GRAY + ", Zombie: " + ChatColor.GOLD
 						+ killCounts.get("KillZombie") + ChatColor.GRAY
@@ -1509,7 +2387,7 @@ public class Commands implements CommandExecutor {
 						+ killCounts.get("KillWitch") + ChatColor.GRAY
 						+ ", Skeletons: " + ChatColor.GOLD
 						+ killCounts.get("KillSkeleton"));
-				targetPlayer.sendMessageToPlayer(ChatColor.GRAY + "  Slime: "
+				commandPlayer.sendMessageToPlayer(ChatColor.GRAY + "  Slime: "
 						+ ChatColor.GOLD + killCounts.get("KillSlime")
 						+ ChatColor.GRAY + ", MagmaCube: " + ChatColor.GOLD
 						+ killCounts.get("KillMagmaCube") + ChatColor.GRAY
@@ -1517,7 +2395,7 @@ public class Commands implements CommandExecutor {
 						+ killCounts.get("KillSilverfish") + ChatColor.GRAY
 						+ ", Giant: " + ChatColor.GOLD
 						+ killCounts.get("KillGiant"));
-				targetPlayer.sendMessageToPlayer(ChatColor.GRAY + "  Blaze: "
+				commandPlayer.sendMessageToPlayer(ChatColor.GRAY + "  Blaze: "
 						+ ChatColor.GOLD + killCounts.get("KillBlaze")
 						+ ChatColor.GRAY + ", Creeper: " + ChatColor.GOLD
 						+ killCounts.get("KillCreeper") + ChatColor.GRAY
@@ -1525,7 +2403,7 @@ public class Commands implements CommandExecutor {
 						+ killCounts.get("KillEnderman") + ChatColor.GRAY
 						+ ", Spider: " + ChatColor.GOLD
 						+ killCounts.get("KillSpider"));
-				targetPlayer.sendMessageToPlayer(ChatColor.GRAY
+				commandPlayer.sendMessageToPlayer(ChatColor.GRAY
 						+ "  CaveSpider: " + ChatColor.GOLD
 						+ killCounts.get("KillCaveSpider") + ChatColor.GRAY
 						+ ", Squid: " + ChatColor.GOLD
@@ -1534,7 +2412,7 @@ public class Commands implements CommandExecutor {
 						+ killCounts.get("KillEnderDragon") + ChatColor.GRAY
 						+ ", PigZombie: " + ChatColor.GOLD
 						+ killCounts.get("KillPigZombie"));
-				targetPlayer.sendMessageToPlayer(ChatColor.GRAY + "  Ghast: "
+				commandPlayer.sendMessageToPlayer(ChatColor.GRAY + "  Ghast: "
 						+ ChatColor.GOLD + killCounts.get("KillGhast")
 						+ ChatColor.GRAY + ", Bat: " + ChatColor.GOLD
 						+ killCounts.get("KillBat") + ChatColor.GRAY
@@ -1544,18 +2422,19 @@ public class Commands implements CommandExecutor {
 						+ killCounts.get("KillEndermite") + ChatColor.GRAY
 						+ ", Guardian: " + ChatColor.GOLD
 						+ killCounts.get("KillGuardian"));
-				targetPlayer.sendMessageToPlayer(ChatColor.GRAY
+				commandPlayer.sendMessageToPlayer(ChatColor.GRAY
 						+ "  ElderGuardian: " + ChatColor.GOLD
 						+ killCounts.get("KillElderGuardian") + ChatColor.GRAY
 						+ ", SnowGolem " + ChatColor.GOLD
 						+ killCounts.get("KillSnowGolem") + ChatColor.GRAY
 						+ ", IronGolem: " + ChatColor.GOLD
 						+ killCounts.get("KillIronGolem"));
-				targetPlayer.sendMessageToPlayer(ChatColor.DARK_AQUA
+				commandPlayer.sendMessageToPlayer(ChatColor.DARK_AQUA
 						+ " Animal & People Kills");
-				targetPlayer.sendMessageToPlayer(ChatColor.GRAY + "  Chicken: "
-						+ ChatColor.GOLD + killCounts.get("KillChicken")
-						+ ChatColor.GRAY + ", Cow: " + ChatColor.GOLD
+				commandPlayer.sendMessageToPlayer(ChatColor.GRAY
+						+ "  Chicken: " + ChatColor.GOLD
+						+ killCounts.get("KillChicken") + ChatColor.GRAY
+						+ ", Cow: " + ChatColor.GOLD
 						+ killCounts.get("KillCow") + ChatColor.GRAY
 						+ ", Sheep: " + ChatColor.GOLD
 						+ killCounts.get("KillSheep") + ChatColor.GRAY
@@ -1563,27 +2442,30 @@ public class Commands implements CommandExecutor {
 						+ killCounts.get("KillPig") + ChatColor.GRAY
 						+ ", Villager: " + ChatColor.GOLD
 						+ killCounts.get("KillVillager"));
-				targetPlayer.sendMessageToPlayer(ChatColor.GRAY + "  Ocelot: "
+				commandPlayer.sendMessageToPlayer(ChatColor.GRAY + "  Ocelot: "
 						+ ChatColor.GOLD + killCounts.get("KillOcelot")
 						+ ChatColor.GRAY + ", Rabbit: " + ChatColor.GOLD
 						+ killCounts.get("KillRabbit") + ChatColor.GRAY
 						+ ", Mooshroom: " + ChatColor.GOLD
 						+ killCounts.get("KillMooshroom"));
-				targetPlayer.sendMessageToPlayer(ChatColor.DARK_AQUA
-						+ "✦Your relationship with Runic Reaper");
-				targetPlayer.sendMessageToPlayer(ChatColor.GRAY
+				commandPlayer.sendMessageToPlayer(ChatColor.DARK_AQUA
+						+ "✦Faith & the afterlife");
+				commandPlayer.sendMessageToPlayer(ChatColor.GRAY
+						+ "  Karma available: " + ChatColor.GOLD
+						+ targetPlayer.getKarma());
+				commandPlayer.sendMessageToPlayer(ChatColor.GRAY
 						+ "  Souls remaining: " + ChatColor.GOLD
 						+ targetPlayer.getPlayerSouls());
-				targetPlayer.sendMessageToPlayer(ChatColor.GRAY
+				commandPlayer.sendMessageToPlayer(ChatColor.GRAY
 						+ "  Graves created: " + ChatColor.GOLD
 						+ targetPlayer.getCountGravesCreated() + ChatColor.GRAY
 						+ ", Unopened: " + ChatColor.GOLD
 						+ targetPlayer.getCountGravesRemaining()
 						+ ChatColor.GRAY + ", Stolen: " + ChatColor.GOLD
 						+ targetPlayer.getCountGravesStolen());
-				targetPlayer.sendMessageToPlayer(ChatColor.DARK_AQUA
-						+ "✦Your employment history");
-				targetPlayer.sendMessageToPlayer(ChatColor.GRAY
+				commandPlayer.sendMessageToPlayer(ChatColor.DARK_AQUA
+						+ "✦Employment history");
+				commandPlayer.sendMessageToPlayer(ChatColor.GRAY
 						+ "  Jobs mastered: " + ChatColor.GOLD
 						+ targetPlayer.getMasteredJobCount());
 
@@ -1717,6 +2599,71 @@ public class Commands implements CommandExecutor {
 
 			}
 			break;
+		case "headofplayer":
+		case "face":
+
+			if (args.length == 1) {
+				try {
+					final Connection d = MySQL.openConnection();
+					Statement dStmt = d.createStatement();
+					ResultSet playerData = dStmt
+							.executeQuery("SELECT * FROM `rp_HeadCreations` WHERE `PlayerName` = '"
+									+ sender.getName()
+									+ "' AND `Timestamp` >= "
+									+ (new Date().getTime() - 36000000)
+									+ " ORDER BY `ID` DESC LIMIT 1;");
+
+					if (playerData.isBeforeFirst()) {
+						playerData.next();
+						Long currentTime = new Date().getTime();
+						Long loggedTime = playerData
+								.getLong("Timestamp");
+						Double diffHours =  (currentTime - loggedTime) / (60.0 * 60 * 1000);
+						sender.sendMessage(ChatColor.RED
+								+ "You can only use this command once every 10 hours. You last used it "
+								+ diffHours + " hours ago.");
+
+					} else {
+						// No record found, proceed!
+						Bukkit.dispatchCommand(Bukkit.getConsoleSender(),
+								"give " + sender.getName()
+										+ " 397 1 3 {SkullOwner: " + args[0]
+										+ "}");
+						try {
+
+							PreparedStatement insertStmt = d
+									.prepareStatement("INSERT INTO rp_HeadCreations (PlayerName, UUID, Timestamp, HeadRequested) VALUES "
+											+ "('"
+											+ sender.getName()
+											+ "', '"
+											+ ((Player) sender).getUniqueId()
+													.toString()
+											+ "', "
+											+ (new Date().getTime()) + ", '" 
+											+ args[0] + "');");
+							insertStmt.executeUpdate();
+							d.close();
+							dStmt.close();
+
+						} catch (SQLException e) {
+							getLogger().log(
+									Level.SEVERE,
+									"Failed face record creation "
+											+ e.getMessage());
+						}
+					}
+
+					d.close();
+				} catch (SQLException e) {
+					getLogger().log(Level.SEVERE,
+							"Failed /face check" + e.getMessage());
+				}
+			}// end if checking arg length 
+			else {
+				sender.sendMessage(ChatColor.DARK_RED + "Usage: " + ChatColor.AQUA + "/face <playername>" + ChatColor.DARK_RED + " Watch your spelling, you only get ONE chance every 10 hours!! Always enter FULL player names, NOT nicks!");
+			}
+
+			break;
 		case "rpgames":
 		case "RPGAMES":
 		case "games":
@@ -1731,8 +2678,7 @@ public class Commands implements CommandExecutor {
 							.executeQuery("SELECT * FROM `rp_PlayerInfo` WHERE `PlayerName` = '"
 									+ sender.getName()
 									+ "' ORDER BY `id` ASC LIMIT 1;");
-					playerData.next();
-					tokenBal = playerData.getInt("Tokens");
+
 					d.close();
 				} catch (SQLException e) {
 					getLogger().log(
@@ -1972,6 +2918,72 @@ public class Commands implements CommandExecutor {
 					"Failed DB close for carnivalTokenCounts because: "
 							+ e.getMessage());
 		}
+	}
+
+	public boolean addAttemptedPromotion(String newGuyName, String promoterName) {
+
+		MySQL MySQL = new MySQL(instance, instance.getConfig().getString(
+				"dbHost"), instance.getConfig().getString("dbPort"), instance
+				.getConfig().getString("dbDatabase"), instance.getConfig()
+				.getString("dbUser"), instance.getConfig().getString(
+				"dbPassword"));
+
+		try {
+			final Connection dbCon = MySQL.openConnection();
+
+			String simpleProc = "{ call Add_Attempted_Promotion_Record(?, ?) }";
+			CallableStatement cs = dbCon.prepareCall(simpleProc);
+			cs.setString("NewPlayerName_param", Bukkit.getPlayer(newGuyName)
+					.getName());
+			cs.setString("PromoterName_param", Bukkit.getPlayer(promoterName)
+					.getName());
+			cs.executeUpdate();
+
+			cs.close();
+			dbCon.close();
+
+			return true;
+
+		} catch (SQLException z) {
+			getLogger().log(Level.SEVERE,
+					"Failed addAttemptedPromotion - " + z.getMessage());
+			return false;
+		}
+
+	}
+
+	public int checkAttemptedPromotion(String newGuyName, String promoterName) {
+
+		MySQL MySQL = new MySQL(instance, instance.getConfig().getString(
+				"dbHost"), instance.getConfig().getString("dbPort"), instance
+				.getConfig().getString("dbDatabase"), instance.getConfig()
+				.getString("dbUser"), instance.getConfig().getString(
+				"dbPassword"));
+		try {
+			final Connection dbCon = MySQL.openConnection();
+
+			String simpleProc = "{ call Count_Attempted_Promotion_Records(?, ?, ?) }";
+			CallableStatement cs = dbCon.prepareCall(simpleProc);
+			cs.setString("NewPlayerName_param", Bukkit.getPlayer(newGuyName)
+					.getName());
+			cs.setString("PromoterName_param", Bukkit.getPlayer(promoterName)
+					.getName());
+			cs.registerOutParameter("resultCount", java.sql.Types.INTEGER);
+			cs.executeUpdate();
+
+			int result = cs.getInt("resultCount");
+
+			cs.close();
+			dbCon.close();
+
+			return result;
+
+		} catch (SQLException z) {
+			getLogger().log(Level.SEVERE,
+					"Failed checkAttemptedPromotion - " + z.getMessage());
+			return 0;
+		}
+
 	}
 
 }

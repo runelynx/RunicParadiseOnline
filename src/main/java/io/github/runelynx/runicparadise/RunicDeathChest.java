@@ -306,35 +306,82 @@ public class RunicDeathChest {
 	public static boolean handleLevels(int graveID,
 			RunicPlayerBukkit playerAtGrave, int lostLevels, boolean isOwner) {
 
-		if (isOwner
-				&& playerAtGrave.checkPlayerPermission("rp.graves.levels50")) {
-			// PLAYER IS OWNER AND ONLY GETS 50% EXP
+		if (isOwner && playerAtGrave.checkPlayerPermission("rp.graves.master")) {
 			playerAtGrave.sendMessageToPlayer(ChatColor.DARK_GRAY
 					+ "[RunicReaper] " + ChatColor.GRAY
-					+ "Returning 50% of the lost levels to you.");
+					+ "Returning 95% of the lost levels to you.");
 			playerAtGrave.setPlayerLevel(playerAtGrave.getPlayerLevel()
-					+ (int) (0.50 * lostLevels));
+					+ (int) (0.95 * lostLevels));
 		} else if (isOwner
-				&& playerAtGrave.checkPlayerPermission("rp.graves.levels60")) {
+				&& playerAtGrave.checkPlayerPermission("rp.graves.champion")) {
 			playerAtGrave.sendMessageToPlayer(ChatColor.DARK_GRAY
 					+ "[RunicReaper] " + ChatColor.GRAY
-					+ "Returning 60% of the lost levels to you.");
+					+ "Returning 90% of the lost levels to you.");
 			playerAtGrave.setPlayerLevel(playerAtGrave.getPlayerLevel()
-					+ (int) (0.60 * lostLevels));
+					+ (int) (0.90 * lostLevels));
 		} else if (isOwner
-				&& playerAtGrave.checkPlayerPermission("rp.graves.levels70")) {
+				&& playerAtGrave.checkPlayerPermission("rp.graves.warder")) {
+			playerAtGrave.sendMessageToPlayer(ChatColor.DARK_GRAY
+					+ "[RunicReaper] " + ChatColor.GRAY
+					+ "Returning 85% of the lost levels to you.");
+			playerAtGrave.setPlayerLevel(playerAtGrave.getPlayerLevel()
+					+ (int) (0.85 * lostLevels));
+		} else if (isOwner
+				&& playerAtGrave.checkPlayerPermission("rp.graves.slayer")) {
+			playerAtGrave.sendMessageToPlayer(ChatColor.DARK_GRAY
+					+ "[RunicReaper] " + ChatColor.GRAY
+					+ "Returning 80% of the lost levels to you.");
+			playerAtGrave.setPlayerLevel(playerAtGrave.getPlayerLevel()
+					+ (int) (0.80 * lostLevels));
+		} else if (isOwner
+				&& playerAtGrave.checkPlayerPermission("rp.graves.hunter")) {
+			playerAtGrave.sendMessageToPlayer(ChatColor.DARK_GRAY
+					+ "[RunicReaper] " + ChatColor.GRAY
+					+ "Returning 75% of the lost levels to you.");
+			playerAtGrave.setPlayerLevel(playerAtGrave.getPlayerLevel()
+					+ (int) (0.75 * lostLevels));
+		} else if (isOwner
+				&& playerAtGrave.checkPlayerPermission("rp.graves.guard")) {
 			playerAtGrave.sendMessageToPlayer(ChatColor.DARK_GRAY
 					+ "[RunicReaper] " + ChatColor.GRAY
 					+ "Returning 70% of the lost levels to you.");
 			playerAtGrave.setPlayerLevel(playerAtGrave.getPlayerLevel()
 					+ (int) (0.70 * lostLevels));
 		} else if (isOwner
-				&& playerAtGrave.checkPlayerPermission("rp.graves.levels75")) {
+				&& playerAtGrave.checkPlayerPermission("rp.graves.keeper")) {
 			playerAtGrave.sendMessageToPlayer(ChatColor.DARK_GRAY
 					+ "[RunicReaper] " + ChatColor.GRAY
-					+ "Returning 75% of the lost levels to you.");
+					+ "Returning 65% of the lost levels to you.");
 			playerAtGrave.setPlayerLevel(playerAtGrave.getPlayerLevel()
-					+ (int) (0.75 * lostLevels));
+					+ (int) (0.65 * lostLevels));
+		} else if (isOwner
+				&& playerAtGrave.checkPlayerPermission("rp.graves.brawler")) {
+			playerAtGrave.sendMessageToPlayer(ChatColor.DARK_GRAY
+					+ "[RunicReaper] " + ChatColor.GRAY
+					+ "Returning 60% of the lost levels to you.");
+			playerAtGrave.setPlayerLevel(playerAtGrave.getPlayerLevel()
+					+ (int) (0.60 * lostLevels));
+		} else if (isOwner
+				&& playerAtGrave.checkPlayerPermission("rp.graves.singer")) {
+			playerAtGrave.sendMessageToPlayer(ChatColor.DARK_GRAY
+					+ "[RunicReaper] " + ChatColor.GRAY
+					+ "Returning 55% of the lost levels to you.");
+			playerAtGrave.setPlayerLevel(playerAtGrave.getPlayerLevel()
+					+ (int) (0.55 * lostLevels));
+		} else if (isOwner
+				&& playerAtGrave.checkPlayerPermission("rp.graves.runner")) {
+			playerAtGrave.sendMessageToPlayer(ChatColor.DARK_GRAY
+					+ "[RunicReaper] " + ChatColor.GRAY
+					+ "Returning 50% of the lost levels to you.");
+			playerAtGrave.setPlayerLevel(playerAtGrave.getPlayerLevel()
+					+ (int) (0.50 * lostLevels));
+		} else if (isOwner
+				&& playerAtGrave.checkPlayerPermission("rp.graves.seeker")) {
+			playerAtGrave.sendMessageToPlayer(ChatColor.DARK_GRAY
+					+ "[RunicReaper] " + ChatColor.GRAY
+					+ "Returning 45% of the lost levels to you.");
+			playerAtGrave.setPlayerLevel(playerAtGrave.getPlayerLevel()
+					+ (int) (0.45 * lostLevels));
 		} else {
 			// PLAYER IS NOT OWNER
 			playerAtGrave
@@ -524,51 +571,49 @@ public class RunicDeathChest {
 						+ "[RunicReaper] " + ChatColor.GRAY
 						+ " Searching for recent 30 graves owned by "
 						+ playerSearch);
-				
+
 				while (graveData.next()) {
-					
-					switch(graveData.getString("Status")) {
+
+					switch (graveData.getString("Status")) {
 					case "Gone":
 						new FancyMessage("ID").color(GRAY)
-						.then("" + graveData.getInt("ID")).color(AQUA)
-						.then(" ").color(GRAY)
-						.then(graveData.getString("Status"))
-						.color(GREEN).then(", Owner ").color(GRAY)
-						.then(graveData.getString("PlayerName"))
-						.color(YELLOW).then(", Looter ").color(GRAY)
-						.then(graveData.getString("LooterName"))
-						.color(YELLOW).then(", ").color(GRAY)
-						.then("Loc").color(GRAY)
-						.tooltip(graveData.getString("Location"))
-						.send(commandSender);
+								.then("" + graveData.getInt("ID")).color(AQUA)
+								.then(" ").color(GRAY)
+								.then(graveData.getString("Status"))
+								.color(GREEN).then(", Owner ").color(GRAY)
+								.then(graveData.getString("PlayerName"))
+								.color(YELLOW).then(", Looter ").color(GRAY)
+								.then(graveData.getString("LooterName"))
+								.color(YELLOW).then(", ").color(GRAY)
+								.then("Loc").color(GRAY)
+								.tooltip(graveData.getString("Location"))
+								.send(commandSender);
 						break;
 					case "Locked":
 						new FancyMessage("ID").color(GRAY)
-						.then("" + graveData.getInt("ID")).color(AQUA)
-						.then(" ").color(GRAY)
-						.then(graveData.getString("Status"))
-						.color(YELLOW).then(", Owner ").color(GRAY)
-						.then(graveData.getString("PlayerName"))
-						.color(YELLOW).then(", ").color(GRAY)
-						.then("Loc").color(GRAY)
-						.tooltip(graveData.getString("Location"))
-						.send(commandSender);
+								.then("" + graveData.getInt("ID")).color(AQUA)
+								.then(" ").color(GRAY)
+								.then(graveData.getString("Status"))
+								.color(YELLOW).then(", Owner ").color(GRAY)
+								.then(graveData.getString("PlayerName"))
+								.color(YELLOW).then(", ").color(GRAY)
+								.then("Loc").color(GRAY)
+								.tooltip(graveData.getString("Location"))
+								.send(commandSender);
 						break;
 					case "Unlocked":
 						new FancyMessage("ID").color(GRAY)
-						.then("" + graveData.getInt("ID")).color(AQUA)
-						.then(" ").color(GRAY)
-						.then(graveData.getString("Status"))
-						.color(RED).then(", Owner ").color(GRAY)
-						.then(graveData.getString("PlayerName"))
-						.color(YELLOW).then(", ").color(GRAY)
-						.then("Loc").color(GRAY)
-						.tooltip(graveData.getString("Location"))
-						.send(commandSender);
+								.then("" + graveData.getInt("ID")).color(AQUA)
+								.then(" ").color(GRAY)
+								.then(graveData.getString("Status")).color(RED)
+								.then(", Owner ").color(GRAY)
+								.then(graveData.getString("PlayerName"))
+								.color(YELLOW).then(", ").color(GRAY)
+								.then("Loc").color(GRAY)
+								.tooltip(graveData.getString("Location"))
+								.send(commandSender);
 						break;
 					}
-					
-
 
 					/*
 					 * commandSender.sendMessage(ChatColor.GRAY + "ID" +

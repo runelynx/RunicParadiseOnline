@@ -106,7 +106,7 @@ public class RunicGateway {
 
         if (toAllPlayers) {
             for (Player p : Bukkit.getOnlinePlayers()) {
-                p.getWorld().playSound(p.getLocation(), Sound.PORTAL_TRAVEL, 1, 0);
+                p.getWorld().playSound(p.getLocation(), Sound.FIREWORK_LAUNCH, 1, 0);
             }
         } else {
             Bukkit.getPlayer(playerName).getWorld().playSound(Bukkit.getPlayer(playerName).getLocation(), Sound.PORTAL_TRAVEL, 1, 0);

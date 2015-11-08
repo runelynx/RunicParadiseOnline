@@ -5,6 +5,9 @@
  */
 package io.github.runelynx.runicparadise;
 
+import static org.bukkit.Bukkit.getLogger;
+
+import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -21,12 +24,17 @@ import java.util.logging.Logger;
 
 import net.milkbowl.vault.economy.Economy;
 
+import org.apache.commons.lang.WordUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.GameMode;
+import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
+import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
@@ -44,21 +52,28 @@ import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitScheduler;
+import org.bukkit.util.Vector;
 
 import net.milkbowl.vault.permission.Permission;
 
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Guardian;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Monster;
 import org.bukkit.entity.Projectile;
+import org.bukkit.entity.Wither;
 import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.RegisteredServiceProvider;
+
+import de.slikey.effectlib.EffectManager;
 
 /**
  *
@@ -72,14 +87,19 @@ public final class RunicParadise extends JavaPlugin implements Listener {
 	public static Economy economy = null;
 
 	public static HashMap<UUID, Faith> faithMap = new HashMap<UUID, Faith>();
+	public static HashMap<String, Integer> powerReqsMap = new HashMap<String, Integer>();
 	public static HashMap<String, String[]> faithSettingsMap = new HashMap<String, String[]>();
-	public static HashMap<UUID, Integer> staffChatSettings = new HashMap<UUID, Integer>();
 	public static HashMap<String, ChatColor> rankColors = new HashMap<String, ChatColor>();
 	public static HashMap<UUID, String> protectedPlayers = new HashMap<UUID, String>();
-	public static HashMap<UUID, String> runicEyes = new HashMap<UUID, String>();
+	public static HashMap<Location, String[]> runicEyes = new HashMap<Location, String[]>();
+	public static HashMap<Entity, String> runicEyeEntities = new HashMap<Entity, String>();
+	public static HashMap<Location, String[]> prayerBooks = new HashMap<Location, String[]>();
+	public static HashMap<Entity, String> prayerBookEntities = new HashMap<Entity, String>();
+	public static HashMap<String, String> newReadyPlayer = new HashMap<String, String>();
 	public static Random randomSeed = new Random();
 
 	Ranks ranks = new Ranks();
+
 
 	public static Plugin getInstance() {
 		return instance;
@@ -107,6 +127,9 @@ public final class RunicParadise extends JavaPlugin implements Listener {
 		// get the object from vault API for Permission class
 		setupPermissions();
 		setupEconomy();
+		
+	    // Initialize a new EffectManager
+  
 
 		Recipes.customFoodRecipes();
 
@@ -123,6 +146,8 @@ public final class RunicParadise extends JavaPlugin implements Listener {
 		}
 
 		Faith.getFaithSettings();
+		Faith.getPowerSettings();
+		// loadRunicEyes();
 
 		rankColors.put("Seeker", ChatColor.GREEN);
 		rankColors.put("Runner", ChatColor.DARK_GREEN);
@@ -131,7 +156,7 @@ public final class RunicParadise extends JavaPlugin implements Listener {
 		rankColors.put("Keeper", ChatColor.AQUA);
 		rankColors.put("Guard", ChatColor.DARK_AQUA);
 		rankColors.put("Hunter", ChatColor.BLUE);
-		rankColors.put("Slayer", ChatColor.DARK_BLUE);
+		rankColors.put("Slayer", ChatColor.LIGHT_PURPLE);
 		rankColors.put("Warder", ChatColor.LIGHT_PURPLE);
 		rankColors.put("Champion", ChatColor.DARK_PURPLE);
 		rankColors.put("Master", ChatColor.RED);
@@ -142,9 +167,14 @@ public final class RunicParadise extends JavaPlugin implements Listener {
 		getCommand("rp").setExecutor(new Commands());
 		getCommand("rptest").setExecutor(new Commands());
 		getCommand("rpreload").setExecutor(new Commands());
+		getCommand("oldrankperks").setExecutor(new Commands());
+		getCommand("headofplayer").setExecutor(new Commands());
+		getCommand("face").setExecutor(new Commands());
+		getCommand("crocomaze").setExecutor(new Commands());
 		getCommand("rpgames").setExecutor(new Commands());
 		getCommand("games").setExecutor(new Commands());
 		getCommand("hmsay").setExecutor(new Commands());
+		getCommand("adventureparkourprize").setExecutor(new Commands());
 		getCommand("tc").setExecutor(new Commands());
 		getCommand("promote").setExecutor(new Commands());
 		getCommand("rankup").setExecutor(new Commands());
@@ -152,12 +182,15 @@ public final class RunicParadise extends JavaPlugin implements Listener {
 		getCommand("sc").setExecutor(new Commands());
 		getCommand("staffchat").setExecutor(new Commands());
 		getCommand("settler").setExecutor(new Commands());
+		getCommand("seeker").setExecutor(new Commands());
+		getCommand("junglemaze").setExecutor(new Commands());
 		getCommand("staff").setExecutor(new Commands());
 		getCommand("music").setExecutor(new Commands());
 		getCommand("radio").setExecutor(new Commands());
 		getCommand("ready").setExecutor(new Commands());
 		getCommand("rpmail").setExecutor(new Commands());
 		getCommand("rptokens").setExecutor(new Commands());
+		getCommand("dailykarma").setExecutor(new Commands());
 		getCommand("say").setExecutor(new Commands());
 		getCommand("rpchest").setExecutor(new Commands());
 		getCommand("grave").setExecutor(new Commands());
@@ -169,6 +202,9 @@ public final class RunicParadise extends JavaPlugin implements Listener {
 		getCommand("punish").setExecutor(new Commands());
 		getCommand("powers").setExecutor(new Commands());
 		getCommand("faith").setExecutor(new Commands());
+		getCommand("cactifever").setExecutor(new Commands());
+		getCommand("voice").setExecutor(new Commands());
+		getCommand("discord").setExecutor(new Commands());
 
 		Bukkit.getServer().getPluginManager().registerEvents(this, this);
 
@@ -302,6 +338,19 @@ public final class RunicParadise extends JavaPlugin implements Listener {
 				}
 			}
 		}, 0L, 1200L);
+
+		// Check for spirit of wolf spellcast every 3 minutes
+		scheduler.runTaskTimer(this, new Runnable() {
+
+			@Override
+			public void run() {
+				RunicParadise.loadRunicEyes();
+				RunicParadise.loadPrayerBooks();
+
+			}
+
+		}, 0L, 3600L);
+
 		/*
 		 * // Check for spirit of wolf spellcast every 3 minutes
 		 * scheduler.runTaskTimer(this, new Runnable() {
@@ -324,12 +373,35 @@ public final class RunicParadise extends JavaPlugin implements Listener {
 		 * 
 		 * } }, 0L, 3600L);
 		 */
+		
+		
+
+		scheduler.runTaskTimer(this, new Runnable() {
+
+			@Override
+			public void run() {
+
+				for (Player p : Bukkit.getWorld("RunicRealm_nether")
+						.getPlayers()) {
+					if (faithMap.get(p.getUniqueId()).checkEquippedFaithLevel(
+							"Nether",
+							RunicParadise.powerReqsMap.get("Netherborn"))) {
+						faithMap.get(p.getUniqueId()).castNether_Netherborn(p);
+					}
+
+				}
+
+			}
+		}, 0L, Faith.NETHER_NETHERBORN_TIMING);
 	}
 
 	public void onDisable() {
 		// TODO Insert logic to be performed when the plugin is disabled
 		Faith.deactivateFaiths();
 		rankColors.clear();
+        // Dispose of the EffectManager
+
+
 		getLogger().info("RunicParadise Plugin: onDisable has been invoked!");
 
 		// em.dispose();
@@ -337,7 +409,13 @@ public final class RunicParadise extends JavaPlugin implements Listener {
 
 	@EventHandler
 	public void onPlayerChat(AsyncPlayerChatEvent event) {
-		if (event.getPlayer().hasPermission("rp.ranks.new")) {
+		String sword = "";
+		/*
+		 * if (event.getPlayer().hasPermission("rp.guardian")) { sword =
+		 * RunicParadise.rankColors.get(perms.getPrimaryGroup(event
+		 * .getPlayer())) + "★"; }
+		 */
+		if (event.getPlayer().hasPermission("rp.ranks.new") && !event.getPlayer().getWorld().getName().equals("plotworld")) {
 			String staffPrefix = "";
 			if (event.getPlayer().hasPermission("rp.staff")) {
 				if ((event.getPlayer().hasPermission("rp.staff.admin"))) {
@@ -350,30 +428,61 @@ public final class RunicParadise extends JavaPlugin implements Listener {
 					staffPrefix = ChatColor.DARK_RED + "<Helper> ";
 				}
 
+			} else if (event.getPlayer().hasPermission("rp.guardian")) {
+				staffPrefix = ChatColor.BLUE + "<Legend> ";
 			}
-			event.setFormat(staffPrefix
-					+ RunicParadise.rankColors.get(perms.getPrimaryGroup(event
-							.getPlayer()))
-					+ RunicParadise.faithSettingsMap.get(RunicParadise.faithMap
-							.get(event.getPlayer().getUniqueId())
-							.getPrimaryFaith())[1]
-					+ perms.getPrimaryGroup(event.getPlayer()).toLowerCase()
-					+ ChatColor.GRAY
-					+ " {jobs}"
-					+ RunicParadise.rankColors.get(perms.getPrimaryGroup(event
-							.getPlayer())) + event.getPlayer().getDisplayName()
-					+ ChatColor.WHITE + ": %2$s");
+			
+			String faithPrefix;
+			String currentFaith = RunicParadise.faithMap.get(event.getPlayer().getUniqueId()).getPrimaryFaith();
+
+			
+			if (RunicParadise.faithMap.get(event.getPlayer().getUniqueId()).checkEquippedFaithLevel(currentFaith, Integer.parseInt(RunicParadise.faithSettingsMap.get(currentFaith)[4])))  {
+				faithPrefix =RunicParadise.faithSettingsMap.get(currentFaith)[6];
+			} else {
+				faithPrefix =RunicParadise.faithSettingsMap.get(currentFaith)[1];
+			}
+			
+			
+			
+			if (perms.getPrimaryGroup(event.getPlayer()).equals("Slayer")) {
+				event.setFormat(staffPrefix
+						+ ChatColor.BLUE
+						+ faithPrefix
+						+ RunicParadise.rankColors.get(perms
+								.getPrimaryGroup(event.getPlayer()))
+						+ perms.getPrimaryGroup(event.getPlayer())
+								.toLowerCase() + ChatColor.GRAY + " {jobs}"
+						+ sword + ChatColor.BLUE
+						+ event.getPlayer().getDisplayName() + ChatColor.WHITE
+						+ ": %2$s");
+
+			} else {
+				event.setFormat(staffPrefix
+						+ RunicParadise.rankColors.get(perms
+								.getPrimaryGroup(event.getPlayer()))
+						+ faithPrefix
+						+ perms.getPrimaryGroup(event.getPlayer())
+								.toLowerCase()
+						+ ChatColor.GRAY
+						+ " {jobs}"
+						+ sword
+						+ RunicParadise.rankColors.get(perms
+								.getPrimaryGroup(event.getPlayer()))
+						+ event.getPlayer().getDisplayName() + ChatColor.WHITE
+						+ ": %2$s");
+			}
+
 		} else {
 			String staffPrefix = "";
 			if (event.getPlayer().hasPermission("rp.staff")) {
 				if ((event.getPlayer().hasPermission("rp.staff.admin"))) {
-					staffPrefix = ChatColor.DARK_RED + "[Admin] ";
+					staffPrefix = ChatColor.DARK_RED + "<Admin> ";
 				} else if ((event.getPlayer().hasPermission("rp.staff.mod+"))) {
-					staffPrefix = ChatColor.DARK_RED + "[Mod+] ";
+					staffPrefix = ChatColor.DARK_RED + "<Mod+> ";
 				} else if ((event.getPlayer().hasPermission("rp.staff.mod"))) {
-					staffPrefix = ChatColor.DARK_RED + "[Mod] ";
+					staffPrefix = ChatColor.DARK_RED + "<Mod> ";
 				} else if ((event.getPlayer().hasPermission("rp.staff.helper"))) {
-					staffPrefix = ChatColor.DARK_RED + "[Helper] ";
+					staffPrefix = ChatColor.DARK_RED + "<Helper> ";
 				}
 			}
 			event.setFormat(event.getFormat().replace("{staff}", staffPrefix)
@@ -410,11 +519,87 @@ public final class RunicParadise extends JavaPlugin implements Listener {
 
 		// CENSOR!
 		if (event.getMessage().toLowerCase().contains("fuck")
-				|| event.getMessage().toLowerCase().contains("shit")) {
+				|| event.getMessage().toLowerCase().contains("shit")
+				|| event.getMessage().toLowerCase().contains("nigga")
+				|| event.getMessage().toLowerCase().contains("bitch")
+				|| event.getMessage().toLowerCase().contains("faggot")
+				|| event.getMessage().toLowerCase().contains("dick")
+				|| event.getMessage().toLowerCase().contains("cunt")) {
 			event.setMessage(event.getMessage().toLowerCase()
 					.replace("fuck", "✗✗✗✗"));
 			event.setMessage(event.getMessage().toLowerCase()
 					.replace("shit", "✗✗✗✗"));
+			event.setMessage(event.getMessage().toLowerCase()
+					.replace("nigga", "✗✗✗✗"));
+			event.setMessage(event.getMessage().toLowerCase()
+					.replace("bitch", "✗✗✗✗"));
+			event.setMessage(event.getMessage().toLowerCase()
+					.replace("faggot", "✗✗✗✗"));
+			event.setMessage(event.getMessage().toLowerCase()
+					.replace("dick", "✗✗✗✗"));
+			event.setMessage(event.getMessage().toLowerCase()
+					.replace("cunt", "✗✗✗✗"));
+
+			if (event.getPlayer().hasPermission("rp.chatfilterwarning2")) {
+
+				getServer()
+						.dispatchCommand(
+								getServer().getConsoleSender(),
+								"tempmute "
+										+ event.getPlayer().getName()
+										+ " 3m Auto mute for vulgar chat after warning.");
+
+				for (Player p : Bukkit.getOnlinePlayers()) {
+					p.sendMessage(ChatColor.WHITE
+							+ "["
+							+ ChatColor.YELLOW
+							+ "Runic"
+							+ ChatColor.GOLD
+							+ "Justice"
+							+ ChatColor.WHITE
+							+ "] "
+							+ ChatColor.GRAY
+							+ "Another criminal behind bars. Keep chat clean please!");
+				}
+
+			} else if (event.getPlayer().hasPermission("rp.chatfilterwarning1")) {
+				getServer()
+						.dispatchCommand(
+								getServer().getConsoleSender(),
+								"tempmute "
+										+ event.getPlayer().getName()
+										+ " 1m Auto mute for vulgar chat after warning.");
+				getServer().dispatchCommand(
+						getServer().getConsoleSender(),
+						"manuaddp " + event.getPlayer().getName()
+								+ " rp.chatfilterwarning2");
+
+				getServer().dispatchCommand(
+						getServer().getConsoleSender(),
+						"manuaddp " + event.getPlayer().getName()
+								+ " -essentials.me");
+
+				for (Player p : Bukkit.getOnlinePlayers()) {
+					p.sendMessage(ChatColor.WHITE + "[" + ChatColor.YELLOW
+							+ "Runic" + ChatColor.GOLD + "Justice"
+							+ ChatColor.WHITE + "] " + ChatColor.GRAY
+							+ "Silence is " + ChatColor.GOLD + "golden"
+							+ ChatColor.GRAY + ". Keep chat clean please!");
+				}
+
+			} else {
+				getServer().dispatchCommand(
+						getServer().getConsoleSender(),
+						"manuaddp " + event.getPlayer().getName()
+								+ " rp.chatfilterwarning1");
+				event.getPlayer()
+						.sendMessage(
+								ChatColor.BOLD
+										+ ""
+										+ ChatColor.DARK_RED
+										+ "This is a kid-friendly server, do not use vulgar language here! Repeat offenders will be punished.");
+			}
+
 		}
 
 	}
@@ -496,33 +681,74 @@ public final class RunicParadise extends JavaPlugin implements Listener {
 			event.setCancelled(true);
 		}
 	}
-/*
-	@EventHandler
-	public void onPlayerPickupItem(PlayerPickupItemEvent event) {
-		if (runicEyes.containsKey(event.getItem().getUniqueId())) {
-			event.getPlayer().sendMessage(
-					ChatColor.GREEN + "Hey don't poke Rune in the eye!!");
-			event.setCancelled(true);
+
+	/*
+	 * @EventHandler public void onPlayerPickupItem(PlayerPickupItemEvent event)
+	 * { if (runicEyes.containsKey(event.getItem().getUniqueId())) {
+	 * event.getPlayer().sendMessage( ChatColor.GREEN +
+	 * "Hey don't poke Rune in the eye!!"); event.setCancelled(true); } }
+	 */
+	/*
+	 * @EventHandler public void onEntityShootBowEvent(EntityShootBowEvent
+	 * event) { if (event.getEntity() instanceof Player &&
+	 * event.getEntity().getName().equals("runelynx")) { Player p =
+	 * Bukkit.getPlayer("Sykhoz"); Player p2 = Bukkit.getPlayer("RaveLuth");
+	 * Player p3 = Bukkit.getPlayer("__TARDIS__"); Player p4 =
+	 * Bukkit.getPlayer("Artgirl702"); Projectile proj = (Projectile)
+	 * event.getProjectile(); p.setVelocity(proj.getVelocity());
+	 * p2.setVelocity(proj.getVelocity()); p3.setVelocity(proj.getVelocity());
+	 * p4.setVelocity(proj.getVelocity());
+	 * 
+	 * }
+	 * 
+	 * 
+	 * }
+	 */
+
+	@EventHandler(priority = EventPriority.HIGHEST)
+	public void onPlayerTeleport(PlayerTeleportEvent event) {
+
+		if (event.getFrom().getWorld().getName().equals("RunicSky")) {
+			if ((event.getFrom().getX() <= -142 && event.getFrom().getX() >= -192)
+					&& (event.getFrom().getY() <= 200 && event.getFrom().getY() >= 0)
+					&& (event.getFrom().getZ() <= 513 && event.getFrom().getZ() >= 463)) {
+				// A player is leaving the maze!
+				event.getPlayer().sendMessage(
+						ChatColor.DARK_RED + "DungeonMaster CrocodileHax"
+								+ ChatColor.GRAY + ": See you next time!");
+				event.getPlayer().setGameMode(GameMode.SURVIVAL);
+
+			}
 		}
-	}*/
-/*
-	@EventHandler
-	public void onEntityShootBowEvent(EntityShootBowEvent event) {
-		if (event.getEntity() instanceof Player && event.getEntity().getName().equals("runelynx")) {
-			Player p = Bukkit.getPlayer("Sykhoz");
-			Player p2 = Bukkit.getPlayer("RaveLuth");
-			Player p3 = Bukkit.getPlayer("__TARDIS__");
-			Player p4 = Bukkit.getPlayer("Artgirl702");
-			Projectile proj = (Projectile) event.getProjectile();
-			p.setVelocity(proj.getVelocity());
-			p2.setVelocity(proj.getVelocity());
-			p3.setVelocity(proj.getVelocity());
-			p4.setVelocity(proj.getVelocity());
-			
+		if (event.getTo().getWorld().getName().equals("RunicSky")) {
+			if ((event.getTo().getX() <= -142 && event.getTo().getX() >= -192)
+					&& (event.getTo().getY() <= 121 && event.getTo().getY() >= 107)
+					&& (event.getTo().getZ() <= 513 && event.getTo().getZ() >= 463)) {
+				// A player is in the maze!
+				event.getPlayer()
+						.sendMessage(
+								ChatColor.DARK_RED
+										+ "DungeonMaster CrocodileHax"
+										+ ChatColor.GRAY
+										+ ": Teleporting into my maze is cheating. So your teleport has been cancelled. :)");
+				event.setCancelled(true);
+
+			} else if ((event.getTo().getX() <= -137.5 && event.getTo().getX() >= -140.5)
+					&& (event.getTo().getY() <= 120.5 && event.getTo().getY() >= 114)
+					&& (event.getTo().getZ() <= 513.59 && event.getTo().getZ() >= 506.5)) {
+				// A player is in the maze!
+				event.getPlayer()
+						.sendMessage(
+								ChatColor.DARK_RED
+										+ "DungeonMaster CrocodileHax"
+										+ ChatColor.GRAY
+										+ ": Teleporting into my maze is cheating. So your teleport has been cancelled. :)");
+				event.setCancelled(true);
+
+			}
 		}
-			
-		
-	}*/
+
+	}
 
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public void onPlayerInteract(PlayerInteractEvent event) {
@@ -557,10 +783,94 @@ public final class RunicParadise extends JavaPlugin implements Listener {
 					// do nothing
 
 				}
+			} else if (event.getClickedBlock().getType()
+					.equals(Material.getMaterial(98))
+					&& event.getPlayer().hasPermission("rp.admin")
+					&& event.getPlayer().getItemInHand().getType() == Material.BLAZE_ROD) {
+				placeRunicEye(event.getClickedBlock().getLocation(),
+						event.getPlayer());
+
+			} else if (event.getClickedBlock().getType()
+					.equals(Material.getMaterial(98))
+					&& runicEyes.containsKey(event.getClickedBlock()
+							.getLocation())) {
+				// player has right clicked a stone block and its a runic eye
+				// location!
+				event.getPlayer()
+						.sendMessage(
+								ChatColor.GOLD
+										+ ""
+										+ ChatColor.ITALIC
+										+ "You hear the "
+										+ runicEyes.get(event.getClickedBlock()
+												.getLocation())[0]
+										+ " in your mind...");
+				event.getPlayer().sendMessage(
+						ChatColor.GRAY
+								+ runicEyes.get(event.getClickedBlock()
+										.getLocation())[2]);
+			} else if (event.getClickedBlock().getType()
+					.equals(Material.getMaterial(98))
+					&& event.getPlayer().hasPermission("rp.admin")
+					&& event.getPlayer().getItemInHand().getType() == Material.BOOK) {
+				placePrayerBook(event.getClickedBlock().getLocation(),
+						event.getPlayer());
+
+			} else if (event.getClickedBlock().getType()
+					.equals(Material.getMaterial(98))
+					&& prayerBooks.containsKey(event.getClickedBlock()
+							.getLocation())) {
+				// player has right clicked a stone block and its a prayer book
+				// location!
+				Faith.pray(event.getClickedBlock().getLocation(),
+						event.getPlayer());
 			} else {
 				// not a redstone lamp
+
+				if (faithMap.get(event.getPlayer().getUniqueId())
+						.checkEquippedFaithLevel(
+								"Earth",
+								RunicParadise.powerReqsMap
+										.get("Earth's Bounty"))) {
+					faithMap.get(event.getPlayer().getUniqueId())
+							.castEarth_EarthsBounty(event);
+				}
+				
+				if (faithMap.get(event.getPlayer().getUniqueId())
+						.checkEquippedFaithLevel(
+								"Water",
+								RunicParadise.powerReqsMap
+										.get("Deep Wader"))) {
+					faithMap.get(event.getPlayer().getUniqueId())
+							.castWater_DeepWader(event);
+				}
+			}
+		} else if (event.getAction() == Action.LEFT_CLICK_BLOCK) {
+			if (event.getClickedBlock().getType()
+					.equals(Material.getMaterial(98))
+					&& prayerBooks.containsKey(event.getClickedBlock()
+							.getLocation())) {
+				// player has left clicked a stone block and its a prayer book
+				// location!
+				event.getPlayer().sendMessage(
+						ChatColor.GOLD
+								+ ""
+								+ ChatColor.ITALIC
+								+ prayerBooks.get(event.getClickedBlock()
+										.getLocation())[2]);
+				event.getPlayer().sendMessage(
+						ChatColor.GRAY
+								+ ""
+								+ ChatColor.ITALIC
+								+ "This prayer requires that you sacrifice: "
+								+ ChatColor.RESET
+								+ ChatColor.DARK_AQUA
+								+ prayerBooks.get(event.getClickedBlock()
+										.getLocation())[3]);
 			}
 		}
+
+		// event.getPlayer().sendMessage(runicEyes.toString());
 
 	}
 
@@ -599,11 +909,35 @@ public final class RunicParadise extends JavaPlugin implements Listener {
 	@EventHandler
 	public void onPlayerJoin(final PlayerJoinEvent pje) {
 
+		if (pje.getPlayer().hasPermission("rp.chatfilterwarning1")
+				&& !pje.getPlayer().hasPermission("rp.admin")) {
+			getServer().dispatchCommand(
+					getServer().getConsoleSender(),
+					"manudelp " + pje.getPlayer().getName()
+							+ " rp.chatfilterwarning1");
+			getServer()
+					.dispatchCommand(
+							getServer().getConsoleSender(),
+							"manudelp " + pje.getPlayer().getName()
+									+ " -essentials.me");
+		}
+
+		if (pje.getPlayer().hasPermission("rp.chatfilterwarning2")
+				&& !pje.getPlayer().hasPermission("rp.admin")) {
+			getServer().dispatchCommand(
+					getServer().getConsoleSender(),
+					"manudelp " + pje.getPlayer().getName()
+							+ " rp.chatfilterwarning2");
+		}
+
 		// Launch Firework on player join
 		faithMap.put(pje.getPlayer().getUniqueId(), new Faith(pje.getPlayer()
 				.getUniqueId()));
 		updatePlayerInfoOnJoin(pje.getPlayer().getName(), pje.getPlayer()
 				.getUniqueId());
+
+		ranks.convertRanks(pje.getPlayer());
+
 		/*
 		 * Bukkit.getServer().getScheduler() .scheduleSyncDelayedTask(this, new
 		 * Runnable() { public void run() {
@@ -643,6 +977,33 @@ public final class RunicParadise extends JavaPlugin implements Listener {
 			daytime = true;
 		}
 
+		// handle deaths in the dungeon maze
+		if (ede.getEntity() instanceof Player) {
+
+			Location deathLoc = ede.getEntity().getLocation();
+
+			if (((Player) ede.getEntity()).getHealth() - ede.getDamage() < 1) {
+				if (deathLoc.getWorld().getName().equals("RunicSky")) {
+					if ((deathLoc.getX() <= -142 && deathLoc.getX() >= -192)
+							&& (deathLoc.getY() <= 200 && deathLoc.getY() >= -64)
+							&& (deathLoc.getZ() <= 513 && deathLoc.getZ() >= 463)) {
+						ede.setCancelled(true);
+						ede.getEntity()
+								.sendMessage(
+										ChatColor.DARK_RED
+												+ "DungeonMaster CrocodileHax"
+												+ ChatColor.GRAY
+												+ ": Looks like the score is Traps 1, You 0. Better luck next time.");
+						ede.getEntity().teleport(
+								new Location(Bukkit.getWorld("RunicSky"), -131,
+										116, 509));
+						((Player) ede.getEntity())
+								.setGameMode(GameMode.SURVIVAL);
+					}
+				}
+			}
+		}
+
 		// If player falls into the void, heal and teleport them to spawn
 		if (ede.getCause() == DamageCause.VOID) {
 			if (ede.getEntity() instanceof Player) {
@@ -677,31 +1038,111 @@ public final class RunicParadise extends JavaPlugin implements Listener {
 			 * ); }
 			 */
 
+		} else if (ede.getCause() == DamageCause.FALL
+				&& ede.getEntity() instanceof Player) {
+
+			if (faithMap.get(ede.getEntity().getUniqueId())
+					.checkEquippedFaithLevel("Aether",
+							RunicParadise.powerReqsMap.get("Graceful Steps"))) {
+				faithMap.get(ede.getEntity().getUniqueId())
+						.castAether_GracefulSteps((Player) ede.getEntity());
+			}
+
 		} else if (ede.getEntity() instanceof Player
 				&& faithMap.containsKey(ede.getEntity().getUniqueId())) {
 			if ((faithMap.get(ede.getEntity().getUniqueId())
 					.checkEquippedFaithLevel("Sun",
-							Faith.SUN_SUNFLARE_LEVEL)
+							RunicParadise.powerReqsMap.get("Sunflare"))
 					&& daytime && ede.getEntity().getWorld().getName()
 					.equals("RunicRealm"))
 					|| (faithMap.get(ede.getEntity().getUniqueId())
 							.checkEquippedFaithLevel("Star",
-									Faith.STAR_SPELL_2_LEVEL) && daytime)) {
+									RunicParadise.powerReqsMap.get("Gemini")) && daytime)) {
 				faithMap.get(ede.getEntity().getUniqueId())
 						.castSun_Sunflare(ede.getEntity().getUniqueId(),
 								(Player) ede.getEntity());
 
 			} else if ((faithMap.get(ede.getEntity().getUniqueId())
 					.checkEquippedFaithLevel("Moon",
-							Faith.MOON_LUNAR_CALM_LEVEL)
+							RunicParadise.powerReqsMap.get("Lunar Calm"))
 					&& !daytime && ede.getEntity().getWorld().getName()
 					.equals("RunicRealm"))
 					|| (faithMap.get(ede.getEntity().getUniqueId())
 							.checkEquippedFaithLevel("Star",
-									Faith.STAR_SPELL_2_LEVEL) && !daytime)) {
+									RunicParadise.powerReqsMap.get("Gemini")) && !daytime)) {
 				faithMap.get(ede.getEntity().getUniqueId())
 						.castMoon_LunarCalm(ede.getEntity().getUniqueId(),
 								(Player) ede.getEntity());
+
+			}
+
+			if (faithMap.get(ede.getEntity().getUniqueId())
+					.checkEquippedFaithLevel("Flame",
+							RunicParadise.powerReqsMap.get("Unstable Embers"))) {
+				faithMap.get(ede.getEntity().getUniqueId())
+						.castFlame_UnstableEmbers((Player) ede.getEntity());
+			}
+			
+			if (faithMap.get(ede.getEntity().getUniqueId())
+					.checkEquippedFaithLevel("Water",
+							RunicParadise.powerReqsMap.get("Arctic Frost"))) {
+				faithMap.get(ede.getEntity().getUniqueId())
+						.castWater_ArcticFrost((Player) ede.getEntity());
+			}
+
+			if (faithMap.get(ede.getEntity().getUniqueId())
+					.checkEquippedFaithLevel("Wind",
+							RunicParadise.powerReqsMap.get("Healing Breeze"))) {
+				faithMap.get(ede.getEntity().getUniqueId())
+						.castWind_HealingBreeze((Player) ede.getEntity());
+			}
+
+			if (faithMap
+					.get(ede.getEntity().getUniqueId())
+					.checkEquippedFaithLevel("Water",
+							RunicParadise.powerReqsMap.get("Protective Bubble"))) {
+				faithMap.get(ede.getEntity().getUniqueId())
+						.castWater_ProtectiveBubble((Player) ede.getEntity());
+			}
+
+			if (faithMap.get(ede.getEntity().getUniqueId())
+					.checkEquippedFaithLevel("Time",
+							RunicParadise.powerReqsMap.get("Rewind"))) {
+				faithMap.get(ede.getEntity().getUniqueId()).castTime_Rewind(
+						(Player) ede.getEntity());
+			}
+
+			if (faithMap.get(ede.getEntity().getUniqueId())
+					.checkEquippedFaithLevel("Nature",
+							RunicParadise.powerReqsMap.get("Forest Armor"))) {
+				faithMap.get(ede.getEntity().getUniqueId())
+						.castNature_ForestArmor((Player) ede.getEntity());
+			}
+
+		}
+	}
+
+	@EventHandler(priority = EventPriority.LOWEST)
+	public void onPlayerTeleportEvent(final PlayerTeleportEvent event) {
+		if (event.getTo().getWorld().getName().equals("RunicRealm_nether")) {
+			// Player is entering the nether
+			if (faithMap.get(event.getPlayer().getUniqueId())
+					.checkEquippedFaithLevel("Nether",
+							RunicParadise.powerReqsMap.get("Netherborn"))) {
+				faithMap.get(event.getPlayer().getUniqueId())
+						.castNether_Netherborn(event.getPlayer());
+			}
+		} else if (event.getFrom().getWorld().getName()
+				.equals("RunicRealm_nether")) {
+			// Player is leaving Nether
+			if (faithMap.get(event.getPlayer().getUniqueId())
+					.checkEquippedFaithLevel("Nether",
+							RunicParadise.powerReqsMap.get("Netherborn"))) {
+
+				event.getPlayer().removePotionEffect(
+						PotionEffectType.HEALTH_BOOST);
+				event.getPlayer().removePotionEffect(
+						PotionEffectType.DAMAGE_RESISTANCE);
 
 			}
 
@@ -709,42 +1150,91 @@ public final class RunicParadise extends JavaPlugin implements Listener {
 	}
 
 	@EventHandler(priority = EventPriority.LOWEST)
-	public void onEntityDamageByEntity(final EntityDamageByEntityEvent edbe) {
-
+	public void onEntityDamageByEntity(EntityDamageByEntityEvent edbe) {
+		if (edbe.getDamager() instanceof Player) {
+			if (((Player) edbe.getDamager()).getItemInHand().getType()
+					.equals(Material.NETHER_STAR)) {
+				edbe.setCancelled(true);
+				((Player) edbe.getDamager())
+						.sendMessage("That cannot be used as a weapon anymore.");
+				return;
+			}
+		}
+		// If this ia player attacking a Monster and player has faiths
 		if (edbe.getDamager() instanceof Player
 				&& edbe.getEntity() instanceof Monster
 				&& faithMap.containsKey(edbe.getDamager().getUniqueId())) {
 			boolean daytime;
+
 			if ((Bukkit.getWorld("RunicRealm").getTime() > 14000 && Bukkit
 					.getWorld("RunicRealm").getTime() < 23000)) {
 				daytime = false;
 			} else {
 				daytime = true;
 			}
+
+			// Apply Sun and Moon spells
 			if ((faithMap.get(edbe.getDamager().getUniqueId())
-					.checkEquippedFaithLevel("Sun", Faith.SUN_SOLARPOWER_LEVEL)
+					.checkEquippedFaithLevel("Sun",
+							RunicParadise.powerReqsMap.get("Solar Power"))
 					&& daytime && edbe.getEntity().getWorld().getName()
-					.equals("RunicRealm"))
-					|| (faithMap.get(edbe.getDamager().getUniqueId())
-							.checkEquippedFaithLevel("Star",
-									Faith.STAR_SPELL_1_LEVEL) && daytime)) {
+					.equals("RunicRealm"))) {
 
 				RunicParadise.faithMap.get(edbe.getDamager().getUniqueId())
 						.castSun_SolarPower(edbe.getDamager().getUniqueId(),
 								(Player) edbe.getDamager());
-			} else if ((faithMap.get(edbe.getDamager().getUniqueId())
+			} else if ((faithMap
+					.get(edbe.getDamager().getUniqueId())
 					.checkEquippedFaithLevel("Moon",
-							Faith.MOON_CELESTIAL_HEALING_LEVEL)
+							RunicParadise.powerReqsMap.get("Celestial Healing"))
 					&& !daytime && edbe.getEntity().getWorld().getName()
-					.equals("RunicRealm"))
-					|| (faithMap.get(edbe.getDamager().getUniqueId())
-							.checkEquippedFaithLevel("Star",
-									Faith.STAR_SPELL_1_LEVEL) && !daytime)) {
+					.equals("RunicRealm"))) {
 				RunicParadise.faithMap.get(edbe.getDamager().getUniqueId())
 						.castMoon_CelestialHealing(
 								edbe.getDamager().getUniqueId(),
 								(Player) edbe.getDamager());
 			}
+
+			if (faithMap.get(edbe.getDamager().getUniqueId())
+					.checkEquippedFaithLevel("Aether",
+							RunicParadise.powerReqsMap.get("Gravity Flux"))) {
+				faithMap.get(edbe.getDamager().getUniqueId())
+						.castAether_GravityFlux((Player) edbe.getDamager());
+			}
+
+			if (faithMap.get(edbe.getDamager().getUniqueId())
+					.checkEquippedFaithLevel("Wind",
+							RunicParadise.powerReqsMap.get("Tempest Armor"))) {
+				faithMap.get(edbe.getDamager().getUniqueId())
+						.castWind_TempestArmor((Player) edbe.getDamager());
+			}
+
+			double newHealthRatio = (((LivingEntity) edbe.getEntity())
+					.getMaxHealth() - edbe.getDamage())
+					/ ((LivingEntity) edbe.getEntity()).getMaxHealth();
+
+			// Check if mob is a monster, but not a wither (EnderDragon is not
+			// Monster)
+			// and that new health of mob is <15%
+			// and that player has proper Fate level
+			if (edbe.getEntity() instanceof Monster
+					&& newHealthRatio > 0
+					&& newHealthRatio < 0.15
+					&& !(edbe.getEntity() instanceof Wither)
+					&& faithMap.get(edbe.getDamager().getUniqueId())
+							.checkEquippedFaithLevel(
+									"Fate",
+									RunicParadise.powerReqsMap
+											.get("Inevitable Demise"))) {
+
+				faithMap.get(edbe.getDamager().getUniqueId())
+						.castFate_InevitableDemise(
+								edbe.getDamager().getUniqueId(),
+								((Player) edbe.getDamager()),
+								((LivingEntity) edbe.getEntity()));
+
+			}
+
 		}
 
 		/*
@@ -780,6 +1270,20 @@ public final class RunicParadise extends JavaPlugin implements Listener {
 		if (ede.getEntity() instanceof LivingEntity) {
 
 			final LivingEntity monsterEnt = (LivingEntity) ede.getEntity();
+
+			// prepare Vampirism casting
+			if (monsterEnt.getLastDamageCause() instanceof EntityDamageByEntityEvent
+					&& ((EntityDamageByEntityEvent) monsterEnt
+							.getLastDamageCause()).getDamager() instanceof Player) {
+
+				EntityDamageByEntityEvent nEvent = (EntityDamageByEntityEvent) monsterEnt
+						.getLastDamageCause();
+				Player p = (Player) nEvent.getDamager();
+				if (faithMap.get(p.getUniqueId()).checkEquippedFaithLevel(
+						"Nether", RunicParadise.powerReqsMap.get("Vampirism"))) {
+					faithMap.get(p.getUniqueId()).castNether_Vampirism(ede);
+				}
+			}
 
 			EntityDamageEvent e = monsterEnt.getLastDamageCause();
 			if (e instanceof EntityDamageByEntityEvent) {
@@ -1502,6 +2006,243 @@ public final class RunicParadise extends JavaPlugin implements Listener {
 
 	}
 
+	// Add Runic Eye
+	public void placeRunicEye(Location loc, Player p) {
+		String locString = loc.getWorld().getName() + "." + loc.getBlockX()
+				+ "." + loc.getBlockY() + "." + loc.getBlockZ();
+
+		MySQL MySQL = new MySQL(instance, instance.getConfig().getString(
+				"dbHost"), instance.getConfig().getString("dbPort"), instance
+				.getConfig().getString("dbDatabase"), instance.getConfig()
+				.getString("dbUser"), instance.getConfig().getString(
+				"dbPassword"));
+		try {
+			final Connection dbCon = MySQL.openConnection();
+
+			String simpleProc = "{ call Add_Runic_Eye(?) }";
+			CallableStatement cs = dbCon.prepareCall(simpleProc);
+			cs.setString("Loc_param", locString);
+			cs.executeUpdate();
+
+			cs.close();
+			dbCon.close();
+			p.sendMessage("Runic Eye successfully created.");
+
+		} catch (SQLException z) {
+			getLogger().log(
+					Level.SEVERE,
+					"Failed RP.placeRunicEye " + loc.toString() + "- "
+							+ z.getMessage());
+			p.sendMessage("Runic Eye creation failed..");
+		}
+
+	}
+
+	// Add Prayer Book
+	public void placePrayerBook(Location loc, Player p) {
+		String locString = loc.getWorld().getName() + "." + loc.getBlockX()
+				+ "." + loc.getBlockY() + "." + loc.getBlockZ();
+
+		MySQL MySQL = new MySQL(instance, instance.getConfig().getString(
+				"dbHost"), instance.getConfig().getString("dbPort"), instance
+				.getConfig().getString("dbDatabase"), instance.getConfig()
+				.getString("dbUser"), instance.getConfig().getString(
+				"dbPassword"));
+		try {
+			final Connection dbCon = MySQL.openConnection();
+
+			String simpleProc = "{ call Add_Prayer_Book(?) }";
+			CallableStatement cs = dbCon.prepareCall(simpleProc);
+			cs.setString("Loc_param", locString);
+			cs.executeUpdate();
+
+			cs.close();
+			dbCon.close();
+			p.sendMessage("PrayerBook successfully created.");
+
+		} catch (SQLException z) {
+			getLogger().log(
+					Level.SEVERE,
+					"Failed RP.placePrayerBook " + loc.toString() + "- "
+							+ z.getMessage());
+			p.sendMessage("Prayer Book creation failed..");
+		}
+
+	}
+
+	// Add Runic Eye
+	public static void loadPrayerBooks() {
+
+		prayerBooks.clear();
+
+		// remove the eyes before we add them again
+		for (Entity item : prayerBookEntities.keySet()) {
+			item.remove();
+		}
+
+		prayerBookEntities.clear();
+
+		MySQL MySQL = new MySQL(instance, instance.getConfig().getString(
+				"dbHost"), instance.getConfig().getString("dbPort"), instance
+				.getConfig().getString("dbDatabase"), instance.getConfig()
+				.getString("dbUser"), instance.getConfig().getString(
+				"dbPassword"));
+
+		try {
+
+			final Connection dbCon = MySQL.openConnection();
+			Statement dbStmt = dbCon.createStatement();
+			ResultSet bookResult = dbStmt
+					.executeQuery("SELECT * FROM rp_PrayerBooks;");
+			if (!bookResult.isBeforeFirst()) {
+				// No results
+				// do nothing
+				Bukkit.dispatchCommand(Bukkit.getConsoleSender(),
+						"sc Tried to load Book settings, but couldn't find them in the DB!");
+				Bukkit.dispatchCommand(Bukkit.getConsoleSender(),
+						"sc This is a critical problem; Prayer Books will not work :(");
+
+				dbCon.close();
+				return;
+			} else {
+				// results found!
+				while (bookResult.next()) {
+
+					String[] locParts = bookResult.getString("Location").split(
+							"[\\x2E]");
+					Location targetLoc = new Location(
+							Bukkit.getWorld(locParts[0]),
+							Integer.parseInt(locParts[1]),
+							Integer.parseInt(locParts[2]),
+							Integer.parseInt(locParts[3]));
+
+					Item item;
+
+					if (bookResult.getString("Type").equals("Paper")) {
+						item = targetLoc.getWorld().dropItemNaturally(
+								targetLoc, new ItemStack(Material.PAPER));
+					} else {
+						item = targetLoc.getWorld().dropItemNaturally(
+								targetLoc, new ItemStack(Material.BOOK));
+					}
+
+					item.setCustomName(bookResult.getString("Name"));
+					item.setCustomNameVisible(true);
+					item.setPickupDelay(90000);
+					item.setVelocity(new Vector(0, 0, 0));
+					item.teleport(targetLoc.add(0.5, 1, 0.5));
+
+					prayerBookEntities.put(item, bookResult.getString("Name"));
+
+					RunicParadise.prayerBooks.put(
+							targetLoc.add(-0.5, -1, -0.5), new String[] {
+									bookResult.getString("Name"), // 0
+									item.getUniqueId().toString(), // 1
+									bookResult.getString("Message"), // 2
+									bookResult.getString("Requirements"), // 3
+									bookResult.getString("ItemCount"), // 4
+									bookResult.getString("Item1ID"), // 5
+									bookResult.getString("Item1Data"), // 6
+									bookResult.getString("Item1Count"), // 7
+									bookResult.getString("Item2ID"), // 8
+									bookResult.getString("Item2Data"), // 9
+									bookResult.getString("Item2Count"), // 10
+									bookResult.getString("Item3ID"), // 11
+									bookResult.getString("Item3Data"), // 12
+									bookResult.getString("Item3Count"), // 13
+									bookResult.getString("Item4ID"), // 14
+									bookResult.getString("Item4Data"), // 15
+									bookResult.getString("Item4Count"), // 16
+									bookResult.getString("Type"), // 17
+									bookResult.getString("FaithName") }); // 18
+
+				}
+
+				dbCon.close();
+			}
+
+		} catch (SQLException z) {
+			Bukkit.getLogger().log(Level.SEVERE,
+					"Failed RP.loadPrayerBook " + z.getMessage());
+		}
+
+	}
+
+	// Add Runic Eye
+	public static void loadRunicEyes() {
+
+		runicEyes.clear();
+
+		// remove the eyes before we add them again
+		for (Entity item : runicEyeEntities.keySet()) {
+			item.remove();
+		}
+
+		runicEyeEntities.clear();
+
+		MySQL MySQL = new MySQL(instance, instance.getConfig().getString(
+				"dbHost"), instance.getConfig().getString("dbPort"), instance
+				.getConfig().getString("dbDatabase"), instance.getConfig()
+				.getString("dbUser"), instance.getConfig().getString(
+				"dbPassword"));
+		String eyeList = "";
+		try {
+
+			final Connection dbCon = MySQL.openConnection();
+			Statement dbStmt = dbCon.createStatement();
+			ResultSet eyeResult = dbStmt
+					.executeQuery("SELECT * FROM rp_RunicEyes;");
+			if (!eyeResult.isBeforeFirst()) {
+				// No results
+				// do nothing
+				Bukkit.dispatchCommand(Bukkit.getConsoleSender(),
+						"sc Tried to load Eye settings, but couldn't find them in the DB!");
+				Bukkit.dispatchCommand(Bukkit.getConsoleSender(),
+						"sc This is a critical problem; Runic Eyes will not work :(");
+
+				dbCon.close();
+				return;
+			} else {
+				// results found!
+				while (eyeResult.next()) {
+
+					String[] locParts = eyeResult.getString("Location").split(
+							"[\\x2E]");
+					Location targetLoc = new Location(
+							Bukkit.getWorld(locParts[0]),
+							Integer.parseInt(locParts[1]),
+							Integer.parseInt(locParts[2]),
+							Integer.parseInt(locParts[3]));
+
+					Item item = targetLoc.getWorld().dropItemNaturally(
+							targetLoc, new ItemStack(Material.EYE_OF_ENDER));
+
+					item.setCustomName(eyeResult.getString("Name"));
+					item.setCustomNameVisible(true);
+					item.setPickupDelay(90000);
+					item.setVelocity(new Vector(0, 0, 0));
+					item.teleport(targetLoc.add(0.5, 1, 0.5));
+
+					runicEyeEntities.put(item, eyeResult.getString("Name"));
+
+					RunicParadise.runicEyes.put(
+							targetLoc.add(-0.5, -1, -0.5),
+							new String[] { eyeResult.getString("Name"),
+									item.getUniqueId().toString(),
+									eyeResult.getString("Message") });
+					eyeList += eyeResult.getString("Name") + ". ";
+				}
+
+				dbCon.close();
+			}
+
+		} catch (SQLException z) {
+			Bukkit.getLogger().log(Level.SEVERE,
+					"Failed Faith.faithSettings " + z.getMessage());
+		}
+
+	}
+
 	// Maintain table of player info
 	public void updatePlayerInfoOnQuit(String name, UUID pUUID) {
 		final Date now = new Date();
@@ -1563,6 +2304,51 @@ public final class RunicParadise extends JavaPlugin implements Listener {
 		}
 
 		return (economy != null);
+	}
+
+	public static BlockFace getPlayerFacing(Player player) {
+
+		float y = player.getLocation().getYaw();
+		if (y < 0)
+			y += 360;
+		y %= 360;
+		int i = (int) ((y + 8) / 22.5);
+
+		if (i == 0)
+			return BlockFace.WEST;
+		else if (i == 1)
+			return BlockFace.NORTH_WEST;
+		else if (i == 2)
+			return BlockFace.NORTH_WEST;
+		else if (i == 3)
+			return BlockFace.NORTH_WEST;
+		else if (i == 4)
+			return BlockFace.NORTH;
+		else if (i == 5)
+			return BlockFace.NORTH_EAST;
+		else if (i == 6)
+			return BlockFace.NORTH_EAST;
+		else if (i == 7)
+			return BlockFace.NORTH_EAST;
+		else if (i == 8)
+			return BlockFace.EAST;
+		else if (i == 9)
+			return BlockFace.SOUTH_EAST;
+		else if (i == 10)
+			return BlockFace.SOUTH_EAST;
+		else if (i == 11)
+			return BlockFace.SOUTH_EAST;
+		else if (i == 12)
+			return BlockFace.SOUTH;
+		else if (i == 13)
+			return BlockFace.SOUTH_WEST;
+		else if (i == 14)
+			return BlockFace.SOUTH_WEST;
+		else if (i == 15)
+			return BlockFace.SOUTH_WEST;
+
+		return BlockFace.WEST;
+
 	}
 
 }

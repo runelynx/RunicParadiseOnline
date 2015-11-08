@@ -10,11 +10,54 @@ commands:
       usage: /<command> [player]
       permission: rp.admin
       permission-message: "You don't have permission: <permission>"
+   headofplayer:
+      description: "Used to create player heads. Once every 10 hours ONLY!"
+      usage: /<command> [playername]
+      permission: rp.face
+      permission-message: "You don't have permission: <permission>. [Rank Hunter and above]"
+   face:
+      description: "Used to create player heads. Once every 10 hours ONLY!"
+      usage: /<command> [playername]
+      permission: rp.face
+      permission-message: "You don't have permission: <permission>. [Rank Hunter and above]"
+   crocomaze:
+      description: "Used by Rune (only) in the CrocoMaze"
+      usage: /<command>
+      permission: rp.crocomaze
+      permission-message: "Sorry this command is not for players to use."
+   cactifever:
+      description: "Are you infected by cacti fever??"
+      usage: /<command>
+      permission: rp.cactifever
+      permission-message: "Thankfully we stopped the spread of cacti fever!! Sorry :x"
+   dailykarma:
+      description: "Runic Paradise /say override command"
+      usage: /<command> [player]
+      permission: rp.admin
+      permission-message: "You don't have permission: <permission>"
+   adventureparkourprize:
+      description: "Claim prize for the Adventure Parkour"
+      usage: /<command> [player]
+      permission: rp.admin
+      permission-message: "You don't have permission: <permission>"
+   junglemaze:
+      description: "Command blocks in the jungle maze. Not for use by players."
+      permission: rp.admin
+      permission-message: "You don't have permission: <permission>"
+   oldrankperks:
+      description: "Restore perks from your old rank"
+      usage: /<command> [oldrankname]
    say:
       description: "Runic Paradise /say override command"
       usage: /<command> [player]
       permission: rp.staff
       permission-message: "You don't have permission: <permission>"
+   voice:
+      description: "Voice chat info"
+      usage: /<command> 
+   discord:
+      description: "Voice chat info"
+      usage: /<command> 
    powers:
       description: "Runic Powers command"
       usage: /<command> 
@@ -37,6 +80,11 @@ commands:
       description: "A workaround for voting rewards - console only!!"
       usage: /<command>
       permission: rp.NoPlayersAllowed
+      permission-message: "You don't have permission: <permission>"
+   seeker:
+      description: "For promoting ghosts."
+      usage: /<command>
+      permission: rp.settlerpromotions
       permission-message: "You don't have permission: <permission>"
    settler:
       description: "For promoting ghosts."
