@@ -17,7 +17,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.logging.Level;
 
-import org.apache.commons.lang.WordUtils;
 import org.bukkit.Bukkit;
 
 import static org.bukkit.Bukkit.getLogger;
@@ -70,7 +69,7 @@ public class Ranks {
 	final String CHAMPION_KILLS = "PigZombie:150, Enderman:60, Witch:25";
 	final int MASTER_DAYS = 23 * 7;
 	final int MASTER_RUNICS = 125000;
-	final int MASTER_MASTER_JOBS = 4;
+	final int MASTER_MASTER_JOBS = 6;
 	final String MASTER_KILLS = "TBD";
 
 	final int EXPLORER_DAYS = 7;
@@ -275,11 +274,11 @@ public class Ranks {
 		user.sendMessage(ChatColor.GRAY
 				+ "[RunicRanks] Listing promotion requirements...");
 		user.sendMessage(ChatColor.DARK_GREEN + "Runner - " + ChatColor.GRAY
-				+ RUNNER_DAYS + " days or 20 votes, " + RUNNER_RUNICS + " R.");
+				+ RUNNER_DAYS + " days or 15 votes, " + RUNNER_RUNICS + " R.");
 		user.sendMessage(ChatColor.GRAY + RUNNER_KILLS);
 		user.sendMessage(ChatColor.YELLOW + "Singer - " + ChatColor.GRAY
 				+ SINGER_DAYS + " days, " + SINGER_RUNICS
-				+ " R, hedge maze, sun or moon faith >50.");
+				+ " R, hedge maze, sun or moon faith >25.");
 		user.sendMessage(ChatColor.GRAY + SINGER_KILLS);
 		user.sendMessage(ChatColor.GOLD + "Brawler - " + ChatColor.GRAY
 				+ BRAWLER_DAYS + " days, " + BRAWLER_RUNICS + " R, sky maze.");
@@ -287,7 +286,7 @@ public class Ranks {
 		user.sendMessage(ChatColor.AQUA + "Keeper - " + ChatColor.GRAY
 				+ KEEPER_DAYS + " days, " + KEEPER_RUNICS + " R, "
 				+ KEEPER_MASTER_JOBS
-				+ " jobs mastered, ice maze, water or fire faith >100.");
+				+ " jobs mastered, ice maze, faith power level >100.");
 		user.sendMessage(ChatColor.GRAY + KEEPER_KILLS);
 		user.sendMessage(ChatColor.DARK_AQUA + "Guard - " + ChatColor.GRAY
 				+ GUARD_DAYS + " days, " + GUARD_RUNICS + " R, jungle maze.");
@@ -295,7 +294,7 @@ public class Ranks {
 		user.sendMessage(ChatColor.BLUE + "Hunter - " + ChatColor.GRAY
 				+ HUNTER_DAYS + " days, " + HUNTER_RUNICS + " R, "
 				+ HUNTER_MASTER_JOBS
-				+ " jobs mastered, frost maze, earth or air faith >150.");
+				+ " jobs mastered, frost maze, faith power level >150.");
 		user.sendMessage(ChatColor.GRAY + HUNTER_KILLS);
 		user.sendMessage(ChatColor.DARK_BLUE + "Slayer - " + ChatColor.GRAY
 				+ SLAYER_DAYS + " days, " + SLAYER_RUNICS + " R.");
@@ -305,7 +304,8 @@ public class Ranks {
 				+ WARDER_MASTER_JOBS + " jobs mastered");
 		user.sendMessage(ChatColor.GRAY + WARDER_KILLS);
 		user.sendMessage(ChatColor.DARK_PURPLE + "Champion - " + ChatColor.GRAY
-				+ CHAMPION_DAYS + " days, " + CHAMPION_RUNICS + " R.");
+				+ CHAMPION_DAYS + " days, " + CHAMPION_RUNICS
+				+ " R., faith power level 300.");
 		user.sendMessage(ChatColor.GRAY + CHAMPION_KILLS);
 		user.sendMessage(ChatColor.RED + "Master - " + ChatColor.GRAY
 				+ MASTER_DAYS + " days, " + MASTER_RUNICS + " R, "
@@ -519,8 +519,9 @@ public class Ranks {
 				.getString("dbUser"), instance.getConfig().getString(
 				"dbPassword"));
 		final Connection d = MySQL.openConnection();
-		double daysPlayed = 0;
-		DecimalFormat df = new DecimalFormat("#,###.##");
+		float daysPlayed = 0f;
+		DecimalFormat df = new DecimalFormat("#.00");
+		
 		String rank = "";
 		int balance = (int) economy.getBalance(user);
 		int nomRedux = 0;
@@ -550,7 +551,8 @@ public class Ranks {
 			if (playerData.getInt("IsNominated") > 0) {
 				nomRedux = 10;
 			}
-			daysPlayed = ((now.getTime() - firstSeenTime) / 86400000);
+			daysPlayed = ((now.getTime() - firstSeenTime) / 86400000f);
+			
 
 			rank = perms.getPrimaryGroup(user);
 			killsArray[0] = playerData.getInt("KillZombie");
@@ -581,7 +583,7 @@ public class Ranks {
 		switch (rank) {
 		case "Champion":
 			// if player has been on the server long enough for promotion
-			if ((daysPlayed - (double) MASTER_DAYS) > -0.4) {
+			if ((daysPlayed - (float) MASTER_DAYS) > -0.4) {
 				checkDays = true;
 				failureResponse.add(ChatColor.DARK_GREEN + "[✔ OK] "
 						+ ChatColor.GRAY + "Days on the server: "
@@ -648,23 +650,24 @@ public class Ranks {
 							+ killsArray[7] + "; Required: 3");
 				}
 			}
-			if (targetPlayer.getMasteredJobCount() > 3) {
+			if (targetPlayer.getMasteredJobCount() >= MASTER_MASTER_JOBS) {
 				checkJobMasteries = true;
 				failureResponse.add(ChatColor.DARK_GREEN + "[✔ OK] "
 						+ ChatColor.GRAY + "You have mastered "
 						+ targetPlayer.getMasteredJobCount() + " jobs.");
 			} else {
-				failureResponse
-						.add(ChatColor.DARK_RED
-								+ "[✘ FAIL] "
-								+ ChatColor.GRAY
-								+ "You haven't mastered 4 jobs. Get info @ /warp anchorsdeep");
+				failureResponse.add(ChatColor.DARK_RED + "[✘ FAIL] "
+						+ ChatColor.GRAY + "You haven't mastered "
+						+ MASTER_MASTER_JOBS
+						+ " jobs. Get info @ /warp anchorsdeep");
 			}
-			
-			if (targetPlayer.getPlayerJungleMazeCompletions() > 0 && targetPlayer.getPlayerDungeonMazeCompletions() > 0) {
+
+			if (RunicParadise.getPlayerMazeCompletionCount(user, 4) > 0
+					&& RunicParadise.getPlayerMazeCompletionCount(user, 6) > 0) {
 				checkMazes = true;
 				failureResponse.add(ChatColor.DARK_GREEN + "[✔ OK] "
-						+ ChatColor.GRAY + "You have completed the jungle & dungeon mazes!");
+						+ ChatColor.GRAY
+						+ "You have completed the jungle & dungeon mazes!");
 			} else {
 				failureResponse
 						.add(ChatColor.DARK_RED
@@ -673,7 +676,8 @@ public class Ranks {
 								+ "You must complete the jungle and dungeon mazes! See Puzzle Kiosk at /games");
 			}
 
-			if (checkDays && checkRunics && checkKills && checkJobMasteries && checkMazes) {
+			if (checkDays && checkRunics && checkKills && checkJobMasteries
+					&& checkMazes) {
 				if (execute == false) {
 					// just checking... we're not executing the promotion!!
 					user.sendMessage(ChatColor.DARK_GREEN
@@ -687,7 +691,7 @@ public class Ranks {
 							+ " to accept the promotion.");
 				} else {
 					// ok now we're executing the promotion.
-					economy.withdrawPlayer(user, MASTER_RUNICS);
+					economy.withdrawPlayer(user.getName(), MASTER_RUNICS);
 					perms.playerAddGroup(user, "Master");
 					perms.playerRemoveGroup(user, "Champion");
 					user.sendMessage(ChatColor.DARK_GREEN
@@ -703,7 +707,7 @@ public class Ranks {
 			break;
 		case "Warder":
 			// if player has been on the server long enough for promotion
-			if ((daysPlayed - (double) CHAMPION_DAYS) > -0.4) {
+			if ((daysPlayed - (float) CHAMPION_DAYS) > -0.4) {
 				checkDays = true;
 				failureResponse.add(ChatColor.DARK_GREEN + "[✔ OK] "
 						+ ChatColor.GRAY + "Days on the server: "
@@ -763,11 +767,23 @@ public class Ranks {
 							+ killsArray[8] + "; Required: 25");
 				}
 			}
-			
-			if (targetPlayer.getPlayerJungleMazeCompletions() > 0) {
+			if (targetPlayer.getFaithPowerLevel() >= 300) {
+				checkFaiths = true;
+				failureResponse.add(ChatColor.DARK_GREEN + "[✔ OK] "
+						+ ChatColor.GRAY
+						+ "You have faith power level of at least 300");
+			} else {
+				failureResponse
+						.add(ChatColor.DARK_RED
+								+ "[✘ FAIL] "
+								+ ChatColor.GRAY
+								+ "You need faith power level 300 or more. Power level is the combined level of all your faiths - check it in /faith stats.");
+			}
+			if (RunicParadise.getPlayerMazeCompletionCount(user, 4) > 0) {
 				checkMazes = true;
 				failureResponse.add(ChatColor.DARK_GREEN + "[✔ OK] "
-						+ ChatColor.GRAY + "You have completed the jungle maze!");
+						+ ChatColor.GRAY
+						+ "You have completed the jungle maze!");
 			} else {
 				failureResponse
 						.add(ChatColor.DARK_RED
@@ -776,7 +792,8 @@ public class Ranks {
 								+ "You must complete the jungle maze! See Puzzle Kiosk at /games");
 			}
 
-			if (checkDays && checkRunics && checkKills && checkMazes) {
+			if (checkDays && checkRunics && checkKills && checkMazes
+					&& checkFaiths) {
 				if (execute == false) {
 					// just checking... we're not executing the promotion!!
 					user.sendMessage(ChatColor.DARK_GREEN
@@ -790,7 +807,7 @@ public class Ranks {
 							+ " to accept the promotion.");
 				} else {
 					// ok now we're executing the promotion.
-					economy.withdrawPlayer(user, CHAMPION_RUNICS);
+					economy.withdrawPlayer(user.getName(), CHAMPION_RUNICS);
 					perms.playerAddGroup(user, "Champion");
 					perms.playerRemoveGroup(user, "Warder");
 					user.sendMessage(ChatColor.DARK_GREEN
@@ -806,7 +823,7 @@ public class Ranks {
 			break;
 		case "Slayer":
 			// if player has been on the server long enough for promotion
-			if ((daysPlayed - (double) WARDER_DAYS) > -0.4) {
+			if ((daysPlayed - (float) WARDER_DAYS) > -0.4) {
 				checkDays = true;
 				failureResponse.add(ChatColor.DARK_GREEN + "[✔ OK] "
 						+ ChatColor.GRAY + "Days on the server: "
@@ -885,11 +902,12 @@ public class Ranks {
 								+ ChatColor.GRAY
 								+ "You haven't mastered 3 jobs. Get info @ /warp anchorsdeep");
 			}
-			
-			if (targetPlayer.getPlayerJungleMazeCompletions() > 0) {
+
+			if (RunicParadise.getPlayerMazeCompletionCount(user, 4) > 0) {
 				checkMazes = true;
 				failureResponse.add(ChatColor.DARK_GREEN + "[✔ OK] "
-						+ ChatColor.GRAY + "You have completed the jungle maze!");
+						+ ChatColor.GRAY
+						+ "You have completed the jungle maze!");
 			} else {
 				failureResponse
 						.add(ChatColor.DARK_RED
@@ -898,7 +916,8 @@ public class Ranks {
 								+ "You must complete the jungle maze! See Puzzle Kiosk at /games");
 			}
 
-			if (checkDays && checkRunics && checkKills && checkJobMasteries && checkMazes) {
+			if (checkDays && checkRunics && checkKills && checkJobMasteries
+					&& checkMazes) {
 				if (execute == false) {
 					// just checking... we're not executing the promotion!!
 					user.sendMessage(ChatColor.DARK_GREEN
@@ -912,7 +931,7 @@ public class Ranks {
 							+ " to accept the promotion.");
 				} else {
 					// ok now we're executing the promotion.
-					economy.withdrawPlayer(user, WARDER_RUNICS);
+					economy.withdrawPlayer(user.getName(), WARDER_RUNICS);
 					perms.playerAddGroup(user, "Warder");
 					perms.playerRemoveGroup(user, "Slayer");
 					user.sendMessage(ChatColor.DARK_GREEN
@@ -927,7 +946,7 @@ public class Ranks {
 			break;
 		case "Hunter":
 			// if player has been on the server long enough for promotion
-			if ((daysPlayed - (double) SLAYER_DAYS) > -0.4) {
+			if ((daysPlayed - (float) SLAYER_DAYS) > -0.4) {
 				checkDays = true;
 				failureResponse.add(ChatColor.DARK_GREEN + "[✔ OK] "
 						+ ChatColor.GRAY + "Days on the server: "
@@ -985,11 +1004,12 @@ public class Ranks {
 							+ killsArray[8] + "; Required: 10");
 				}
 			}
-			
-			if (targetPlayer.getPlayerJungleMazeCompletions() > 0) {
+
+			if (RunicParadise.getPlayerMazeCompletionCount(user, 4) > 0) {
 				checkMazes = true;
 				failureResponse.add(ChatColor.DARK_GREEN + "[✔ OK] "
-						+ ChatColor.GRAY + "You have completed the jungle maze!");
+						+ ChatColor.GRAY
+						+ "You have completed the jungle maze!");
 			} else {
 				failureResponse
 						.add(ChatColor.DARK_RED
@@ -1012,7 +1032,7 @@ public class Ranks {
 							+ " to accept the promotion.");
 				} else {
 					// ok now we're executing the promotion.
-					economy.withdrawPlayer(user, SLAYER_RUNICS);
+					economy.withdrawPlayer(user.getName(), SLAYER_RUNICS);
 					perms.playerAddGroup(user, "Slayer");
 					perms.playerRemoveGroup(user, "Hunter");
 					user.sendMessage(ChatColor.DARK_GREEN
@@ -1027,7 +1047,7 @@ public class Ranks {
 			break;
 		case "Guard":
 			// if player has been on the server long enough for promotion
-			if ((daysPlayed - (double) HUNTER_DAYS) > -0.4) {
+			if ((daysPlayed - (float) HUNTER_DAYS) > -0.4) {
 				checkDays = true;
 				failureResponse.add(ChatColor.DARK_GREEN + "[✔ OK] "
 						+ ChatColor.GRAY + "Days on the server: "
@@ -1094,17 +1114,17 @@ public class Ranks {
 							+ killsArray[7] + "; Required: 2");
 				}
 			}
-			if (RunicParadise.faithMap.get(user.getUniqueId()).checkEquippedFaithLevel("Air", 150)
-					||
-					RunicParadise.faithMap.get(user.getUniqueId()).checkEquippedFaithLevel("Earth", 150)) {
+			if (targetPlayer.getFaithPowerLevel() >= 150) {
 				checkFaiths = true;
 				failureResponse.add(ChatColor.DARK_GREEN + "[✔ OK] "
 						+ ChatColor.GRAY
-						+ "You have reached level 150 with Air or Earth Faith");
+						+ "You have faith power level of at least 150");
 			} else {
-				failureResponse.add(ChatColor.DARK_RED + "[✘ FAIL] "
-						+ ChatColor.GRAY
-						+ "You need level 150 in the Air or Earth Faith. It must be active!");
+				failureResponse
+						.add(ChatColor.DARK_RED
+								+ "[✘ FAIL] "
+								+ ChatColor.GRAY
+								+ "You need faith power level 150 or more. Power level is the combined level of all your faiths - check it in /faith stats.");
 			}
 
 			if (targetPlayer.getMasteredJobCount() > 1) {
@@ -1119,11 +1139,12 @@ public class Ranks {
 								+ ChatColor.GRAY
 								+ "You havent mastered 2 jobs. Get info @ /warp anchorsdeep");
 			}
-			
-			if (targetPlayer.getPlayerFrostMazeCompletions() > 0) {
+
+			if (RunicParadise.getPlayerMazeCompletionCount(user, 5) > 0) {
 				checkMazes = true;
-				failureResponse.add(ChatColor.DARK_GREEN + "[✔ OK] "
-						+ ChatColor.GRAY + "You have completed the frost maze!");
+				failureResponse
+						.add(ChatColor.DARK_GREEN + "[✔ OK] " + ChatColor.GRAY
+								+ "You have completed the frost maze!");
 			} else {
 				failureResponse
 						.add(ChatColor.DARK_RED
@@ -1131,11 +1152,9 @@ public class Ranks {
 								+ ChatColor.GRAY
 								+ "You must complete the frost maze! See Puzzle Kiosk at /games");
 			}
-			
 
-			
-			if (checkDays && checkRunics && checkKills && checkJobMasteries && checkMazes
-					&& checkFaiths) {
+			if (checkDays && checkRunics && checkKills && checkJobMasteries
+					&& checkMazes && checkFaiths) {
 				if (execute == false) {
 					// just checking... we're not executing the promotion!!
 					user.sendMessage(ChatColor.DARK_GREEN
@@ -1149,7 +1168,7 @@ public class Ranks {
 							+ " to accept the promotion.");
 				} else {
 					// ok now we're executing the promotion.
-					economy.withdrawPlayer(user, HUNTER_RUNICS);
+					economy.withdrawPlayer(user.getName(), HUNTER_RUNICS);
 					perms.playerAddGroup(user, "Hunter");
 					perms.playerRemoveGroup(user, "Guard");
 					user.sendMessage(ChatColor.DARK_GREEN
@@ -1164,7 +1183,7 @@ public class Ranks {
 			break;
 		case "Keeper":
 			// if player has been on the server long enough for promotion
-			if ((daysPlayed - (double) GUARD_DAYS) > -0.4) {
+			if ((daysPlayed - (float) GUARD_DAYS) > -0.4) {
 				checkDays = true;
 				failureResponse.add(ChatColor.DARK_GREEN + "[✔ OK] "
 						+ ChatColor.GRAY + "Days on the server: "
@@ -1222,12 +1241,12 @@ public class Ranks {
 							+ killsArray[8] + "; Required: 5");
 				}
 			}
-			
 
-			if (targetPlayer.getPlayerJungleMazeCompletions() > 0) {
+			if (RunicParadise.getPlayerMazeCompletionCount(user, 4) > 0) {
 				checkMazes = true;
 				failureResponse.add(ChatColor.DARK_GREEN + "[✔ OK] "
-						+ ChatColor.GRAY + "You have completed the jungle maze!");
+						+ ChatColor.GRAY
+						+ "You have completed the jungle maze!");
 			} else {
 				failureResponse
 						.add(ChatColor.DARK_RED
@@ -1250,7 +1269,7 @@ public class Ranks {
 							+ " to accept the promotion.");
 				} else {
 					// ok now we're executing the promotion.
-					economy.withdrawPlayer(user, GUARD_RUNICS);
+					economy.withdrawPlayer(user.getName(), GUARD_RUNICS);
 					perms.playerAddGroup(user, "Guard");
 					perms.playerRemoveGroup(user, "Keeper");
 					user.sendMessage(ChatColor.DARK_GREEN
@@ -1265,7 +1284,7 @@ public class Ranks {
 			break;
 		case "Brawler":
 			// if player has been on the server long enough for promotion
-			if ((daysPlayed - (double) KEEPER_DAYS) > -0.4) {
+			if ((daysPlayed - (float) KEEPER_DAYS) > -0.4) {
 				checkDays = true;
 				failureResponse.add(ChatColor.DARK_GREEN + "[✔ OK] "
 						+ ChatColor.GRAY + "Days on the server: "
@@ -1332,20 +1351,17 @@ public class Ranks {
 				}
 			}
 
-			if (RunicParadise.faithMap.get(user.getUniqueId())
-					.checkEquippedFaithLevel("Water", 75)
-					|| RunicParadise.faithMap.get(user.getUniqueId())
-							.checkEquippedFaithLevel("Fire", 75)) {
+			if (targetPlayer.getFaithPowerLevel() >= 100) {
 				checkFaiths = true;
-				failureResponse
-						.add(ChatColor.DARK_GREEN
-								+ "[✔ OK] "
-								+ ChatColor.GRAY
-								+ "You have reached level 75 with Water or Fire Faith");
-			} else {
-				failureResponse.add(ChatColor.DARK_RED + "[✘ FAIL] "
+				failureResponse.add(ChatColor.DARK_GREEN + "[✔ OK] "
 						+ ChatColor.GRAY
-						+ "You need level 75 in the Water or Fire Faith. It must be active!");
+						+ "You have at least 100 faith power level");
+			} else {
+				failureResponse
+						.add(ChatColor.DARK_RED
+								+ "[✘ FAIL] "
+								+ ChatColor.GRAY
+								+ "You need faith power level 100 or more. Power level is the combined level of all your faiths - check it in /faith stats.");
 			}
 
 			if (targetPlayer.getMasteredJobCount() > 0) {
@@ -1375,7 +1391,7 @@ public class Ranks {
 							+ " to accept the promotion.");
 				} else {
 					// ok now we're executing the promotion.
-					economy.withdrawPlayer(user, KEEPER_RUNICS);
+					economy.withdrawPlayer(user.getName(), KEEPER_RUNICS);
 					perms.playerAddGroup(user, "Keeper");
 					perms.playerRemoveGroup(user, "Brawler");
 					user.sendMessage(ChatColor.DARK_GREEN
@@ -1390,7 +1406,7 @@ public class Ranks {
 			break;
 		case "Singer":
 			// if player has been on the server long enough for promotion
-			if ((daysPlayed - (double) BRAWLER_DAYS) > -0.4) {
+			if ((daysPlayed - (float) BRAWLER_DAYS) > -0.4) {
 				checkDays = true;
 				failureResponse
 						.add(ChatColor.DARK_GREEN + "[✔ OK] " + ChatColor.GRAY
@@ -1452,7 +1468,7 @@ public class Ranks {
 				}
 			}
 
-			if (targetPlayer.getPlayerIceMazeCompletions() > 0) {
+			if (RunicParadise.getPlayerMazeCompletionCount(user, 2) > 0) {
 				checkMazes = true;
 				failureResponse.add(ChatColor.DARK_GREEN + "[✔ OK] "
 						+ ChatColor.GRAY + "You have completed the sky maze!");
@@ -1478,7 +1494,7 @@ public class Ranks {
 							+ " to accept the promotion.");
 				} else {
 					// ok now we're executing the promotion.
-					economy.withdrawPlayer(user, BRAWLER_RUNICS);
+					economy.withdrawPlayer(user.getName(), BRAWLER_RUNICS);
 					perms.playerAddGroup(user, "Brawler");
 					perms.playerRemoveGroup(user, "Singer");
 					user.sendMessage(ChatColor.DARK_GREEN
@@ -1494,7 +1510,7 @@ public class Ranks {
 			break;
 		case "Runner":
 			// if player has been on the server long enough for promotion
-			if ((daysPlayed - (double) SINGER_DAYS) > -0.4) {
+			if ((daysPlayed - (float) SINGER_DAYS) > -0.4) {
 				checkDays = true;
 				failureResponse.add(ChatColor.DARK_GREEN + "[✔ OK] "
 						+ ChatColor.GRAY + "Days on the server: "
@@ -1551,7 +1567,7 @@ public class Ranks {
 							+ killsArray[2] + "; Required: 100");
 				}
 			}
-			if (targetPlayer.getPlayerHedgeMazeCompletions() > 0) {
+			if (RunicParadise.getPlayerMazeCompletionCount(user, 1) > 0) {
 				checkMazes = true;
 				failureResponse
 						.add(ChatColor.DARK_GREEN + "[✔ OK] " + ChatColor.GRAY
@@ -1565,17 +1581,19 @@ public class Ranks {
 			}
 
 			if (RunicParadise.faithMap.get(user.getUniqueId())
-					.checkEquippedFaithLevel("Sun", 50)
+					.checkEquippedFaithLevel("Sun", 25)
 					|| RunicParadise.faithMap.get(user.getUniqueId())
-							.checkEquippedFaithLevel("Moon", 50)) {
+							.checkEquippedFaithLevel("Moon", 25)) {
 				checkFaiths = true;
 				failureResponse.add(ChatColor.DARK_GREEN + "[✔ OK] "
 						+ ChatColor.GRAY
-						+ "You have reached level 50 with Sun or Moon Faith");
+						+ "You have reached level 25 with Sun or Moon Faith");
 			} else {
-				failureResponse.add(ChatColor.DARK_RED + "[✘ FAIL] "
-						+ ChatColor.GRAY
-						+ "You need level 50 in the Sun or Moon Faith. It must be active!");
+				failureResponse
+						.add(ChatColor.DARK_RED
+								+ "[✘ FAIL] "
+								+ ChatColor.GRAY
+								+ "You need level 25 in the Sun or Moon Faith. It must be active!");
 			}
 
 			if (checkDays && checkRunics && checkKills && checkFaiths
@@ -1593,7 +1611,7 @@ public class Ranks {
 							+ " to accept the promotion.");
 				} else {
 					// ok now we're executing the promotion.
-					economy.withdrawPlayer(user, SINGER_RUNICS);
+					economy.withdrawPlayer(user.getName(), SINGER_RUNICS);
 					perms.playerAddGroup(user, "Singer");
 					perms.playerRemoveGroup(user, "Runner");
 					user.sendMessage(ChatColor.DARK_GREEN
@@ -1608,16 +1626,16 @@ public class Ranks {
 			break;
 		case "Seeker":
 			// if player has been on the server long enough for promotion
-			if ((daysPlayed - (double) RUNNER_DAYS) > -0.4) {
+			if ((daysPlayed - (float) RUNNER_DAYS) > -0.4) {
 				checkDays = true;
 				failureResponse.add(ChatColor.DARK_GREEN + "[✔ OK] "
 						+ ChatColor.GRAY + "Days on the server: "
 						+ df.format(daysPlayed) + "; Required: " + RUNNER_DAYS);
-			} else if (targetPlayer.getPlayerVoteCount() >= 20) {
+			} else if (targetPlayer.getPlayerVoteCount() >= 15) {
 				checkDays = true;
 				failureResponse.add(ChatColor.DARK_GREEN + "[✔ OK] "
 						+ ChatColor.GRAY + "Votes: "
-						+ targetPlayer.getPlayerVoteCount() + "; Required: 20");
+						+ targetPlayer.getPlayerVoteCount() + "; Required: 15");
 			} else {
 				failureResponse.add(ChatColor.DARK_RED + "[✘ FAIL] "
 						+ ChatColor.GRAY + "Days on the server: "
@@ -1626,7 +1644,7 @@ public class Ranks {
 						.add(ChatColor.DARK_RED
 								+ "[✘ FAIL] "
 								+ ChatColor.GRAY
-								+ "You can skip the days requirement with 20 votes! Your votes: "
+								+ "You can skip the days requirement with 15 votes! Your votes: "
 								+ targetPlayer.getPlayerVoteCount());
 			}
 			if (balance >= RUNNER_RUNICS) {
@@ -1691,7 +1709,7 @@ public class Ranks {
 							+ " to accept the promotion.");
 				} else {
 					// ok now we're executing the promotion.
-					economy.withdrawPlayer(user, RUNNER_RUNICS);
+					economy.withdrawPlayer(user.getName(), RUNNER_RUNICS);
 					perms.playerAddGroup(user, "Runner");
 					perms.playerRemoveGroup(user, "Settler");
 					user.sendMessage(ChatColor.DARK_GREEN
@@ -1706,7 +1724,7 @@ public class Ranks {
 			break;
 		case "Settler":
 			// if player has been on the server long enough for promotion
-			if ((daysPlayed - (double) EXPLORER_DAYS) > -0.4) {
+			if ((daysPlayed - (float) EXPLORER_DAYS) > -0.4) {
 				checkDays = true;
 				failureResponse.add(ChatColor.DARK_GREEN + "[✔ OK] "
 						+ ChatColor.GRAY + "Days on the server: "
@@ -1791,7 +1809,7 @@ public class Ranks {
 							+ " to accept the promotion.");
 				} else {
 					// ok now we're executing the promotion.
-					economy.withdrawPlayer(user, EXPLORER_RUNICS);
+					economy.withdrawPlayer(user.getName(), EXPLORER_RUNICS);
 					perms.playerAddGroup(user, "Explorer");
 					perms.playerRemoveGroup(user, "Settler");
 					user.sendMessage(ChatColor.DARK_GREEN
@@ -1806,7 +1824,7 @@ public class Ranks {
 			}
 			break;
 		case "Explorer":
-			if ((daysPlayed - (double) BUILDER_DAYS) > -0.4) {
+			if ((daysPlayed - (float) BUILDER_DAYS) > -0.4) {
 				checkDays = true;
 				failureResponse
 						.add(ChatColor.DARK_GREEN + "[✔ OK] " + ChatColor.GRAY
@@ -1904,7 +1922,7 @@ public class Ranks {
 							+ " to accept the promotion.");
 				} else {
 					// ok now we're executing the promotion.
-					economy.withdrawPlayer(user, BUILDER_RUNICS);
+					economy.withdrawPlayer(user.getName(), BUILDER_RUNICS);
 					perms.playerAddGroup(user, "Builder");
 					perms.playerRemoveGroup(user, "Explorer");
 					user.sendMessage(ChatColor.DARK_GREEN
@@ -1920,7 +1938,7 @@ public class Ranks {
 
 			break;
 		case "Builder":
-			if ((daysPlayed - (double) ARCHITECT_DAYS) > -0.4) {
+			if ((daysPlayed - (float) ARCHITECT_DAYS) > -0.4) {
 				checkDays = true;
 				failureResponse.add(ChatColor.DARK_GREEN + "[✔ OK] "
 						+ ChatColor.GRAY + "Days on the server: "
@@ -2002,7 +2020,7 @@ public class Ranks {
 						+ ARCHITECT_JOB_LEVEL);
 			}
 
-			if (targetPlayer.getPlayerHedgeMazeCompletions() > 0) {
+			if (RunicParadise.getPlayerMazeCompletionCount(user, 1) > 0) {
 				checkMazes = true;
 				failureResponse
 						.add(ChatColor.DARK_GREEN + "[✔ OK] " + ChatColor.GRAY
@@ -2030,7 +2048,7 @@ public class Ranks {
 							+ " to accept the promotion.");
 				} else {
 					// ok now we're executing the promotion.
-					economy.withdrawPlayer(user, ARCHITECT_RUNICS);
+					economy.withdrawPlayer(user.getName(), ARCHITECT_RUNICS);
 					perms.playerAddGroup(user, "Architect");
 					perms.playerRemoveGroup(user, "Builder");
 					user.sendMessage(ChatColor.DARK_GREEN
@@ -2044,384 +2062,6 @@ public class Ranks {
 				ineligible = true;
 			}
 
-			break;
-		case "Architect":
-			if ((daysPlayed - ((double) WARDEN_DAYS - nomRedux)) > -0.4) {
-				checkDays = true;
-				failureResponse.add(ChatColor.DARK_GREEN + "[✔ OK] "
-						+ ChatColor.GRAY + "Days on the server: "
-						+ df.format(daysPlayed) + "; Required: "
-						+ (WARDEN_DAYS - nomRedux));
-			} else {
-				failureResponse.add(ChatColor.DARK_RED + "[✘ FAIL] "
-						+ ChatColor.GRAY + "Days on the server: "
-						+ df.format(daysPlayed) + "; Required: "
-						+ (WARDEN_DAYS - nomRedux));
-			}
-			if (balance >= WARDEN_RUNICS) {
-				checkRunics = true;
-				failureResponse.add(ChatColor.DARK_GREEN + "[✔ OK] "
-						+ ChatColor.GRAY + "Your runics: " + balance
-						+ "; Promotion cost: " + WARDEN_RUNICS);
-			} else {
-				failureResponse.add(ChatColor.DARK_RED + "[✘ FAIL] "
-						+ ChatColor.GRAY + "Your runics: " + balance
-						+ "; Promotion cost: " + WARDEN_RUNICS);
-			}
-			if (killsArray[11] >= 25 && killsArray[2] >= 100
-					&& killsArray[8] >= 20 && killsArray[10] >= 20
-					&& killsArray[12] >= 3) {
-				checkKills = true;
-				failureResponse
-						.add(ChatColor.DARK_GREEN
-								+ "[✔ OK] "
-								+ ChatColor.GRAY
-								+ "You have killed enough monsters for this promotion.");
-			} else {
-				if (killsArray[11] >= 25) {
-					failureResponse.add(ChatColor.DARK_GREEN + "[✔ OK] "
-							+ ChatColor.GRAY + "Your CAVE SPIDER kills: "
-							+ killsArray[11] + "; Required: 25");
-				} else {
-					failureResponse.add(ChatColor.DARK_RED + "[✘ FAIL] "
-							+ ChatColor.GRAY + "Your CAVE SPIDER kills: "
-							+ killsArray[11] + "; Required: 25");
-				}
-				if (killsArray[2] >= 100) {
-					failureResponse.add(ChatColor.DARK_GREEN + "[✔ OK] "
-							+ ChatColor.GRAY + "Your SKELETON kills: "
-							+ killsArray[2] + "; Required: 100");
-				} else {
-					failureResponse.add(ChatColor.DARK_RED + "[✘ FAIL] "
-							+ ChatColor.GRAY + "Your SKELETON kills: "
-							+ killsArray[2] + "; Required: 100");
-				}
-				if (killsArray[8] >= 20) {
-					failureResponse.add(ChatColor.DARK_GREEN + "[✔ OK] "
-							+ ChatColor.GRAY + "Your WITCH kills: "
-							+ killsArray[8] + "; Required: 20");
-				} else {
-					failureResponse.add(ChatColor.DARK_RED + "[✘ FAIL] "
-							+ ChatColor.GRAY + "Your WITCH kills: "
-							+ killsArray[8] + "; Required: 20");
-				}
-				if (killsArray[10] >= 20) {
-					failureResponse.add(ChatColor.DARK_GREEN + "[✔ OK] "
-							+ ChatColor.GRAY + "Your CREEPER kills: "
-							+ killsArray[10] + "; Required: 20");
-				} else {
-					failureResponse.add(ChatColor.DARK_RED + "[✘ FAIL] "
-							+ ChatColor.GRAY + "Your CREEPER kills: "
-							+ killsArray[10] + "; Required: 20");
-				}
-				if (killsArray[12] >= 3) {
-					failureResponse.add(ChatColor.DARK_GREEN + "[✔ OK] "
-							+ ChatColor.GRAY + "Your IRON GOLEM kills: "
-							+ killsArray[12] + "; Required: 3");
-				} else {
-					failureResponse.add(ChatColor.DARK_RED + "[✘ FAIL] "
-							+ ChatColor.GRAY + "Your IRON GOLEM kills: "
-							+ killsArray[12] + "; Required: 3");
-				}
-
-			}
-			if (user.hasPermission("rp.level" + WARDEN_JOB_LEVEL)
-					|| user.hasPermission("rp.level.master")) {
-				checkJob = true;
-				failureResponse.add(ChatColor.DARK_GREEN + "[✔ OK] "
-						+ ChatColor.GRAY
-						+ "You have obtained at least job level "
-						+ WARDEN_JOB_LEVEL);
-			} else {
-				failureResponse.add(ChatColor.DARK_RED + "[✘ FAIL] "
-						+ ChatColor.GRAY + "You need at least job level "
-						+ WARDEN_JOB_LEVEL);
-			}
-
-			if (targetPlayer.getPlayerIceMazeCompletions() > 0) {
-				checkMazes = true;
-				failureResponse.add(ChatColor.DARK_GREEN + "[✔ OK] "
-						+ ChatColor.GRAY + "You have completed the sky maze!");
-			} else {
-				failureResponse
-						.add(ChatColor.DARK_RED
-								+ "[✘ FAIL] "
-								+ ChatColor.GRAY
-								+ "You must complete the sky maze! See Games Portal at /spawn");
-			}
-			if (checkDays && checkRunics && checkKills && checkJob
-					&& checkMazes) {
-				if (execute == false) {
-					// just checking... we're not executing the promotion!!
-					user.sendMessage(ChatColor.DARK_GREEN
-							+ "[RunicRanks] Congratulations! You qualify for a promotion!");
-					user.sendMessage(ChatColor.DARK_GREEN
-							+ "Promotion to WARDEN costs " + WARDEN_RUNICS
-							+ " Runics.");
-					user.sendMessage(ChatColor.DARK_GREEN + "Type "
-							+ ChatColor.AQUA + "/promote me"
-							+ ChatColor.DARK_GREEN
-							+ " to accept the promotion.");
-				} else {
-					// ok now we're executing the promotion.
-					economy.withdrawPlayer(user, WARDEN_RUNICS);
-					perms.playerAddGroup(user, "Warden");
-					perms.playerRemoveGroup(user, "Architect");
-					user.sendMessage(ChatColor.DARK_GREEN
-							+ "[RunicRanks] Congratulations! You have been promoted!");
-					Ranks tempRank = new Ranks();
-					tempRank.congratsPromotion(user.getName(), "Warden");
-					logPromotion(user.getName(), "Warden", new Date().getTime());
-				}
-			} else {
-				ineligible = true;
-			}
-
-			break;
-		case "Warden":
-			if ((daysPlayed - ((double) PROTECTOR_DAYS - nomRedux)) > -0.4) {
-				checkDays = true;
-				failureResponse.add(ChatColor.DARK_GREEN + "[✔ OK] "
-						+ ChatColor.GRAY + "Days on the server: "
-						+ df.format(daysPlayed) + "; Required: "
-						+ (PROTECTOR_DAYS - nomRedux));
-			} else {
-				failureResponse.add(ChatColor.DARK_RED + "[✘ FAIL] "
-						+ ChatColor.GRAY + "Days on the server: "
-						+ df.format(daysPlayed) + "; Required: "
-						+ (PROTECTOR_DAYS - nomRedux));
-			}
-			if (balance >= PROTECTOR_RUNICS) {
-				checkRunics = true;
-				failureResponse.add(ChatColor.DARK_GREEN + "[✔ OK] "
-						+ ChatColor.GRAY + "Your runics: " + balance
-						+ "; Promotion cost: " + PROTECTOR_RUNICS);
-			} else {
-				failureResponse.add(ChatColor.DARK_RED + "[✘ FAIL] "
-						+ ChatColor.GRAY + "Your runics: " + balance
-						+ "; Promotion cost: " + PROTECTOR_RUNICS);
-			}
-			if (killsArray[7] >= 1 && killsArray[6] >= 25
-					&& killsArray[1] >= 50 && killsArray[9] >= 25
-					&& killsArray[12] >= 10) {
-				checkKills = true;
-				failureResponse
-						.add(ChatColor.DARK_GREEN
-								+ "[✔ OK] "
-								+ ChatColor.GRAY
-								+ "You have killed enough monsters for this promotion.");
-			} else {
-				if (killsArray[7] >= 1) {
-					failureResponse.add(ChatColor.DARK_GREEN + "[✔ OK] "
-							+ ChatColor.GRAY + "Your WITHER kills: "
-							+ killsArray[7] + "; Required: 1");
-				} else {
-					failureResponse.add(ChatColor.DARK_RED + "[✘ FAIL] "
-							+ ChatColor.GRAY + "Your WITHER kills: "
-							+ killsArray[7] + "; Required: 1");
-				}
-				if (killsArray[6] >= 25) {
-					failureResponse.add(ChatColor.DARK_GREEN + "[✔ OK] "
-							+ ChatColor.GRAY + "Your GHAST kills: "
-							+ killsArray[6] + "; Required: 25");
-				} else {
-					failureResponse.add(ChatColor.DARK_RED + "[✘ FAIL] "
-							+ ChatColor.GRAY + "Your GHAST kills: "
-							+ killsArray[6] + "; Required: 25");
-				}
-				if (killsArray[1] >= 50) {
-					failureResponse.add(ChatColor.DARK_GREEN + "[✔ OK] "
-							+ ChatColor.GRAY + "Your SPIDER kills: "
-							+ killsArray[1] + "; Required: 50");
-				} else {
-					failureResponse.add(ChatColor.DARK_RED + "[✘ FAIL] "
-							+ ChatColor.GRAY + "Your SPIDER kills: "
-							+ killsArray[1] + "; Required: 50");
-				}
-				if (killsArray[9] >= 25) {
-					failureResponse.add(ChatColor.DARK_GREEN + "[✔ OK] "
-							+ ChatColor.GRAY + "Your ENDERMAN kills: "
-							+ killsArray[9] + "; Required: 25");
-				} else {
-					failureResponse.add(ChatColor.DARK_RED + "[✘ FAIL] "
-							+ ChatColor.GRAY + "Your ENDERMAN kills: "
-							+ killsArray[9] + "; Required: 25");
-				}
-				if (killsArray[12] >= 10) {
-					failureResponse.add(ChatColor.DARK_GREEN + "[✔ OK] "
-							+ ChatColor.GRAY + "Your IRON GOLEM kills: "
-							+ killsArray[12] + "; Required: 10");
-				} else {
-					failureResponse.add(ChatColor.DARK_RED + "[✘ FAIL] "
-							+ ChatColor.GRAY + "Your IRON GOLEM kills: "
-							+ killsArray[12] + "; Required: 10");
-				}
-
-			}
-			if (user.hasPermission("rp.level" + PROTECTOR_JOB_LEVEL)
-					|| user.hasPermission("rp.level.master")) {
-				checkJob = true;
-				failureResponse.add(ChatColor.DARK_GREEN + "[✔ OK] "
-						+ ChatColor.GRAY
-						+ "You have obtained at least job level "
-						+ PROTECTOR_JOB_LEVEL);
-			} else {
-				failureResponse.add(ChatColor.DARK_RED + "[✘ FAIL] "
-						+ ChatColor.GRAY + "You need at least job level "
-						+ PROTECTOR_JOB_LEVEL);
-			}
-
-			if (checkDays && checkRunics && checkKills && checkJob) {
-				if (execute == false) {
-					// just checking... we're not executing the promotion!!
-					user.sendMessage(ChatColor.DARK_GREEN
-							+ "[RunicRanks] Congratulations! You qualify for a promotion!");
-					user.sendMessage(ChatColor.DARK_GREEN
-							+ "Promotion to PROTECTOR costs "
-							+ PROTECTOR_RUNICS + " Runics.");
-					user.sendMessage(ChatColor.DARK_GREEN + "Type "
-							+ ChatColor.AQUA + "/promote me"
-							+ ChatColor.DARK_GREEN
-							+ " to accept the promotion.");
-				} else {
-					// ok now we're executing the promotion.
-					economy.withdrawPlayer(user, PROTECTOR_RUNICS);
-					perms.playerAddGroup(user, "Protector");
-					perms.playerRemoveGroup(user, "Warden");
-					user.sendMessage(ChatColor.DARK_GREEN
-							+ "[RunicRanks] Congratulations! You have been promoted!");
-					Ranks tempRank = new Ranks();
-					tempRank.congratsPromotion(user.getName(), "Protector");
-					logPromotion(user.getName(), "Protector",
-							new Date().getTime());
-				}
-			} else {
-				ineligible = true;
-			}
-
-			break;
-		case "Protector":
-			if ((daysPlayed - ((double) GUARDIAN_DAYS - nomRedux)) > -0.4) {
-				checkDays = true;
-				failureResponse.add(ChatColor.DARK_GREEN + "[✔ OK] "
-						+ ChatColor.GRAY + "Days on the server: "
-						+ df.format(daysPlayed) + "; Required: "
-						+ (GUARDIAN_DAYS - nomRedux));
-			} else {
-				failureResponse.add(ChatColor.DARK_RED + "[✘ FAIL] "
-						+ ChatColor.GRAY + "Days on the server: "
-						+ df.format(daysPlayed) + "; Required: "
-						+ (GUARDIAN_DAYS - nomRedux));
-			}
-			if (balance >= GUARDIAN_RUNICS) {
-				checkRunics = true;
-				failureResponse.add(ChatColor.DARK_GREEN + "[✔ OK] "
-						+ ChatColor.GRAY + "Your runics: " + balance
-						+ "; Promotion cost: " + GUARDIAN_RUNICS);
-			} else {
-				failureResponse.add(ChatColor.DARK_RED + "[✘ FAIL] "
-						+ ChatColor.GRAY + "Your runics: " + balance
-						+ "; Promotion cost: " + GUARDIAN_RUNICS);
-			}
-			if (killsArray[7] >= 2 && killsArray[0] >= 400
-					&& killsArray[8] >= 100 && killsArray[10] >= 50
-					&& killsArray[1] >= 100 && killsArray[2] >= 300) {
-				checkKills = true;
-				failureResponse
-						.add(ChatColor.DARK_GREEN
-								+ "[✔ OK] "
-								+ ChatColor.GRAY
-								+ "You have killed enough monsters for this promotion.");
-			} else {
-				if (killsArray[7] >= 2) {
-					failureResponse.add(ChatColor.DARK_GREEN + "[✔ OK] "
-							+ ChatColor.GRAY + "Your WITHER kills: "
-							+ killsArray[7] + "; Required: 2");
-				} else {
-					failureResponse.add(ChatColor.DARK_RED + "[✘ FAIL] "
-							+ ChatColor.GRAY + "Your WITHER kills: "
-							+ killsArray[7] + "; Required: 2");
-				}
-				if (killsArray[0] >= 400) {
-					failureResponse.add(ChatColor.DARK_GREEN + "[✔ OK] "
-							+ ChatColor.GRAY + "Your ZOMBIE kills: "
-							+ killsArray[0] + "; Required: 400");
-				} else {
-					failureResponse.add(ChatColor.DARK_RED + "[✘ FAIL] "
-							+ ChatColor.GRAY + "Your ZOMBIE kills: "
-							+ killsArray[0] + "; Required: 400");
-				}
-				if (killsArray[8] >= 100) {
-					failureResponse.add(ChatColor.DARK_GREEN + "[✔ OK] "
-							+ ChatColor.GRAY + "Your WITCH kills: "
-							+ killsArray[8] + "; Required: 100");
-				} else {
-					failureResponse.add(ChatColor.DARK_RED + "[✘ FAIL] "
-							+ ChatColor.GRAY + "Your WITCH kills: "
-							+ killsArray[8] + "; Required: 100");
-				}
-				if (killsArray[10] >= 50) {
-					failureResponse.add(ChatColor.DARK_GREEN + "[✔ OK] "
-							+ ChatColor.GRAY + "Your CREEPER kills: "
-							+ killsArray[10] + "; Required: 50");
-				} else {
-					failureResponse.add(ChatColor.DARK_RED + "[✘ FAIL] "
-							+ ChatColor.GRAY + "Your CREEPER kills: "
-							+ killsArray[10] + "; Required: 50");
-				}
-				if (killsArray[1] >= 100) {
-					failureResponse.add(ChatColor.DARK_GREEN + "[✔ OK] "
-							+ ChatColor.GRAY + "Your SPIDER kills: "
-							+ killsArray[1] + "; Required: 100");
-				} else {
-					failureResponse.add(ChatColor.DARK_RED + "[✘ FAIL] "
-							+ ChatColor.GRAY + "Your SPIDER kills: "
-							+ killsArray[1] + "; Required: 100");
-				}
-				if (killsArray[2] >= 300) {
-					failureResponse.add(ChatColor.DARK_GREEN + "[✔ OK] "
-							+ ChatColor.GRAY + "Your SKELETON kills: "
-							+ killsArray[2] + "; Required: 300");
-				} else {
-					failureResponse.add(ChatColor.DARK_RED + "[✘ FAIL] "
-							+ ChatColor.GRAY + "Your SKELETON kills: "
-							+ killsArray[2] + "; Required: 300");
-				}
-
-			}
-
-			if (checkDays && checkRunics && checkKills) {
-				if (execute == false) {
-					// just checking... we're not executing the promotion!!
-					user.sendMessage(ChatColor.DARK_GREEN
-							+ "[RunicRanks] Congratulations! You qualify for a promotion!");
-					user.sendMessage(ChatColor.DARK_GREEN
-							+ "Promotion to GUARDIAN costs " + GUARDIAN_RUNICS
-							+ " Runics.");
-					user.sendMessage(ChatColor.DARK_GREEN + "Type "
-							+ ChatColor.AQUA + "/promote me"
-							+ ChatColor.DARK_GREEN
-							+ " to accept the promotion.");
-				} else {
-					// ok now we're executing the promotion.
-					economy.withdrawPlayer(user, GUARDIAN_RUNICS);
-					perms.playerAddGroup(user, "Guardian");
-					perms.playerRemoveGroup(user, "Protector");
-					user.sendMessage(ChatColor.DARK_GREEN
-							+ "[RunicRanks] Congratulations! You have been promoted!");
-					Ranks tempRank = new Ranks();
-					tempRank.congratsPromotion(user.getName(), "Guardian");
-					logPromotion(user.getName(), "Guardian",
-							new Date().getTime());
-				}
-			} else {
-				ineligible = true;
-			}
-
-			break;
-		case "Guardian":
-			user.sendMessage(ChatColor.RED
-					+ "[RunicRanks] There are no more promotions at your rank!");
 			break;
 		default:
 			user.sendMessage(ChatColor.RED

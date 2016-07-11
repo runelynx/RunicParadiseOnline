@@ -235,9 +235,9 @@ public class InventorySerialization {
 			for(int i = 0; i < inv.length(); i++) {
 				JSONObject item = inv.getJSONObject(i);
 				int index = item.getInt("index");
-				if(index > size)
+				if(index > size && index != 40)
 					throw new IllegalArgumentException("index found is greator than expected size (" + index + ">" + size + ")");
-				if(index > contents.length || index < 0)
+				if((index > contents.length && index != 40) || index < 0)
 					throw new IllegalArgumentException("Item " + i + " - Slot " + index + " does not exist in this inventory");
 				ItemStack stuff = SingleItemSerialization.getItem(item);
 				contents[index] = stuff;

@@ -7,13 +7,20 @@ import static org.bukkit.ChatColor.GREEN;
 import static org.bukkit.ChatColor.RED;
 import static org.bukkit.ChatColor.YELLOW;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 
 import mkremins.fanciful.FancyMessage;
@@ -23,7 +30,6 @@ import org.bukkit.ChatColor;
 import org.bukkit.Effect;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Sign;
@@ -32,11 +38,13 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 
 import com.kill3rtaco.tacoserialization.InventorySerialization;
+import com.kill3rtaco.tacoserialization.SingleItemSerialization;
 
-public class RunicDeathChest {
+public class RunicDeathChest implements Serializable {
 
 	private static HashMap<Long, ItemStack[]> deathArmor = new HashMap<Long, ItemStack[]>();
 	private static HashMap<Long, ItemStack[]> deathInventory = new HashMap<Long, ItemStack[]>();
+	private static HashMap<Long, ItemStack> deathOffhand = new HashMap<Long, ItemStack>();
 	private static HashMap<Integer, String> graveLocations = new HashMap<Integer, String>();
 	private static HashMap<Integer, String> graveStatus = new HashMap<Integer, String>();
 	private static HashMap<String, Integer> graveID = new HashMap<String, Integer>();
@@ -106,92 +114,110 @@ public class RunicDeathChest {
 		return count;
 	}
 
-	public static void savePlayerDeath(Player player, Location loc) {
-		final Plugin instance = RunicParadise.getInstance();
-
-		MySQL MySQL = new MySQL(instance, instance.getConfig().getString(
-				"dbHost"), instance.getConfig().getString("dbPort"), instance
-				.getConfig().getString("dbDatabase"), instance.getConfig()
-				.getString("dbUser"), instance.getConfig().getString(
-				"dbPassword"));
-		final Connection e = MySQL.openConnection();
-		// Establish ID for new storing this death
-		long newDeathID = new Date().getTime();
-
-		String locString = loc.getWorld().getName() + "." + loc.getBlockX()
-				+ "." + loc.getBlockY() + "." + loc.getBlockZ();
-
-		// Store this death to hashmaps (type ItemStack[])
-		deathArmor.put(newDeathID, player.getInventory().getArmorContents());
-		deathInventory.put(newDeathID, player.getInventory().getContents());
-
-		// 12hr expiry time
-		long expiryTime = new Date().getTime() + 43200000;
-
-		String armorString = InventorySerialization
-				.serializeInventoryAsString(deathArmor.get(newDeathID));
-		String invString = InventorySerialization
-				.serializeInventoryAsString(deathInventory.get(newDeathID));
-
-		// /////////////
-		try {
-			// Statement eStmt = e.createStatement();
-
-			PreparedStatement eStmt = e
-					.prepareStatement("INSERT INTO rp_PlayerGraves (`Location`, `Status`, `PlayerName`, `ExpiryTime`, `CreationTime`, `LevelsLost`, `ArmorItemStack`, `InvItemStack`, `LooterName`, `LootTime`, `PreviousBlock`) VALUES "
-							+ "('"
-							+ locString
-							+ "', 'Locked', '"
-							+ player.getName()
-							+ "', "
-							+ expiryTime
-							+ ", "
-							+ new Date().getTime()
-							+ ", '"
-							+ player.getLevel()
-							+ "', ?, ?, null, null, '"
-							+ loc.getBlock().getType().toString() + "');");
-			eStmt.setString(1, armorString);
-			eStmt.setString(2, invString);
-
-			eStmt.executeUpdate();
-		} catch (SQLException err) {
-			Bukkit.getLogger().log(
-					Level.SEVERE,
-					"Cant create new row Grave for " + player.getName()
-							+ " because: " + err.getMessage());
-		}
-
-		// USE CAUTION WITH TESTING !!!
-		player.getInventory().clear();
-		player.getInventory().setHelmet(null);
-		player.getInventory().setChestplate(null);
-		player.getInventory().setLeggings(null);
-		player.getInventory().setBoots(null);
-		player.setLevel(0);
-
-		// resync hashmap with graves to keep the redstone lamp on...
-		syncGraveLocations();
-
-		loc.getBlock().setType(Material.BEDROCK);
-		Block b = loc.add(0, 1, 0).getBlock();
-		b.setType(Material.SIGN_POST);
-		BlockState state = b.getState();
-		Sign sign = (Sign) state;
-
-		// To set
-		sign.setLine(0, ChatColor.DARK_RED + "☠ ☠ GRAVE ☠ ☠");
-		sign.setLine(1, "RIP");
-		sign.setLine(2, player.getDisplayName());
-		sign.setLine(3, ChatColor.DARK_RED + "☠ ☠ ☠ ☠ ☠ ☠ ☠ ☠ ☠");
-		sign.update(true);
-
-	}
-
+	/*
+	 * public static void savePlayerDeath(Player player, Location loc) { final
+	 * Plugin instance = RunicParadise.getInstance();
+	 * 
+	 * MySQL MySQL = new MySQL(instance, instance.getConfig().getString(
+	 * "dbHost"), instance.getConfig().getString("dbPort"), instance
+	 * .getConfig().getString("dbDatabase"), instance.getConfig()
+	 * .getString("dbUser"), instance.getConfig().getString( "dbPassword"));
+	 * final Connection e = MySQL.openConnection(); // Establish ID for new
+	 * storing this death long newDeathID = new Date().getTime();
+	 * 
+	 * // Store this death to hashmaps (type ItemStack[])
+	 * 
+	 * if (player.getInventory().getItemInOffHand() != null) { // save what's in
+	 * the offhand slot if there is something deathOffhand.put(newDeathID,
+	 * player.getInventory() .getItemInOffHand()); // now clear that slow - if
+	 * this slot gets saved in the Inventory // itself it will fail in
+	 * Serialization! player.getInventory().setItemInOffHand(new
+	 * ItemStack(Material.AIR)); } deathArmor.put(newDeathID,
+	 * player.getInventory().getArmorContents()); deathInventory.put(newDeathID,
+	 * player.getInventory().getContents());
+	 * 
+	 * // 12hr expiry time long expiryTime = new Date().getTime() + 43200000;
+	 * 
+	 * String armorString = InventorySerialization
+	 * .serializeInventoryAsString(deathArmor.get(newDeathID)); String invString
+	 * = InventorySerialization
+	 * .serializeInventoryAsString(deathInventory.get(newDeathID)); String
+	 * offhandString = SingleItemSerialization
+	 * .serializeItemAsString((deathOffhand.get(newDeathID)));
+	 * 
+	 * String originalBlockString = loc.getBlock().getType().toString();
+	 * Location dummyLoc = loc;
+	 * 
+	 * if (originalBlockString.equals("CHEST") ||
+	 * originalBlockString.equals("SIGN_POST") ||
+	 * originalBlockString.equals("WALL_SIGN")) { double newX = 0;
+	 * 
+	 * Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "sc STARTING " +
+	 * loc.getX() + " " + loc.getY() + " " + loc.getZ() + ": ");
+	 * 
+	 * while (newX < 2) { double newY = -1; while (newY < 4) { double newZ = 0;
+	 * while (newZ < 2) {
+	 * 
+	 * String checkBlock = new Location(loc.getWorld(), loc.getX() + newX,
+	 * loc.getY() + newY, loc.getZ() + newZ).getBlock().getType() .toString();
+	 * 
+	 * if (checkBlock.equals("AIR")) { if (new Location(loc.getWorld(),
+	 * loc.getX() + newX, loc.getY() + newY + 1, loc.getZ() + newZ)
+	 * .getBlock().getType().toString() .equals("AIR")) {
+	 * 
+	 * // found a good spot!! change the death loc to // that! loc = new
+	 * Location(loc.getWorld(), loc.getX() + newX, loc.getY() + newY, loc.getZ()
+	 * + newZ); newX = 3; newY = 3; newZ = 3; }
+	 * 
+	 * } newZ++; } newY++; } newX++; }
+	 * 
+	 * }
+	 * 
+	 * String locString = loc.getWorld().getName() + "." + loc.getBlockX() + "."
+	 * + loc.getBlockY() + "." + loc.getBlockZ();
+	 * 
+	 * // ///////////// try { // Statement eStmt = e.createStatement();
+	 * 
+	 * PreparedStatement eStmt = e .prepareStatement(
+	 * "INSERT INTO rp_PlayerGraves (`Location`, `Status`, `PlayerName`, `ExpiryTime`, `CreationTime`, `LevelsLost`, `OffhandItemStack`, `ArmorItemStack`, `InvItemStack`, `LooterName`, `LootTime`, `PreviousBlock`) VALUES "
+	 * + "('" + locString + "', 'Locked', '" + player.getName() + "', " +
+	 * expiryTime + ", " + new Date().getTime() + ", '" + player.getLevel() +
+	 * "', ?, ?, ?, null, null, '" + loc.getBlock().getType().toString() +
+	 * "');"); eStmt.setString(1, offhandString); eStmt.setString(2,
+	 * armorString); eStmt.setString(3, invString);
+	 * 
+	 * eStmt.executeUpdate(); } catch (SQLException err) {
+	 * Bukkit.getLogger().log( Level.SEVERE, "Cant create new row Grave for " +
+	 * player.getName() + " because: " + err.getMessage()); }
+	 * 
+	 * // USE CAUTION WITH TESTING !!! player.getInventory().clear();
+	 * player.getInventory().setHelmet(null);
+	 * player.getInventory().setChestplate(null);
+	 * player.getInventory().setLeggings(null);
+	 * player.getInventory().setBoots(null); player.setLevel(0);
+	 * 
+	 * // resync hashmap with graves to keep the redstone lamp on...
+	 * syncGraveLocations();
+	 * 
+	 * loc.getBlock().setType(Material.BEDROCK); Block b = loc.add(0, 1,
+	 * 0).getBlock(); b.setType(Material.SIGN_POST); BlockState state =
+	 * b.getState(); Sign sign = (Sign) state;
+	 * 
+	 * // To set sign.setLine(0, ChatColor.DARK_RED + "☠ ☠ GRAVE ☠ ☠");
+	 * sign.setLine(1, "RIP"); sign.setLine(2, player.getDisplayName());
+	 * sign.setLine(3, ChatColor.DARK_RED + "☠ ☠ ☠ ☠ ☠ ☠ ☠ ☠ ☠");
+	 * sign.update(true);
+	 * 
+	 * }
+	 */
 	// the Handle methods return true if all is well... false if there is a
 	// failure.
 	public static boolean handleItems(ItemStack[] items,
 			RunicPlayerBukkit playerAtGrave, int graveID) {
+
+		if (items == null) {
+			return true;
+		}
 
 		// If the items slots from death storage cant fit in the player's
 		// free inventory slots...
@@ -211,9 +237,65 @@ public class RunicDeathChest {
 			// Player has room in inventory!
 			playerAtGrave.givePlayerItemStack(items);
 
+			playerAtGrave
+					.sendMessageToPlayer(ChatColor.DARK_GRAY
+							+ "[RunicReaper] "
+							+ ChatColor.GRAY
+							+ "You have retrieved your items, if there were any to retrieve.");
+			// remove data
+			final Plugin instance = RunicParadise.getInstance();
+
+			MySQL MySQL = new MySQL(instance, instance.getConfig().getString(
+					"dbHost"), instance.getConfig().getString("dbPort"),
+					instance.getConfig().getString("dbDatabase"), instance
+							.getConfig().getString("dbUser"), instance
+							.getConfig().getString("dbPassword"));
+			final Connection d = MySQL.openConnection();
+
+			try {
+
+				Statement dStmt = d.createStatement();
+				dStmt.executeUpdate("UPDATE `rp_PlayerGraves` SET InvBlob=null, LooterName='"
+						+ playerAtGrave.getPlayerName()
+						+ "',LootTime="
+						+ new Date().getTime() + " WHERE ID=" + graveID + ";");
+				d.close();
+				return true;
+			} catch (SQLException err) {
+				getLogger().log(Level.SEVERE,
+						"Error updating invBlob because: " + err.getMessage());
+				return false;
+			}
+
+		}
+
+	}
+
+	public static boolean handleOffhand(ItemStack item,
+			RunicPlayerBukkit playerAtGrave, int graveID) {
+
+		// If the items slots from death storage cant fit in the player's
+		// free inventory slots...
+		if (Bukkit.getPlayer(playerAtGrave.getPlayerName()).getInventory()
+				.getItemInOffHand() != null
+				&& Bukkit.getPlayer(playerAtGrave.getPlayerName())
+						.getInventory().getItemInOffHand().getType() != Material.AIR) {
+			playerAtGrave
+					.sendMessageToPlayer(ChatColor.DARK_GRAY
+							+ "[RunicReaper] "
+							+ ChatColor.GRAY
+							+ "Empty your offhand slot to retrieve your old offhand item!");
+			return false;
+		} else {
+			// Player has room in inventory!
+			Bukkit.getPlayer(playerAtGrave.getPlayerName()).getInventory()
+					.setItemInOffHand(item);
+			Bukkit.getPlayer(playerAtGrave.getPlayerName()).updateInventory();
+			;
+
 			playerAtGrave.sendMessageToPlayer(ChatColor.DARK_GRAY
 					+ "[RunicReaper] " + ChatColor.GRAY
-					+ "You have retrieved your items.");
+					+ "You have retrieved your offhand item.");
 			// remove data
 			final Plugin instance = RunicParadise.getInstance();
 
@@ -227,7 +309,7 @@ public class RunicDeathChest {
 			try {
 				emptyJSON = "[{\"amount\":0,\"id\":0,\"index\":0,\"data\":-1}]";
 				Statement dStmt = d.createStatement();
-				dStmt.executeUpdate("UPDATE `rp_PlayerGraves` SET InvItemStack='"
+				dStmt.executeUpdate("UPDATE `rp_PlayerGraves` SET OffhandItemStack='"
 						+ emptyJSON
 						+ "',LooterName='"
 						+ playerAtGrave.getPlayerName()
@@ -238,7 +320,7 @@ public class RunicDeathChest {
 			} catch (SQLException err) {
 				getLogger().log(
 						Level.SEVERE,
-						"Error updating invItemStack because: "
+						"Error updating OffhandItemStack because: "
 								+ err.getMessage());
 				return false;
 			}
@@ -249,6 +331,10 @@ public class RunicDeathChest {
 
 	public static boolean handleArmor(ItemStack[] armor,
 			RunicPlayerBukkit playerAtGrave, int graveID) {
+
+		if (armor == null) {
+			return true;
+		}
 
 		// If the armor slots from death storage cant fit in the player's
 		// free inventory slots...
@@ -267,9 +353,11 @@ public class RunicDeathChest {
 		} else {
 			// Player has room in inventory!
 			playerAtGrave.givePlayerItemStack(armor);
-			playerAtGrave.sendMessageToPlayer(ChatColor.DARK_GRAY
-					+ "[RunicReaper] " + ChatColor.GRAY
-					+ "You have retrieved your armor.");
+			playerAtGrave
+					.sendMessageToPlayer(ChatColor.DARK_GRAY
+							+ "[RunicReaper] "
+							+ ChatColor.GRAY
+							+ "You have retrieved your armor, if there was any to retrieve.");
 			// remove data
 			final Plugin instance = RunicParadise.getInstance();
 
@@ -279,23 +367,20 @@ public class RunicDeathChest {
 							.getConfig().getString("dbUser"), instance
 							.getConfig().getString("dbPassword"));
 			final Connection d = MySQL.openConnection();
-			String emptyJSON = "";
+
 			try {
-				emptyJSON = "[{\"amount\":0,\"id\":0,\"index\":0,\"data\":-1}]";
 				Statement dStmt = d.createStatement();
-				dStmt.executeUpdate("UPDATE `rp_PlayerGraves` SET ArmorItemStack='"
-						+ emptyJSON
-						+ "',LooterName='"
+				dStmt.executeUpdate("UPDATE `rp_PlayerGraves` SET EquipBlob=null,LooterName='"
 						+ playerAtGrave.getPlayerName()
 						+ "',LootTime="
 						+ new Date().getTime() + " WHERE ID=" + graveID + ";");
 				d.close();
 				return true;
 			} catch (SQLException err) {
-				getLogger().log(
-						Level.SEVERE,
-						"Error updating armorItemStack because: "
-								+ err.getMessage());
+				getLogger()
+						.log(Level.SEVERE,
+								"Error updating equipBlob because: "
+										+ err.getMessage());
 				return false;
 			}
 
@@ -499,6 +584,11 @@ public class RunicDeathChest {
 				ItemStack[] inv = InventorySerialization.getInventory(tempInv,
 						37);
 
+				String tempOffhand = graveData.getString("OffhandItemStack")
+						.replace("\\'", "\'");
+				ItemStack offhand = SingleItemSerialization
+						.getItem(tempOffhand);
+
 				boolean isOwner = false;
 				if (playerAtGrave.getPlayerName().equals(
 						graveData.getString("PlayerName"))) {
@@ -507,6 +597,8 @@ public class RunicDeathChest {
 
 				if (handleArmor(armor, playerAtGrave, graveData.getInt("ID"))
 						&& handleItems(inv, playerAtGrave,
+								graveData.getInt("ID"))
+						&& handleOffhand(offhand, playerAtGrave,
 								graveData.getInt("ID"))
 						&& handleLevels(graveData.getInt("ID"), playerAtGrave,
 								graveData.getInt("LevelsLost"), isOwner)) {
@@ -518,7 +610,8 @@ public class RunicDeathChest {
 
 					loc.getWorld().playEffect(loc, Effect.MOBSPAWNER_FLAMES, 0);
 					loc.getWorld().playEffect(loc, Effect.POTION_BREAK, 0);
-					loc.getWorld().playSound(loc, Sound.CHEST_CLOSE, 10, 1);
+					// loc.getWorld().playSound(loc, Sound.BLOCK_CHEST_CLOSE,
+					// 10, 1);
 					loc.getBlock().setType(Material.AIR);
 					loc.add(0, 1, 0).getBlock().setType(Material.AIR);
 					loc.getWorld().playEffect(loc, Effect.SMOKE, 0);
@@ -701,6 +794,8 @@ public class RunicDeathChest {
 	}
 
 	public static void syncGraveLocations() {
+		int graveCount = 0;
+
 		// reset the hashmap
 		graveLocations.clear();
 
@@ -715,7 +810,7 @@ public class RunicDeathChest {
 			final Connection d = MySQL.openConnection();
 			Statement dStmt = d.createStatement();
 			ResultSet graveData = dStmt
-					.executeQuery("SELECT Location,ID,Status FROM `rp_PlayerGraves` WHERE `Status` != 'Gone' ORDER BY `id` DESC;");
+					.executeQuery("SELECT Location,ID,Status FROM rp_PlayerGraves WHERE Status != 'Gone' ORDER BY id DESC;");
 			// if (!playerData.first() && !playerData.next()) {
 			if (!graveData.isBeforeFirst()) {
 				// No results
@@ -731,9 +826,13 @@ public class RunicDeathChest {
 							graveData.getInt("ID"));
 					graveStatus.put(graveData.getInt("ID"),
 							graveData.getString("Status"));
+					graveCount++;
 				}
 
 				d.close();
+
+				Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "sc "
+						+ graveCount + " graves loaded into memory!");
 			}
 
 		} catch (SQLException z) {
@@ -851,4 +950,360 @@ public class RunicDeathChest {
 		}
 
 	}
+
+	public static void savePlayerDeath_v19(Player player, Location loc) {
+		final Plugin instance = RunicParadise.getInstance();
+
+		MySQL MySQL = new MySQL(instance, instance.getConfig().getString(
+				"dbHost"), instance.getConfig().getString("dbPort"), instance
+				.getConfig().getString("dbDatabase"), instance.getConfig()
+				.getString("dbUser"), instance.getConfig().getString(
+				"dbPassword"));
+		final Connection e = MySQL.openConnection();
+
+		// prepare array of ItemStack to serialize
+		ArrayList<ItemStack> itemBuilder = new ArrayList<ItemStack>();
+		int invSlot = 0;
+		int itemCounter = 0;
+
+		// Gather all items in player's inventory, stay inside the 36 slots - no
+		// offhand/armor
+		while (invSlot < 36) {
+			if (player.getInventory().getItem(invSlot) != null) {
+				if (!(player.getInventory().getItem(invSlot).getType() == Material.FIREWORK
+						|| player.getInventory().getItem(invSlot).getType() == Material.BANNER || player
+						.getInventory().getItem(invSlot).getType() == Material.ELYTRA || player
+						.getInventory().getItem(invSlot).getType() == Material.WRITTEN_BOOK))
+					itemBuilder.add(player.getInventory().getItem(invSlot));
+				itemCounter++;
+			}
+			invSlot++;
+		}
+
+		invSlot = 0;
+		int signCounter = 0;
+
+		// Now iterate through the ArrayList and build our final ItemStack[] for
+		// serialization
+		ItemStack[] graveItems = new ItemStack[itemCounter];
+		for (ItemStack i : itemBuilder) {
+			graveItems[invSlot] = i;
+
+			invSlot++;
+			signCounter++;
+			getLogger().log(Level.INFO,
+					signCounter + " item saved. " + i.getType().toString());
+
+		}
+
+		// ////////////////////////////////////
+		// Now handle armor + offhand
+		// prepare array of ItemStack to serialize
+		ArrayList<ItemStack> equipBuilder = new ArrayList<ItemStack>();
+		int equipCounter = 0;
+
+		// Gather all items in player's inventory, stay inside the 36 slots - no
+		// offhand/armor
+		if (player.getInventory().getChestplate() != null) {
+			if (!(player.getInventory().getChestplate().getType() == Material.ELYTRA)) {
+				equipBuilder.add(player.getInventory().getChestplate());
+
+				signCounter++;
+				equipCounter++;
+
+				getLogger().log(Level.INFO, signCounter + " armor saved. ");
+				player.getInventory().setChestplate(null);
+			}
+		}
+		if (player.getInventory().getBoots() != null) {
+			equipBuilder.add(player.getInventory().getBoots());
+
+			signCounter++;
+			equipCounter++;
+			getLogger().log(Level.INFO, signCounter + " armor saved. ");
+			player.getInventory().setBoots(null);
+		}
+
+		if (player.getInventory().getHelmet() != null) {
+			if (!(player.getInventory().getHelmet().getType() == Material.BANNER)) {
+				equipBuilder.add(player.getInventory().getHelmet());
+				signCounter++;
+				equipCounter++;
+				getLogger().log(Level.INFO, signCounter + " armor saved. ");
+				player.getInventory().setHelmet(null);
+			}
+		}
+		if (player.getInventory().getLeggings() != null) {
+			equipBuilder.add(player.getInventory().getLeggings());
+			signCounter++;
+			equipCounter++;
+			getLogger().log(Level.INFO, signCounter + " armor saved. ");
+			player.getInventory().setLeggings(null);
+		}
+		if (player.getInventory().getItemInOffHand() != null) {
+			if (!(player.getInventory().getItemInOffHand().getType() == Material.FIREWORK || player
+					.getInventory().getItemInOffHand().getType() == Material.BANNER || player
+					.getInventory().getItemInOffHand().getType() == Material.ELYTRA || player
+					.getInventory().getItem(invSlot).getType() == Material.WRITTEN_BOOK)) {
+				equipBuilder.add(player.getInventory().getItemInOffHand());
+				signCounter++;
+				equipCounter++;
+				getLogger().log(Level.INFO, signCounter + " offhand saved. ");
+				player.getInventory().setItemInOffHand(null);
+			}
+		}
+
+		// Now iterate through the ArrayList and build our final ItemStack[] for
+		// serialization
+		int indexCounter = 0;
+		ItemStack[] equipItems = new ItemStack[equipCounter];
+		for (ItemStack i : equipBuilder) {
+			equipItems[indexCounter] = i;
+			indexCounter++;
+		}
+
+		// 12hr expiry time
+		long expiryTime = new Date().getTime() + 43200000;
+
+		String originalBlockString = loc.getBlock().getType().toString();
+
+		if (originalBlockString.equals("CHEST")
+				|| originalBlockString.equals("SIGN_POST")
+				|| originalBlockString.equals("WALL_SIGN")) {
+
+			double newX = 0;
+			double newY = -1;
+			double newZ = 0;
+
+			Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "sc STARTING "
+					+ loc.getX() + " " + loc.getY() + " " + loc.getZ() + ": ");
+
+			while (newX < 2) {
+				while (newY < 4) {
+					while (newZ < 2) {
+
+						String checkBlock = new Location(loc.getWorld(),
+								loc.getX() + newX, loc.getY() + newY,
+								loc.getZ() + newZ).getBlock().getType()
+								.toString();
+
+						if (checkBlock.equals("AIR")) {
+							if (new Location(loc.getWorld(), loc.getX() + newX,
+									loc.getY() + newY + 1, loc.getZ() + newZ)
+									.getBlock().getType().toString()
+									.equals("AIR")) {
+
+								// found a good spot!! change the death loc to
+								// that!
+								loc = new Location(loc.getWorld(), loc.getX()
+										+ newX, loc.getY() + newY, loc.getZ()
+										+ newZ);
+								newX = 3;
+								newY = 3;
+								newZ = 3;
+							}
+
+						}
+						newZ++;
+					}
+					newY++;
+				}
+				newX++;
+			}
+
+		}
+
+		String locString = loc.getWorld().getName() + "." + loc.getBlockX()
+				+ "." + loc.getBlockY() + "." + loc.getBlockZ();
+
+		// /////////////
+		try {
+
+			PreparedStatement eStmt = e
+					.prepareStatement(
+							"INSERT INTO rp_PlayerGraves "
+									+ "(`Location`, `Status`, `PlayerName`, `UUID`, `ExpiryTime`, `CreationTime`, "
+									+ "`LevelsLost`, `LooterName`, `LootTime`, `PreviousBlock`, `InvBlob`, `EquipBlob`, `InvItemStack`, `ArmorItemStack`) VALUES "
+									+ "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);",
+							Statement.RETURN_GENERATED_KEYS);
+
+			eStmt.setString(1, locString);
+			eStmt.setString(2, "Locked");
+			eStmt.setString(3, player.getName());
+			eStmt.setString(4, player.getUniqueId().toString());
+			eStmt.setLong(5, expiryTime);
+			eStmt.setLong(6, new Date().getTime());
+			eStmt.setInt(7, player.getLevel());
+			eStmt.setString(8, null);
+			eStmt.setString(9, null);
+			eStmt.setString(10, loc.getBlock().getType().toString());
+			eStmt.setObject(11,
+					RunicSerialization.serializeItemStackList(graveItems));
+			eStmt.setObject(12,
+					RunicSerialization.serializeItemStackList(equipItems));
+			eStmt.setString(13,
+					RunicSerialization.serializeItemStackList(graveItems)
+							.toString());
+			eStmt.setString(14,
+					RunicSerialization.serializeItemStackList(equipItems)
+							.toString());
+
+			eStmt.executeUpdate();
+			/*
+			 * int graveID = 0; try (ResultSet generatedKeys =
+			 * eStmt.getGeneratedKeys()) { if (generatedKeys.next()) { graveID =
+			 * generatedKeys.getInt(1); } else { throw new SQLException(
+			 * "Creating grave FAILED, could not retrieve new grave ID!"); } }
+			 */
+			eStmt.close();
+			e.close();
+		} catch (SQLException err) {
+			Bukkit.getLogger().log(
+					Level.SEVERE,
+					"Cant create new row Grave for " + player.getName()
+							+ " because: " + err.getMessage());
+		}
+
+		// USE CAUTION WITH TESTING !!!
+
+		// player.getInventory().clear();
+		int slotChecker = 0;
+		while (slotChecker < 36) {
+			if (player.getInventory().getItem(slotChecker) != null
+					&& !(player.getInventory().getItem(slotChecker).getType() == Material.FIREWORK || player
+							.getInventory().getItem(slotChecker).getType() == Material.BANNER || player
+							.getInventory().getItem(slotChecker).getType() == Material.ELYTRA|| player
+							.getInventory().getItem(invSlot).getType() == Material.WRITTEN_BOOK)) {
+				player.getInventory().setItem(slotChecker, null);
+			}
+			slotChecker++;
+		}
+
+		// player.getInventory().setHelmet(null);
+		// player.getInventory().setChestplate(null);
+		// player.getInventory().setLeggings(null);
+		// player.getInventory().setBoots(null);
+		player.setLevel(0);
+
+		// resync hashmap with graves to keep the redstone lamp on...
+		syncGraveLocations();
+
+		loc.getBlock().setType(Material.BEDROCK);
+		Block b = loc.add(0, 1, 0).getBlock();
+		b.setType(Material.SIGN_POST);
+		BlockState state = b.getState();
+		Sign sign = (Sign) state;
+
+		// To set
+		sign.setLine(0, ChatColor.DARK_RED + "☠ ☠ GRAVE ☠ ☠");
+		sign.setLine(1, "RIP");
+		sign.setLine(2, player.getDisplayName());
+		sign.setLine(3, ChatColor.DARK_RED + "" + signCounter + " items");
+		sign.update(true);
+
+		player = null;
+
+	}
+
+	public static void restoreFromPlayerDeath_v19(
+			RunicPlayerBukkit playerAtGrave, Location loc) {
+		// Ownership check is performed in the interact event... if player gets
+		// this far, they can access the grave!
+
+		// Retrieve deathID
+		final Plugin instance = RunicParadise.getInstance();
+		MySQL MySQL = new MySQL(instance, instance.getConfig().getString(
+				"dbHost"), instance.getConfig().getString("dbPort"), instance
+				.getConfig().getString("dbDatabase"), instance.getConfig()
+				.getString("dbUser"), instance.getConfig().getString(
+				"dbPassword"));
+
+		String strToCheck = loc.getWorld().getName() + "." + loc.getBlockX()
+				+ "." + loc.getBlockY() + "." + loc.getBlockZ();
+
+		try {
+			// TODO: Get data from DB based on UUID to protect vs name changes
+			final Connection d = MySQL.openConnection();
+			Statement dStmt = d.createStatement();
+			ResultSet graveData = dStmt
+					.executeQuery("SELECT * FROM `rp_PlayerGraves` WHERE `Location` = '"
+							+ strToCheck
+							+ "' AND `Status` != 'Gone' ORDER BY `id` ASC LIMIT 1;");
+			// if (!playerData.first() && !playerData.next()) {
+			if (!graveData.isBeforeFirst()) {
+				// Location doesn't exist in the DB!
+				getLogger()
+						.log(Level.SEVERE,
+								"[RP] Failure in grave Restore.. couldnt find loc in the DB but prior check succeeded.");
+			} else {
+				getLogger().log(Level.INFO,
+						"[RP] Checked for grave and found it in the DB.");
+				// Location does exist in the DB and data retrieved!!
+				graveData.next();
+				ItemStack[] equip = null;
+				ItemStack[] items = null;
+
+				if (graveData.getObject("InvBlob") != null) {
+					byte[] st = (byte[]) graveData.getObject("InvBlob");
+					ByteArrayInputStream baip = new ByteArrayInputStream(st);
+					ObjectInputStream ois = new ObjectInputStream(baip);
+					items = RunicSerialization
+							.deserializeItemStackList(((List<HashMap<Map<String, Object>, Map<String, Object>>>) ois
+									.readObject()));
+					getLogger().log(Level.INFO, "[RP] InvBlob is not null.");
+				} else {
+					getLogger().log(Level.INFO, "[RP] InvBlob is null.");
+				}
+				if (graveData.getObject("EquipBlob") != null) {
+					byte[] st2 = (byte[]) graveData.getObject("EquipBlob");
+					ByteArrayInputStream baip2 = new ByteArrayInputStream(st2);
+					ObjectInputStream ois2 = new ObjectInputStream(baip2);
+					equip = RunicSerialization
+							.deserializeItemStackList(((List<HashMap<Map<String, Object>, Map<String, Object>>>) ois2
+									.readObject()));
+					getLogger().log(Level.INFO, "[RP] EquipBlob is not null.");
+				} else {
+					getLogger().log(Level.INFO, "[RP] EquipBlob is null.");
+				}
+
+				boolean isOwner = false;
+				if (playerAtGrave.getPlayerName().equals(
+						graveData.getString("PlayerName"))) {
+					isOwner = true;
+				}
+
+				if (handleArmor(equip, playerAtGrave, graveData.getInt("ID"))
+						&& handleItems(items, playerAtGrave,
+								graveData.getInt("ID"))
+						&& handleLevels(graveData.getInt("ID"), playerAtGrave,
+								graveData.getInt("LevelsLost"), isOwner)) {
+					// Everything finished OK!
+					// remove the rest of this data
+
+					dStmt.executeUpdate("UPDATE `rp_PlayerGraves` SET Status='Gone' WHERE ID="
+							+ graveData.getInt("ID") + ";");
+
+					loc.getWorld().playEffect(loc, Effect.MOBSPAWNER_FLAMES, 0);
+					loc.getWorld().playEffect(loc, Effect.POTION_BREAK, 0);
+					// loc.getWorld().playSound(loc, Sound.BLOCK_CHEST_CLOSE,
+					// 10, 1);
+					loc.getBlock().setType(Material.AIR);
+					loc.add(0, 1, 0).getBlock().setType(Material.AIR);
+					loc.getWorld().playEffect(loc, Effect.SMOKE, 0);
+
+					// resync hashmap with graves to keep the redstone lamp
+					// on...
+					syncGraveLocations();
+				}
+
+				d.close();
+			}
+		} catch (SQLException | IOException | ClassNotFoundException z) {
+			getLogger().log(Level.SEVERE,
+					"Failed DB check for restore grave cuz " + z.getMessage());
+		}
+		playerAtGrave = null;
+
+	}
+
 }

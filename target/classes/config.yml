@@ -7,10 +7,10 @@ testPersonalMessage: "Testing personal message!"
 ## MySQL Connection details
 dbHost: Testing
 dbPort: 3301
-dbDabatase: Db
+dbDabatase: rpgame
+dbDatabase: rpgame
 dbUser: User
 dbPassword: pw
-
 ## Gaming menu
 game1Name: "Herobrine's Mansion (Adventure Map)"
 game1CmdType: teleport

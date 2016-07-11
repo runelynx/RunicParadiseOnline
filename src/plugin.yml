@@ -4,22 +4,92 @@ author: runelynx
 description: "Bukkit plugin for Runic Paradise server."
 main: io.github.runelynx.runicparadise.RunicParadise
 version: 0.1
+depend: [NoteBlockAPI]
 commands:
+   sendentity:
+      description: "Sends a living entity to a player"
+      usage: /<command> [player]
+      permission: rp.staff.sendentity
+      permission-message: "You don't have permission: rp.staff.sendentity"
+   el:
+      description: "Staff commands for explorer's league"
+      usage: /<command>
+      permission: rp.staff.explorersleague
+      permission-message: "You don't have permission: rp.staff.explorersleague"
+   carnivalaxe:
+      description: "Create a carnival axe"
+      usage: /<command>
+      permission: rp.staff.carnivalaxe
+      permission-message: "You don't have permission: rp.freezemob."
+   casino:
+      description: "Manage casino"
+      usage: /<command>
+      permission: rp.casino.admin
+      permission-message: "You don't have permission: rp.casino.admin"
+   freezemob:
+      description: "Freeze a mob!"
+      usage: /<command>
+      permission: rp.freezemob
+      permission-message: "You don't have permission: rp.freezemob."
+   unfreezemob:
+      description: "UnFreeze a mob!"
+      usage: /<command>
+      permission: rp.freezemob
+      permission-message: "You don't have permission: rp.freezemob."
+   consoleseeker:
+      description: "Promote seeker from skyblock"
+      usage: /<command>
+      permission: rp.admin
+      permission-message: "You don't have permission: <permission>"
+   mw:
+      description: "Go to the mining world portal"
+      usage: /<command>
+   miningworld:
+      description: "Go to the mining world portal"
+      usage: /<command> 
+   wild:
+      description: "Head out into the wilderness!"
+      usage: /<command> 
    runiceye:
       description: "Meh - for Rune!"
       usage: /<command> [player]
       permission: rp.admin
       permission-message: "You don't have permission: <permission>"
    headofplayer:
-      description: "Used to create player heads. Once every 10 hours ONLY!"
+      description: "Used to create player heads. Once every 6 hours ONLY!"
       usage: /<command> [playername]
       permission: rp.face
       permission-message: "You don't have permission: <permission>. [Rank Hunter and above]"
+   holotest:
+      description: "Rune testing things"
+      usage: /<command> [1/2]
+      permission: rp.admin
+      permission-message: "You don't have permission: <permission>."
+   miningreset:
+      description: "Resets the mining world"
+      usage: /<command> [playername]
+      permission: rp.admin
+      permission-message: "You don't have permission: <permission>."
    face:
-      description: "Used to create player heads. Once every 10 hours ONLY!"
+      description: "Used to create player heads. Once every 6 hours ONLY!"
       usage: /<command> [playername]
       permission: rp.face
       permission-message: "You don't have permission: <permission>. [Rank Hunter and above]"
+   miningworldreminder:
+      description: "Reminder for scheduled announcement"
+      usage: /<command>
+      permission: rp.mwr
+      permission-message: "This is for admins only."
+   iteminfo:
+      description: "Gets detailed item info."
+      usage: /<command>
+      permission: rp.iteminfo
+      permission-message: "Staff only."
+   gift:
+      description: "Used to send and receive gifts."
+      usage: /<command>
+      permission: rp.gift
+      permission-message: "Sorry this command is not available right now."
    crocomaze:
       description: "Used by Rune (only) in the CrocoMaze"
       usage: /<command>
@@ -86,6 +156,11 @@ commands:
       usage: /<command>
       permission: rp.settlerpromotions
       permission-message: "You don't have permission: <permission>"
+   disguise:
+      description: "For promoting ghosts."
+      usage: /<command>
+      permission: rp.settlerpromotions
+      permission-message: "You don't have permission: <permission>"
    settler:
       description: "For promoting ghosts."
       usage: /<command>
@@ -110,11 +185,6 @@ commands:
       description: "RunicReaper's graves command"
       usage: /<command>
       permission: rp.graves
-      permission-message: "You don't have permission: <permission>"
-   rpchest:
-      description: "Test command for chest inventory saving"
-      usage: /<command>
-      permission: rp.staff
       permission-message: "You don't have permission: <permission>"
    rptransfer:
       description: "Used by command blocks to save/load inventory for special events"

@@ -140,8 +140,8 @@ public class Recipes {
 		meta.setDisplayName(ChatColor.GOLD + "Sword of Faith");
 		meta.setLore(Arrays.asList(ChatColor.GRAY
 				+ "A blessed blade with a faint glow", " ", ChatColor.YELLOW
-				+ "3% chance to increase faith", ChatColor.YELLOW
-				+ "60% chance to shatter"));
+				+ "5% chance to increase faith", ChatColor.YELLOW
+				+ "50% chance to shatter"));
 		meta.addEnchant(Enchantment.DURABILITY, 10, true);
 		newItem.setItemMeta(meta);
 		newItem.addUnsafeEnchantment(Enchantment.DURABILITY, 99);
@@ -158,7 +158,7 @@ public class Recipes {
 		meta.setDisplayName(ChatColor.DARK_GREEN + "Sword of Ardent Faith");
 		meta.setLore(Arrays.asList(ChatColor.GRAY
 				+ "A blessed blade with a pulsing glow", " ", ChatColor.GREEN
-				+ "6% chance to increase faith", ChatColor.GREEN
+				+ "10% chance to increase faith", ChatColor.GREEN
 				+ "30% chance to shatter"));
 		meta.addEnchant(Enchantment.DURABILITY, 10, true);
 		newItem.setItemMeta(meta);
@@ -176,8 +176,8 @@ public class Recipes {
 		meta.setDisplayName(ChatColor.DARK_BLUE + "Sword of Devoted Faith");
 		meta.setLore(Arrays.asList(ChatColor.GRAY
 				+ "A blessed blade with a blinding glow", " ", ChatColor.BLUE
-				+ "9% to increase faith", ChatColor.BLUE
-				+ "15% chance to shatter."));
+				+ "15% to increase faith", ChatColor.BLUE
+				+ "10% chance to shatter."));
 		meta.addEnchant(Enchantment.DURABILITY, 10, true);
 		newItem.setItemMeta(meta);
 		newItem.addUnsafeEnchantment(Enchantment.DURABILITY, 99);

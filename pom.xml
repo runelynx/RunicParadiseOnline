@@ -6,7 +6,6 @@
 	<artifactId>RunicParadise</artifactId>
 	<version>1.0</version>
 	<packaging>jar</packaging>
-
 	<name>RunicParadise</name>
 	<url>http://maven.apache.org</url>
 	<properties>
@@ -21,25 +20,15 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.bukkit</groupId>
-			<artifactId>bukkit</artifactId>
-			<version>1.8.6-R0.1-SNAPSHOT</version>
+			<groupId>com.gamingmesh.jobs</groupId>
+			<artifactId>Jobs</artifactId>
+			<version>3.1.1</version>
 			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>javax.mail</groupId>
-			<artifactId>mail</artifactId>
-			<version>1.4.7</version>
-		</dependency>
-		<dependency>
-			<groupId>javax.activation</groupId>
-			<artifactId>activation</artifactId>
-			<version>1.1.1</version>
 		</dependency>
 		<dependency>
 			<groupId>net.milkbowl.vault</groupId>
 			<artifactId>VaultAPI</artifactId>
-			<version>1.4</version>
+			<version>1.5</version>
 			<type>jar</type>
 		</dependency>
 		<dependency>
@@ -49,16 +38,32 @@
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
+			<groupId>mkremins</groupId>
+			<artifactId>fanciful</artifactId>
+			<version>0.3.5-SNAPSHOT</version>
+		</dependency>
+		<dependency>
 			<groupId>org.bukkit</groupId>
-			<artifactId>craftbukkit</artifactId>
-			<version>1.8-R0.1-SNAPSHOT</version>
+			<artifactId>bukkit</artifactId>
+			<version>1.10.2-R0.1-SNAPSHOT</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
-			<groupId>mkremins</groupId>
-			<artifactId>fanciful</artifactId>
-			<version>0.3.3-SNAPSHOT</version>
-			<scope>compile</scope>
+			<groupId>LibsDisguises</groupId>
+			<artifactId>LibsDisguises</artifactId>
+			<version>8.6.5-SNAPSHOT</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.comphenix.protocol</groupId>
+			<artifactId>ProtocolLib</artifactId>
+			<version>3.6.5-SNAPSHOT</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.github.koca2000</groupId>
+			<artifactId>NoteBlockAPI</artifactId>
+			<version>-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 
@@ -105,13 +110,10 @@
 				</includes>
 			</resource>
 		</resources>
+		<finalName>RunicParadise</finalName>
 	</build>
 
 	<repositories>
-		<repository>
-			<id>bukkit-repo</id>
-			<url>http://repo.bukkit.org/content/groups/public/</url>
-		</repository>
 		<repository>
 			<id>vault-repo</id>
 			<url>http://nexus.theyeticave.net/content/repositories/pub_releases</url>
@@ -119,6 +121,10 @@
 		<repository>
 			<id>my-local-repo</id>
 			<url>file://C:/Users/Andrew/.m2/repository</url>
+		</repository>
+		<repository>
+			<id>spigot-repo</id>
+			<url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
 		</repository>
 		<repository>
 			<id>elmakers-repo</id>
@@ -132,7 +138,10 @@
 				<updatePolicy>always</updatePolicy>
 			</snapshots>
 		</repository>
-
+		<repository>
+			<id>jitpack.io</id>
+			<url>https://jitpack.io</url>
+		</repository>
 	</repositories>
 
 </project>

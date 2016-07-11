@@ -5,32 +5,28 @@ package io.github.runelynx.runicparadise;
 
 import static org.bukkit.Bukkit.getLogger;
 
-import java.nio.ByteBuffer;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-import java.util.Map.Entry;
 import java.util.logging.Level;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
-
-import com.connorlinfoot.titleapi.TitleAPI;
 
 /**
  * @author ABO055
@@ -41,12 +37,8 @@ public class RunicPlayerBukkit {
 	private int tokenBalance;
 	private int karma;
 	private int lifetimeTokens;
-	private int hedgeMazeCompletions;
-	private int iceMazeCompletions;
-	private int jungleMazeCompletions;
-	private int frostMazeCompletions;
-	private int advParkourCompletions;
-	private int dungeonMazeCompletions;
+
+	private String playerIP;
 	private String playerName;
 	private String playerDisplayName;
 	private boolean isStaff;
@@ -87,6 +79,10 @@ public class RunicPlayerBukkit {
 	public int getKarma() {
 		return this.karma;
 	}
+	
+	public String getIP() {
+		return this.playerIP;
+	}
 
 	public int getFaithPowerLevel() {
 		return this.faithPowerLevel;
@@ -117,13 +113,7 @@ public class RunicPlayerBukkit {
 			Statement dStmt = d.createStatement();
 
 			PreparedStatement dStmt2 = d
-					.prepareStatement("SELECT `rp_PlayerInfo`.`KillWither`, `rp_PlayerInfo`.`KillZombie`, `rp_PlayerInfo`.`KillWitch`,"
-							+ " `rp_PlayerInfo`.`KillSkeleton`, `rp_PlayerInfo`.`KillSlime`, `rp_PlayerInfo`.`KillMagmaCube`, `rp_PlayerInfo`.`KillSilverfish`, `rp_PlayerInfo`.`KillGiant`, "
-							+ "`rp_PlayerInfo`.`KillBlaze`,  `rp_PlayerInfo`.`KillCreeper`, `rp_PlayerInfo`.`KillEnderman`, `rp_PlayerInfo`.`KillSpider`, `rp_PlayerInfo`.`KillCaveSpider`, "
-							+ "`rp_PlayerInfo`.`KillSquid`, `rp_PlayerInfo`.`KillEnderDragon`, `rp_PlayerInfo`.`KillPigZombie`, `rp_PlayerInfo`.`KillGhast`, `rp_PlayerInfo`.`KillChicken`, "
-							+ "`rp_PlayerInfo`.`KillCow`, `rp_PlayerInfo`.`KillSheep`, `rp_PlayerInfo`.`KillPig`, `rp_PlayerInfo`.`KillOcelot`, `rp_PlayerInfo`.`KillBat`, `rp_PlayerInfo`.`KillMooshroom`, "
-							+ "`rp_PlayerInfo`.`KillRabbit`, `rp_PlayerInfo`.`KillWolf`, `rp_PlayerInfo`.`KillEndermite`, `rp_PlayerInfo`.`KillGuardian`, `rp_PlayerInfo`.`KillElderGuardian`, "
-							+ "`rp_PlayerInfo`.`KillSnowGolem`, `rp_PlayerInfo`.`KillIronGolem`, `rp_PlayerInfo`.`KillVillager` FROM rpgame.rp_PlayerInfo WHERE UUID = ?;");
+					.prepareStatement("SELECT * FROM rp_PlayerInfo WHERE UUID = ?;");
 			dStmt2.setString(1, this.getPlayerUUID());
 			ResultSet playerData = dStmt2.executeQuery();
 
@@ -174,6 +164,16 @@ public class RunicPlayerBukkit {
 						playerData.getInt("KillIronGolem"));
 				resultMap
 						.put("KillVillager", playerData.getInt("KillVillager"));
+				resultMap
+				.put("KillShulker", playerData.getInt("KillShulker"));
+				resultMap
+				.put("KillWSkeleton", playerData.getInt("KillWSkeleton"));
+				resultMap
+				.put("KillStray", playerData.getInt("KillStray"));
+				resultMap
+				.put("KillHusk", playerData.getInt("KillHusk"));
+				resultMap
+				.put("KillPolarBear", playerData.getInt("KillPolarBear"));
 			}
 
 			d.close();
@@ -587,9 +587,21 @@ public class RunicPlayerBukkit {
 			if (this.jobsMastered.equals("None")) {
 				// This is player's first mastery
 
+				int jobsID = 0;
+				ResultSet jobPlayerIDResult = dStmt
+						.executeQuery("SELECT ID FROM `Jobs_users` WHERE `player_uuid` = '"
+								+ this.getPlayerUUID().toString()
+								+ "' ORDER BY `id` ASC LIMIT 1;");
+				if (jobPlayerIDResult.isBeforeFirst()) {
+					// Player doesn't exist in the DB!
+					// TODO: Need to add them to DB!
+					jobPlayerIDResult.next();
+					jobsID = jobPlayerIDResult.getInt("id");
+				}
+
 				PreparedStatement dStmt2 = d
-						.prepareStatement("SELECT job,level FROM Jobs_jobs WHERE player_uuid = UNHEX(?) LIMIT 1;");
-				dStmt2.setString(1, this.getPlayerUUID().replace("-", ""));
+						.prepareStatement("SELECT job, level FROM Jobs_jobs WHERE userid = ?");
+				dStmt2.setInt(1, jobsID);
 
 				getLogger().log(
 						Level.INFO,
@@ -628,9 +640,21 @@ public class RunicPlayerBukkit {
 				}
 			} else {
 				// Player has already mastered a job!
+				int jobsID = 0;
+				ResultSet jobPlayerIDResult = dStmt
+						.executeQuery("SELECT ID FROM `Jobs_users` WHERE `player_uuid` = '"
+								+ this.getPlayerUUID().toString()
+								+ "' ORDER BY `id` ASC LIMIT 1;");
+				if (jobPlayerIDResult.isBeforeFirst()) {
+					// Player doesn't exist in the DB!
+					// TODO: Need to add them to DB!
+					jobPlayerIDResult.next();
+					jobsID = jobPlayerIDResult.getInt("id");
+				}
+
 				PreparedStatement dStmt2 = d
-						.prepareStatement("SELECT job,level FROM Jobs_jobs WHERE player_uuid = UNHEX(?) LIMIT 1;");
-				dStmt2.setString(1, this.getPlayerUUID().replace("-", ""));
+						.prepareStatement("SELECT job, level FROM Jobs_jobs WHERE userid = ?");
+				dStmt2.setInt(1, jobsID);
 
 				getLogger().log(
 						Level.INFO,
@@ -746,30 +770,6 @@ public class RunicPlayerBukkit {
 	 * ()
 	 */
 
-	public int getPlayerAdvParkourCompletions() {
-		// refreshPlayerObject(Bukkit.getPlayer(this.playerUUID));
-		return this.advParkourCompletions;
-	}
-
-	public int getPlayerIceMazeCompletions() {
-		// refreshPlayerObject(Bukkit.getPlayer(this.playerUUID));
-		return this.iceMazeCompletions;
-	}
-
-	public int getPlayerDungeonMazeCompletions() {
-		// refreshPlayerObject(Bukkit.getPlayer(this.playerUUID));
-		return this.dungeonMazeCompletions;
-	}
-	public int getPlayerJungleMazeCompletions() {
-		// refreshPlayerObject(Bukkit.getPlayer(this.playerUUID));
-		return this.jungleMazeCompletions;
-	}
-
-	public int getPlayerFrostMazeCompletions() {
-		// refreshPlayerObject(Bukkit.getPlayer(this.playerUUID));
-		return this.frostMazeCompletions;
-	}
-
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -791,19 +791,6 @@ public class RunicPlayerBukkit {
 	public int getPlayerSouls() {
 		// refreshPlayerObject(Bukkit.getPlayer(this.playerUUID));
 		return this.soulCount;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * io.github.runelynx.runicparadise.RunicPlayer#getPlayerHedgeMazeCompletions
-	 * ()
-	 */
-
-	public int getPlayerHedgeMazeCompletions() {
-		// refreshPlayerObject(Bukkit.getPlayer(this.playerUUID));
-		return this.hedgeMazeCompletions;
 	}
 
 	/*
@@ -838,141 +825,6 @@ public class RunicPlayerBukkit {
 		} catch (SQLException e) {
 			getLogger().log(Level.SEVERE,
 					"Failed lifetimeTokenUpdate because: " + e.getMessage());
-			return false; // since change failed
-		}
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * io.github.runelynx.runicparadise.RunicPlayer#setPlayerMazeCompletions()
-	 */
-
-	public boolean setPlayerMazeCompletions(String maze, int increment) {
-		MySQL MySQL = new MySQL(instance, instance.getConfig().getString(
-				"dbHost"), instance.getConfig().getString("dbPort"), instance
-				.getConfig().getString("dbDatabase"), instance.getConfig()
-				.getString("dbUser"), instance.getConfig().getString(
-				"dbPassword"));
-
-		String mazeType = "";
-		int newBalance = 0;
-		if (maze.equals("hedge")) {
-			// This must match the DB column name
-			mazeType = "HedgeMazeCompletions";
-			newBalance = this.getPlayerHedgeMazeCompletions() + increment;
-		} else if (maze.equals("ice")) {
-			// This must match the DB column name
-			mazeType = "IceMazeCompletions";
-			newBalance = this.getPlayerIceMazeCompletions() + increment;
-		}
-
-		else if (maze.equals("jungle")) {
-			// This must match the DB column name
-			mazeType = "JungleMazeCompletions";
-			newBalance = this.getPlayerJungleMazeCompletions() + increment;
-		} else if (maze.equals("frost")) {
-			// This must match the DB column name
-			mazeType = "FrostMazeCompletions";
-			newBalance = this.getPlayerFrostMazeCompletions() + increment;
-
-			if (newBalance == 1) {
-				this.adjustPlayerKarma(12);
-				this.setPlayerTokenBalance(this.getPlayerTokenBalance() + 20);
-				
-				for (Player p : Bukkit.getOnlinePlayers()) {
-					TitleAPI.sendTitle(p, 2, 3, 2, ChatColor.DARK_GRAY + ""
-							+ ChatColor.BOLD + this.getPlayerDisplayName(),
-							ChatColor.AQUA
-							+ "just completed the Frost Maze!");
-				}
-
-			} else {
-				this.sendMessageToPlayer("You already completed this puzzle");
-			}
-		} else if (maze.equals("advparkour")) {
-			// This must match the DB column name
-			mazeType = "AdventureParkour";
-			newBalance = this.getPlayerAdvParkourCompletions() + increment;
-
-			if (newBalance == 1) {
-				this.adjustPlayerKarma(12);
-				Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "eco give "
-						+ this.getPlayerName() + " 25000");
-				Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "give "
-						+ this.getPlayerName() + " witherskull 1");
-
-				for (Player p : Bukkit.getOnlinePlayers()) {
-					TitleAPI.sendTitle(p, 2, 3, 2, ChatColor.DARK_GRAY + ""
-							+ ChatColor.BOLD + this.getPlayerDisplayName(),
-							 ChatColor.AQUA
-							+ "just completed the Adventure Parkour!");
-				}
-
-			} else {
-				this.sendMessageToPlayer("You already completed this puzzle");
-			}
-		} else if (maze.equals("dungeon")) {
-			// This must match the DB column name
-			mazeType = "DungeonMazeCompletions";
-			newBalance = this.getPlayerDungeonMazeCompletions() + increment;
-
-			if (newBalance == 1) {
-				this.adjustPlayerKarma(18);
-				this.setPlayerTokenBalance(this.getPlayerTokenBalance() + 30);
-				
-				Bukkit.dispatchCommand(
-						Bukkit.getConsoleSender(),
-						"give " + this.getPlayerName() + " beacon 1");
-
-				
-				for (Player p : Bukkit.getOnlinePlayers()) {
-					TitleAPI.sendTitle(p, 2, 3, 2, ChatColor.DARK_GRAY + ""
-							+ ChatColor.BOLD + this.getPlayerDisplayName(),
-							ChatColor.YELLOW
-							+ "just completed the Dungeon Maze!");
-				}
-
-			} else {
-				this.sendMessageToPlayer("You already completed this puzzle");
-				this.setPlayerTokenBalance(this.getPlayerTokenBalance() + 5);
-			}
-		}
-
-		else {
-			// bad format of method call
-			getLogger().log(
-					Level.SEVERE,
-					"Failed mazeCompletionUpdate; dont recognize maze type= "
-							+ maze);
-			return false;
-		}
-
-		try {
-			// TODO: Change to update DB based on UUID
-			final Connection d = MySQL.openConnection();
-			Statement dStmt = d.createStatement();
-			dStmt.executeUpdate("UPDATE `rp_PlayerInfo` SET " + mazeType + "="
-					+ newBalance + " WHERE PlayerName='" + this.playerName
-					+ "';");
-			d.close();
-
-			// Update object directly since change successful
-			if (maze.equals("Hedge")) {
-				// This must match the DB column name
-				this.hedgeMazeCompletions = newBalance;
-			} else if (maze.equals("Ice")) {
-				// This must match the DB column name
-				this.iceMazeCompletions = newBalance;
-			} else if (maze.equals("dungeon")) {
-				// This must match the DB column name
-				this.dungeonMazeCompletions = newBalance;
-			}
-			return true; // since change was successful
-		} catch (SQLException e) {
-			getLogger().log(Level.SEVERE,
-					"Failed mazeCompletionUpdate because: " + e.getMessage());
 			return false; // since change failed
 		}
 	}
@@ -1153,11 +1005,19 @@ public class RunicPlayerBukkit {
 	 * @see io.github.runelynx.runicparadise.RunicPlayer#refreshPlayerObject()
 	 */
 
-	public void refreshPlayerObject(Player player) {
+	public void refreshPlayerObject(OfflinePlayer player) {
 
 		this.playerName = player.getName();
-		this.playerDisplayName = player.getDisplayName();
-		this.isStaff = (player.hasPermission("rp.staff")) ? true : false;
+		
+		try {
+			this.playerDisplayName = player.getPlayer().getDisplayName();
+			this.isStaff = (player.getPlayer().hasPermission("rp.staff")) ? true : false;	
+		} catch (Exception e) {
+			this.playerDisplayName = player.getName();
+			this.isStaff = false;
+		}
+		
+		
 		this.playerUUID = player.getUniqueId();
 
 		MySQL MySQL = new MySQL(instance, instance.getConfig().getString(
@@ -1171,6 +1031,18 @@ public class RunicPlayerBukkit {
 			final Connection d = MySQL.openConnection();
 			Statement dStmt = d.createStatement();
 
+			int jobsID = 0;
+			ResultSet jobPlayerIDResult = dStmt
+					.executeQuery("SELECT ID FROM `Jobs_users` WHERE `player_uuid` = '"
+							+ this.getPlayerUUID().toString()
+							+ "' ORDER BY `id` ASC LIMIT 1;");
+			if (jobPlayerIDResult.isBeforeFirst()) {
+				// Player doesn't exist in the DB!
+				// TODO: Need to add them to DB!
+				jobPlayerIDResult.next();
+				jobsID = jobPlayerIDResult.getInt("id");
+			}
+
 			ResultSet playerData = dStmt
 					.executeQuery("SELECT * FROM `rp_PlayerInfo` WHERE `PlayerName` = '"
 							+ this.playerName + "' ORDER BY `id` ASC LIMIT 1;");
@@ -1180,8 +1052,8 @@ public class RunicPlayerBukkit {
 			// this.playerUUID + "' LIMIT 1;");
 
 			PreparedStatement dStmt2 = d
-					.prepareStatement("SELECT job,level FROM Jobs_jobs WHERE player_uuid = UNHEX(?) LIMIT 1;");
-			dStmt2.setString(1, this.getPlayerUUID().replace("-", ""));
+					.prepareStatement("SELECT job,level FROM Jobs_jobs WHERE userid = "
+							+ jobsID + " LIMIT 1;");
 
 			ResultSet jobData = dStmt2.executeQuery();
 
@@ -1225,27 +1097,18 @@ public class RunicPlayerBukkit {
 			} else {
 				// Player does exist in the DB
 				playerData.next();
+				this.playerIP = playerData.getString("LastIP");
 				this.karma = playerData.getInt("Karma");
 				this.tokenBalance = playerData.getInt("Tokens");
 				this.soulCount = playerData.getInt("SoulCount");
-				this.iceMazeCompletions = playerData
-						.getInt("IceMazeCompletions");
-				this.dungeonMazeCompletions = playerData
-						.getInt("DungeonMazeCompletions");
-				this.hedgeMazeCompletions = playerData
-						.getInt("HedgeMazeCompletions");
-				this.jungleMazeCompletions = playerData
-						.getInt("JungleMazeCompletions");
-				this.frostMazeCompletions = playerData
-						.getInt("FrostMazeCompletions");
+
 				this.lifetimeTokens = playerData.getInt("LifetimeTokens");
 				this.jobsMasteredCount = playerData.getInt("JobsMasteredCount");
 				this.jobsMastered = playerData.getString("JobsMastered");
 				this.joinDate = new Date(playerData.getLong("FirstSeen"));
 				this.voteCount = playerData.getInt("Votes");
 				this.activeFaith = playerData.getString("ActiveFaith");
-				this.advParkourCompletions = playerData
-						.getInt("AdventureParkour");
+
 				d.close();
 			}
 		} catch (SQLException e) {
@@ -1295,19 +1158,21 @@ public class RunicPlayerBukkit {
 
 	public int checkPlayerInventoryItemstackCount() {
 
-		ItemStack[] items = Bukkit.getPlayer(this.playerUUID).getInventory()
-				.getContents();
+		int invSlot = 0;
+		int itemCounter = 0;
 
-		int playerInvItemCount = 0;
+		while (invSlot < 36) {
+			if (Bukkit.getPlayer(this.playerUUID).getInventory()
+					.getItem(invSlot) != null
+					&& Bukkit.getPlayer(this.playerUUID).getInventory()
+							.getItem(invSlot).getType() != Material.AIR) {
 
-		// Count actual itemstacks in player's inventory
-		for (ItemStack item : items) {
-			if ((item != null) && (item.getAmount() > 0)
-					&& (item.getType() != Material.AIR)) {
-				playerInvItemCount++;
+				itemCounter++;
 			}
+			invSlot++;
 		}
-		return playerInvItemCount;
+
+		return itemCounter;
 	}
 
 	/*
