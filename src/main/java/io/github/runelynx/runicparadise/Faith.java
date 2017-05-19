@@ -2,7 +2,8 @@ package io.github.runelynx.runicparadise;
 
 import static org.bukkit.Bukkit.getLogger;
 import static org.bukkit.ChatColor.WHITE;
-import io.github.runelynx.runicparadise.RunicMessaging.RunicFormat;
+import io.github.runelynx.runicuniverse.RunicMessaging;
+import io.github.runelynx.runicuniverse.RunicMessaging.RunicFormat;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -74,9 +75,8 @@ public class Faith {
 		for (Player p : Bukkit.getOnlinePlayers()) {
 
 			if (p.hasPermission("rp.faith.user")) {
-				p.sendMessage(ChatColor.GRAY + "[" + ChatColor.BLUE + "Runic"
-						+ ChatColor.DARK_AQUA + "Faith" + ChatColor.GRAY + "] "
-						+ ChatColor.BLUE + "Faith system deactivated!");
+				p.sendMessage(ChatColor.GRAY + "[" + ChatColor.BLUE + "Runic" + ChatColor.DARK_AQUA + "Faith"
+						+ ChatColor.GRAY + "] " + ChatColor.BLUE + "Faith system deactivated!");
 			}
 
 		}
@@ -92,8 +92,7 @@ public class Faith {
 
 	public static void showFaithMenu(Player p) {
 		Inventory faithInventory = Bukkit.createInventory(null, 45,
-				ChatColor.BLUE + "Runic " + ChatColor.DARK_AQUA + "Faith "
-						+ ChatColor.DARK_GRAY + "Selection Menu");
+				ChatColor.BLUE + "Runic " + ChatColor.DARK_AQUA + "Faith " + ChatColor.DARK_GRAY + "Selection Menu");
 
 		ItemStack sun = new ItemStack(Material.RED_SANDSTONE, 1);
 		ItemMeta sunMeta = sun.getItemMeta();
@@ -244,23 +243,18 @@ public class Faith {
 	public String listPowers(boolean showAll) {
 
 		if (!showAll) {
-			Bukkit.getPlayer(this.getUUID()).sendMessage(
-					ChatColor.GRAY + "[" + ChatColor.BLUE + "Runic"
-							+ ChatColor.DARK_AQUA + "Faith" + ChatColor.GRAY
-							+ "] " + ChatColor.BLUE
-							+ "Listing powers granted by your faiths:");
+			Bukkit.getPlayer(this.getUUID())
+					.sendMessage(ChatColor.GRAY + "[" + ChatColor.BLUE + "Runic" + ChatColor.DARK_AQUA + "Faith"
+							+ ChatColor.GRAY + "] " + ChatColor.BLUE + "Listing powers granted by your faiths:");
 		} else {
-			Bukkit.getPlayer(this.getUUID()).sendMessage(
-					ChatColor.GRAY + "[" + ChatColor.BLUE + "Runic"
-							+ ChatColor.DARK_AQUA + "Faith" + ChatColor.GRAY
-							+ "] " + ChatColor.BLUE
-							+ "Listing all powers available:");
+			Bukkit.getPlayer(this.getUUID())
+					.sendMessage(ChatColor.GRAY + "[" + ChatColor.BLUE + "Runic" + ChatColor.DARK_AQUA + "Faith"
+							+ ChatColor.GRAY + "] " + ChatColor.BLUE + "Listing all powers available:");
 		}
 
 		// Iterate through all available faiths... check each one to see if
 		// player has it equipped. If they do, list those powers.
-		for (Entry<String, String[]> entry : RunicParadise.faithSettingsMap
-				.entrySet()) {
+		for (Entry<String, String[]> entry : RunicParadise.faithSettingsMap.entrySet()) {
 			String faithName = entry.getKey();
 
 			boolean show = false;
@@ -284,29 +278,24 @@ public class Faith {
 			if (show) {
 				// Player has this faith equipped, so list its powers!
 
-				Bukkit.getPlayer(this.getUUID()).sendMessage(
-						ChatColor.GRAY + " " + faithColor + faithName
-								+ ChatColor.BLUE + " Powers:");
+				Bukkit.getPlayer(this.getUUID())
+						.sendMessage(ChatColor.GRAY + " " + faithColor + faithName + ChatColor.BLUE + " Powers:");
 
-				MySQL MySQL = new MySQL(instance, instance.getConfig()
-						.getString("dbHost"), instance.getConfig().getString(
-						"dbPort"), "rpgame", instance.getConfig().getString(
-						"dbUser"), instance.getConfig().getString("dbPassword"));
+				MySQL MySQL = new MySQL(instance, instance.getConfig().getString("dbHost"),
+						instance.getConfig().getString("dbPort"), instance.getConfig().getString("dbDatabase"),
+						instance.getConfig().getString("dbUser"), instance.getConfig().getString("dbPassword"));
 
 				try {
 
 					final Connection dbCon = MySQL.openConnection();
 					Statement dbStmt = dbCon.createStatement();
-					ResultSet powerResult = dbStmt
-							.executeQuery("SELECT * FROM rp_MasterPowers WHERE FaithName='"
-									+ faithName
-									+ "' ORDER BY RequiredLevel ASC;");
+					ResultSet powerResult = dbStmt.executeQuery("SELECT * FROM rp_MasterPowers WHERE FaithName='"
+							+ faithName + "' ORDER BY RequiredLevel ASC;");
 					if (!powerResult.isBeforeFirst()) {
 						// No results
 						// do nothing
-						Bukkit.getPlayer(this.getUUID()).sendMessage(
-								"Oops! Couldn't find any powers for the "
-										+ faithName + " faith.");
+						Bukkit.getPlayer(this.getUUID())
+								.sendMessage("Oops! Couldn't find any powers for the " + faithName + " faith.");
 						dbCon.close();
 					} else {
 						// results found!
@@ -315,8 +304,7 @@ public class Faith {
 							// equipped!
 
 							ChatColor levelColor;
-							if (this.checkEquippedFaithLevel(faithName,
-									powerResult.getInt("RequiredLevel"))) {
+							if (this.checkEquippedFaithLevel(faithName, powerResult.getInt("RequiredLevel"))) {
 								// player qualifies for this power
 								levelColor = ChatColor.GREEN;
 							} else {
@@ -324,38 +312,19 @@ public class Faith {
 								levelColor = ChatColor.GRAY;
 							}
 
-							new FancyMessage("   Level ")
-									.color(ChatColor.BLUE)
+							new FancyMessage("   Level ").color(ChatColor.BLUE)
 									//
-									.then(powerResult
-											.getString("RequiredLevel"))
-									.color(levelColor)
+									.then(powerResult.getString("RequiredLevel")).color(levelColor)
 									//
-									.then(": ")
-									.color(WHITE)
+									.then(": ").color(WHITE)
 									//
-									.then(powerResult.getString("PowerName"))
-									.color(levelColor)
+									.then(powerResult.getString("PowerName")).color(levelColor)
 									.tooltip(
-											powerResult
-													.getString("Description")
-													.substring(
-															0,
-															powerResult
-																	.getString(
-																			"Description")
-																	.length() / 2),
-											powerResult
-													.getString("Description")
-													.substring(
-															powerResult
-																	.getString(
-																			"Description")
-																	.length() / 2,
-															powerResult
-																	.getString(
-																			"Description")
-																	.length()))
+											powerResult.getString("Description").substring(0,
+													powerResult.getString("Description").length() / 2),
+											powerResult.getString("Description").substring(
+													powerResult.getString("Description").length() / 2,
+													powerResult.getString("Description").length()))
 									.send(Bukkit.getPlayer(this.getUUID()));
 
 						}
@@ -364,10 +333,8 @@ public class Faith {
 					}
 
 				} catch (SQLException z) {
-					getLogger().log(
-							Level.SEVERE,
-							"Failed Faith.listPowers when trying to get powers for a faith: "
-									+ z.getMessage());
+					getLogger().log(Level.SEVERE,
+							"Failed Faith.listPowers when trying to get powers for a faith: " + z.getMessage());
 					return "Error: Database Failure";
 				}
 			} // end if checking whether player has the faith equipped
@@ -375,9 +342,8 @@ public class Faith {
 				// Player does not have this faith equipped
 			}
 		} // end for looping through all possible faiths
-		Bukkit.getPlayer(this.getUUID()).sendMessage(
-				ChatColor.GRAY + "" + ChatColor.ITALIC
-						+ "Hover mouse over power name for details");
+		Bukkit.getPlayer(this.getUUID())
+				.sendMessage(ChatColor.GRAY + "" + ChatColor.ITALIC + "Hover mouse over power name for details");
 		return "Success";
 
 	} // end method
@@ -385,17 +351,15 @@ public class Faith {
 	public static void getPowerSettings() {
 		RunicParadise.powerReqsMap.clear();
 
-		MySQL MySQL = new MySQL(instance, instance.getConfig().getString(
-				"dbHost"), instance.getConfig().getString("dbPort"), "rpgame",
-				instance.getConfig().getString("dbUser"), instance.getConfig()
-						.getString("dbPassword"));
+		MySQL MySQL = new MySQL(instance, instance.getConfig().getString("dbHost"),
+				instance.getConfig().getString("dbPort"), instance.getConfig().getString("dbDatabase"),
+				instance.getConfig().getString("dbUser"), instance.getConfig().getString("dbPassword"));
 		String powerList = "";
 		try {
 
 			final Connection dbCon = MySQL.openConnection();
 			Statement dbStmt = dbCon.createStatement();
-			ResultSet faithResult = dbStmt
-					.executeQuery("SELECT * FROM rp_MasterPowers;");
+			ResultSet faithResult = dbStmt.executeQuery("SELECT * FROM rp_MasterPowers;");
 			if (!faithResult.isBeforeFirst()) {
 				// No results
 				// do nothing
@@ -409,8 +373,7 @@ public class Faith {
 			} else {
 				// results found!
 				while (faithResult.next()) {
-					RunicParadise.powerReqsMap.put(
-							faithResult.getString("PowerName"),
+					RunicParadise.powerReqsMap.put(faithResult.getString("PowerName"),
 							faithResult.getInt("RequiredLevel"));
 					powerList += faithResult.getString("PowerName") + ". ";
 				}
@@ -419,27 +382,23 @@ public class Faith {
 			}
 
 		} catch (SQLException z) {
-			getLogger().log(Level.SEVERE,
-					"Failed Faith.powerSettings " + z.getMessage());
+			getLogger().log(Level.SEVERE, "Failed Faith.powerSettings " + z.getMessage());
 		}
-		Bukkit.dispatchCommand(Bukkit.getConsoleSender(),
-				"sc Loaded Power Req Levels: " + powerList);
+		Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "sc Loaded Power Req Levels: " + powerList);
 	}
 
 	public static void getFaithSettings() {
 		RunicParadise.faithSettingsMap.clear();
 
-		MySQL MySQL = new MySQL(instance, instance.getConfig().getString(
-				"dbHost"), instance.getConfig().getString("dbPort"), "rpgame",
-				instance.getConfig().getString("dbUser"), instance.getConfig()
-						.getString("dbPassword"));
+		MySQL MySQL = new MySQL(instance, instance.getConfig().getString("dbHost"),
+				instance.getConfig().getString("dbPort"), instance.getConfig().getString("dbDatabase"),
+				instance.getConfig().getString("dbUser"), instance.getConfig().getString("dbPassword"));
 		String faithList = "";
 		try {
 
 			final Connection dbCon = MySQL.openConnection();
 			Statement dbStmt = dbCon.createStatement();
-			ResultSet faithResult = dbStmt
-					.executeQuery("SELECT * FROM rp_MasterFaiths;");
+			ResultSet faithResult = dbStmt.executeQuery("SELECT * FROM rp_MasterFaiths;");
 			if (!faithResult.isBeforeFirst()) {
 				// No results
 				// do nothing
@@ -453,14 +412,10 @@ public class Faith {
 			} else {
 				// results found!
 				while (faithResult.next()) {
-					RunicParadise.faithSettingsMap.put(
-							faithResult.getString("FaithName"), new String[] {
-									faithResult.getString("FaithName"),
-									faithResult.getString("ChatPrefix"),
-									faithResult.getString("Permission"),
-									faithResult.getString("Description"),
-									faithResult.getString("MaxLevel"),
-									faithResult.getString("CastMessage"),
+					RunicParadise.faithSettingsMap.put(faithResult.getString("FaithName"),
+							new String[] { faithResult.getString("FaithName"), faithResult.getString("ChatPrefix"),
+									faithResult.getString("Permission"), faithResult.getString("Description"),
+									faithResult.getString("MaxLevel"), faithResult.getString("CastMessage"),
 									faithResult.getString("ChatPrefix2") });
 					faithList += faithResult.getString("faithName") + ". ";
 				}
@@ -469,11 +424,9 @@ public class Faith {
 			}
 
 		} catch (SQLException z) {
-			getLogger().log(Level.SEVERE,
-					"Failed Faith.faithSettings " + z.getMessage());
+			getLogger().log(Level.SEVERE, "Failed Faith.faithSettings " + z.getMessage());
 		}
-		Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "sc Loaded Faiths: "
-				+ faithList);
+		Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "sc Loaded Faiths: " + faithList);
 	}
 
 	public boolean checkEquippedFaithLevel(String faithName, int level) {
@@ -482,8 +435,7 @@ public class Faith {
 			if (this.faithLevels.get(faithName) >= level) {
 				// ensure the faith is ACTIVE
 
-				if (new RunicPlayerBukkit(this.getUUID()).getActiveFaith()
-						.equals(faithName)) {
+				if (new RunicPlayerBukkit(this.getUUID()).getActiveFaith().equals(faithName)) {
 					return true;
 				} else {
 					return false;
@@ -503,35 +455,28 @@ public class Faith {
 
 		if (!RunicParadise.faithSettingsMap.containsKey(faithName)) {
 			return "That is not a valid Faith";
-		} else if (!Bukkit.getPlayer(nUUID).hasPermission(
-				RunicParadise.faithSettingsMap.get(faithName)[2])) {
+		} else if (!Bukkit.getPlayer(nUUID).hasPermission(RunicParadise.faithSettingsMap.get(faithName)[2])) {
 			// check if player has the permission required for this faith
 			return "Player is not eligible for that Faith";
 		} else {
 			// it's a valid faith name!
 			// check if player already has a record for this faith in the DB
-			MySQL MySQL = new MySQL(instance, instance.getConfig().getString(
-					"dbHost"), instance.getConfig().getString("dbPort"),
-					"rpgame", instance.getConfig().getString("dbUser"),
-					instance.getConfig().getString("dbPassword"));
+			MySQL MySQL = new MySQL(instance, instance.getConfig().getString("dbHost"),
+					instance.getConfig().getString("dbPort"), instance.getConfig().getString("dbDatabase"),
+					instance.getConfig().getString("dbUser"), instance.getConfig().getString("dbPassword"));
 			try {
 
 				Date now = new Date();
 				final Connection dbCon = MySQL.openConnection();
 				Statement dbStmt = dbCon.createStatement();
-				ResultSet faithResult = dbStmt
-						.executeQuery("SELECT * FROM rp_PlayerFaiths WHERE UUID = '"
-								+ nUUID.toString()
-								+ "' AND FaithName = '"
-								+ faithName + "';");
+				ResultSet faithResult = dbStmt.executeQuery("SELECT * FROM rp_PlayerFaiths WHERE UUID = '"
+						+ nUUID.toString() + "' AND FaithName = '" + faithName + "';");
 				if (!faithResult.isBeforeFirst()) {
 					// No results
 					// add the faith
-					dbStmt.executeUpdate("INSERT INTO rp_PlayerFaiths (UUID, Active, FaithName, Level, Timestamp) VALUES ('"
-							+ nUUID.toString()
-							+ "', 1, '"
-							+ faithName
-							+ "', 0, " + now.getTime() + ");");
+					dbStmt.executeUpdate(
+							"INSERT INTO rp_PlayerFaiths (UUID, Active, FaithName, Level, Timestamp) VALUES ('"
+									+ nUUID.toString() + "', 1, '" + faithName + "', 0, " + now.getTime() + ");");
 
 					targetPlayer.setActiveFaith(faithName);
 
@@ -555,31 +500,23 @@ public class Faith {
 				}
 
 			} catch (SQLException z) {
-				getLogger().log(
-						Level.SEVERE,
-						"Failed Faith.enableFaith " + nUUID.toString() + "- "
-								+ z.getMessage());
+				getLogger().log(Level.SEVERE, "Failed Faith.enableFaith " + nUUID.toString() + "- " + z.getMessage());
 				return "Database Failure :(";
 			}
 		}
 	}
 
 	public String getPlayerStats(UUID nUUID, UUID senderUUID) {
-		MySQL MySQL = new MySQL(instance, instance.getConfig().getString(
-				"dbHost"), instance.getConfig().getString("dbPort"), "rpgame",
-				instance.getConfig().getString("dbUser"), instance.getConfig()
-						.getString("dbPassword"));
+		MySQL MySQL = new MySQL(instance, instance.getConfig().getString("dbHost"),
+				instance.getConfig().getString("dbPort"), instance.getConfig().getString("dbDatabase"),
+				instance.getConfig().getString("dbUser"), instance.getConfig().getString("dbPassword"));
 		try {
 			final Connection dbCon = MySQL.openConnection();
 			Statement dbStmt = dbCon.createStatement();
-			ResultSet faithResult = dbStmt
-					.executeQuery("SELECT * FROM rp_PlayerFaiths WHERE UUID = '"
-							+ nUUID.toString() + "' ORDER BY FaithName ASC;");
+			ResultSet faithResult = dbStmt.executeQuery(
+					"SELECT * FROM rp_PlayerFaiths WHERE UUID = '" + nUUID.toString() + "' ORDER BY FaithName ASC;");
 			if (!faithResult.isBeforeFirst()) {
-				getLogger().log(
-						Level.INFO,
-						"No Faiths found for "
-								+ Bukkit.getPlayer(nUUID).getDisplayName());
+				getLogger().log(Level.INFO, "No Faiths found for " + Bukkit.getPlayer(nUUID).getDisplayName());
 
 				// No results
 				// do nothing
@@ -590,45 +527,29 @@ public class Faith {
 				boolean activeStarted = false;
 				boolean inactiveStarted = false;
 
-				
-				
-				RunicMessaging.sendMessage(Bukkit.getPlayer(senderUUID), RunicFormat.FAITH, "Displaying faith stats for " + Bukkit.getOfflinePlayer(nUUID).getName());
-				
-				Bukkit.getPlayer(senderUUID).sendMessage(
-						ChatColor.BLUE
-								+ "Faith power level: "
-								+ ChatColor.GRAY
-								+ new RunicPlayerBukkit(this.getUUID())
-										.getFaithPowerLevel()
-								+ ChatColor.DARK_GRAY + "" + ChatColor.ITALIC
-								+ " (Combined total faith level)");
+				RunicMessaging.sendMessage(Bukkit.getPlayer(senderUUID), RunicMessaging.RunicFormat.FAITH,
+						"Displaying faith stats for " + Bukkit.getOfflinePlayer(nUUID).getName());
+
+				Bukkit.getPlayer(senderUUID)
+						.sendMessage(ChatColor.BLUE + "Faith power level: " + ChatColor.GRAY
+								+ new RunicPlayerBukkit(this.getUUID()).getFaithPowerLevel() + ChatColor.DARK_GRAY + ""
+								+ ChatColor.ITALIC + " (Combined total faith level)");
 
 				while (faithResult.next()) {
 
 					String color;
-					if (faithResult.getString("FaithName").equals(
-							new RunicPlayerBukkit(nUUID).getActiveFaith())) {
+					if (faithResult.getString("FaithName").equals(new RunicPlayerBukkit(nUUID).getActiveFaith())) {
 						color = ChatColor.GREEN + "";
 					} else {
 						color = ChatColor.DARK_RED + "";
 					}
 
 					Bukkit.getPlayer(senderUUID)
-							.sendMessage(
-									displayLevelBar(((double) faithResult
-											.getInt("Level") / Integer
-											.parseInt(RunicParadise.faithSettingsMap.get(faithResult
-													.getString("FaithName"))[4])) * 50)
-											+ " "
-											+ color
-											+ faithResult
-													.getString("FaithName")
-											+ " "
-											+ ChatColor.GRAY
-											+ faithResult.getInt("Level")
-											+ "/"
-											+ RunicParadise.faithSettingsMap.get(faithResult
-													.getString("FaithName"))[4]);
+							.sendMessage(displayLevelBar(((double) faithResult.getInt("Level") / Integer.parseInt(
+									RunicParadise.faithSettingsMap.get(faithResult.getString("FaithName"))[4])) * 50)
+									+ " " + color + faithResult.getString("FaithName") + " " + ChatColor.GRAY
+									+ faithResult.getInt("Level") + "/"
+									+ RunicParadise.faithSettingsMap.get(faithResult.getString("FaithName"))[4]);
 
 					/*
 					 * 
@@ -699,10 +620,8 @@ public class Faith {
 			}
 
 		} catch (SQLException z) {
-			getLogger().log(
-					Level.SEVERE,
-					"Failed Faith.getPlayerStats for player "
-							+ nUUID.toString() + "- " + z.getMessage());
+			getLogger().log(Level.SEVERE,
+					"Failed Faith.getPlayerStats for player " + nUUID.toString() + "- " + z.getMessage());
 			return "Database failure";
 		}
 
@@ -735,21 +654,16 @@ public class Faith {
 		this.trueUUID = nUUID;
 		this.playerName = new RunicPlayerBukkit(nUUID).getPlayerName();
 
-		MySQL MySQL = new MySQL(instance, instance.getConfig().getString(
-				"dbHost"), instance.getConfig().getString("dbPort"), "rpgame",
-				instance.getConfig().getString("dbUser"), instance.getConfig()
-						.getString("dbPassword"));
+		MySQL MySQL = new MySQL(instance, instance.getConfig().getString("dbHost"),
+				instance.getConfig().getString("dbPort"), instance.getConfig().getString("dbDatabase"),
+				instance.getConfig().getString("dbUser"), instance.getConfig().getString("dbPassword"));
 		try {
 			final Connection dbCon = MySQL.openConnection();
 			Statement dbStmt = dbCon.createStatement();
 			ResultSet faithResult = dbStmt
-					.executeQuery("SELECT * FROM rp_PlayerFaiths WHERE UUID = '"
-							+ nUUID.toString() + "';");
+					.executeQuery("SELECT * FROM rp_PlayerFaiths WHERE UUID = '" + nUUID.toString() + "';");
 			if (!faithResult.isBeforeFirst()) {
-				getLogger().log(
-						Level.INFO,
-						"No Faiths found for "
-								+ Bukkit.getPlayer(nUUID).getDisplayName());
+				getLogger().log(Level.INFO, "No Faiths found for " + Bukkit.getPlayer(nUUID).getDisplayName());
 
 				this.faithLevels.clear();
 
@@ -763,26 +677,17 @@ public class Faith {
 				this.faithLevels.clear();
 
 				while (faithResult.next()) {
-					this.faithLevels.put(faithResult.getString("FaithName"),
-							faithResult.getInt("Level"));
-					getLogger().log(
-							Level.INFO,
-							"Faiths - Added: "
-									+ Bukkit.getPlayer(nUUID).getDisplayName()
-									+ " - "
-									+ faithResult.getString("faithName") + " L"
-									+ faithResult.getInt("Level"));
-					this.primaryFaithName = new RunicPlayerBukkit(nUUID)
-							.getActiveFaith();
+					this.faithLevels.put(faithResult.getString("FaithName"), faithResult.getInt("Level"));
+					getLogger().log(Level.INFO, "Faiths - Added: " + Bukkit.getPlayer(nUUID).getDisplayName() + " - "
+							+ faithResult.getString("faithName") + " L" + faithResult.getInt("Level"));
+					this.primaryFaithName = new RunicPlayerBukkit(nUUID).getActiveFaith();
 				}
 
 				dbCon.close();
 			}
 		} catch (SQLException z) {
-			getLogger().log(
-					Level.SEVERE,
-					"Failed Faith.retrievePlayerData for player "
-							+ nUUID.toString() + "- " + z.getMessage());
+			getLogger().log(Level.SEVERE,
+					"Failed Faith.retrievePlayerData for player " + nUUID.toString() + "- " + z.getMessage());
 		}
 
 		if (this.primaryFaithName != null) {
@@ -791,37 +696,27 @@ public class Faith {
 
 	}
 
-	public String setSkill(Player p, String adminName, String faithName,
-			int newValue) {
-		MySQL MySQL = new MySQL(instance, instance.getConfig().getString(
-				"dbHost"), instance.getConfig().getString("dbPort"), "rpgame",
-				instance.getConfig().getString("dbUser"), instance.getConfig()
-						.getString("dbPassword"));
+	public String setSkill(Player p, String adminName, String faithName, int newValue) {
+		MySQL MySQL = new MySQL(instance, instance.getConfig().getString("dbHost"),
+				instance.getConfig().getString("dbPort"), instance.getConfig().getString("dbDatabase"),
+				instance.getConfig().getString("dbUser"), instance.getConfig().getString("dbPassword"));
 
 		if (newValue < 0) {
-			getLogger().log(
-					Level.SEVERE,
-					"Invalid newValue in Faith.setSkill - given " + newValue
-							+ " less than 0");
+			getLogger().log(Level.SEVERE, "Invalid newValue in Faith.setSkill - given " + newValue + " less than 0");
 			return "Error NewValueLessThanZero";
-		} else if (newValue > Integer.parseInt(RunicParadise.faithSettingsMap
-				.get(faithName)[4])) {
-			getLogger().log(
-					Level.SEVERE,
-					"Invalid newValue in Faith.setSkill - given " + newValue
-							+ " greater than max allowed");
+		} else if (newValue > Integer.parseInt(RunicParadise.faithSettingsMap.get(faithName)[4])) {
+			getLogger().log(Level.SEVERE,
+					"Invalid newValue in Faith.setSkill - given " + newValue + " greater than max allowed");
 			return "Error NewValueGreaterThanMaxLevelForThisFaith";
 		}
 
 		// Now update the object used by the map!
 		if (this.faithLevels.containsKey(faithName)) {
 			this.faithLevels.put(faithName, newValue);
-			p.sendMessage(ChatColor.GRAY + "[" + ChatColor.BLUE + "Runic"
-					+ ChatColor.DARK_AQUA + "Faith" + ChatColor.GRAY + "] "
-					+ ChatColor.BLUE + "Your " + faithName + ChatColor.BLUE
-					+ " faith has been changed by " + adminName + "! "
-					+ ChatColor.AQUA + this.faithLevels.get(faithName)
-					+ ChatColor.GRAY + "/"
+			p.sendMessage(ChatColor.GRAY + "[" + ChatColor.BLUE + "Runic" + ChatColor.DARK_AQUA + "Faith"
+					+ ChatColor.GRAY + "] " + ChatColor.BLUE + "Your " + faithName + ChatColor.BLUE
+					+ " faith has been changed by " + adminName + "! " + ChatColor.AQUA
+					+ this.faithLevels.get(faithName) + ChatColor.GRAY + "/"
 					+ RunicParadise.faithSettingsMap.get(faithName)[4]);
 
 		}
@@ -829,9 +724,8 @@ public class Faith {
 		try {
 			final Connection dbCon = MySQL.openConnection();
 
-			PreparedStatement dbStmt = dbCon
-					.prepareStatement("UPDATE rp_PlayerFaiths SET Level="
-							+ newValue + " WHERE UUID = ? AND FaithName = ?");
+			PreparedStatement dbStmt = dbCon.prepareStatement(
+					"UPDATE rp_PlayerFaiths SET Level=" + newValue + " WHERE UUID = ? AND FaithName = ?");
 			dbStmt.setString(1, this.playerUUID);
 			dbStmt.setString(2, faithName);
 			dbStmt.executeUpdate();
@@ -839,8 +733,7 @@ public class Faith {
 			dbCon.close();
 
 		} catch (SQLException e) {
-			getLogger().log(Level.SEVERE,
-					"Failed Powers.setSkill because: " + e.getMessage());
+			getLogger().log(Level.SEVERE, "Failed Powers.setSkill because: " + e.getMessage());
 			return "Error DatabaseError or PlayerDoesntHaveThatFaith!";
 		}
 
@@ -856,15 +749,13 @@ public class Faith {
 	}
 
 	public boolean incrementSkill(Player p, String faithName) {
-		MySQL MySQL = new MySQL(instance, instance.getConfig().getString(
-				"dbHost"), instance.getConfig().getString("dbPort"), "rpgame",
-				instance.getConfig().getString("dbUser"), instance.getConfig()
-						.getString("dbPassword"));
+		MySQL MySQL = new MySQL(instance, instance.getConfig().getString("dbHost"),
+				instance.getConfig().getString("dbPort"), instance.getConfig().getString("dbDatabase"),
+				instance.getConfig().getString("dbUser"), instance.getConfig().getString("dbPassword"));
 
 		// Update the hashmap first;
 		if (this.faithLevels.containsKey(faithName)) {
-			this.faithLevels
-					.put(faithName, this.faithLevels.get(faithName) + 1);
+			this.faithLevels.put(faithName, this.faithLevels.get(faithName) + 1);
 		} else {
 			// Given faith is invalid for this player, so stop here!
 			return false;
@@ -881,25 +772,19 @@ public class Faith {
 
 			dbCon.close();
 
-			p.sendMessage(ChatColor.GRAY + "[" + ChatColor.BLUE + "Runic"
-					+ ChatColor.DARK_AQUA + "Faith" + ChatColor.GRAY + "] "
-					+ ChatColor.BLUE + "Your " + faithName + ChatColor.BLUE
-					+ " faith grows stronger! " + ChatColor.GREEN
-					+ this.faithLevels.get(faithName) + ChatColor.GRAY + "/"
-					+ RunicParadise.faithSettingsMap.get(faithName)[4]);
+			p.sendMessage(ChatColor.GRAY + "[" + ChatColor.BLUE + "Runic" + ChatColor.DARK_AQUA + "Faith"
+					+ ChatColor.GRAY + "] " + ChatColor.BLUE + "Your " + faithName + ChatColor.BLUE
+					+ " faith grows stronger! " + ChatColor.GREEN + this.faithLevels.get(faithName) + ChatColor.GRAY
+					+ "/" + RunicParadise.faithSettingsMap.get(faithName)[4]);
 
-			if (this.checkEquippedFaithLevel(faithName, Integer
-					.parseInt(RunicParadise.faithSettingsMap.get(faithName)[4]))) {
+			if (this.checkEquippedFaithLevel(faithName,
+					Integer.parseInt(RunicParadise.faithSettingsMap.get(faithName)[4]))) {
 				for (Player q : Bukkit.getOnlinePlayers()) {
 
-					q.sendMessage(ChatColor.GRAY + "[" + ChatColor.BLUE
-							+ "Runic" + ChatColor.DARK_AQUA + "Faith"
-							+ ChatColor.GRAY + "] " + ChatColor.BLUE
-							+ p.getDisplayName() + ChatColor.BLUE
-							+ " just maxxed their " + ChatColor.WHITE
-							+ faithName + ChatColor.BLUE + " faith!");
-					q.getWorld().playSound(q.getLocation(),
-							Sound.ENTITY_FIREWORK_LARGE_BLAST, 10, 1);
+					q.sendMessage(ChatColor.GRAY + "[" + ChatColor.BLUE + "Runic" + ChatColor.DARK_AQUA + "Faith"
+							+ ChatColor.GRAY + "] " + ChatColor.BLUE + p.getDisplayName() + ChatColor.BLUE
+							+ " just maxxed their " + ChatColor.WHITE + faithName + ChatColor.BLUE + " faith!");
+					q.getWorld().playSound(q.getLocation(), Sound.ENTITY_FIREWORK_LARGE_BLAST, 10, 1);
 
 				}
 			}
@@ -907,10 +792,8 @@ public class Faith {
 			return true;
 
 		} catch (SQLException e) {
-			getLogger().log(Level.SEVERE,
-					"Failed Faith.incrementSkill because: " + e.getMessage());
-			this.faithLevels
-					.put(faithName, this.faithLevels.get(faithName) - 1);
+			getLogger().log(Level.SEVERE, "Failed Faith.incrementSkill because: " + e.getMessage());
+			this.faithLevels.put(faithName, this.faithLevels.get(faithName) - 1);
 			return false;
 		}
 	}
@@ -965,24 +848,21 @@ public class Faith {
 
 	}
 
-	public static void tryCast_PlayerTookEntityDamage(
-			final EntityDamageEvent event, Player p) {
+	public static void tryCast_PlayerTookEntityDamage(final EntityDamageEvent event, Player p) {
 
 		Faith pfo = RunicParadise.faithMap.get(p.getUniqueId());
 		String faith = pfo.getPrimaryFaith();
 		int level = pfo.getPrimaryFaithLevel();
 		boolean daytime;
 
-		if ((Bukkit.getWorld("RunicRealm").getTime() > 14000 && Bukkit
-				.getWorld("RunicRealm").getTime() < 23000)) {
+		if ((Bukkit.getWorld("RunicRealm").getTime() > 14000 && Bukkit.getWorld("RunicRealm").getTime() < 23000)) {
 			daytime = false;
 		} else {
 			daytime = true;
 		}
 
-		if (!(event.getCause() == DamageCause.ENTITY_EXPLOSION
-				&& event.getCause() == DamageCause.ENTITY_ATTACK && event
-					.getCause() == DamageCause.PROJECTILE)) {
+		if (!(event.getCause() == DamageCause.ENTITY_EXPLOSION && event.getCause() == DamageCause.ENTITY_ATTACK
+				&& event.getCause() == DamageCause.PROJECTILE)) {
 			// the damage was not caused by an entity! abort!
 			return;
 		}
@@ -1001,8 +881,7 @@ public class Faith {
 
 			break;
 		case "Moon":
-			if (level > RunicParadise.powerReqsMap.get("Lunar Calm")
-					&& !daytime) {
+			if (level > RunicParadise.powerReqsMap.get("Lunar Calm") && !daytime) {
 
 				// Cast Lunar Calm if player got hit and its night
 				if (p.getWorld().getName().equals("RunicRealm")) {
@@ -1039,12 +918,12 @@ public class Faith {
 			}
 
 			break;
-		case "Wind":
+		case "Air":
 			if (level > RunicParadise.powerReqsMap.get("Healing Breeze")) {
 
 				// Cast Healing Breeze if player got hit
 				if (p.getWorld().getName().equals("RunicRealm")) {
-					pfo.castWind_HealingBreeze(p);
+					pfo.castAir_HealingBreeze(p);
 				}
 			}
 
@@ -1084,16 +963,12 @@ public class Faith {
 			if (level > RunicParadise.powerReqsMap.get("Netherborn")) {
 
 				// Cast Netherborn if player is going into the nether
-				if (event.getTo().getWorld().getName()
-						.equals("RunicRealm_nether")) {
+				if (event.getTo().getWorld().getName().equals("RunicRealm_nether")) {
 					pfo.castNether_Netherborn(event.getPlayer());
 					// Remove Netherborn if player is leaving the nether
-				} else if (event.getFrom().getWorld().getName()
-						.equals("RunicRealm_nether")) {
-					event.getPlayer().removePotionEffect(
-							PotionEffectType.HEALTH_BOOST);
-					event.getPlayer().removePotionEffect(
-							PotionEffectType.DAMAGE_RESISTANCE);
+				} else if (event.getFrom().getWorld().getName().equals("RunicRealm_nether")) {
+					event.getPlayer().removePotionEffect(PotionEffectType.HEALTH_BOOST);
+					event.getPlayer().removePotionEffect(PotionEffectType.DAMAGE_RESISTANCE);
 				}
 			}
 
@@ -1103,15 +978,13 @@ public class Faith {
 		}
 	}
 
-	public static void tryCast_PlayerHitMonster(
-			EntityDamageByEntityEvent event, Entity monster, Player p) {
+	public static void tryCast_PlayerHitMonster(EntityDamageByEntityEvent event, Entity monster, Player p) {
 		Faith pfo = RunicParadise.faithMap.get(p.getUniqueId());
 		String faith = pfo.getPrimaryFaith();
 		int level = pfo.getPrimaryFaithLevel();
 		boolean daytime;
 
-		if ((Bukkit.getWorld("RunicRealm").getTime() > 14000 && Bukkit
-				.getWorld("RunicRealm").getTime() < 23000)) {
+		if ((Bukkit.getWorld("RunicRealm").getTime() > 14000 && Bukkit.getWorld("RunicRealm").getTime() < 23000)) {
 			daytime = false;
 		} else {
 			daytime = true;
@@ -1120,8 +993,7 @@ public class Faith {
 		switch (faith) {
 
 		case "Sun":
-			if (level > RunicParadise.powerReqsMap.get("Solar Power")
-					&& daytime) {
+			if (level > RunicParadise.powerReqsMap.get("Solar Power") && daytime) {
 
 				// Cast Solar Power if player hit a monster
 				if (p.getWorld().getName().equals("RunicRealm")) {
@@ -1131,9 +1003,19 @@ public class Faith {
 			}
 
 			break;
+		case "Fire":
+			if (level > RunicParadise.powerReqsMap.get("Volcanic Fury") && daytime) {
+
+				// Cast Volcanic Fury if player hit a monster
+				if (p.getWorld().getName().equals("RunicRealm")) {
+					pfo.castSun_SolarPower(p.getUniqueId(), p);
+				}
+
+			}
+
+			break;
 		case "Moon":
-			if (level > RunicParadise.powerReqsMap.get("Celestial Healing")
-					&& !daytime) {
+			if (level > RunicParadise.powerReqsMap.get("Celestial Healing") && !daytime) {
 
 				// Cast Celestial Healing if player got hit and its night
 				if (p.getWorld().getName().equals("RunicRealm")) {
@@ -1154,18 +1036,18 @@ public class Faith {
 
 			break;
 
-		case "Wind":
+		case "Air":
 			if (level > RunicParadise.powerReqsMap.get("Tempest Armor")) {
 
 				// Cast Tempest Armor
-				pfo.castWind_TempestArmor(p);
+				pfo.castAir_TempestArmor(p);
 			}
 
 			break;
 		case "Fate":
 
-			double newHealthRatio = (((LivingEntity) monster).getMaxHealth() - event
-					.getDamage()) / ((LivingEntity) monster).getMaxHealth();
+			double newHealthRatio = (((LivingEntity) monster).getMaxHealth() - event.getDamage())
+					/ ((LivingEntity) monster).getMaxHealth();
 
 			// Check if mob is a monster, but not a wither (EnderDragon is not
 			// Monster) --- Check for MONSTER was done in the event call itself
@@ -1174,10 +1056,8 @@ public class Faith {
 			// and that player has proper Fate level
 
 			if (level > RunicParadise.powerReqsMap.get("Inevitable Demise")) {
-				if (newHealthRatio > 0 && newHealthRatio <= 0.20
-						&& !(monster instanceof Wither)) {
-					pfo.castFate_InevitableDemise(p.getUniqueId(), p,
-							(LivingEntity) monster);
+				if (newHealthRatio > 0 && newHealthRatio <= 0.20 && !(monster instanceof Wither)) {
+					pfo.castFate_InevitableDemise(p.getUniqueId(), p, (LivingEntity) monster);
 				}
 
 			}
@@ -1190,8 +1070,7 @@ public class Faith {
 
 	}
 
-	public static void tryCast_PlayerKilledMonster(final EntityDeathEvent ede,
-			Player p) {
+	public static void tryCast_PlayerKilledMonster(final EntityDeathEvent ede, Player p) {
 		Faith pfo = RunicParadise.faithMap.get(p.getUniqueId());
 		String faith = pfo.getPrimaryFaith();
 		int level = pfo.getPrimaryFaithLevel();
@@ -1214,94 +1093,76 @@ public class Faith {
 		// int randomNum = rand.nextInt((max - min) + 1) + min;
 		int randomNum = RunicParadise.randomSeed.nextInt((100 - 0) + 1) + 0;
 
-		if (!this.checkEquippedFaithLevel(faithName, Integer
-				.parseInt(RunicParadise.faithSettingsMap.get(faithName)[4]))) {
+		if (!this.checkEquippedFaithLevel(faithName,
+				Integer.parseInt(RunicParadise.faithSettingsMap.get(faithName)[4]))) {
 			if (randomNum <= (5 * chance)) {
 				this.incrementSkill(p, faithName);
+				
+				//check for rank item drop
+				tryForRankItem(p, "Faith SkillUp");
+				
 				if (p.hasPermission("killermoney.multiplier.2")) {
 					this.incrementSkill(p, faithName);
 				}
 
-				if (RunicParadise.randomSeed.nextInt((100 - 0) + 1) + 0 <= 50
-						&& chance == 1) {
-					p.getWorld().playSound(p.getLocation(),
-							Sound.BLOCK_ANVIL_BREAK, 10, 1);
+				if (RunicParadise.randomSeed.nextInt((100 - 0) + 1) + 0 <= 50 && chance == 1) {
+					p.getWorld().playSound(p.getLocation(), Sound.BLOCK_ANVIL_BREAK, 10, 1);
 					p.setItemInHand(null);
-					p.sendMessage(ChatColor.GRAY + "[" + ChatColor.BLUE
-							+ "Runic" + ChatColor.DARK_AQUA + "Faith"
-							+ ChatColor.GRAY + "] " + ChatColor.BLUE
-							+ "Your faith sword shatters into dust!");
-				} else if (RunicParadise.randomSeed.nextInt((100 - 0) + 1) + 0 <= 30
-						&& chance == 2) {
-					p.getWorld().playSound(p.getLocation(),
-							Sound.BLOCK_ANVIL_BREAK, 10, 1);
+					p.sendMessage(ChatColor.GRAY + "[" + ChatColor.BLUE + "Runic" + ChatColor.DARK_AQUA + "Faith"
+							+ ChatColor.GRAY + "] " + ChatColor.BLUE + "Your faith sword shatters into dust!");
+				} else if (RunicParadise.randomSeed.nextInt((100 - 0) + 1) + 0 <= 30 && chance == 2) {
+					p.getWorld().playSound(p.getLocation(), Sound.BLOCK_ANVIL_BREAK, 10, 1);
 					p.setItemInHand(null);
-					p.sendMessage(ChatColor.GRAY + "[" + ChatColor.BLUE
-							+ "Runic" + ChatColor.DARK_AQUA + "Faith"
-							+ ChatColor.GRAY + "] " + ChatColor.BLUE
-							+ "Your faith sword shatters into dust!");
+					p.sendMessage(ChatColor.GRAY + "[" + ChatColor.BLUE + "Runic" + ChatColor.DARK_AQUA + "Faith"
+							+ ChatColor.GRAY + "] " + ChatColor.BLUE + "Your faith sword shatters into dust!");
 
-				} else if (RunicParadise.randomSeed.nextInt((100 - 0) + 1) + 0 <= 10
-						&& chance == 3) {
-					p.getWorld().playSound(p.getLocation(),
-							Sound.BLOCK_ANVIL_BREAK, 10, 1);
+				} else if (RunicParadise.randomSeed.nextInt((100 - 0) + 1) + 0 <= 10 && chance == 3) {
+					p.getWorld().playSound(p.getLocation(), Sound.BLOCK_ANVIL_BREAK, 10, 1);
 
 					p.setItemInHand(null);
-					p.sendMessage(ChatColor.GRAY + "[" + ChatColor.BLUE
-							+ "Runic" + ChatColor.DARK_AQUA + "Faith"
-							+ ChatColor.GRAY + "] " + ChatColor.BLUE
-							+ "Your faith sword shatters into dust!");
+					p.sendMessage(ChatColor.GRAY + "[" + ChatColor.BLUE + "Runic" + ChatColor.DARK_AQUA + "Faith"
+							+ ChatColor.GRAY + "] " + ChatColor.BLUE + "Your faith sword shatters into dust!");
 
-				} else if (RunicParadise.randomSeed.nextInt((100 - 0) + 1) + 0 <= 20
-						&& chance == 4) {
-					
+				} else if (RunicParadise.randomSeed.nextInt((100 - 0) + 1) + 0 <= 20 && chance == 4) {
 
-					
 					ItemMeta metaQ = p.getItemInHand().getItemMeta();
 					if (metaQ.getLore().get(6).contains("Charges: 5")) {
-						metaQ.setLore(Arrays.asList(ChatColor.GRAY
-								+ "A corrupted axe with a crimson glow", " ", ChatColor.BLUE
-								+ "20% to increase faith", ChatColor.BLUE
-								+ "20% chance to lose a charge",
-								ChatColor.BLUE+	"Shatters when charges reach zero", " ", ChatColor.GREEN + "Charges: 4"));
+						metaQ.setLore(Arrays.asList(ChatColor.GRAY + "A corrupted axe with a crimson glow", " ",
+								ChatColor.BLUE + "20% to increase faith",
+								ChatColor.BLUE + "20% chance to lose a charge",
+								ChatColor.BLUE + "Shatters when charges reach zero", " ",
+								ChatColor.GREEN + "Charges: 4"));
 						p.getItemInHand().setItemMeta(metaQ);
-						p.getWorld().playSound(p.getLocation(),
-								Sound.BLOCK_NOTE_HARP, 10, 1);
+						p.getWorld().playSound(p.getLocation(), Sound.BLOCK_NOTE_HARP, 10, 1);
 					} else if (metaQ.getLore().get(6).contains("Charges: 4")) {
-						metaQ.setLore(Arrays.asList(ChatColor.GRAY
-								+ "A corrupted axe with a crimson glow", " ", ChatColor.BLUE
-								+ "20% to increase faith", ChatColor.BLUE
-								+ "20% chance to lose a charge",
-								ChatColor.BLUE+	"Shatters when charges reach zero", " ", ChatColor.YELLOW + "Charges: 3"));
+						metaQ.setLore(Arrays.asList(ChatColor.GRAY + "A corrupted axe with a crimson glow", " ",
+								ChatColor.BLUE + "20% to increase faith",
+								ChatColor.BLUE + "20% chance to lose a charge",
+								ChatColor.BLUE + "Shatters when charges reach zero", " ",
+								ChatColor.YELLOW + "Charges: 3"));
 						p.getItemInHand().setItemMeta(metaQ);
-						p.getWorld().playSound(p.getLocation(),
-								Sound.BLOCK_NOTE_HARP, 10, 1);
+						p.getWorld().playSound(p.getLocation(), Sound.BLOCK_NOTE_HARP, 10, 1);
 					} else if (metaQ.getLore().get(6).contains("Charges: 3")) {
-						metaQ.setLore(Arrays.asList(ChatColor.GRAY
-								+ "A corrupted axe with a crimson glow", " ", ChatColor.BLUE
-								+ "20% to increase faith", ChatColor.BLUE
-								+ "20% chance to lose a charge",
-								ChatColor.BLUE+	"Shatters when charges reach zero", " ", ChatColor.RED + "Charges: 2"));
+						metaQ.setLore(Arrays.asList(ChatColor.GRAY + "A corrupted axe with a crimson glow", " ",
+								ChatColor.BLUE + "20% to increase faith",
+								ChatColor.BLUE + "20% chance to lose a charge",
+								ChatColor.BLUE + "Shatters when charges reach zero", " ",
+								ChatColor.RED + "Charges: 2"));
 						p.getItemInHand().setItemMeta(metaQ);
-						p.getWorld().playSound(p.getLocation(),
-								Sound.BLOCK_NOTE_HARP, 10, 1);
+						p.getWorld().playSound(p.getLocation(), Sound.BLOCK_NOTE_HARP, 10, 1);
 					} else if (metaQ.getLore().get(6).contains("Charges: 2")) {
-						metaQ.setLore(Arrays.asList(ChatColor.GRAY
-								+ "A corrupted axe with a crimson glow", " ", ChatColor.BLUE
-								+ "20% to increase faith", ChatColor.BLUE
-								+ "20% chance to lose a charge",
-								ChatColor.BLUE+	"Shatters when charges reach zero", " ", ChatColor.DARK_RED + "Charges: 1"));
+						metaQ.setLore(Arrays.asList(ChatColor.GRAY + "A corrupted axe with a crimson glow", " ",
+								ChatColor.BLUE + "20% to increase faith",
+								ChatColor.BLUE + "20% chance to lose a charge",
+								ChatColor.BLUE + "Shatters when charges reach zero", " ",
+								ChatColor.DARK_RED + "Charges: 1"));
 						p.getItemInHand().setItemMeta(metaQ);
-						p.getWorld().playSound(p.getLocation(),
-								Sound.BLOCK_NOTE_HARP, 10, 1);
+						p.getWorld().playSound(p.getLocation(), Sound.BLOCK_NOTE_HARP, 10, 1);
 					} else if (metaQ.getLore().get(6).contains("Charges: 1")) {
 						p.setItemInHand(null);
-						p.sendMessage(ChatColor.GRAY + "[" + ChatColor.BLUE
-								+ "Runic" + ChatColor.DARK_AQUA + "Faith"
-								+ ChatColor.GRAY + "] " + ChatColor.BLUE
-								+ "Your faith hatchet shatters into dust!");
-						p.getWorld().playSound(p.getLocation(),
-								Sound.BLOCK_ANVIL_BREAK, 10, 1);
+						p.sendMessage(ChatColor.GRAY + "[" + ChatColor.BLUE + "Runic" + ChatColor.DARK_AQUA + "Faith"
+								+ ChatColor.GRAY + "] " + ChatColor.BLUE + "Your faith hatchet shatters into dust!");
+						p.getWorld().playSound(p.getLocation(), Sound.BLOCK_ANVIL_BREAK, 10, 1);
 					}
 
 				}
@@ -1313,9 +1174,8 @@ public class Faith {
 
 		} else {
 			// Player is maxxed
-			p.sendMessage(ChatColor.GRAY + "[" + ChatColor.BLUE + "Runic"
-					+ ChatColor.DARK_AQUA + "Faith" + ChatColor.GRAY + "] "
-					+ ChatColor.BLUE + "Your " + faithName + ChatColor.BLUE
+			p.sendMessage(ChatColor.GRAY + "[" + ChatColor.BLUE + "Runic" + ChatColor.DARK_AQUA + "Faith"
+					+ ChatColor.GRAY + "] " + ChatColor.BLUE + "Your " + faithName + ChatColor.BLUE
 					+ " faith cannot grow any stronger!");
 			return 0;
 		}
@@ -1323,8 +1183,8 @@ public class Faith {
 
 	public int trySkillUpViaPrayer(Player p, String faithName, boolean withKarma) {
 
-		if (!this.checkEquippedFaithLevel(faithName, Integer
-				.parseInt(RunicParadise.faithSettingsMap.get(faithName)[4]))) {
+		if (!this.checkEquippedFaithLevel(faithName,
+				Integer.parseInt(RunicParadise.faithSettingsMap.get(faithName)[4]))) {
 
 			int counter = 0;
 			int limit;
@@ -1335,9 +1195,8 @@ public class Faith {
 
 				while (counter < limit) {
 					this.incrementSkill(p, faithName);
-					if (this.checkEquippedFaithLevel(faithName, Integer
-							.parseInt(RunicParadise.faithSettingsMap
-									.get(faithName)[4]))) {
+					if (this.checkEquippedFaithLevel(faithName,
+							Integer.parseInt(RunicParadise.faithSettingsMap.get(faithName)[4]))) {
 						return 1;
 					}
 					counter++;
@@ -1348,9 +1207,8 @@ public class Faith {
 
 				while (counter < limit) {
 					this.incrementSkill(p, faithName);
-					if (this.checkEquippedFaithLevel(faithName, Integer
-							.parseInt(RunicParadise.faithSettingsMap
-									.get(faithName)[4]))) {
+					if (this.checkEquippedFaithLevel(faithName,
+							Integer.parseInt(RunicParadise.faithSettingsMap.get(faithName)[4]))) {
 						return 1;
 					}
 					counter++;
@@ -1362,9 +1220,8 @@ public class Faith {
 
 		} else {
 			// Player is maxxed
-			p.sendMessage(ChatColor.GRAY + "[" + ChatColor.BLUE + "Runic"
-					+ ChatColor.DARK_AQUA + "Faith" + ChatColor.GRAY + "] "
-					+ ChatColor.BLUE + "Your " + faithName + ChatColor.BLUE
+			p.sendMessage(ChatColor.GRAY + "[" + ChatColor.BLUE + "Runic" + ChatColor.DARK_AQUA + "Faith"
+					+ ChatColor.GRAY + "] " + ChatColor.BLUE + "Your " + faithName + ChatColor.BLUE
 					+ " faith cannot grow any stronger!");
 			return 0;
 		}
@@ -1376,12 +1233,9 @@ public class Faith {
 	}
 
 	private void sendCastMessage(Player p, String spellName, String faithName) {
-		p.sendMessage(ChatColor.GRAY + "[" + ChatColor.BLUE + "Runic"
-				+ ChatColor.DARK_AQUA + "Faith" + ChatColor.GRAY + "] "
-				+ ChatColor.BLUE
-				+ RunicParadise.faithSettingsMap.get(faithName)[5]
-				+ " Casting " + ChatColor.GRAY + spellName + ChatColor.BLUE
-				+ "!");
+		p.sendMessage(ChatColor.GRAY + "[" + ChatColor.BLUE + "Runic" + ChatColor.DARK_AQUA + "Faith" + ChatColor.GRAY
+				+ "] " + ChatColor.BLUE + RunicParadise.faithSettingsMap.get(faithName)[5] + " Casting "
+				+ ChatColor.GRAY + spellName + ChatColor.BLUE + "!");
 
 	}
 
@@ -1396,10 +1250,8 @@ public class Faith {
 			}
 			nearby = null;
 			sendCastMessage(p, spellName, "Sun");
-			getLogger().log(
-					Level.INFO,
-					"Faith Info: " + p.getName() + " just cast " + spellName
-							+ "!");
+			tryForRankItem(p, "Sun Sunflare");
+			getLogger().log(Level.INFO, "Faith Info: " + p.getName() + " just cast " + spellName + "!");
 		}
 	}
 
@@ -1410,17 +1262,14 @@ public class Faith {
 		if ((RunicParadise.randomSeed.nextInt((100 - 0) + 1) + 0) <= 1) {
 
 			// register protection now
-			RunicParadise.protectedPlayers.put(p.getUniqueId(),
-					p.getDisplayName());
+			RunicParadise.protectedPlayers.put(p.getUniqueId(), p.getDisplayName());
 
 			// schedule removal of protection 80 tickets out
-			Bukkit.getServer().getScheduler()
-					.scheduleAsyncDelayedTask(instance, new Runnable() {
-						public void run() {
-							RunicParadise.protectedPlayers.remove(p
-									.getUniqueId());
-						}
-					}, 100);
+			Bukkit.getServer().getScheduler().scheduleAsyncDelayedTask(instance, new Runnable() {
+				public void run() {
+					RunicParadise.protectedPlayers.remove(p.getUniqueId());
+				}
+			}, 100);
 
 			// stop all nearby monsters from targeting players
 			final List<Entity> nearby = p.getNearbyEntities(15, 15, 15);
@@ -1432,39 +1281,36 @@ public class Faith {
 			}
 
 			// schedule removal of protection 80 tickets out
-			Bukkit.getServer().getScheduler()
-					.scheduleAsyncDelayedTask(instance, new Runnable() {
-						public void run() {
-							for (Entity tmp : nearby) {
-								if (tmp instanceof Monster) {
-									((Monster) tmp).setTarget(null);
-									((Monster) tmp).setTarget(null);
-								}
-							}
+			Bukkit.getServer().getScheduler().scheduleAsyncDelayedTask(instance, new Runnable() {
+				public void run() {
+					for (Entity tmp : nearby) {
+						if (tmp instanceof Monster) {
+							((Monster) tmp).setTarget(null);
+							((Monster) tmp).setTarget(null);
 						}
-					}, 20);
-			Bukkit.getServer().getScheduler()
-					.scheduleAsyncDelayedTask(instance, new Runnable() {
-						public void run() {
-							for (Entity tmp : nearby) {
-								if (tmp instanceof Monster) {
-									((Monster) tmp).setTarget(null);
-									((Monster) tmp).setTarget(null);
-								}
-							}
+					}
+				}
+			}, 20);
+			Bukkit.getServer().getScheduler().scheduleAsyncDelayedTask(instance, new Runnable() {
+				public void run() {
+					for (Entity tmp : nearby) {
+						if (tmp instanceof Monster) {
+							((Monster) tmp).setTarget(null);
+							((Monster) tmp).setTarget(null);
 						}
-					}, 40);
-			Bukkit.getServer().getScheduler()
-					.scheduleAsyncDelayedTask(instance, new Runnable() {
-						public void run() {
-							for (Entity tmp : nearby) {
-								if (tmp instanceof Monster) {
-									((Monster) tmp).setTarget(null);
-									((Monster) tmp).setTarget(null);
-								}
-							}
+					}
+				}
+			}, 40);
+			Bukkit.getServer().getScheduler().scheduleAsyncDelayedTask(instance, new Runnable() {
+				public void run() {
+					for (Entity tmp : nearby) {
+						if (tmp instanceof Monster) {
+							((Monster) tmp).setTarget(null);
+							((Monster) tmp).setTarget(null);
 						}
-					}, 60);
+					}
+				}
+			}, 60);
 
 			int count = nearby.size();
 			boolean playerProtected;
@@ -1474,11 +1320,9 @@ public class Faith {
 				playerProtected = false;
 			}
 			sendCastMessage(p, spellName, "Moon");
-			getLogger().log(
-					Level.INFO,
-					"Faith Info: " + p.getName() + " just cast " + spellName
-							+ "! Calmed " + count + " mobs. Player protected= "
-							+ playerProtected);
+			tryForRankItem(p, "Moon LunarCalm");
+			getLogger().log(Level.INFO, "Faith Info: " + p.getName() + " just cast " + spellName + "! Calmed " + count
+					+ " mobs. Player protected= " + playerProtected);
 
 		}
 	}
@@ -1487,48 +1331,55 @@ public class Faith {
 		// 2% chance to empower player when dealing damage to monsters
 		String spellName = "Solar Power";
 		if ((RunicParadise.randomSeed.nextInt((100 - 0) + 1) + 0) <= 2) {
-			p.addPotionEffect(new PotionEffect(
-					PotionEffectType.DAMAGE_RESISTANCE, 300, 1));
-			p.addPotionEffect(new PotionEffect(
-					PotionEffectType.INCREASE_DAMAGE, 300, 1));
+			p.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 300, 1));
+			p.addPotionEffect(new PotionEffect(PotionEffectType.INCREASE_DAMAGE, 300, 1));
 
 			sendCastMessage(p, spellName, "Sun");
-			getLogger().log(
-					Level.INFO,
-					"Faith Info: " + p.getName() + " just cast " + spellName
-							+ "!");
-			ParticleEffect.DRIP_LAVA
-					.display(0, 1, 0, 1, 20, p.getLocation(), 2);
+			
+			tryForRankItem(p, "Sun SolarPower");
+			getLogger().log(Level.INFO, "Faith Info: " + p.getName() + " just cast " + spellName + "!");
+			ParticleEffect.DRIP_LAVA.display(0, 1, 0, 1, 20, p.getLocation(), 2);
+		}
+	}
+	
+	public void castFlame_VolcanicFury(UUID pUUID, Player p) {
+		// 2% chance to +damage when dealing damage to monsters
+		String spellName = "Volcanic Fury";
+		if ((RunicParadise.randomSeed.nextInt((100 - 0) + 1) + 0) <= 4) {
+			p.addPotionEffect(new PotionEffect(PotionEffectType.INCREASE_DAMAGE, 150, 2));
+
+			sendCastMessage(p, spellName, "Fire");
+			
+			tryForRankItem(p, "Fire VolcanicFury");
+			getLogger().log(Level.INFO, "Faith Info: " + p.getName() + " just cast " + spellName + "!");
+			ParticleEffect.DRIP_LAVA.display(0, 1, 0, 1, 20, p.getLocation(), 2);
 		}
 	}
 
 	public void castMoon_CelestialHealing(UUID pUUID, Player p) {
 		// 1% chance to gain regeneration
 		String spellName = "Celestial Healing";
-		if ((RunicParadise.randomSeed.nextInt((100 - 0) + 1) + 0) <= 1) {
-			p.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION,
-					300, 0));
+		if ((RunicParadise.randomSeed.nextInt((100 - 0) + 1) + 0) <= 2) {
+			p.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 300, 0));
 			p.addPotionEffect(new PotionEffect(PotionEffectType.HEAL, 1, 0));
 
 			sendCastMessage(p, spellName, "Moon");
-			getLogger().log(
-					Level.INFO,
-					"Faith Info: " + p.getName() + " just cast " + spellName
-							+ "!");
+			tryForRankItem(p, "Moon CelestialHealing");
+			getLogger().log(Level.INFO, "Faith Info: " + p.getName() + " just cast " + spellName + "!");
 		}
 	}
 
-	public void castFate_InevitableDemise(UUID pUUID, Player player,
-			LivingEntity monster) {
+	public void castFate_InevitableDemise(UUID pUUID, Player player, LivingEntity monster) {
 
 		if (player.getHealth() <= 6) {
 			Random rand = new Random();
 			int number = rand.nextInt(100) + 1;
 			if (number >= 80) {
-				for (final Entity entity : getTargets.getTargetList(
-						player.getLocation(), 2)) {
-					if (((entity instanceof LivingEntity))
-							&& (entity != player)) {
+				
+				tryForRankItem(player, "Fate InevitableDemise");
+				
+				for (final Entity entity : getTargets.getTargetList(player.getLocation(), 2)) {
+					if (((entity instanceof LivingEntity)) && (entity != player)) {
 						((LivingEntity) entity).setHealth(0);
 					}
 				}
@@ -1545,9 +1396,9 @@ public class Faith {
 				Random rand = new Random();
 				int number = rand.nextInt(100) + 1;
 				if (number >= 80) {
-					p.addPotionEffect(new PotionEffect(
-							PotionEffectType.DAMAGE_RESISTANCE, 200, 1));
+					p.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 200, 1));
 					p.setHealth(16);
+					tryForRankItem(p, "Time Rewind");
 				}
 			}
 		}
@@ -1558,13 +1409,10 @@ public class Faith {
 		// Boost player whenever theyre in the nether
 		String spellName = "Netherborn";
 
-		p.addPotionEffect(new PotionEffect(PotionEffectType.HEALTH_BOOST,
-				NETHER_NETHERBORN_TIMING, 1));
-		p.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE,
-				NETHER_NETHERBORN_TIMING, 0));
+		p.addPotionEffect(new PotionEffect(PotionEffectType.HEALTH_BOOST, NETHER_NETHERBORN_TIMING, 1));
+		p.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, NETHER_NETHERBORN_TIMING, 0));
 		sendCastMessage(p, spellName, "Nether");
-		getLogger().log(Level.INFO,
-				"Faith Info: " + p.getName() + " just cast " + spellName + "!");
+		getLogger().log(Level.INFO, "Faith Info: " + p.getName() + " just cast " + spellName + "!");
 
 	}
 
@@ -1577,9 +1425,9 @@ public class Faith {
 
 			String spellName = "Unstable Embers";
 			sendCastMessage(p, spellName, "Fire");
+			tryForRankItem(p, "Flame UnstableEmbers");
 
-			ParticleEffect.EXPLOSION_HUGE.display(0.1f, 0.1f, 0.1f, 0.1f, 50,
-					p.getLocation(), 18.0);
+			ParticleEffect.EXPLOSION_HUGE.display(0.1f, 0.1f, 0.1f, 0.1f, 50, p.getLocation(), 18.0);
 			for (Entity entity : getTargets.getTargetList(p.getLocation(), 4)) {
 				if (((entity instanceof LivingEntity)) && (entity != p)) {
 					((LivingEntity) entity).damage(4);
@@ -1593,7 +1441,7 @@ public class Faith {
 	// Wind : TempestArmor
 
 	@SuppressWarnings("deprecation")
-	public void castWind_TempestArmor(Player player) {
+	public void castAir_TempestArmor(Player player) {
 
 		ItemStack i = player.getInventory().getHelmet();
 		ItemStack j = player.getInventory().getChestplate();
@@ -1602,34 +1450,26 @@ public class Faith {
 		if (i == null || j == null || k == null || l == null) {
 			return;
 		} else {
-			if (i.getType() == Material.GOLD_HELMET
-					&& j.getType() == Material.GOLD_CHESTPLATE
-					&& k.getType() == Material.GOLD_LEGGINGS
-					&& l.getType() == Material.GOLD_BOOTS) {
+			if (i.getType() == Material.GOLD_HELMET && j.getType() == Material.GOLD_CHESTPLATE
+					&& k.getType() == Material.GOLD_LEGGINGS && l.getType() == Material.GOLD_BOOTS) {
 				Random rand = new Random();
 				int number = rand.nextInt(100) + 1;
 				if (number >= 96) {
 
 					String spellName = "Tempest Armor";
-					sendCastMessage(player, spellName, "Wind");
+					sendCastMessage(player, spellName, "Air");
+					tryForRankItem(player, "Air TempestArmor");
 
-					for (final Entity entity : getTargets.getTargetList(
-							player.getLocation(), 5)) {
+					for (final Entity entity : getTargets.getTargetList(player.getLocation(), 5)) {
 						if (((entity instanceof Monster)) && (entity != player)) {
-							((LivingEntity) entity)
-									.setVelocity(((LivingEntity) entity)
-											.getLocation().getDirection()
-											.multiply(2.5D).setY(0.7D));
+							((LivingEntity) entity).setVelocity(
+									((LivingEntity) entity).getLocation().getDirection().multiply(2.5D).setY(0.7D));
 							final World w = ((LivingEntity) entity).getWorld();
-							Bukkit.getServer()
-									.getScheduler()
-									.scheduleAsyncDelayedTask(instance,
-											new Runnable() {
-												public void run() {
-													w.strikeLightning(((LivingEntity) entity)
-															.getLocation());
-												}
-											}, 20);
+							Bukkit.getServer().getScheduler().scheduleAsyncDelayedTask(instance, new Runnable() {
+								public void run() {
+									w.strikeLightning(((LivingEntity) entity).getLocation());
+								}
+							}, 20);
 						}
 					}
 				}
@@ -1641,21 +1481,21 @@ public class Faith {
 	// ==========================
 	// Wind : Healing Breeze
 
-	public void castWind_HealingBreeze(Player player) {
+	public void castAir_HealingBreeze(Player player) {
 
 		Random rand = new Random();
 		int number = rand.nextInt(100) + 1;
 		if (number >= 97) {
-			for (Entity entity : getTargets.getTargetList(player.getLocation(),
-					40)) {
+			for (Entity entity : getTargets.getTargetList(player.getLocation(), 40)) {
 				if (entity instanceof Player) {
 					String spellName = "Healing Breeze";
-					sendCastMessage(player, spellName, "Wind");
-					((LivingEntity) entity).addPotionEffect(new PotionEffect(
-							PotionEffectType.REGENERATION, 200, 1));
-					((Player) entity).sendMessage(ChatColor.GRAY + ""
-							+ ChatColor.ITALIC
-							+ "You feel refreshed by a soothing breeze");
+					sendCastMessage(player, spellName, "Air");
+					
+					tryForRankItem(player, "Air HealingBreeze");
+					
+					((LivingEntity) entity).addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 200, 1));
+					((Player) entity).sendMessage(
+							ChatColor.GRAY + "" + ChatColor.ITALIC + "You feel refreshed by a soothing breeze");
 				}
 			}
 		}
@@ -1668,8 +1508,7 @@ public class Faith {
 	public void castEarth_EarthsBounty(PlayerInteractEvent e) {
 
 		Player p = e.getPlayer();
-		if ((p.getItemInHand() != null)
-				&& (p.getItemInHand().getType().equals(Material.GLOWSTONE_DUST))) {
+		if ((p.getItemInHand() != null) && (p.getItemInHand().getType().equals(Material.GLOWSTONE_DUST))) {
 			ItemStack glowstone = p.getItemInHand();
 			if (e.getAction() == Action.RIGHT_CLICK_BLOCK) {
 				Block block = e.getClickedBlock();
@@ -1678,14 +1517,12 @@ public class Faith {
 						int removel = 2;
 						int plevel = p.getLevel() - removel;
 						p.setLevel(plevel);
-						p.playSound(p.getLocation(),
-								Sound.ENTITY_PLAYER_LEVELUP, 1, 1);
+						p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1, 1);
 						int radius = 15;
 						Location location = p.getLocation();
 						int diamonds = 0;
 						int emeralds = 0;
-						Block center = location.getBlock().getRelative(
-								RunicParadise.getPlayerFacing(p), radius);
+						Block center = location.getBlock().getRelative(RunicParadise.getPlayerFacing(p), radius);
 						for (int x = -radius; x < radius; x++) {
 							for (int y = -radius; y < radius; y++) {
 								for (int z = -radius; z < radius; z++) {
@@ -1700,8 +1537,9 @@ public class Faith {
 						}
 						String spellName = "Earths Bounty";
 						sendCastMessage(e.getPlayer(), spellName, "Earth");
-						p.sendMessage(ChatColor.GREEN + "There are " + diamonds
-								+ " diamond(s) and " + emeralds
+						
+						
+						p.sendMessage(ChatColor.GREEN + "There are " + diamonds + " diamond(s) and " + emeralds
 								+ " emerald(s) near you!");
 
 					}
@@ -1716,27 +1554,23 @@ public class Faith {
 	public void castWater_DeepWader(PlayerInteractEvent e) {
 
 		Player p = e.getPlayer();
-		if ((p.getItemInHand() != null)
-				&& (p.getItemInHand().getType().equals(Material.GLOWSTONE_DUST))) {
+		if ((p.getItemInHand() != null) && (p.getItemInHand().getType().equals(Material.GLOWSTONE_DUST))) {
 
 			Block block = e.getPlayer().getLocation().getBlock();
-			if (block.getType() == Material.WATER
-					|| block.getType() == Material.STATIONARY_WATER) {
+			if (block.getType() == Material.WATER || block.getType() == Material.STATIONARY_WATER) {
 				if (p.getLevel() >= 2) {
 					int removel = 2;
 					int plevel = p.getLevel() - removel;
 					p.setLevel(plevel);
-					p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_LEVELUP,
-							1, 1);
-					p.addPotionEffect(new PotionEffect(
-							PotionEffectType.WATER_BREATHING, 12000, 1));
+					p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1, 1);
+					p.addPotionEffect(new PotionEffect(PotionEffectType.WATER_BREATHING, 12000, 1));
 
 					String spellName = "Deep Wader";
-					ParticleEffect.WATER_WAKE.display((float) 10.0,
-							(float) 10.0, (float) 10.0, (float) 1.0, 25,
+					ParticleEffect.WATER_WAKE.display((float) 10.0, (float) 10.0, (float) 10.0, (float) 1.0, 25,
 							p.getLocation(), 30.0);
 
 					sendCastMessage(e.getPlayer(), spellName, "Water");
+					tryForRankItem(e.getPlayer(), "Water DeepWader");
 
 				}
 			}
@@ -1753,18 +1587,17 @@ public class Faith {
 		int number = rand.nextInt(100) + 1;
 		if (number >= 97) {
 			player.removePotionEffect(PotionEffectType.ABSORPTION);
-			player.addPotionEffect(new PotionEffect(
-					PotionEffectType.ABSORPTION, 300, 0));
+			player.addPotionEffect(new PotionEffect(PotionEffectType.ABSORPTION, 300, 0));
 			String spellName = "Protective Bubble";
 
 			sendCastMessage(player, spellName, "Water");
+			tryForRankItem(player, "Water ProtectiveBubble");
 
-			Bukkit.getServer().getScheduler()
-					.scheduleAsyncDelayedTask(instance, new Runnable() {
-						public void run() {
-							player.removePotionEffect(PotionEffectType.ABSORPTION);
-						}
-					}, 320);
+			Bukkit.getServer().getScheduler().scheduleAsyncDelayedTask(instance, new Runnable() {
+				public void run() {
+					player.removePotionEffect(PotionEffectType.ABSORPTION);
+				}
+			}, 320);
 
 		}
 
@@ -1776,8 +1609,7 @@ public class Faith {
 	public void castNether_Vampirism(EntityDeathEvent event) {
 		Entity e = event.getEntity();
 
-		EntityDamageByEntityEvent nEvent = (EntityDamageByEntityEvent) e
-				.getLastDamageCause();
+		EntityDamageByEntityEvent nEvent = (EntityDamageByEntityEvent) e.getLastDamageCause();
 
 		Random rand = new Random();
 		int number = rand.nextInt(100) + 1;
@@ -1786,6 +1618,7 @@ public class Faith {
 			p.setHealth(p.getHealth() + 3);
 			String spellName = "Vampirism";
 			sendCastMessage(p, spellName, "Nether");
+			tryForRankItem(p, "Nether Vampirism");
 		}
 
 	}
@@ -1797,13 +1630,14 @@ public class Faith {
 
 		Random rand = new Random();
 		int number = rand.nextInt(100) + 1;
-		if (number <= 2) {
+		if (number <= 4) {
 			String spellName = "Gravity Flux";
 			sendCastMessage(p, spellName, "Aether");
+			tryForRankItem(p, "Aether GravityFlux");
+			
 			for (Entity e : p.getNearbyEntities(7, 7, 7)) {
 				if (e instanceof Monster) {
-					e.setVelocity(new Vector(e.getVelocity().getX(), 1, e
-							.getVelocity().getZ()));
+					e.setVelocity(new Vector(e.getVelocity().getX(), 1, e.getVelocity().getZ()));
 				}
 			}
 		}
@@ -1819,6 +1653,8 @@ public class Faith {
 		if (number <= 20) {
 			String spellName = "Graceful Steps";
 			sendCastMessage(p, spellName, "Aether");
+			
+			//tryForRankItem(p, "Aether GracefulSteps");
 
 			p.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 300, 0));
 		}
@@ -1845,39 +1681,32 @@ public class Faith {
 		if (i == null || j == null || k == null || l == null) {
 			return;
 		} else {
-			if (i.getType() == Material.LEATHER_HELMET
-					&& j.getType() == Material.LEATHER_CHESTPLATE
-					&& k.getType() == Material.LEATHER_LEGGINGS
-					&& l.getType() == Material.LEATHER_BOOTS) {
+			if (i.getType() == Material.LEATHER_HELMET && j.getType() == Material.LEATHER_CHESTPLATE
+					&& k.getType() == Material.LEATHER_LEGGINGS && l.getType() == Material.LEATHER_BOOTS) {
 				Random rand = new Random();
 				int number = rand.nextInt(100) + 1;
 				if (number >= 96) {
 
 					String spellName = "Forest Armor";
 					sendCastMessage(player, spellName, "Nature");
-					final Wolf wolf1 = (Wolf) player.getWorld().spawnEntity(
-							player.getLocation(), EntityType.WOLF);
-					final Wolf wolf2 = (Wolf) player.getWorld().spawnEntity(
-							player.getLocation(), EntityType.WOLF);
+					final Wolf wolf1 = (Wolf) player.getWorld().spawnEntity(player.getLocation(), EntityType.WOLF);
+					final Wolf wolf2 = (Wolf) player.getWorld().spawnEntity(player.getLocation(), EntityType.WOLF);
 					wolf1.setOwner(player);
 					wolf1.setAdult();
 					wolf1.setTamed(true);
-					wolf1.setCustomName(ChatColor.YELLOW + player.getName()
-							+ "'s Wolf");
+					wolf1.setCustomName(ChatColor.YELLOW + player.getName() + "'s Wolf");
 					wolf1.setCustomNameVisible(true);
 					wolf2.setOwner(player);
 					wolf2.setAdult();
 					wolf2.setTamed(true);
-					wolf2.setCustomName(ChatColor.YELLOW + player.getName()
-							+ "'s Wolf");
+					wolf2.setCustomName(ChatColor.YELLOW + player.getName() + "'s Wolf");
 					wolf2.setCustomNameVisible(true);
-					Bukkit.getServer().getScheduler()
-							.scheduleAsyncDelayedTask(instance, new Runnable() {
-								public void run() {
-									wolf1.setHealth(0);
-									wolf2.setHealth(0);
-								}
-							}, 400);
+					Bukkit.getServer().getScheduler().scheduleAsyncDelayedTask(instance, new Runnable() {
+						public void run() {
+							wolf1.setHealth(0);
+							wolf2.setHealth(0);
+						}
+					}, 400);
 				}
 			}
 		}
@@ -1895,10 +1724,12 @@ public class Faith {
 		if (number <= 3) {
 			String spellName = "Arctic Frost";
 			sendCastMessage(p, spellName, "Water");
+			
+			tryForRankItem(p, "Water ArcticFrost");
+			
 			for (Entity e : p.getNearbyEntities(7, 7, 7)) {
 				if (e instanceof Monster) {
-					((Monster) e).addPotionEffect(new PotionEffect(
-							PotionEffectType.SLOW, 150, 2));
+					((Monster) e).addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 150, 2));
 				}
 			}
 		}
@@ -1909,59 +1740,53 @@ public class Faith {
 
 		RunicPlayerBukkit targetPlayer = new RunicPlayerBukkit(p.getUniqueId());
 		boolean needKarma = false;
-		int numItems = Integer
-				.parseInt(RunicParadise.prayerBooks.get(locKey)[4]);
+		int numItems = Integer.parseInt(RunicParadise.prayerBooks.get(locKey)[4]);
 
 		if (RunicParadise.prayerBooks.get(locKey)[17].equals("Book")) {
 			needKarma = true;
 		}
 
 		if (!RunicParadise.prayerBooks.get(locKey)[18]
-				.equals(RunicParadise.faithMap.get(p.getUniqueId())
-						.getPrimaryFaith())) {
+				.equals(RunicParadise.faithMap.get(p.getUniqueId()).getPrimaryFaith())) {
 
-			p.sendMessage("Your prayer is rejected! You must be loyal to your faith - pray at your active faith's shrines! "
-					+ ChatColor.BLUE
-					+ "Left-click the block to learn what this prayer needs!");
+			p.sendMessage(
+					"Your prayer is rejected! You must be loyal to your faith - pray at your active faith's shrines! "
+							+ ChatColor.BLUE + "Left-click the block to learn what this prayer needs!");
 			return;
 		}
 
-		ItemStack item1 = new ItemStack(Material.getMaterial(Integer
-				.parseInt(RunicParadise.prayerBooks.get(locKey)[5])),
+		ItemStack item1 = new ItemStack(
+				Material.getMaterial(Integer.parseInt(RunicParadise.prayerBooks.get(locKey)[5])),
 				Integer.parseInt(RunicParadise.prayerBooks.get(locKey)[7]),
 				Short.parseShort((RunicParadise.prayerBooks.get(locKey)[6])));
-		ItemStack[] item1a = new ItemStack[] { new ItemStack(
-				Material.getMaterial(Integer.parseInt(RunicParadise.prayerBooks
-						.get(locKey)[5])),
-				Integer.parseInt(RunicParadise.prayerBooks.get(locKey)[7]),
-				Short.parseShort((RunicParadise.prayerBooks.get(locKey)[6]))) };
-		ItemStack item2 = new ItemStack(Material.getMaterial(Integer
-				.parseInt(RunicParadise.prayerBooks.get(locKey)[8])),
+		ItemStack[] item1a = new ItemStack[] {
+				new ItemStack(Material.getMaterial(Integer.parseInt(RunicParadise.prayerBooks.get(locKey)[5])),
+						Integer.parseInt(RunicParadise.prayerBooks.get(locKey)[7]),
+						Short.parseShort((RunicParadise.prayerBooks.get(locKey)[6]))) };
+		ItemStack item2 = new ItemStack(
+				Material.getMaterial(Integer.parseInt(RunicParadise.prayerBooks.get(locKey)[8])),
 				Integer.parseInt(RunicParadise.prayerBooks.get(locKey)[10]),
 				Short.parseShort((RunicParadise.prayerBooks.get(locKey)[9])));
-		ItemStack[] item2a = new ItemStack[] { new ItemStack(
-				Material.getMaterial(Integer.parseInt(RunicParadise.prayerBooks
-						.get(locKey)[8])),
-				Integer.parseInt(RunicParadise.prayerBooks.get(locKey)[10]),
-				Short.parseShort((RunicParadise.prayerBooks.get(locKey)[9]))) };
-		ItemStack item3 = new ItemStack(Material.getMaterial(Integer
-				.parseInt(RunicParadise.prayerBooks.get(locKey)[11])),
+		ItemStack[] item2a = new ItemStack[] {
+				new ItemStack(Material.getMaterial(Integer.parseInt(RunicParadise.prayerBooks.get(locKey)[8])),
+						Integer.parseInt(RunicParadise.prayerBooks.get(locKey)[10]),
+						Short.parseShort((RunicParadise.prayerBooks.get(locKey)[9]))) };
+		ItemStack item3 = new ItemStack(
+				Material.getMaterial(Integer.parseInt(RunicParadise.prayerBooks.get(locKey)[11])),
 				Integer.parseInt(RunicParadise.prayerBooks.get(locKey)[13]),
 				Short.parseShort((RunicParadise.prayerBooks.get(locKey)[12])));
-		ItemStack[] item3a = new ItemStack[] { new ItemStack(
-				Material.getMaterial(Integer.parseInt(RunicParadise.prayerBooks
-						.get(locKey)[11])),
-				Integer.parseInt(RunicParadise.prayerBooks.get(locKey)[13]),
-				Short.parseShort((RunicParadise.prayerBooks.get(locKey)[12]))) };
-		ItemStack item4 = new ItemStack(Material.getMaterial(Integer
-				.parseInt(RunicParadise.prayerBooks.get(locKey)[14])),
+		ItemStack[] item3a = new ItemStack[] {
+				new ItemStack(Material.getMaterial(Integer.parseInt(RunicParadise.prayerBooks.get(locKey)[11])),
+						Integer.parseInt(RunicParadise.prayerBooks.get(locKey)[13]),
+						Short.parseShort((RunicParadise.prayerBooks.get(locKey)[12]))) };
+		ItemStack item4 = new ItemStack(
+				Material.getMaterial(Integer.parseInt(RunicParadise.prayerBooks.get(locKey)[14])),
 				Integer.parseInt(RunicParadise.prayerBooks.get(locKey)[16]),
 				Short.parseShort((RunicParadise.prayerBooks.get(locKey)[15])));
-		ItemStack[] item4a = new ItemStack[] { new ItemStack(
-				Material.getMaterial(Integer.parseInt(RunicParadise.prayerBooks
-						.get(locKey)[14])),
-				Integer.parseInt(RunicParadise.prayerBooks.get(locKey)[16]),
-				Short.parseShort((RunicParadise.prayerBooks.get(locKey)[15]))) };
+		ItemStack[] item4a = new ItemStack[] {
+				new ItemStack(Material.getMaterial(Integer.parseInt(RunicParadise.prayerBooks.get(locKey)[14])),
+						Integer.parseInt(RunicParadise.prayerBooks.get(locKey)[16]),
+						Short.parseShort((RunicParadise.prayerBooks.get(locKey)[15]))) };
 
 		switch (numItems) {
 
@@ -1973,11 +1798,8 @@ public class Faith {
 					// Player is trying to pray at a Book - costs 2 karma! they
 					// have enough karma, so take it!
 
-					if (RunicParadise.faithMap.get(p.getUniqueId())
-							.trySkillUpViaPrayer(
-									p,
-									RunicParadise.faithMap.get(p.getUniqueId())
-											.getPrimaryFaith(), true) == 1) {
+					if (RunicParadise.faithMap.get(p.getUniqueId()).trySkillUpViaPrayer(p,
+							RunicParadise.faithMap.get(p.getUniqueId()).getPrimaryFaith(), true) == 1) {
 						targetPlayer.adjustPlayerKarma(-2);
 						p.getInventory().removeItem(item1a);
 						p.sendMessage("Your karma prayer has been answered!");
@@ -1989,11 +1811,8 @@ public class Faith {
 				} else if (!needKarma) {
 					// Karma not needed for this prayer
 
-					if (RunicParadise.faithMap.get(p.getUniqueId())
-							.trySkillUpViaPrayer(
-									p,
-									RunicParadise.faithMap.get(p.getUniqueId())
-											.getPrimaryFaith(), false) == 1) {
+					if (RunicParadise.faithMap.get(p.getUniqueId()).trySkillUpViaPrayer(p,
+							RunicParadise.faithMap.get(p.getUniqueId()).getPrimaryFaith(), false) == 1) {
 						p.getInventory().removeItem(item1a);
 						p.sendMessage("Your prayer has been answered!");
 					} else {
@@ -2010,26 +1829,23 @@ public class Faith {
 
 			} else {
 				// player doesnt have enough items :(
-				p.sendMessage("Your prayer is rejected! Do you have the right items? Be sure each stack is just the right amount!");
+				p.sendMessage(
+						"Your prayer is rejected! Do you have the right items? Be sure each stack is just the right amount!");
 				return;
 			}
 
 			break;
 		case 2:
 
-			if (p.getInventory().contains(item1)
-					&& p.getInventory().contains(item2)) {
+			if (p.getInventory().contains(item1) && p.getInventory().contains(item2)) {
 				// Player has enough of first item!
 
 				if (needKarma && targetPlayer.getKarma() >= 2) {
 					// Player is trying to pray at a Book - costs 2 karma! they
 					// have enough karma, so take it!
 
-					if (RunicParadise.faithMap.get(p.getUniqueId())
-							.trySkillUpViaPrayer(
-									p,
-									RunicParadise.faithMap.get(p.getUniqueId())
-											.getPrimaryFaith(), true) == 1) {
+					if (RunicParadise.faithMap.get(p.getUniqueId()).trySkillUpViaPrayer(p,
+							RunicParadise.faithMap.get(p.getUniqueId()).getPrimaryFaith(), true) == 1) {
 						targetPlayer.adjustPlayerKarma(-2);
 						p.getInventory().removeItem(item1a);
 						p.getInventory().removeItem(item2a);
@@ -2042,11 +1858,8 @@ public class Faith {
 				} else if (!needKarma) {
 					// Karma not needed for this prayer
 
-					if (RunicParadise.faithMap.get(p.getUniqueId())
-							.trySkillUpViaPrayer(
-									p,
-									RunicParadise.faithMap.get(p.getUniqueId())
-											.getPrimaryFaith(), false) == 1) {
+					if (RunicParadise.faithMap.get(p.getUniqueId()).trySkillUpViaPrayer(p,
+							RunicParadise.faithMap.get(p.getUniqueId()).getPrimaryFaith(), false) == 1) {
 						p.getInventory().removeItem(item1a);
 						p.getInventory().removeItem(item2a);
 						p.sendMessage("Your prayer has been answered!");
@@ -2064,14 +1877,14 @@ public class Faith {
 
 			} else {
 				// player doesnt have enough items :(
-				p.sendMessage("Your prayer is rejected! Do you have the right items? Be sure each stack is just the right amount!");
+				p.sendMessage(
+						"Your prayer is rejected! Do you have the right items? Be sure each stack is just the right amount!");
 				return;
 			}
 			break;
 		case 3:
 
-			if (p.getInventory().contains(item1)
-					&& p.getInventory().contains(item2)
+			if (p.getInventory().contains(item1) && p.getInventory().contains(item2)
 					&& p.getInventory().contains(item3)) {
 				// Player has enough of first item!
 
@@ -2079,11 +1892,8 @@ public class Faith {
 					// Player is trying to pray at a Book - costs 2 karma! they
 					// have enough karma, so take it!
 
-					if (RunicParadise.faithMap.get(p.getUniqueId())
-							.trySkillUpViaPrayer(
-									p,
-									RunicParadise.faithMap.get(p.getUniqueId())
-											.getPrimaryFaith(), true) == 1) {
+					if (RunicParadise.faithMap.get(p.getUniqueId()).trySkillUpViaPrayer(p,
+							RunicParadise.faithMap.get(p.getUniqueId()).getPrimaryFaith(), true) == 1) {
 						targetPlayer.adjustPlayerKarma(-2);
 						p.getInventory().removeItem(item1a);
 						p.getInventory().removeItem(item2a);
@@ -2097,11 +1907,8 @@ public class Faith {
 				} else if (!needKarma) {
 					// Karma not needed for this prayer
 
-					if (RunicParadise.faithMap.get(p.getUniqueId())
-							.trySkillUpViaPrayer(
-									p,
-									RunicParadise.faithMap.get(p.getUniqueId())
-											.getPrimaryFaith(), false) == 1) {
+					if (RunicParadise.faithMap.get(p.getUniqueId()).trySkillUpViaPrayer(p,
+							RunicParadise.faithMap.get(p.getUniqueId()).getPrimaryFaith(), false) == 1) {
 						p.getInventory().removeItem(item1a);
 						p.getInventory().removeItem(item2a);
 						p.getInventory().removeItem(item3a);
@@ -2120,14 +1927,13 @@ public class Faith {
 
 			} else {
 				// player doesnt have enough items :(
-				p.sendMessage("Your prayer is rejected! Do you have the right items? Be sure each stack is just the right amount!");
+				p.sendMessage(
+						"Your prayer is rejected! Do you have the right items? Be sure each stack is just the right amount!");
 				return;
 			}
 			break;
 		case 4:
-			if (p.getInventory().contains(item1)
-					&& p.getInventory().contains(item2)
-					&& p.getInventory().contains(item3)
+			if (p.getInventory().contains(item1) && p.getInventory().contains(item2) && p.getInventory().contains(item3)
 					&& p.getInventory().contains(item4)) {
 				// Player has enough of first item!
 
@@ -2135,11 +1941,8 @@ public class Faith {
 					// Player is trying to pray at a Book - costs 2 karma! they
 					// have enough karma, so take it!
 
-					if (RunicParadise.faithMap.get(p.getUniqueId())
-							.trySkillUpViaPrayer(
-									p,
-									RunicParadise.faithMap.get(p.getUniqueId())
-											.getPrimaryFaith(), true) == 1) {
+					if (RunicParadise.faithMap.get(p.getUniqueId()).trySkillUpViaPrayer(p,
+							RunicParadise.faithMap.get(p.getUniqueId()).getPrimaryFaith(), true) == 1) {
 						targetPlayer.adjustPlayerKarma(-2);
 						p.getInventory().removeItem(item1a);
 						p.getInventory().removeItem(item2a);
@@ -2154,11 +1957,8 @@ public class Faith {
 				} else if (!needKarma) {
 					// Karma not needed for this prayer
 
-					if (RunicParadise.faithMap.get(p.getUniqueId())
-							.trySkillUpViaPrayer(
-									p,
-									RunicParadise.faithMap.get(p.getUniqueId())
-											.getPrimaryFaith(), false) == 1) {
+					if (RunicParadise.faithMap.get(p.getUniqueId()).trySkillUpViaPrayer(p,
+							RunicParadise.faithMap.get(p.getUniqueId()).getPrimaryFaith(), false) == 1) {
 						p.getInventory().removeItem(item1a);
 						p.getInventory().removeItem(item2a);
 						p.getInventory().removeItem(item3a);
@@ -2178,7 +1978,8 @@ public class Faith {
 
 			} else {
 				// player doesnt have enough items :(
-				p.sendMessage("Your prayer is rejected! Do you have the right items? Be sure each stack is just the right amount!");
+				p.sendMessage(
+						"Your prayer is rejected! Do you have the right items? Be sure each stack is just the right amount!");
 				return;
 			}
 			break;
@@ -2215,24 +2016,21 @@ public class Faith {
 			RunicParadise.perms.playerRemove(p, "rp.slimefun.tech400");
 			RunicParadise.perms.playerRemove(p, "rp.slimefun.aether300");
 
-			if (this.faithLevels.get(activeFaith) >= 100
-					&& activeFaith.equals("Sun")) {
+			if (this.faithLevels.get(activeFaith) >= 100 && activeFaith.equals("Sun")) {
 				RunicParadise.perms.playerAdd(p, "rp.slimefun.sun100");
 
 				if (this.faithLevels.get(activeFaith) >= 250) {
 					RunicParadise.perms.playerAdd(p, "rp.slimefun.sun250");
 				}
 
-			} else if (this.faithLevels.get(activeFaith) >= 100
-					&& activeFaith.equals("Moon")) {
+			} else if (this.faithLevels.get(activeFaith) >= 100 && activeFaith.equals("Moon")) {
 				RunicParadise.perms.playerAdd(p, "rp.slimefun.moon100");
 
 				if (this.faithLevels.get(activeFaith) >= 250) {
 					RunicParadise.perms.playerAdd(p, "rp.slimefun.moon250");
 				}
 
-			} else if (this.faithLevels.get(activeFaith) >= 150
-					&& activeFaith.equals("Earth")) {
+			} else if (this.faithLevels.get(activeFaith) >= 150 && activeFaith.equals("Earth")) {
 				RunicParadise.perms.playerAdd(p, "rp.slimefun.earth150");
 
 				if (this.faithLevels.get(activeFaith) >= 250) {
@@ -2242,37 +2040,31 @@ public class Faith {
 					RunicParadise.perms.playerAdd(p, "rp.slimefun.earth375");
 				}
 
-			} else if (this.faithLevels.get(activeFaith) >= 300
-					&& activeFaith.equals("Nether")) {
+			} else if (this.faithLevels.get(activeFaith) >= 300 && activeFaith.equals("Nether")) {
 				RunicParadise.perms.playerAdd(p, "rp.slimefun.nether300");
 
 				if (this.faithLevels.get(activeFaith) >= 375) {
 					RunicParadise.perms.playerAdd(p, "rp.slimefun.nether375");
 				}
-			} else if (this.faithLevels.get(activeFaith) >= 300
-					&& activeFaith.equals("Water")) {
+			} else if (this.faithLevels.get(activeFaith) >= 300 && activeFaith.equals("Water")) {
 				RunicParadise.perms.playerAdd(p, "rp.slimefun.water300");
 
 				if (this.faithLevels.get(activeFaith) >= 375) {
 					RunicParadise.perms.playerAdd(p, "rp.slimefun.water375");
 				}
-			} else if (this.faithLevels.get(activeFaith) >= 275
-					&& activeFaith.equals("Fire")) {
+			} else if (this.faithLevels.get(activeFaith) >= 275 && activeFaith.equals("Fire")) {
 				RunicParadise.perms.playerAdd(p, "rp.slimefun.fire275");
 
 				if (this.faithLevels.get(activeFaith) >= 350) {
 					RunicParadise.perms.playerAdd(p, "rp.slimefun.fire350");
 				}
 
-			} else if (this.faithLevels.get(activeFaith) >= 275
-					&& activeFaith.equals("Air")) {
+			} else if (this.faithLevels.get(activeFaith) >= 275 && activeFaith.equals("Air")) {
 				RunicParadise.perms.playerAdd(p, "rp.slimefun.air275");
 
-			} else if (this.faithLevels.get(activeFaith) >= 75
-					&& activeFaith.equals("Nature")) {
+			} else if (this.faithLevels.get(activeFaith) >= 75 && activeFaith.equals("Nature")) {
 				RunicParadise.perms.playerAdd(p, "rp.slimefun.nature75");
-			} else if (this.faithLevels.get(activeFaith) >= 100
-					&& activeFaith.equals("Tech")) {
+			} else if (this.faithLevels.get(activeFaith) >= 100 && activeFaith.equals("Tech")) {
 				RunicParadise.perms.playerAdd(p, "rp.slimefun.tech100");
 
 				if (this.faithLevels.get(activeFaith) >= 200) {
@@ -2285,10 +2077,32 @@ public class Faith {
 					RunicParadise.perms.playerAdd(p, "rp.slimefun.tech400");
 				}
 
-			} else if (this.faithLevels.get(activeFaith) >= 300
-					&& activeFaith.equals("Aether")) {
+			} else if (this.faithLevels.get(activeFaith) >= 300 && activeFaith.equals("Aether")) {
 				RunicParadise.perms.playerAdd(p, "rp.slimefun.aether300");
 
+			}
+
+		}
+
+	}
+
+	public void tryForRankItem(Player p, String info) {
+
+		String rank = RunicParadise.perms.getPrimaryGroup(p);
+		
+		if ((RunicParadise.playerProfiles.get(p.getUniqueId()).isFarming)) {
+			return;
+			// player is farming, don't even try for a drop
+		}
+		
+		Random rand = new Random();
+		int value = rand.nextInt(1000);
+
+		if (rank.equals("Master")) {
+			if (value >= 250 && value <= (250 + (1000 * .50))) {
+				p.getLocation().getWorld().dropItemNaturally(p.getLocation(), Borderlands.specialLootDrops("DukeEssence", p.getUniqueId()));
+				RunicMessaging.sendMessage(p, RunicFormat.RANKS, "Your faith has crystallized a memory!");
+				RunicParadise.playerProfiles.get(p.getUniqueId()).logSpecialRankDrop("DukeEssence", "Faith " + info);
 			}
 
 		}

@@ -1,5 +1,10 @@
 package com.connorlinfoot.titleapi;
 
+
+
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Server;
@@ -9,9 +14,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.plugin.java.JavaPlugin;
-
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
 
 
 public class TitleAPI extends JavaPlugin implements Listener {

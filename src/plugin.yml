@@ -4,8 +4,63 @@ author: runelynx
 description: "Bukkit plugin for Runic Paradise server."
 main: io.github.runelynx.runicparadise.RunicParadise
 version: 0.1
-depend: [NoteBlockAPI]
+depend: [NoteBlockAPI, WorldGuard, RunicUniverse, CS-CoreLib, Slimefun]
 commands:
+   rpcrates:
+      description: "Grant Runic currencies to a player"
+      usage: /<command>
+      permission: rp.rpcrates
+      permission-message: "Missing permission: rp.rpcrates"
+   rprewards:
+      description: "Grant Runic currencies to a player"
+      usage: /<command>
+      permission: rp.rprewards
+      permission-message: "Missing permission: rp.rprewards"
+   claim:
+      description: "Create a claim"
+      usage: /<command>
+      permission: rp.claim
+      permission-message: "Missing permission: rp.claim"
+   machinemaze:
+      description: "Machine Maze Magic"
+      usage: /<command>
+      permission: rp.machinemaze
+      permission-message: "Not for player usage!"
+   rankitem:
+      description: "Rank item magic :)"
+      usage: /<command>
+      permission: rp.rankitem
+      permission-message: "Not for player usage!"
+   raffle:
+      description: "Runic Raffle"
+      usage: /<command>
+      permission: rp.raffle
+      permission-message: "The raffle isn't open yet!"
+   fixranks:
+      description: "Fix rank problems."
+      usage: /<command>
+      permission: rp.fixranks
+      permission-message: "You don't have permission: rp.fixranks"
+   rpfix:
+      description: "Donation perk. Repairs item in both hands."
+      usage: /<command>
+      permission: rp.repair
+      permission-message: "You don't have permission: rp.runicspawntravel"
+   runicspawntravel:
+      description: "Just for admins"
+      usage: /<command>
+      permission: rp.runicspawntravel
+      permission-message: "You don't have permission: rp.runicspawntravel"
+   search:
+      description: "Search for Explorer's League locations. See /games for info"
+      usage: /<command>
+      permission: rp.explorersleague
+      permission-message: "You don't have permission: rp.explorersleague"
+   explore:
+      description: "Search for Explorer's League locations. See /games for info"
+      usage: /<command>
+      permission: rp.explorersleague
+      permission-message: "You don't have permission: rp.explorersleague"
    sendentity:
       description: "Sends a living entity to a player"
       usage: /<command> [player]
@@ -49,7 +104,9 @@ commands:
       usage: /<command> 
    wild:
       description: "Head out into the wilderness!"
-      usage: /<command> 
+      usage: /<command>
+      permission: rp.seeker
+      permission-message: "You must finish the tutorial before you start playing! Use /spawn to go back. A sign toward the end will tell you how to promote to seeker!" 
    runiceye:
       description: "Meh - for Rune!"
       usage: /<command> [player]
@@ -68,7 +125,7 @@ commands:
    miningreset:
       description: "Resets the mining world"
       usage: /<command> [playername]
-      permission: rp.admin
+      permission: rp.admin.miningreset
       permission-message: "You don't have permission: <permission>."
    face:
       description: "Used to create player heads. Once every 6 hours ONLY!"
@@ -233,10 +290,6 @@ commands:
       description: "Channel where staff can chat together"
       permission: rp.staff
       permission-message: "Only staff (mods/admins) can use this command."
-   tc:
-      description: "Channel where testers can chat together"
-      permission: rp.testers
-      permission-message: "Only testers can use this command."
    rpreload:
       description: "Reloads the Runic Paradise plugin config file."
       usage: /<command>

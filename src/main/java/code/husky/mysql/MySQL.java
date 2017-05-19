@@ -56,7 +56,7 @@ public class MySQL extends Database {
 		}
 		Class.forName("com.mysql.jdbc.Driver");
 		connection = DriverManager.getConnection("jdbc:mysql://"
-				+ this.hostname + ":" + this.port + "/" + this.database,
+				+ this.hostname + ":" + this.port + "/" + this.database + "?useSSL=false",
 				this.user, this.password);
 		return connection;
 	}

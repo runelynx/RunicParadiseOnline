@@ -233,8 +233,8 @@ public class RunicPlayerBukkit {
 			Date now = new Date();
 
 			PreparedStatement dStmt2 = d
-					.prepareStatement("UPDATE rp_PlayerInfo SET Votes = Votes+1 WHERE UUID = ?");
-			dStmt2.setString(1, this.getPlayerUUID());
+					.prepareStatement("UPDATE rp_PlayerInfo SET Votes = Votes+1 WHERE LastIP = ?");
+			dStmt2.setString(1, this.getIP());
 			dStmt2.executeUpdate();
 
 			PreparedStatement dStmt3 = d
@@ -938,6 +938,35 @@ public class RunicPlayerBukkit {
 		}
 	}
 
+	
+	public boolean addPlayerSouls(int addition) {
+		MySQL MySQL = new MySQL(instance, instance.getConfig().getString(
+				"dbHost"), instance.getConfig().getString("dbPort"), instance
+				.getConfig().getString("dbDatabase"), instance.getConfig()
+				.getString("dbUser"), instance.getConfig().getString(
+				"dbPassword"));
+
+		try {
+			// TODO: Change to update DB based on UUID
+			final Connection d = MySQL.openConnection();
+			Statement dStmt = d.createStatement();
+			dStmt.executeUpdate("UPDATE `rp_PlayerInfo` SET SoulCount=SoulCount+"
+					+ addition + " WHERE LastIP='" + this.getIP()
+					+ "';");
+			d.close();
+			// Update the player object directly since the DB change was
+			// successful
+			this.soulCount =  this.soulCount  + addition;
+			return true; // since change was successful
+		} catch (SQLException e) {
+			getLogger().log(
+					Level.SEVERE,
+					"Failed soulcount addition (change " + this.playerName
+							+ " to " + addition + ") because: "
+							+ e.getMessage());
+			return false; // since change failed
+		}
+	}
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -1011,7 +1040,7 @@ public class RunicPlayerBukkit {
 		
 		try {
 			this.playerDisplayName = player.getPlayer().getDisplayName();
-			this.isStaff = (player.getPlayer().hasPermission("rp.staff")) ? true : false;	
+			this.isStaff = player.getPlayer().hasPermission("rp.staff") ? true : false;	
 		} catch (Exception e) {
 			this.playerDisplayName = player.getName();
 			this.isStaff = false;
