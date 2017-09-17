@@ -24,7 +24,9 @@ import org.bukkit.Bukkit;
 import static org.bukkit.Bukkit.getLogger;
 
 import org.bukkit.ChatColor;
+import org.bukkit.DyeColor;
 import org.bukkit.Material;
+import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -87,6 +89,9 @@ public class Ranks {
 
 	final int DUKE_RUNICS = 250000;
 	final int DUKE_MASTER_JOBS = 10;
+
+	final int BARON_RUNICS = 300000;
+	final int BARON_MASTER_JOBS = 12;
 
 	final int EXPLORER_DAYS = 7;
 	final int EXPLORER_RUNICS = 2500;
@@ -281,35 +286,10 @@ public class Ranks {
 		user.sendMessage(ChatColor.RED + "Master - " + ChatColor.GRAY + MASTER_DAYS + " days, " + MASTER_RUNICS + " R, "
 				+ MASTER_MASTER_JOBS + " jobs mastered, dungeon maze.");
 		user.sendMessage(ChatColor.GRAY + MASTER_KILLS);
-
-		/*
-		 * user.sendMessage(ChatColor.DARK_GREEN + "Explorer - " +
-		 * ChatColor.GRAY + EXPLORER_DAYS + " days or 20 votes, " +
-		 * EXPLORER_RUNICS + " R."); user.sendMessage(ChatColor.GRAY +
-		 * EXPLORER_KILLS); user.sendMessage(ChatColor.YELLOW + "Builder - " +
-		 * ChatColor.GRAY + BUILDER_DAYS + " days, " + BUILDER_RUNICS +
-		 * " R, joblevel " + BUILDER_JOB_LEVEL); user.sendMessage(ChatColor.GRAY
-		 * + BUILDER_KILLS); user.sendMessage(ChatColor.GOLD + "Architect - " +
-		 * ChatColor.GRAY + ARCHITECT_DAYS + " days, " + ARCHITECT_RUNICS +
-		 * " R, joblevel " + ARCHITECT_JOB_LEVEL + ", hedge maze.");
-		 * user.sendMessage(ChatColor.GRAY + ARCHITECT_KILLS);
-		 * user.sendMessage(ChatColor.AQUA + "Warden - " + ChatColor.GRAY +
-		 * (WARDEN_DAYS - nomRedux) + " days, " + WARDEN_RUNICS +
-		 * " R, joblevel " + WARDEN_JOB_LEVEL + ", sky maze.");
-		 * user.sendMessage(ChatColor.GRAY + WARDEN_KILLS);
-		 * user.sendMessage(ChatColor.DARK_AQUA + "Protector - " +
-		 * ChatColor.GRAY + (PROTECTOR_DAYS - nomRedux) + " days, " +
-		 * PROTECTOR_RUNICS + " R, joblevel " + PROTECTOR_JOB_LEVEL);
-		 * user.sendMessage(ChatColor.GRAY + PROTECTOR_KILLS);
-		 * user.sendMessage(ChatColor.BLUE + "Guardian - " + ChatColor.GRAY +
-		 * (GUARDIAN_DAYS - nomRedux) + " days, " + GUARDIAN_RUNICS + " R.");
-		 * user.sendMessage(ChatColor.GRAY + GUARDIAN_KILLS);
-		 * user.sendMessage(ChatColor.GOLD + "Type " + ChatColor.YELLOW +
-		 * "/info ranks " + ChatColor.GOLD + "to learn what each rank can do.");
-		 * if (nomRedux > 0) { user.sendMessage(ChatColor.AQUA +
-		 * "You have a staff nomination! Your time requirements have been reduced."
-		 * ); }
-		 */
+		user.sendMessage(ChatColor.DARK_GREEN + "Duke - " + ChatColor.GRAY + " 10 mazes, 10 jobs mastered, duke ring (/warp dukering), "
+				+ DUKE_RUNICS + " R.");
+		user.sendMessage(ChatColor.GOLD + "Brawler - " + ChatColor.GRAY + " 12 mazes, 12 jobs mastered, baron pendant (/warp baronpendant), "
+				+ BARON_RUNICS + " R.");
 	}
 
 	@SuppressWarnings("deprecation")
@@ -455,6 +435,8 @@ public class Ranks {
 		boolean checkJobMasteries = false;
 		boolean checkFeudalJewelry = false;
 		boolean ineligible = false;
+		int mazeCount = 0;
+
 		ArrayList<String> failureResponse = new ArrayList<String>();
 		int[] killsArray = new int[13];
 		RunicPlayerBukkit targetPlayer = new RunicPlayerBukkit(user);
@@ -508,6 +490,71 @@ public class Ranks {
 		Float daysRequired;
 
 		switch (rank) {
+		case "Duke":
+
+			if (balance >= BARON_RUNICS) {
+				checkRunics = true;
+				failureResponse.add(ChatColor.DARK_GREEN + "[✔ OK] " + ChatColor.GRAY + "Your runics: " + balance
+						+ "; Promotion cost: " + BARON_RUNICS);
+			} else {
+				failureResponse.add(ChatColor.DARK_RED + "[✘ FAIL] " + ChatColor.GRAY + "Your runics: " + balance
+						+ "; Promotion cost: " + BARON_RUNICS);
+			}
+
+			if (targetPlayer.getMasteredJobCount() >= BARON_MASTER_JOBS) {
+				checkJobMasteries = true;
+				failureResponse.add(ChatColor.DARK_GREEN + "[✔ OK] " + ChatColor.GRAY + "You have mastered "
+						+ targetPlayer.getMasteredJobCount() + " jobs.");
+			} else {
+				failureResponse.add(ChatColor.DARK_RED + "[✘ FAIL] " + ChatColor.GRAY + "You haven't mastered "
+						+ BARON_MASTER_JOBS + " jobs. Get info @ /warp jobs");
+			}
+
+			mazeCount = RunicParadise.getPlayerDistinctMazeCompletionCount(user);
+
+			if (mazeCount >= 12) {
+				checkMazes = true;
+				failureResponse.add(ChatColor.DARK_GREEN + "[✔ OK] " + ChatColor.GRAY + "You have completed "
+						+ mazeCount + " mazes!");
+			} else {
+				failureResponse.add(ChatColor.DARK_RED + "[✘ FAIL] " + ChatColor.GRAY
+						+ "You must complete at least 12 mazes. Check /games");
+			}
+
+			if (user.getEnderChest().contains(Borderlands.specialLootDrops("BaronPendant1", user.getUniqueId())) || user
+					.getEnderChest().contains(Borderlands.specialLootDrops("BaronPendant2", user.getUniqueId()))) {
+				checkFeudalJewelry = true;
+				failureResponse
+						.add(ChatColor.DARK_GREEN + "[✔ OK] " + ChatColor.GRAY + "You have one of the Baron Pendants!");
+			} else {
+				failureResponse.add(ChatColor.DARK_RED + "[✘ FAIL] " + ChatColor.GRAY
+						+ "You must be wearing a Baron Pendant! Be sure it's in your ender chest. See crafting info at /warp BaronPendant");
+			}
+
+			if (checkFeudalJewelry && checkRunics && checkJobMasteries && checkMazes) {
+				if (execute == false) {
+					// just checking... we're not executing the promotion!!
+					user.sendMessage(
+							ChatColor.DARK_GREEN + "[RunicRanks] Congratulations! You qualify for a promotion!");
+					user.sendMessage(ChatColor.DARK_GREEN + "Promotion to Baron costs " + BARON_RUNICS + " Runics.");
+					user.sendMessage(ChatColor.DARK_GREEN + "Type " + ChatColor.AQUA + "/rankup now"
+							+ ChatColor.DARK_GREEN + " to accept the promotion.");
+				} else {
+					// ok now we're executing the promotion.
+					economy.withdrawPlayer(user.getName(), BARON_RUNICS);
+					promotePlayer(user, "Baron");
+					perms.playerRemoveGroup(user, "Duke");
+					user.sendMessage(ChatColor.DARK_GREEN + "[RunicRanks] Congratulations! You have been promoted!");
+					Ranks tempRank = new Ranks();
+					tempRank.congratsPromotion(user.getName(), "Baron");
+					logPromotion(user.getName(), "Baron", new Date().getTime());
+					RunicParadise.playerProfiles.get(user.getUniqueId()).setChatColor("YELLOW", true);
+				}
+			} else {
+				ineligible = true;
+			}
+
+			break;
 		case "Master":
 
 			if (balance >= DUKE_RUNICS) {
@@ -528,7 +575,7 @@ public class Ranks {
 						+ DUKE_MASTER_JOBS + " jobs. Get info @ /warp jobs");
 			}
 
-			int mazeCount = RunicParadise.getPlayerDistinctMazeCompletionCount(user);
+			mazeCount = RunicParadise.getPlayerDistinctMazeCompletionCount(user);
 
 			if (mazeCount >= 10) {
 				checkMazes = true;
@@ -556,7 +603,7 @@ public class Ranks {
 					// just checking... we're not executing the promotion!!
 					user.sendMessage(
 							ChatColor.DARK_GREEN + "[RunicRanks] Congratulations! You qualify for a promotion!");
-					user.sendMessage(ChatColor.DARK_GREEN + "Promotion to Duke costs " + MASTER_RUNICS + " Runics.");
+					user.sendMessage(ChatColor.DARK_GREEN + "Promotion to Duke costs " + DUKE_RUNICS + " Runics.");
 					user.sendMessage(ChatColor.DARK_GREEN + "Type " + ChatColor.AQUA + "/rankup now"
 							+ ChatColor.DARK_GREEN + " to accept the promotion.");
 				} else {
@@ -1603,72 +1650,135 @@ public class Ranks {
 		boolean checkEssence = false;
 		ArrayList<String> messages = new ArrayList<String>();
 
-		if (p.getInventory().containsAtLeast(Borderlands.specialLootDrops("DukeGem", p.getUniqueId()), 64)) {
-			checkGem = true;
-			messages.add(ChatColor.GREEN + "You have enough gems!");
-		} else {
-			messages.add(ChatColor.RED + "You don't have enough gems!");
-		}
-		if (p.getInventory().containsAtLeast(Borderlands.specialLootDrops("DukeMetal", p.getUniqueId()), 64)) {
-			checkMetal = true;
-			messages.add(ChatColor.GREEN + "You have enough bits of metal!");
-		} else {
-			messages.add(ChatColor.RED + "You don't have enough bits of metal!");
-		}
-		if (p.getInventory().containsAtLeast(Borderlands.specialLootDrops("DukeEssence", p.getUniqueId()), 64)) {
-			checkEssence = true;
-			messages.add(ChatColor.GREEN + "You have enough piles of essence!");
-		} else {
-			messages.add(ChatColor.RED + "You don't have enough piles of essence!");
-		}
-
-		for (String s : messages) {
-			p.sendMessage(s);
-		}
-
-		if (checkGem && checkMetal && checkEssence) {
-			// player has all needed materials!
-
-			int counter = 0;
-
-			ItemStack essence = Borderlands.specialLootDrops("DukeEssence", p.getUniqueId());
-			essence.setAmount(64);
-			ItemStack metal = Borderlands.specialLootDrops("DukeMetal", p.getUniqueId());
-			metal.setAmount(64);
-			ItemStack gem = Borderlands.specialLootDrops("DukeGem", p.getUniqueId());
-			gem.setAmount(64);
-
-			p.getInventory().removeItem(essence);
-			p.getInventory().removeItem(metal);
-			p.getInventory().removeItem(gem);
-
-			p.updateInventory();
-
-			int random = ThreadLocalRandom.current().nextInt(1, 100 + 1);
-
-			if (random < 25) {
-				Bukkit.getWorld(p.getLocation().getWorld().getUID()).dropItemNaturally(p.getLocation(),
-						Borderlands.specialLootDrops("DukeRing1", p.getUniqueId()));
-			} else if (random < 50) {
-				Bukkit.getWorld(p.getLocation().getWorld().getUID()).dropItemNaturally(p.getLocation(),
-						Borderlands.specialLootDrops("DukeRing2", p.getUniqueId()));
-			} else if (random < 75) {
-				Bukkit.getWorld(p.getLocation().getWorld().getUID()).dropItemNaturally(p.getLocation(),
-						Borderlands.specialLootDrops("DukeRing3", p.getUniqueId()));
+		if (rank.equalsIgnoreCase("Duke")) {
+			if (p.getInventory().containsAtLeast(Borderlands.specialLootDrops("DukeGem", p.getUniqueId()), 64)) {
+				checkGem = true;
+				messages.add(ChatColor.GREEN + "You have enough gems!");
 			} else {
-				Bukkit.getWorld(p.getLocation().getWorld().getUID()).dropItemNaturally(p.getLocation(),
-						Borderlands.specialLootDrops("DukeRing4", p.getUniqueId()));
+				messages.add(ChatColor.RED + "You don't have enough gems!");
+			}
+			if (p.getInventory().containsAtLeast(Borderlands.specialLootDrops("DukeMetal", p.getUniqueId()), 64)) {
+				checkMetal = true;
+				messages.add(ChatColor.GREEN + "You have enough bits of metal!");
+			} else {
+				messages.add(ChatColor.RED + "You don't have enough bits of metal!");
+			}
+			if (p.getInventory().containsAtLeast(Borderlands.specialLootDrops("DukeEssence", p.getUniqueId()), 64)) {
+				checkEssence = true;
+				messages.add(ChatColor.GREEN + "You have enough piles of essence!");
+			} else {
+				messages.add(ChatColor.RED + "You don't have enough piles of essence!");
 			}
 
-			return true;
+			for (String s : messages) {
+				p.sendMessage(s);
+			}
 
-		} else {
-			return false;
+			if (checkGem && checkMetal && checkEssence) {
+				// player has all needed materials!
+
+				int counter = 0;
+
+				ItemStack essence = Borderlands.specialLootDrops("DukeEssence", p.getUniqueId());
+				essence.setAmount(64);
+				ItemStack metal = Borderlands.specialLootDrops("DukeMetal", p.getUniqueId());
+				metal.setAmount(64);
+				ItemStack gem = Borderlands.specialLootDrops("DukeGem", p.getUniqueId());
+				gem.setAmount(64);
+
+				p.getInventory().removeItem(essence);
+				p.getInventory().removeItem(metal);
+				p.getInventory().removeItem(gem);
+
+				p.updateInventory();
+
+				int random = ThreadLocalRandom.current().nextInt(1, 100 + 1);
+
+				if (random < 25) {
+					Bukkit.getWorld(p.getLocation().getWorld().getUID()).dropItemNaturally(p.getLocation(),
+							Borderlands.specialLootDrops("DukeRing1", p.getUniqueId()));
+				} else if (random < 50) {
+					Bukkit.getWorld(p.getLocation().getWorld().getUID()).dropItemNaturally(p.getLocation(),
+							Borderlands.specialLootDrops("DukeRing2", p.getUniqueId()));
+				} else if (random < 75) {
+					Bukkit.getWorld(p.getLocation().getWorld().getUID()).dropItemNaturally(p.getLocation(),
+							Borderlands.specialLootDrops("DukeRing3", p.getUniqueId()));
+				} else {
+					Bukkit.getWorld(p.getLocation().getWorld().getUID()).dropItemNaturally(p.getLocation(),
+							Borderlands.specialLootDrops("DukeRing4", p.getUniqueId()));
+				}
+
+				return true;
+
+			} else {
+				return false;
+			}
+		} else if (rank.equalsIgnoreCase("Baron")) {
+			if (p.getInventory().containsAtLeast(Borderlands.specialLootDrops("BaronGem", null), 1)) {
+				checkGem = true;
+				messages.add(ChatColor.GREEN + "You have the jewel!");
+			} else {
+				messages.add(ChatColor.RED
+						+ "You don't have the prismatic jewel! Check the slimefun guide in the anvil category.");
+			}
+			if (p.getInventory().containsAtLeast(Borderlands.specialLootDrops("BaronIngot1", null), 1)) {
+				checkMetal = true;
+				messages.add(ChatColor.GREEN + "You have the empowered ingot!");
+			} else {
+				messages.add(ChatColor.RED
+						+ "You don't have the empowered ingot. Check the slimefun guide in the anvil category.");
+			}
+			if (p.getInventory().containsAtLeast(Borderlands.specialLootDrops("BaronIngot2", null), 1)) {
+				checkEssence = true;
+				messages.add(ChatColor.GREEN + "You have the unstable ingot!");
+			} else {
+				messages.add(ChatColor.RED
+						+ "You don't have the unstable ingot. Check the slimefun guide in the anvil category.");
+			}
+
+			for (String s : messages) {
+				p.sendMessage(s);
+			}
+
+			if (checkGem && checkMetal && checkEssence) {
+				// player has all needed materials!
+
+				int counter = 0;
+
+				ItemStack essence = Borderlands.specialLootDrops("BaronGem", null);
+				essence.setAmount(1);
+				ItemStack metal = Borderlands.specialLootDrops("BaronIngot1", null);
+				metal.setAmount(1);
+				ItemStack gem = Borderlands.specialLootDrops("BaronIngot2", null);
+				gem.setAmount(1);
+
+				p.getInventory().removeItem(essence);
+				p.getInventory().removeItem(metal);
+				p.getInventory().removeItem(gem);
+
+				p.updateInventory();
+
+				int random = ThreadLocalRandom.current().nextInt(1, 100 + 1);
+
+				if (random < 50) {
+					Bukkit.getWorld(p.getLocation().getWorld().getUID()).dropItemNaturally(p.getLocation(),
+							Borderlands.specialLootDrops("BaronPendant1", p.getUniqueId()));
+				} else {
+					Bukkit.getWorld(p.getLocation().getWorld().getUID()).dropItemNaturally(p.getLocation(),
+							Borderlands.specialLootDrops("BaronPendant2", p.getUniqueId()));
+				}
+
+				return true;
+
+			} else {
+				return false;
+			}
 		}
 
+		return false;
 	}
 
-	public static void applyFeudalBonus(Player p, String world) {
+	public static void applyFeudalBonus(Player p, String world, String fromWorld) {
 
 		if ((p.getEnderChest().contains(Borderlands.specialLootDrops("DukeRing1", p.getUniqueId()))
 				|| p.getEnderChest().contains(Borderlands.specialLootDrops("DukeRing2", p.getUniqueId()))
@@ -1682,7 +1792,13 @@ public class Ranks {
 				if (p.getMaxHealth() < 24) {
 
 					p.setMaxHealth(24);
-					RunicMessaging.sendMessage(p, RunicFormat.RANKS, "Your ring glows brightly!");
+
+					if (fromWorld.equalsIgnoreCase("RunicRealm") || fromWorld.contains("_end")
+							|| fromWorld.contains("_nether") || fromWorld.contains("Mining")) {
+						// no message
+					} else {
+						RunicMessaging.sendMessage(p, RunicFormat.RANKS, "Your ring glows brightly!");
+					}
 				}
 
 			} else {
@@ -1693,45 +1809,151 @@ public class Ranks {
 			p.resetMaxHealth();
 		}
 
+		if ((p.getEnderChest().contains(Borderlands.specialLootDrops("BaronPendant1", p.getUniqueId())))
+				|| p.getEnderChest().contains(Borderlands.specialLootDrops("BaronPendant2", p.getUniqueId()))) {
+
+			if (world.contains("RunicRealm") || world.contains("_end") || world.contains("_nether")
+					|| world.contains("Mining")) {
+
+				if (p.getMaximumAir() < 360) {
+					p.setMaximumAir(360);
+					p.setRemainingAir(360);
+
+					if (fromWorld.equalsIgnoreCase("RunicRealm") || fromWorld.contains("_end")
+							|| fromWorld.contains("_nether") || fromWorld.contains("Mining")) {
+						// no message
+					} else {
+						RunicMessaging.sendMessage(p, RunicFormat.RANKS, "Your pendant buzzes with energy!");
+					}
+
+				} else {
+					p.setMaximumAir(300);
+				}
+			}
+
+		}
+
 	}
-	
-	public static void registerSlimefunItems(){ 
-		
-		Category category = new Category(new CustomItem(new MaterialData(Material.ANVIL), "&4Runic Specialties", "", "&a> Click to open"));
-		
+
+	public static void registerSlimefunItems() {
+
+		Category category = new Category(
+				new CustomItem(new MaterialData(Material.ANVIL), "&4Runic Specialties", "", "&a> Click to open"));
+
 		category.register();
-		
-		SlimefunItem baronMetalIngotPart = new SlimefunItem(category, 
-				new CustomItem(new MaterialData(Material.NETHER_BRICK_ITEM), "&eEngraved Runic Ingot"), 
-				"ENGRAVED_RUNIC_INGOT",
-				RecipeType.SMELTERY,
-				new ItemStack[] {SlimefunItem.getItem("CORINTHIAN_BRONZE_INGOT"), SlimefunItem.getItem("CORINTHIAN_BRONZE_INGOT"), SlimefunItem.getItem("CORINTHIAN_BRONZE_INGOT"),
-						SlimefunItem.getItem("SYNTHETIC_EMERALD"), SlimefunItem.getItem("SYNTHETIC_DIAMOND"), SlimefunItem.getItem("SYNTHETIC_SAPPHIRE"),
-						SlimefunItem.getItem("DAMASCUS_STEEL_INGOT"), SlimefunItem.getItem("DAMASCUS_STEEL_INGOT"), SlimefunItem.getItem("DAMASCUS_STEEL_INGOT")});
-		baronMetalIngotPart.register();
-		
-		ItemStack airRune = SlimefunItem.getItem("ANCIENT_RUNE_AIR");
-		airRune.setAmount(12);
-		ItemStack earthRune = SlimefunItem.getItem("ANCIENT_RUNE_EARTH");
-		earthRune.setAmount(12);
-		ItemStack fireRune = SlimefunItem.getItem("ANCIENT_RUNE_FIRE");
-		fireRune.setAmount(12);
-		ItemStack waterRune = SlimefunItem.getItem("ANCIENT_RUNE_WATER");
-		waterRune.setAmount(6);
-		ItemStack enderRune = SlimefunItem.getItem("ANCIENT_RUNE_ENDER");
-		enderRune.setAmount(18);
-		ItemStack rainbowRune = SlimefunItem.getItem("ANCIENT_RUNE_RAINBOW");
-		rainbowRune.setAmount(3);
-		
-		
-		SlimefunItem baronPrismaticRunicIngot = new SlimefunItem(category, 
-				new CustomItem(new MaterialData(Material.IRON_INGOT), "&9Prismatic Runic Ingot"), 
-				"PRISMATIC_RUNIC_INGOT",
-				RecipeType.SMELTERY,
-				new ItemStack[] {airRune, earthRune, fireRune,
-						null, SlimefunItem.getItem("ENGRAVED_RUNIC_INGOT"), null,
-						waterRune, enderRune, rainbowRune});
-		baronPrismaticRunicIngot.register();
+
+		SlimefunItem baronDiamondPart = new SlimefunItem(category,
+				new CustomItem(new MaterialData(Material.DIAMOND), "&eMist-Infused Diamond"), "MIST_INFUSED_DIAMOND",
+				RecipeType.ANCIENT_ALTAR,
+				new ItemStack[] { SlimefunItem.getItem("ANCIENT_RUNE_WATER"), SlimefunItem.getItem("SYNTHETIC_DIAMOND"),
+						SlimefunItem.getItem("ANCIENT_RUNE_AIR"), SlimefunItem.getItem("SILVER_DUST"),
+						new ItemStack(Material.INK_SACK, 1, (short) DyeColor.LIGHT_BLUE.getDyeData()),
+						SlimefunItem.getItem("SILVER_DUST"), SlimefunItem.getItem("ANCIENT_RUNE_AIR"),
+						SlimefunItem.getItem("SYNTHETIC_DIAMOND"), SlimefunItem.getItem("ANCIENT_RUNE_WATER") });
+		baronDiamondPart.register();
+
+		SlimefunItem baronDiamond2Part = new SlimefunItem(category,
+				new CustomItem(new MaterialData(Material.DIAMOND), "&eLava-Infused Diamond"), "LAVA_INFUSED_DIAMOND",
+				RecipeType.ANCIENT_ALTAR,
+				new ItemStack[] { SlimefunItem.getItem("ANCIENT_RUNE_FIRE"), SlimefunItem.getItem("SYNTHETIC_DIAMOND"),
+						SlimefunItem.getItem("ANCIENT_RUNE_EARTH"), SlimefunItem.getItem("SILVER_DUST"),
+						new ItemStack(Material.INK_SACK, 1, (short) DyeColor.ORANGE.getDyeData()),
+						SlimefunItem.getItem("SILVER_DUST"), SlimefunItem.getItem("ANCIENT_RUNE_EARTH"),
+						SlimefunItem.getItem("SYNTHETIC_DIAMOND"), SlimefunItem.getItem("ANCIENT_RUNE_FIRE") });
+		baronDiamond2Part.register();
+
+		SlimefunItem baronEmeraldPart = new SlimefunItem(category,
+				new CustomItem(new MaterialData(Material.EMERALD), "&eMist-Infused Emerald"), "MIST_INFUSED_EMERALD",
+				RecipeType.ANCIENT_ALTAR,
+				new ItemStack[] { SlimefunItem.getItem("ANCIENT_RUNE_WATER"), SlimefunItem.getItem("SYNTHETIC_EMERALD"),
+						SlimefunItem.getItem("ANCIENT_RUNE_AIR"), SlimefunItem.getItem("ZINC_DUST"),
+						new ItemStack(Material.INK_SACK, 1, (short) DyeColor.LIGHT_BLUE.getDyeData()),
+						SlimefunItem.getItem("ZINC_DUST"), SlimefunItem.getItem("ANCIENT_RUNE_AIR"),
+						SlimefunItem.getItem("SYNTHETIC_EMERALD"), SlimefunItem.getItem("ANCIENT_RUNE_WATER") });
+		baronEmeraldPart.register();
+
+		SlimefunItem baronEmerald2Part = new SlimefunItem(category,
+				new CustomItem(new MaterialData(Material.EMERALD), "&eLava-Infused Emerald"), "LAVA_INFUSED_EMERALD",
+				RecipeType.ANCIENT_ALTAR,
+				new ItemStack[] { SlimefunItem.getItem("ANCIENT_RUNE_FIRE"), SlimefunItem.getItem("SYNTHETIC_EMERALD"),
+						SlimefunItem.getItem("ANCIENT_RUNE_EARTH"), SlimefunItem.getItem("ZINC_DUST"),
+						new ItemStack(Material.INK_SACK, 1, (short) DyeColor.ORANGE.getDyeData()),
+						SlimefunItem.getItem("ZINC_DUST"), SlimefunItem.getItem("ANCIENT_RUNE_EARTH"),
+						SlimefunItem.getItem("SYNTHETIC_EMERALD"), SlimefunItem.getItem("ANCIENT_RUNE_FIRE") });
+		baronEmerald2Part.register();
+
+		SlimefunItem baronSapphirePart = new SlimefunItem(category,
+				new CustomItem(new ItemStack(Material.INK_SACK, 1, (short) DyeColor.BLUE.getDyeData()),
+						"&eMist-Infused Sapphire"),
+				"MIST_INFUSED_SAPPHIRE", RecipeType.ANCIENT_ALTAR,
+				new ItemStack[] { SlimefunItem.getItem("ANCIENT_RUNE_WATER"),
+						SlimefunItem.getItem("SYNTHETIC_SAPPHIRE"), SlimefunItem.getItem("ANCIENT_RUNE_AIR"),
+						SlimefunItem.getItem("ALUMINUM_DUST"),
+						new ItemStack(Material.INK_SACK, 1, (short) DyeColor.LIGHT_BLUE.getDyeData()),
+						SlimefunItem.getItem("ALUMINUM_DUST"), SlimefunItem.getItem("ANCIENT_RUNE_AIR"),
+						SlimefunItem.getItem("SYNTHETIC_SAPPHIRE"), SlimefunItem.getItem("ANCIENT_RUNE_WATER") });
+		baronSapphirePart.register();
+
+		SlimefunItem baronSapphire2Part = new SlimefunItem(category,
+				new CustomItem(new ItemStack(Material.INK_SACK, 1, (short) DyeColor.BLUE.getDyeData()),
+						"&eLava-Infused Sapphire"),
+				"LAVA_INFUSED_SAPPHIRE", RecipeType.ANCIENT_ALTAR,
+				new ItemStack[] { SlimefunItem.getItem("ANCIENT_RUNE_FIRE"), SlimefunItem.getItem("SYNTHETIC_SAPPHIRE"),
+						SlimefunItem.getItem("ANCIENT_RUNE_EARTH"), SlimefunItem.getItem("ALUMINUM_DUST"),
+						new ItemStack(Material.INK_SACK, 1, (short) DyeColor.ORANGE.getDyeData()),
+						SlimefunItem.getItem("ALUMINUM_DUST"), SlimefunItem.getItem("ANCIENT_RUNE_EARTH"),
+						SlimefunItem.getItem("SYNTHETIC_SAPPHIRE"), SlimefunItem.getItem("ANCIENT_RUNE_FIRE") });
+		baronSapphire2Part.register();
+
+		SlimefunItem baronMistyTopaz = new SlimefunItem(category,
+				new CustomItem(new ItemStack(Material.INK_SACK, 1, (short) DyeColor.LIGHT_BLUE.getDyeData()),
+						"&ePrismatic Topaz"),
+				"PRISMATIC_TOPAZ", RecipeType.MAGIC_WORKBENCH,
+				new ItemStack[] { SlimefunItem.getItem("ANCIENT_RUNE_RAINBOW"),
+						SlimefunItem.getItem("MIST_INFUSED_EMERALD"), SlimefunItem.getItem("ANCIENT_RUNE_RAINBOW"),
+						null, new ItemStack(Material.INK_SACK, 1, (short) DyeColor.LIGHT_BLUE.getDyeData()), null,
+						SlimefunItem.getItem("MIST_INFUSED_DIAMOND"), SlimefunItem.getItem("ANCIENT_RUNE_RAINBOW"),
+						SlimefunItem.getItem("MIST_INFUSED_SAPPHIRE") });
+		baronMistyTopaz.register();
+
+		SlimefunItem baronMistyCitrine = new SlimefunItem(category,
+				new CustomItem(new ItemStack(Material.INK_SACK, 1, (short) DyeColor.ORANGE.getDyeData()),
+						"&ePrismatic Citrine"),
+				"PRISMATIC_CITRINE", RecipeType.MAGIC_WORKBENCH,
+				new ItemStack[] { SlimefunItem.getItem("ANCIENT_RUNE_RAINBOW"),
+						SlimefunItem.getItem("LAVA_INFUSED_EMERALD"), SlimefunItem.getItem("ANCIENT_RUNE_RAINBOW"),
+						null, new ItemStack(Material.INK_SACK, 1, (short) DyeColor.YELLOW.getDyeData()), null,
+						SlimefunItem.getItem("LAVA_INFUSED_DIAMOND"), SlimefunItem.getItem("ANCIENT_RUNE_RAINBOW"),
+						SlimefunItem.getItem("LAVA_INFUSED_SAPPHIRE") });
+		baronMistyCitrine.register();
+
+		SlimefunItem baronJewel = new SlimefunItem(category, Borderlands.specialLootDrops("BaronGem", null),
+				"BARON_JEWEL", RecipeType.MAGIC_WORKBENCH,
+				new ItemStack[] { new ItemStack(Material.NETHER_STAR), SlimefunItem.getItem("PRISMATIC_CITRINE"),
+						new ItemStack(Material.NETHER_STAR), SlimefunItem.getItem("ANCIENT_RUNE_ENDER"),
+						new ItemStack(Material.INK_SACK, 1, (short) 12), SlimefunItem.getItem("ANCIENT_RUNE_ENDER"),
+						new ItemStack(Material.NETHER_STAR), SlimefunItem.getItem("PRISMATIC_TOPAZ"),
+						new ItemStack(Material.NETHER_STAR) });
+		baronJewel.register();
+
+		SlimefunItem baronIngot1 = new SlimefunItem(category, Borderlands.specialLootDrops("BaronIngot1", null),
+				"EMPOWERED_SILVER_INGOT", RecipeType.SMELTERY,
+				new ItemStack[] { Borderlands.specialLootDrops("BaronMetal", null),
+						Borderlands.specialLootDrops("BaronMetal", null),
+						Borderlands.specialLootDrops("BaronMetal", null), SlimefunItem.getItem("NETHER_ICE"),
+						SlimefunItem.getItem("NETHER_ICE"), SlimefunItem.getItem("NETHER_ICE"),
+						Borderlands.specialLootDrops("BaronMetal", null),
+						Borderlands.specialLootDrops("BaronMetal", null),
+						Borderlands.specialLootDrops("BaronMetal", null) });
+		baronIngot1.register();
+
+		SlimefunItem baronIngot2 = new SlimefunItem(category, Borderlands.specialLootDrops("BaronIngot2", null),
+				"CARVED_SILVER_INGOT", RecipeType.SMELTERY,
+				new ItemStack[] { SlimefunItem.getItem("BLISTERING_INGOT_2"), null,
+						SlimefunItem.getItem("BLISTERING_INGOT_2"), SlimefunItem.getItem("ENRICHED_NETHER_ICE"),
+						SlimefunItem.getItem("ENRICHED_NETHER_ICE"), SlimefunItem.getItem("ENRICHED_NETHER_ICE"),
+						SlimefunItem.getItem("BLISTERING_INGOT_2"), null, SlimefunItem.getItem("BLISTERING_INGOT_2") });
+		baronIngot2.register();
 
 	}
 

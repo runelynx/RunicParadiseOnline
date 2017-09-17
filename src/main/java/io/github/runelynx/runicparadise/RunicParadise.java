@@ -12,8 +12,16 @@ import io.github.runelynx.runicuniverse.RunicMessaging.RunicFormat;
 import io.github.runelynx.runicuniverse.RunicUniverse;
 import io.github.runelynx.runicuniverse.RunicUniverse.*;
 
+import com.sk89q.worldedit.BlockVector;
+import com.sk89q.worldguard.bukkit.BukkitUtil;
+import com.sk89q.worldguard.bukkit.RegionContainer;
 import com.sk89q.worldguard.bukkit.WGBukkit;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
+import com.sk89q.worldguard.domains.DefaultDomain;
+import com.sk89q.worldguard.protection.ApplicableRegionSet;
+import com.sk89q.worldguard.protection.managers.RegionManager;
+import com.sk89q.worldguard.protection.regions.ProtectedCuboidRegion;
+import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 
@@ -50,6 +58,7 @@ import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.SkullType;
+import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -75,6 +84,7 @@ import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
+import org.bukkit.event.world.PortalCreateEvent;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -165,7 +175,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 		instance = this;
 
 		RunicMessaging.initializeAnnouncements(instance);
-		
+
 		Ranks.registerSlimefunItems();
 
 		getConfig().options().copyDefaults(true);
@@ -194,7 +204,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 		Bukkit.dispatchCommand(Bukkit.getConsoleSender(), tempInvSetting);
 
 		Borderlands.initializeBorderlands();
-	
+
 		// Register entity types to track kills for player profile data. 0=dont
 		// track, 1=do track hostile, 2=do track passive
 		// If you update these, be sure to also update the database retrieval in
@@ -544,8 +554,8 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 					if (p.isGliding()) {
 						p.setGliding(false);
 						p.setVelocity(new Vector(0, -2, 0));
-p.teleport(new Location(p.getWorld(), -438.476, 104.7000, 385.464, 8.159058F, 89.7F));
-					
+						p.teleport(new Location(p.getWorld(), -438.476, 104.7000, 385.464, 8.159058F, 89.7F));
+
 					}
 				}
 
@@ -589,11 +599,11 @@ p.teleport(new Location(p.getWorld(), -438.476, 104.7000, 385.464, 8.159058F, 89
 		if (event.getLocation().getX() > 7500 || event.getLocation().getX() < -7500 || event.getLocation().getZ() > 7500
 				|| event.getLocation().getZ() < -7500) {
 			// Confirmed spawn is in the borderlands!!
-			
+
 			if (!event.getSpawnReason().equals(SpawnReason.SPAWNER)) {
-				Borderlands.spawnBLMob(event);	
+				Borderlands.spawnBLMob(event);
 			}
-			
+
 		}
 	}
 
@@ -1304,9 +1314,9 @@ p.teleport(new Location(p.getWorld(), -438.476, 104.7000, 385.464, 8.159058F, 89
 
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onPlayerTeleport(PlayerTeleportEvent event) {
-		
-		if (event.getPlayer().hasPermission("rp.ranks.duke")){
-			Ranks.applyFeudalBonus(event.getPlayer(), event.getTo().getWorld().getName());
+
+		if (event.getPlayer().hasPermission("rp.ranks.duke")) {
+			Ranks.applyFeudalBonus(event.getPlayer(), event.getTo().getWorld().getName(), event.getFrom().getWorld().getName());
 		}
 
 		Faith.tryCast_PlayerTeleported(event);
@@ -1359,17 +1369,14 @@ p.teleport(new Location(p.getWorld(), -438.476, 104.7000, 385.464, 8.159058F, 89
 			if (event.getClickedBlock().getType() == Material.SKULL) {
 				if (event.getItem().getType().equals(Material.BOOK)) {
 					event.setCancelled(true);
-					
+
 					event.getPlayer().getLocation().getWorld().createExplosion(event.getPlayer().getLocation(), 1);
 					RunicMessaging.sendMessage(event.getPlayer(), RunicFormat.ERROR, "You can't do that :(");
-					
+
 					event.getPlayer().closeInventory();
 				}
 			}
-			
-			
-			
-			
+
 			// process Spawn SKynet menu clicks -- right click
 			if ((event.getClickedBlock().getWorld().getName().equals("RunicSky")
 					&& ((event.getClickedBlock().getType() == Material.SKULL && event.getClickedBlock().getLocation()
@@ -1591,6 +1598,38 @@ p.teleport(new Location(p.getWorld(), -438.476, 104.7000, 385.464, 8.159058F, 89
 	}
 
 	@EventHandler(priority = EventPriority.NORMAL)
+	public void onPortalCreate(final PortalCreateEvent event) {
+
+		// Block nether portals from being created in UnderRunic
+		if (event.getWorld().getName().contains("nether")
+				&& event.getReason() == PortalCreateEvent.CreateReason.OBC_DESTINATION) {
+			for (Block b : event.getBlocks()) {
+
+				Location loc = b.getLocation();
+				RegionContainer container = RunicParadise.wgPlugin.getRegionContainer();
+				RegionManager regions = container.get(loc.getWorld());
+				// Check to make sure that "regions" is not null
+				ApplicableRegionSet set = regions.getApplicableRegions(BukkitUtil.toVector(loc));
+
+				if (set.isVirtual() || set.size() == 0) {
+					// no overlapping regions were found!
+
+				} else {
+					// overlapping regions were found
+					for (ProtectedRegion pr : set.getRegions()) {
+						if (pr.getId().equalsIgnoreCase("undead")) {
+							event.setCancelled(true);
+						}
+					}
+				}
+				// stop the For loop early - we're only going to check one block.
+				return;
+			}
+		}
+
+	}
+
+	@EventHandler(priority = EventPriority.NORMAL)
 	public void onPlayerDamage(final EntityDamageEvent ede) {
 
 		boolean daytime;
@@ -1718,14 +1757,13 @@ p.teleport(new Location(p.getWorld(), -438.476, 104.7000, 385.464, 8.159058F, 89
 		if (ede.getEntity() instanceof LivingEntity) {
 
 			final LivingEntity monsterEnt = (LivingEntity) ede.getEntity();
-			
 
 			// if a monster has died and killer was player
 			if (monsterEnt.getLastDamageCause() instanceof EntityDamageByEntityEvent
 					&& ((EntityDamageByEntityEvent) monsterEnt.getLastDamageCause()).getDamager() instanceof Player) {
 
 				EntityDamageByEntityEvent nEvent = (EntityDamageByEntityEvent) monsterEnt.getLastDamageCause();
-				
+
 				Faith.tryCast_PlayerKilledMonster(ede, (Player) nEvent.getDamager());
 
 				// check for farming
@@ -1737,7 +1775,6 @@ p.teleport(new Location(p.getWorld(), -438.476, 104.7000, 385.464, 8.159058F, 89
 				}
 
 			}
-
 
 			EntityDamageEvent e = monsterEnt.getLastDamageCause();
 			if (e instanceof EntityDamageByEntityEvent) {
@@ -3331,7 +3368,7 @@ p.teleport(new Location(p.getWorld(), -438.476, 104.7000, 385.464, 8.159058F, 89
 
 		return completionCount;
 	}
-	
+
 	public static int getPlayerDistinctMazeCompletionCount(Player p) {
 		int completionCount = 0;
 
@@ -3341,8 +3378,10 @@ p.teleport(new Location(p.getWorld(), -438.476, 104.7000, 385.464, 8.159058F, 89
 					instance.getConfig().getString("dbUser"), instance.getConfig().getString("dbPassword"));
 			final Connection dbCon = MySQL.openConnection();
 			Statement dbStmt = dbCon.createStatement();
-			ResultSet mcResult = dbStmt.executeQuery("SELECT COUNT(rp_RunicGameCompletions.ID) AS Count FROM rp_RunicGameCompletions INNER JOIN rp_RunicGames on rp_RunicGameCompletions.GameID = rp_RunicGames.ID "
-					+ "WHERE rp_RunicGameCompletions.UUID='" + p.getUniqueId() + "' AND rp_RunicGames.GameType = 'Maze';");
+			ResultSet mcResult = dbStmt.executeQuery(
+					"SELECT COUNT(rp_RunicGameCompletions.ID) AS Count FROM rp_RunicGameCompletions INNER JOIN rp_RunicGames on rp_RunicGameCompletions.GameID = rp_RunicGames.ID "
+							+ "WHERE rp_RunicGameCompletions.UUID='" + p.getUniqueId()
+							+ "' AND rp_RunicGames.GameType = 'Maze';");
 			if (!mcResult.isBeforeFirst()) {
 				// No results
 				// do nothing
@@ -3363,7 +3402,8 @@ p.teleport(new Location(p.getWorld(), -438.476, 104.7000, 385.464, 8.159058F, 89
 			}
 
 		} catch (SQLException z) {
-			Bukkit.getLogger().log(Level.SEVERE, "Failed getting getPlayerDistinctMazeCompletionCount count -" + z.getMessage());
+			Bukkit.getLogger().log(Level.SEVERE,
+					"Failed getting getPlayerDistinctMazeCompletionCount count -" + z.getMessage());
 		}
 
 		return completionCount;

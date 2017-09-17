@@ -22,7 +22,7 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry combineaccessrules="false" kind="src" path="/RunicUniverse"/>
-	<classpathentry kind="lib" path="C:/Users/Andrew/Desktop/new updates/CS-CoreLib v1.5.14.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Andrew/Desktop/new updates/Slimefun v4.1.8.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Andrew/Downloads/0609/CS-CoreLib v1.5.15.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Andrew/Downloads/0609/Slimefun v4.1.9.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

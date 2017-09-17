@@ -963,7 +963,8 @@ public class Faith {
 			if (level > RunicParadise.powerReqsMap.get("Netherborn")) {
 
 				// Cast Netherborn if player is going into the nether
-				if (event.getTo().getWorld().getName().equals("RunicRealm_nether")) {
+				if (event.getTo().getWorld().getName().equals("RunicRealm_nether")
+						&& !event.getFrom().getWorld().getName().equals("RunicRealm_nether")) {
 					pfo.castNether_Netherborn(event.getPlayer());
 					// Remove Netherborn if player is leaving the nether
 				} else if (event.getFrom().getWorld().getName().equals("RunicRealm_nether")) {
@@ -1075,6 +1076,12 @@ public class Faith {
 		String faith = pfo.getPrimaryFaith();
 		int level = pfo.getPrimaryFaithLevel();
 
+		if (faith == null) {
+			Bukkit.getLogger().log(Level.WARNING,
+					"Error in tryCast_PlayerKilledMonster - failed to find faith object for " + p.getName());
+			return;
+		}
+
 		switch (faith) {
 
 		case "Nether":
@@ -1097,10 +1104,10 @@ public class Faith {
 				Integer.parseInt(RunicParadise.faithSettingsMap.get(faithName)[4]))) {
 			if (randomNum <= (5 * chance)) {
 				this.incrementSkill(p, faithName);
-				
-				//check for rank item drop
+
+				// check for rank item drop
 				tryForRankItem(p, "Faith SkillUp");
-				
+
 				if (p.hasPermission("killermoney.multiplier.2")) {
 					this.incrementSkill(p, faithName);
 				}
@@ -1335,13 +1342,13 @@ public class Faith {
 			p.addPotionEffect(new PotionEffect(PotionEffectType.INCREASE_DAMAGE, 300, 1));
 
 			sendCastMessage(p, spellName, "Sun");
-			
+
 			tryForRankItem(p, "Sun SolarPower");
 			getLogger().log(Level.INFO, "Faith Info: " + p.getName() + " just cast " + spellName + "!");
-			ParticleEffect.DRIP_LAVA.display(0, 1, 0, 1, 20, p.getLocation(), 2);
+
 		}
 	}
-	
+
 	public void castFlame_VolcanicFury(UUID pUUID, Player p) {
 		// 2% chance to +damage when dealing damage to monsters
 		String spellName = "Volcanic Fury";
@@ -1349,10 +1356,10 @@ public class Faith {
 			p.addPotionEffect(new PotionEffect(PotionEffectType.INCREASE_DAMAGE, 150, 2));
 
 			sendCastMessage(p, spellName, "Fire");
-			
+
 			tryForRankItem(p, "Fire VolcanicFury");
 			getLogger().log(Level.INFO, "Faith Info: " + p.getName() + " just cast " + spellName + "!");
-			ParticleEffect.DRIP_LAVA.display(0, 1, 0, 1, 20, p.getLocation(), 2);
+
 		}
 	}
 
@@ -1375,9 +1382,9 @@ public class Faith {
 			Random rand = new Random();
 			int number = rand.nextInt(100) + 1;
 			if (number >= 80) {
-				
+
 				tryForRankItem(player, "Fate InevitableDemise");
-				
+
 				for (final Entity entity : getTargets.getTargetList(player.getLocation(), 2)) {
 					if (((entity instanceof LivingEntity)) && (entity != player)) {
 						((LivingEntity) entity).setHealth(0);
@@ -1427,7 +1434,7 @@ public class Faith {
 			sendCastMessage(p, spellName, "Fire");
 			tryForRankItem(p, "Flame UnstableEmbers");
 
-			ParticleEffect.EXPLOSION_HUGE.display(0.1f, 0.1f, 0.1f, 0.1f, 50, p.getLocation(), 18.0);
+
 			for (Entity entity : getTargets.getTargetList(p.getLocation(), 4)) {
 				if (((entity instanceof LivingEntity)) && (entity != p)) {
 					((LivingEntity) entity).damage(4);
@@ -1490,9 +1497,9 @@ public class Faith {
 				if (entity instanceof Player) {
 					String spellName = "Healing Breeze";
 					sendCastMessage(player, spellName, "Air");
-					
+
 					tryForRankItem(player, "Air HealingBreeze");
-					
+
 					((LivingEntity) entity).addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 200, 1));
 					((Player) entity).sendMessage(
 							ChatColor.GRAY + "" + ChatColor.ITALIC + "You feel refreshed by a soothing breeze");
@@ -1537,8 +1544,7 @@ public class Faith {
 						}
 						String spellName = "Earths Bounty";
 						sendCastMessage(e.getPlayer(), spellName, "Earth");
-						
-						
+
 						p.sendMessage(ChatColor.GREEN + "There are " + diamonds + " diamond(s) and " + emeralds
 								+ " emerald(s) near you!");
 
@@ -1566,8 +1572,7 @@ public class Faith {
 					p.addPotionEffect(new PotionEffect(PotionEffectType.WATER_BREATHING, 12000, 1));
 
 					String spellName = "Deep Wader";
-					ParticleEffect.WATER_WAKE.display((float) 10.0, (float) 10.0, (float) 10.0, (float) 1.0, 25,
-							p.getLocation(), 30.0);
+
 
 					sendCastMessage(e.getPlayer(), spellName, "Water");
 					tryForRankItem(e.getPlayer(), "Water DeepWader");
@@ -1615,7 +1620,12 @@ public class Faith {
 		int number = rand.nextInt(100) + 1;
 		if (number >= 80) {
 			Player p = (Player) nEvent.getDamager();
-			p.setHealth(p.getHealth() + 3);
+
+			if (p.getHealth() >= p.getMaxHealth() - 3) {
+				p.setHealth(p.getMaxHealth());
+			} else {
+				p.setHealth(p.getHealth() + 3);
+			}
 			String spellName = "Vampirism";
 			sendCastMessage(p, spellName, "Nether");
 			tryForRankItem(p, "Nether Vampirism");
@@ -1634,7 +1644,7 @@ public class Faith {
 			String spellName = "Gravity Flux";
 			sendCastMessage(p, spellName, "Aether");
 			tryForRankItem(p, "Aether GravityFlux");
-			
+
 			for (Entity e : p.getNearbyEntities(7, 7, 7)) {
 				if (e instanceof Monster) {
 					e.setVelocity(new Vector(e.getVelocity().getX(), 1, e.getVelocity().getZ()));
@@ -1653,8 +1663,8 @@ public class Faith {
 		if (number <= 20) {
 			String spellName = "Graceful Steps";
 			sendCastMessage(p, spellName, "Aether");
-			
-			//tryForRankItem(p, "Aether GracefulSteps");
+
+			// tryForRankItem(p, "Aether GracefulSteps");
 
 			p.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 300, 0));
 		}
@@ -1724,9 +1734,9 @@ public class Faith {
 		if (number <= 3) {
 			String spellName = "Arctic Frost";
 			sendCastMessage(p, spellName, "Water");
-			
+
 			tryForRankItem(p, "Water ArcticFrost");
-			
+
 			for (Entity e : p.getNearbyEntities(7, 7, 7)) {
 				if (e instanceof Monster) {
 					((Monster) e).addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 150, 2));
@@ -2089,21 +2099,33 @@ public class Faith {
 	public void tryForRankItem(Player p, String info) {
 
 		String rank = RunicParadise.perms.getPrimaryGroup(p);
-		
-		if ((RunicParadise.playerProfiles.get(p.getUniqueId()).isFarming)) {
+
+		if ((RunicParadise.playerProfiles.get(p.getUniqueId()).isPlayerFarming())) {
+
 			return;
 			// player is farming, don't even try for a drop
+
 		}
-		
+
 		Random rand = new Random();
 		int value = rand.nextInt(1000);
 
 		if (rank.equals("Master")) {
-			if (value >= 250 && value <= (250 + (1000 * .50))) {
-				p.getLocation().getWorld().dropItemNaturally(p.getLocation(), Borderlands.specialLootDrops("DukeEssence", p.getUniqueId()));
-				RunicMessaging.sendMessage(p, RunicFormat.RANKS, "Your faith has crystallized a memory!");
-				RunicParadise.playerProfiles.get(p.getUniqueId()).logSpecialRankDrop("DukeEssence", "Faith " + info);
+			if (value >= 250 && value <= (250 + (1000 * .30))) {
+				if (p.getInventory().firstEmpty() != -1) {
+					p.getInventory().addItem(Borderlands.specialLootDrops("DukeEssence", p.getUniqueId()));
+					RunicMessaging.sendMessage(p, RunicFormat.RANKS,
+							"Your faith has crystallized a memory into your inventory!");
+					RunicParadise.playerProfiles.get(p.getUniqueId()).logSpecialRankDrop("DukeEssence",
+							"Faith " + info);
+				} else {
+					RunicMessaging.sendMessage(p, RunicFormat.ERROR,
+							"Make room in your inventory for memory drops please.");
+				}
+
 			}
+
+		} else {
 
 		}
 

@@ -2713,11 +2713,14 @@ public class Commands implements CommandExecutor {
 		case "rankitem":
 			if (args.length == 3 && args[1].equals("DukeMetal") && args[0].equalsIgnoreCase("Give")) {
 				Bukkit.getPlayer(args[2]).getLocation().getWorld().dropItemNaturally(Bukkit.getPlayer(args[2]).getLocation(), Borderlands.specialLootDrops("DukeMetal", Bukkit.getPlayer(args[2]).getUniqueId()));
-			} else if (args.length == 3 && args[0].equalsIgnoreCase("Check")) {
+				Bukkit.getPlayer(args[2]).getLocation().getWorld().dropItemNaturally(Bukkit.getPlayer(args[2]).getLocation(), Borderlands.specialLootDrops("DukeMetal", Bukkit.getPlayer(args[2]).getUniqueId()));
+			} else if (args.length == 3 && args[1].equals("BaronMetal") && args[0].equalsIgnoreCase("Give")) {
+				Bukkit.getPlayer(args[2]).getLocation().getWorld().dropItemNaturally(Bukkit.getPlayer(args[2]).getLocation(), Borderlands.specialLootDrops("BaronMetal", Bukkit.getPlayer(args[2]).getUniqueId()));
+			}else if (args.length == 3 && args[0].equalsIgnoreCase("Check")) {
 				
 				//rankitem check duke runelynx
 				Ranks.craftFeudalJewelry(Bukkit.getPlayer(args[2]), args[1]);
-			}
+			} 
 			
 			break;
 		case "rptokens":
@@ -3598,6 +3601,12 @@ public class Commands implements CommandExecutor {
 		case "RPTEST":
 		case "Rptest":
 			
+			((Player)sender).getLocation().getWorld().dropItemNaturally(((Player)sender).getLocation(), Borderlands.specialLootDrops("BaronMetal", ((Player)sender).getUniqueId()));
+			((Player)sender).getLocation().getWorld().dropItemNaturally(((Player)sender).getLocation(), Borderlands.specialLootDrops("BaronGem", ((Player)sender).getUniqueId()));
+			
+			((Player)sender).getLocation().getWorld().dropItemNaturally(((Player)sender).getLocation(), Borderlands.specialLootDrops("BaronIngot1", ((Player)sender).getUniqueId()));
+			((Player)sender).getLocation().getWorld().dropItemNaturally(((Player)sender).getLocation(), Borderlands.specialLootDrops("BaronIngot2", ((Player)sender).getUniqueId()));
+			
 			((Player)sender).getLocation().getWorld().dropItemNaturally(((Player)sender).getLocation(), Borderlands.specialLootDrops("DukeGem", ((Player)sender).getUniqueId()));
 			((Player)sender).getLocation().getWorld().dropItemNaturally(((Player)sender).getLocation(), Borderlands.specialLootDrops("DukeMetal", ((Player)sender).getUniqueId()));
 			((Player)sender).getLocation().getWorld().dropItemNaturally(((Player)sender).getLocation(), Borderlands.specialLootDrops("DukeEssence", ((Player)sender).getUniqueId()));
@@ -3606,6 +3615,8 @@ public class Commands implements CommandExecutor {
 			((Player)sender).getLocation().getWorld().dropItemNaturally(((Player)sender).getLocation(), Borderlands.specialLootDrops("DukeRing2", ((Player)sender).getUniqueId()));
 			((Player)sender).getLocation().getWorld().dropItemNaturally(((Player)sender).getLocation(), Borderlands.specialLootDrops("DukeRing3", ((Player)sender).getUniqueId()));
 			((Player)sender).getLocation().getWorld().dropItemNaturally(((Player)sender).getLocation(), Borderlands.specialLootDrops("DukeRing4", ((Player)sender).getUniqueId()));
+			
+			((Player)sender).sendMessage(((Player)sender).getMaximumAir() + " max air ticks. " + ((Player)sender).getRemainingAir() + " remaining air ticks.");
 			
 			/*
 			sender.sendMessage(EntityType.ARROW.name() + " ... " + EntityType.HUSK.name());

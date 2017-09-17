@@ -264,10 +264,10 @@ public class Borderlands {
 			} else if (RunicParadise.playerProfiles.get(p.getUniqueId()).rankDropCountLast24Hours >= 3
 					&& !RunicParadise.playerProfiles.get(p.getUniqueId()).isFarming) {
 				percentChanceForSpecialRankDrop = .21;
-			}  else if (RunicParadise.playerProfiles.get(p.getUniqueId()).rankDropCountLast24Hours >= 2
+			} else if (RunicParadise.playerProfiles.get(p.getUniqueId()).rankDropCountLast24Hours >= 2
 					&& !RunicParadise.playerProfiles.get(p.getUniqueId()).isFarming) {
 				percentChanceForSpecialRankDrop = .29;
-			}  else if (RunicParadise.playerProfiles.get(p.getUniqueId()).rankDropCountLast24Hours <= 1
+			} else if (RunicParadise.playerProfiles.get(p.getUniqueId()).rankDropCountLast24Hours <= 1
 					&& !RunicParadise.playerProfiles.get(p.getUniqueId()).isFarming) {
 				percentChanceForSpecialRankDrop = .37;
 			} else {
@@ -888,8 +888,6 @@ public class Borderlands {
 
 	private static void buildBLMob_Zombie(Zombie monster, Mobs mob) {
 
-		
-		
 		monster.setCustomName(mob.customName);
 		monster.setCustomNameVisible(true);
 		monster.setRemoveWhenFarAway(true);
@@ -1215,35 +1213,103 @@ public class Borderlands {
 		ArrayList<String> loreText = new ArrayList<String>();
 
 		switch (key) {
-		case "BaronMetal":
+		case "BaronPendant1":
 			item = new ItemStack(Material.INK_SACK, 1, (short) 12);
 			meta = item.getItemMeta();
-			meta.setDisplayName(ChatColor.AQUA + "Prismatic ");
+			meta.setDisplayName(ChatColor.DARK_RED + "Baron Alex's Harmonic Pendant");
+			meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ENCHANTS);
+			meta.addEnchant(Enchantment.LUCK, 1, true);
+			loreText.clear();
 			loreText.add("");
-			loreText.add(ChatColor.GRAY + "This empowered gem is part");
-			loreText.add(ChatColor.GRAY + "of the Pendant of the Baron.");
-			loreText.add(
-					ChatColor.GRAY + "See " + ChatColor.YELLOW + "/warp BaronPendant" + ChatColor.GRAY + " for more info.");
-			loreText.add(ChatColor.GRAY + "");
+			loreText.add(ChatColor.GRAY + "A gem-encrusted silver pendant empowered");
+			loreText.add(ChatColor.GRAY + "by radiation. Legends say that Baron Alex");
+			loreText.add(ChatColor.GRAY + "was the first to discover that unstable metals ");
+			loreText.add(ChatColor.GRAY + "disrupted water molecules, allowing the holder");
+			loreText.add(ChatColor.GRAY + "to breathe longer while underwater.");
+			loreText.add("");
+			loreText.add(ChatColor.AQUA + "+3 seconds of air while swimming");
+			loreText.add(ChatColor.GRAY + "(put this in your ender chest to 'wear' it)");
 			loreText.add(ChatColor.DARK_GRAY + playerUUID.toString());
 			meta.setLore(loreText);
-			item.setItemMeta(meta);			
-			
+			item.setItemMeta(meta);
+			return item;
+		case "BaronPendant2":
+			item = new ItemStack(Material.INK_SACK, 1, (short) 12);
+			meta = item.getItemMeta();
+			meta.setDisplayName(ChatColor.DARK_RED + "Baroness Runa's Dissonant Pendant");
+			meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ENCHANTS);
+			meta.addEnchant(Enchantment.LUCK, 1, true);
+			loreText.clear();
+			loreText.add("");
+			loreText.add(ChatColor.GRAY + "A gem-encrusted silver pendant empowered");
+			loreText.add(ChatColor.GRAY + "by radiation. Legends say it was constructed");
+			loreText.add(ChatColor.GRAY + " by Baroness Runa after her brother drowned.");
+			loreText.add(ChatColor.GRAY + "The radiation allows the holder to breathe");
+			loreText.add(ChatColor.GRAY + "longer while underwater.");
+			loreText.add("");
+			loreText.add(ChatColor.AQUA + "+3 seconds of air while swimming");
+			loreText.add(ChatColor.GRAY + "(put this in your ender chest to 'wear' it)");
+			loreText.add(ChatColor.DARK_GRAY + playerUUID.toString());
+			meta.setLore(loreText);
+			item.setItemMeta(meta);
+			return item;
+		case "BaronMetal":
+			item = new ItemStack(Material.IRON_NUGGET, 1);
+			meta = item.getItemMeta();
+			meta.setDisplayName(ChatColor.AQUA + "Shiny Bit of Silver");
+			loreText.add("");
+			loreText.add(ChatColor.GRAY + "Collect these to form");
+			loreText.add(ChatColor.GRAY + "the Pendant of the Baron.");
+			loreText.add(ChatColor.GRAY + "See " + ChatColor.YELLOW + "/warp BaronPendant" + ChatColor.GRAY
+					+ " for more info.");
+			meta.setLore(loreText);
+			item.setItemMeta(meta);
+
 			return item;
 		case "BaronGem":
 			item = new ItemStack(Material.INK_SACK, 1, (short) 12);
 			meta = item.getItemMeta();
-			meta.setDisplayName(ChatColor.AQUA + "Energized Topaz");
+			meta.setDisplayName(ChatColor.AQUA + "Prismatic Jewel of the Nether Baron");
 			loreText.add("");
-			loreText.add(ChatColor.GRAY + "This empowered gem is part");
+			loreText.add(ChatColor.GRAY + "This glowing jewel is part");
 			loreText.add(ChatColor.GRAY + "of the Pendant of the Baron.");
-			loreText.add(
-					ChatColor.GRAY + "See " + ChatColor.YELLOW + "/warp BaronPendant" + ChatColor.GRAY + " for more info.");
-			loreText.add(ChatColor.GRAY + "");
-			loreText.add(ChatColor.DARK_GRAY + playerUUID.toString());
+			loreText.add(ChatColor.GRAY + "See " + ChatColor.YELLOW + "/warp BaronPendant" + ChatColor.GRAY
+					+ " for more info.");
+			// loreText.add(ChatColor.GRAY + "");
+			// loreText.add(ChatColor.DARK_GRAY + playerUUID.toString());
 			meta.setLore(loreText);
-			item.setItemMeta(meta);			
-			
+			item.setItemMeta(meta);
+
+			return item;
+		case "BaronIngot1":
+			item = new ItemStack(Material.IRON_INGOT, 1);
+			meta = item.getItemMeta();
+			meta.setDisplayName(ChatColor.AQUA + "Empowered Silver Ingot");
+			loreText.add("");
+			loreText.add(ChatColor.GRAY + "This buzzing ingot is part");
+			loreText.add(ChatColor.GRAY + "of the Pendant of the Baron.");
+			loreText.add(ChatColor.GRAY + "See " + ChatColor.YELLOW + "/warp BaronPendant" + ChatColor.GRAY
+					+ " for more info.");
+			// loreText.add(ChatColor.GRAY + "");
+			// loreText.add(ChatColor.DARK_GRAY + playerUUID.toString());
+			meta.setLore(loreText);
+			item.setItemMeta(meta);
+
+			return item;
+		case "BaronIngot2":
+			item = new ItemStack(Material.IRON_INGOT, 1);
+			meta = item.getItemMeta();
+			meta.setDisplayName(ChatColor.AQUA + "Unstable Silver Ingot");
+			loreText.add("");
+			loreText.add(ChatColor.GRAY + "This pulsing ingot is part");
+			loreText.add(ChatColor.GRAY + "of the Pendant of the Baron.");
+			loreText.add(ChatColor.GRAY + "See " + ChatColor.YELLOW + "/warp BaronPendant" + ChatColor.GRAY
+					+ " for more info.");
+			// loreText.add(ChatColor.GRAY + "");
+			// loreText.add(ChatColor.DARK_GRAY + playerUUID.toString());
+			meta.setLore(loreText);
+			item.setItemMeta(meta);
+
 			return item;
 		case "DukeGem":
 			item = new ItemStack(Material.INK_SACK, 1, (short) 5);
@@ -1257,8 +1323,8 @@ public class Borderlands {
 			loreText.add(ChatColor.GRAY + "");
 			loreText.add(ChatColor.DARK_GRAY + playerUUID.toString());
 			meta.setLore(loreText);
-			item.setItemMeta(meta);			
-			
+			item.setItemMeta(meta);
+
 			return item;
 		case "DukeMetal":
 			item = new ItemStack(Material.GOLD_NUGGET);

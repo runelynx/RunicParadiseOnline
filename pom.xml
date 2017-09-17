@@ -19,10 +19,10 @@
 			<version>6.1.1-SNAPSHOT</version>
 		</dependency>
 		<dependency>
-			<groupId>net.milkbowl.vault</groupId>
-			<artifactId>VaultAPI</artifactId>
-			<version>1.5</version>
-			<type>jar</type>
+			<groupId>org.natrolite</groupId>
+			<artifactId>vault-api</artifactId>
+			<version>1.6.1</version>
+			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>de.slikey</groupId>
@@ -122,8 +122,8 @@
 			<url>https://repo.prok.pw/</url>
 		</repository>
 		<repository>
-			<id>vault-repo</id>
-			<url>http://nexus.theyeticave.net/content/repositories/pub_releases</url>
+			<id>natrolite-repo</id>
+			<url>https://repo.natrolite.org/repository/maven-public/</url>
 		</repository>
 		<repository>
 			<id>my-local-repo</id>
