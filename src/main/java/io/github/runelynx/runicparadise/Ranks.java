@@ -288,7 +288,7 @@ public class Ranks {
 		user.sendMessage(ChatColor.GRAY + MASTER_KILLS);
 		user.sendMessage(ChatColor.DARK_GREEN + "Duke - " + ChatColor.GRAY + " 10 mazes, 10 jobs mastered, duke ring (/warp dukering), "
 				+ DUKE_RUNICS + " R.");
-		user.sendMessage(ChatColor.GOLD + "Brawler - " + ChatColor.GRAY + " 12 mazes, 12 jobs mastered, baron pendant (/warp baronpendant), "
+		user.sendMessage(ChatColor.GOLD + "Baron - " + ChatColor.GRAY + " 12 mazes, 12 jobs mastered, baron pendant (/warp baronpendant), "
 				+ BARON_RUNICS + " R.");
 	}
 

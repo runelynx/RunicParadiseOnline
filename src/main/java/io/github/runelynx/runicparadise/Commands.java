@@ -218,10 +218,13 @@ public class Commands implements CommandExecutor {
 			int tickets = 0;
 			int raffleCount = 0;
 			int totalRaffleCount = 0;
+			int ticketCost = 5000;
+			int maxPurchaseTickets = 1000;
+			String raffleNameColor = "&bW&3i&bn&ft&be&3r &bR&fa&bf&3f&bl&fe";
 
 			// HANDLE PURCHASED TICKETS
 			if (args.length == 2 && args[0].equalsIgnoreCase("buy") && Integer.parseInt(args[1]) > 0
-					&& Integer.parseInt(args[1]) <= 100) {
+					&& Integer.parseInt(args[1]) <= maxPurchaseTickets) {
 				tickets = Integer.parseInt(args[1]);
 				try {
 					final Connection d = MySQL.openConnection();
@@ -251,15 +254,15 @@ public class Commands implements CommandExecutor {
 
 					}
 
-					if ((raffleCount + tickets) <= 100) {
-						// MAX PURCHASE 100 TICKETS
-						if (RunicParadise.economy
-								.getBalance(Bukkit.getOfflinePlayer(rafflePlayer.getUniqueId())) >= (1000 * tickets)) {
+					if ((raffleCount + tickets) <= maxPurchaseTickets) {
+						// MAX PURCHASE ... TICKETS
+						if (RunicParadise.economy.getBalance(
+								Bukkit.getOfflinePlayer(rafflePlayer.getUniqueId())) >= (ticketCost * tickets)) {
 							RunicParadise.economy.withdrawPlayer(Bukkit.getOfflinePlayer(rafflePlayer.getUniqueId()),
-									(1000 * tickets));
+									(ticketCost * tickets));
 							RunicMessaging.sendMessage(rafflePlayer, RunicMessaging.RunicFormat.RAFFLE,
-									"You spent " + (1000 * tickets) + " on " + tickets + " ticket(s) for the "
-											+ ChatColor.GREEN + "Spring Raffle");
+									"You spent " + (ticketCost * tickets) + " on " + tickets + " ticket(s) for the "
+											+ ChatColor.translateAlternateColorCodes('&', raffleNameColor));
 
 							PreparedStatement insertStmt = d.prepareStatement(
 									"INSERT INTO rp_RunicRaffleTickets (PlayerName, UUID, Timestamp, RaffleID, Source, Quantity) VALUES "
@@ -270,7 +273,8 @@ public class Commands implements CommandExecutor {
 
 						} else {
 							RunicMessaging.sendMessage(rafflePlayer, RunicMessaging.RunicFormat.RAFFLE,
-									"A raffle ticket costs 100 runics each! Get more money!");
+									"A " + ChatColor.translateAlternateColorCodes('&', raffleNameColor)
+											+ " ticket costs " + ticketCost + " runics each! Get more money!");
 						}
 
 						d.close();
@@ -279,8 +283,9 @@ public class Commands implements CommandExecutor {
 
 						// PLAYER TRYING TO BUY TOO MANY TICKETS
 						RunicMessaging.sendMessage(rafflePlayer, RunicMessaging.RunicFormat.RAFFLE,
-								"You can only buy up to 100 tickets for the Winter Raffle. You've already bought "
-										+ raffleCount + " ticket(s).");
+								"You can only buy up to " + maxPurchaseTickets + " tickets for the "
+										+ ChatColor.translateAlternateColorCodes('&', raffleNameColor)
+										+ ". You've already bought " + raffleCount + " ticket(s).");
 					}
 				} catch (SQLException e) {
 					Bukkit.getLogger().log(Level.SEVERE, "Failed raffle ticket check" + e.getMessage());
@@ -305,7 +310,8 @@ public class Commands implements CommandExecutor {
 								"You gave " + Integer.parseInt(args[1]) + " tickets to "
 										+ Bukkit.getOfflinePlayer(args[2]).getName());
 						RunicMessaging.sendMessage(Bukkit.getPlayer(args[2]), RunicMessaging.RunicFormat.RAFFLE,
-								"You just received " + Integer.parseInt(args[1]) + " raffle tickets!");
+								"You just received " + Integer.parseInt(args[1]) + " "
+										+ ChatColor.translateAlternateColorCodes('&', raffleNameColor) + " tickets!");
 
 					} catch (SQLException e) {
 						Bukkit.getLogger().log(Level.SEVERE, "Failed raffle ticket give" + e.getMessage());
@@ -350,12 +356,11 @@ public class Commands implements CommandExecutor {
 				}
 
 				RunicMessaging.sendMessage(rafflePlayer, RunicMessaging.RunicFormat.RAFFLE,
-						" Want to buy tickets for the "
-								+ ChatColor.translateAlternateColorCodes('&', "&eS&6p&er&ai&2n&ag &bR&3a&bf&df&5l&de")
+						" Want to buy tickets for the " + ChatColor.translateAlternateColorCodes('&', raffleNameColor)
 								+ ChatColor.GRAY + "? Get more info at " + ChatColor.BLUE + "/warp raffle"
 								+ ChatColor.GRAY + " or use " + ChatColor.GREEN + "/raffle buy <# of tickets>");
 				RunicMessaging.sendMessage(rafflePlayer, RunicMessaging.RunicFormat.RAFFLE,
-						"Tickets cost 1000 runics each!");
+						"Tickets cost " + ticketCost + " runics each!");
 				RunicMessaging.sendMessage(rafflePlayer, RunicMessaging.RunicFormat.RAFFLE,
 						"Purchased tickets: " + ChatColor.YELLOW + raffleCount + ChatColor.GRAY + ", Total tickets: "
 								+ ChatColor.GREEN + totalRaffleCount + ChatColor.GRAY + " tickets.");
@@ -1258,44 +1263,70 @@ public class Commands implements CommandExecutor {
 			boolean problem = false;
 			boolean empty = true;
 
-			if (args.length == 2 && args[0].equals("enter")) {
+			if (args.length == 3 && args[0].equals("enter")) {
+				Player victim = Bukkit.getPlayer(args[2]);
+				
 				// check for players in the maze or entry zone
-				for (Entity e : Bukkit.getPlayer(args[1]).getNearbyEntities(200, 100, 200)) {
+				for (Entity e : victim.getNearbyEntities(200, 100, 200)) {
 					if (e instanceof Player) {
-						if ((e.getLocation().getX() <= -142 && e.getLocation().getX() >= -192)
-								&& (e.getLocation().getY() <= 121 && e.getLocation().getY() >= 107)
-								&& (e.getLocation().getZ() <= 513 && e.getLocation().getZ() >= 463)) {
-							// A player is in the maze!
-							Bukkit.getPlayer(args[1]).sendMessage(ChatColor.DARK_RED + "DungeonMaster CrocodileHax"
-									+ ChatColor.GRAY
-									+ ": Sorry, someone is already in the maze. Please wait for them to finish (or fail).");
-							problem = true;
+						if (args[1].equalsIgnoreCase("dungeon")) {
+							if ((e.getLocation().getX() <= -142 && e.getLocation().getX() >= -192)
+									&& (e.getLocation().getY() <= 121 && e.getLocation().getY() >= 107)
+									&& (e.getLocation().getZ() <= 513 && e.getLocation().getZ() >= 463)) {
+								// A player is in the maze!
+								victim.sendMessage(ChatColor.DARK_RED + "DungeonMaster CrocodileHax"
+										+ ChatColor.GRAY
+										+ ": Sorry, someone is already in the maze. Please wait for them to finish (or fail).");
+								problem = true;
 
-						}
-						if ((e.getLocation().getX() <= -137.5 && e.getLocation().getX() >= -140.5)
-								&& (e.getLocation().getY() <= 120 && e.getLocation().getY() >= 114)
-								&& (e.getLocation().getZ() <= 513.5 && e.getLocation().getZ() >= 506.5)) {
-							// A player is in the maze!
-							Bukkit.getPlayer(args[1]).sendMessage(ChatColor.DARK_RED + "DungeonMaster CrocodileHax"
-									+ ChatColor.GRAY
-									+ ": Sorry, someone is already in the maze. Please wait for them to finish (or fail).");
+							}
+							if ((e.getLocation().getX() <= -137.5 && e.getLocation().getX() >= -140.5)
+									&& (e.getLocation().getY() <= 120 && e.getLocation().getY() >= 114)
+									&& (e.getLocation().getZ() <= 513.5 && e.getLocation().getZ() >= 506.5)) {
+								// A player is in the maze!
+								victim.sendMessage(ChatColor.DARK_RED + "DungeonMaster CrocodileHax"
+										+ ChatColor.GRAY
+										+ ": Sorry, someone is already in the maze. Please wait for them to finish (or fail).");
 
-							problem = true;
+								problem = true;
 
+							}
+						} else if (args[1].equalsIgnoreCase("anguish")) {
+							if ((e.getLocation().getX() <= 1055 && e.getLocation().getX() >= 1048)
+									&& (e.getLocation().getY() <= 126 && e.getLocation().getY() >= 120)
+									&& (e.getLocation().getZ() <= 1157 && e.getLocation().getZ() >= 1153)) {
+								// A player is in the maze!
+								victim.sendMessage(ChatColor.DARK_RED + "DungeonMaster CrocodileHax"
+										+ ChatColor.GRAY
+										+ ": Sorry, someone is already in the maze. Please wait for them to finish (or fail).");
+								problem = true;
+
+							}
+							if ((e.getLocation().getX() <= 1146 && e.getLocation().getX() >= 1047)
+									&& (e.getLocation().getY() <= 160 && e.getLocation().getY() >= 85)
+									&& (e.getLocation().getZ() <= 1152 && e.getLocation().getZ() >= 1053)) {
+								// A player is in the maze!
+								victim.sendMessage(ChatColor.DARK_RED + "DungeonMaster CrocodileHax"
+										+ ChatColor.GRAY
+										+ ": Sorry, someone is already in the maze. Please wait for them to finish (or fail).");
+
+								problem = true;
+
+							}
 						}
 					}
 
 				}
 
 				// check if the player's inventory is empty
-				for (ItemStack item : Bukkit.getPlayer(args[1]).getInventory().getContents()) {
+				for (ItemStack item : victim.getInventory().getContents()) {
 					if (item != null && item.getType() != Material.AIR) {
 						problem = true;
 						empty = false;
 					}
 				}
 				// check if the player's inventory is empty
-				for (ItemStack armor : Bukkit.getPlayer(args[1]).getInventory().getArmorContents()) {
+				for (ItemStack armor : victim.getInventory().getArmorContents()) {
 					if (armor != null && armor.getType() != Material.AIR) {
 						problem = true;
 						empty = false;
@@ -1303,17 +1334,26 @@ public class Commands implements CommandExecutor {
 				}
 
 				if (!empty) {
-					Bukkit.getPlayer(args[1]).sendMessage(ChatColor.DARK_RED + "DungeonMaster CrocodileHax"
+					victim.sendMessage(ChatColor.DARK_RED + "DungeonMaster CrocodileHax"
 							+ ChatColor.GRAY
 							+ ": Your inventory & armor slots must be empty to enter this maze. Why not use that ender chest over there.");
 				}
 
 				if (!problem) {
-					Bukkit.getPlayer(args[1]).teleport(new Location(Bukkit.getWorld("RunicSky"), -138.5, 121, 511.5));
-					Bukkit.getPlayer(args[1]).sendMessage(ChatColor.DARK_RED + "DungeonMaster CrocodileHax"
-							+ ChatColor.GRAY
-							+ ": Welcome to the Dungeon Maze! Only one person may be in the maze at a time. Potion effects are removed when you teleport in. You will not lose a soul if you die - but you will have to start over!");
-					Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "heal " + args[1]);
+					if (args[1].equalsIgnoreCase("dungeon")) {
+						victim.teleport(new Location(Bukkit.getWorld("RunicSky"), -138.5, 121, 511.5));
+						victim.sendMessage(ChatColor.DARK_RED + "DungeonMaster CrocodileHax"
+								+ ChatColor.GRAY
+								+ ": Welcome to the Dungeon Maze! Only one person may be in the maze at a time. Potion effects are removed when you teleport in. You will not lose a soul if you die - but you will have to start over!");
+						Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "heal " + victim.getName());
+					} else if (args[1].equalsIgnoreCase("anguish")) {
+						victim.teleport(new Location(Bukkit.getWorld("RunicSky"), 1051, 122, 1155, 180.62622f, 1.7843645f));
+						victim.sendMessage(ChatColor.DARK_RED + "DungeonMaster CrocodileHax"
+								+ ChatColor.GRAY
+								+ ": Welcome to the Anguish Maze! Only one person may be in the maze at a time. Potion effects are removed when you teleport in. You will not lose a soul if you die - but you will have to start over!");
+						Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "heal " +victim.getName());
+
+					}
 				}
 
 			}
@@ -2712,16 +2752,22 @@ public class Commands implements CommandExecutor {
 			break;
 		case "rankitem":
 			if (args.length == 3 && args[1].equals("DukeMetal") && args[0].equalsIgnoreCase("Give")) {
-				Bukkit.getPlayer(args[2]).getLocation().getWorld().dropItemNaturally(Bukkit.getPlayer(args[2]).getLocation(), Borderlands.specialLootDrops("DukeMetal", Bukkit.getPlayer(args[2]).getUniqueId()));
-				Bukkit.getPlayer(args[2]).getLocation().getWorld().dropItemNaturally(Bukkit.getPlayer(args[2]).getLocation(), Borderlands.specialLootDrops("DukeMetal", Bukkit.getPlayer(args[2]).getUniqueId()));
+				Bukkit.getPlayer(args[2]).getLocation().getWorld().dropItemNaturally(
+						Bukkit.getPlayer(args[2]).getLocation(),
+						Borderlands.specialLootDrops("DukeMetal", Bukkit.getPlayer(args[2]).getUniqueId()));
+				Bukkit.getPlayer(args[2]).getLocation().getWorld().dropItemNaturally(
+						Bukkit.getPlayer(args[2]).getLocation(),
+						Borderlands.specialLootDrops("DukeMetal", Bukkit.getPlayer(args[2]).getUniqueId()));
 			} else if (args.length == 3 && args[1].equals("BaronMetal") && args[0].equalsIgnoreCase("Give")) {
-				Bukkit.getPlayer(args[2]).getLocation().getWorld().dropItemNaturally(Bukkit.getPlayer(args[2]).getLocation(), Borderlands.specialLootDrops("BaronMetal", Bukkit.getPlayer(args[2]).getUniqueId()));
-			}else if (args.length == 3 && args[0].equalsIgnoreCase("Check")) {
-				
-				//rankitem check duke runelynx
+				Bukkit.getPlayer(args[2]).getLocation().getWorld().dropItemNaturally(
+						Bukkit.getPlayer(args[2]).getLocation(),
+						Borderlands.specialLootDrops("BaronMetal", Bukkit.getPlayer(args[2]).getUniqueId()));
+			} else if (args.length == 3 && args[0].equalsIgnoreCase("Check")) {
+
+				// rankitem check duke runelynx
 				Ranks.craftFeudalJewelry(Bukkit.getPlayer(args[2]), args[1]);
-			} 
-			
+			}
+
 			break;
 		case "rptokens":
 
@@ -3327,8 +3373,7 @@ public class Commands implements CommandExecutor {
 							ChatColor.AQUA + "/staff np <name>" + ChatColor.GRAY + " Find who is near someone");
 					sender.sendMessage(
 							ChatColor.AQUA + "/punish <name>" + ChatColor.GRAY + " Tool to help with punish commands");
-					sender.sendMessage(
-							ChatColor.AQUA + "/staff cf" + ChatColor.GRAY + " Check farming status");
+					sender.sendMessage(ChatColor.AQUA + "/staff cf" + ChatColor.GRAY + " Check farming status");
 					if (((Player) sender).hasPermission("rp.staff.director")) {
 						sender.sendMessage(
 								ChatColor.AQUA + "/censor" + ChatColor.GRAY + " Chat censor for all servers");
@@ -3380,21 +3425,23 @@ public class Commands implements CommandExecutor {
 					}
 
 				} else if (args[0].equals("CF") || args[0].equals("cf")) {
-					
+
 					String tag;
-					
-					RunicMessaging.sendMessage((Player)sender, RunicFormat.BORDERLANDS, "Player farming status list:");
-					
+
+					RunicMessaging.sendMessage((Player) sender, RunicFormat.BORDERLANDS, "Player farming status list:");
+
 					for (Player p : Bukkit.getOnlinePlayers()) {
 						if (RunicParadise.playerProfiles.get(p.getUniqueId()).isPlayerFarming()) {
-							tag = ChatColor.RED + "IS FARMING, RankDrops= " + RunicParadise.playerProfiles.get(p.getUniqueId()).rankDropCountLast24Hours;
+							tag = ChatColor.RED + "IS FARMING, RankDrops= "
+									+ RunicParadise.playerProfiles.get(p.getUniqueId()).rankDropCountLast24Hours;
 						} else {
-							tag = ChatColor.GREEN + "NOT FARMING, RankDrops= " + RunicParadise.playerProfiles.get(p.getUniqueId()).rankDropCountLast24Hours;
+							tag = ChatColor.GREEN + "NOT FARMING, RankDrops= "
+									+ RunicParadise.playerProfiles.get(p.getUniqueId()).rankDropCountLast24Hours;
 						}
-						RunicMessaging.sendMessage((Player)sender, RunicFormat.EMPTY, p.getDisplayName() + " " + tag);
+						RunicMessaging.sendMessage((Player) sender, RunicFormat.EMPTY, p.getDisplayName() + " " + tag);
 					}
-					
-				}  else if (args[0].equals("GG") || args[0].equals("gg")) {
+
+				} else if (args[0].equals("GG") || args[0].equals("gg")) {
 					RunicDeathChest.graveTeleport((Player) sender, Integer.parseInt(args[1]));
 				} else if (args[0].equals("LG") || args[0].equals("lg")) {
 					if (args.length == 2) {
@@ -3600,57 +3647,72 @@ public class Commands implements CommandExecutor {
 		case "rptest":
 		case "RPTEST":
 		case "Rptest":
-			
-			((Player)sender).getLocation().getWorld().dropItemNaturally(((Player)sender).getLocation(), Borderlands.specialLootDrops("BaronMetal", ((Player)sender).getUniqueId()));
-			((Player)sender).getLocation().getWorld().dropItemNaturally(((Player)sender).getLocation(), Borderlands.specialLootDrops("BaronGem", ((Player)sender).getUniqueId()));
-			
-			((Player)sender).getLocation().getWorld().dropItemNaturally(((Player)sender).getLocation(), Borderlands.specialLootDrops("BaronIngot1", ((Player)sender).getUniqueId()));
-			((Player)sender).getLocation().getWorld().dropItemNaturally(((Player)sender).getLocation(), Borderlands.specialLootDrops("BaronIngot2", ((Player)sender).getUniqueId()));
-			
-			((Player)sender).getLocation().getWorld().dropItemNaturally(((Player)sender).getLocation(), Borderlands.specialLootDrops("DukeGem", ((Player)sender).getUniqueId()));
-			((Player)sender).getLocation().getWorld().dropItemNaturally(((Player)sender).getLocation(), Borderlands.specialLootDrops("DukeMetal", ((Player)sender).getUniqueId()));
-			((Player)sender).getLocation().getWorld().dropItemNaturally(((Player)sender).getLocation(), Borderlands.specialLootDrops("DukeEssence", ((Player)sender).getUniqueId()));
-			
-			((Player)sender).getLocation().getWorld().dropItemNaturally(((Player)sender).getLocation(), Borderlands.specialLootDrops("DukeRing1", ((Player)sender).getUniqueId()));
-			((Player)sender).getLocation().getWorld().dropItemNaturally(((Player)sender).getLocation(), Borderlands.specialLootDrops("DukeRing2", ((Player)sender).getUniqueId()));
-			((Player)sender).getLocation().getWorld().dropItemNaturally(((Player)sender).getLocation(), Borderlands.specialLootDrops("DukeRing3", ((Player)sender).getUniqueId()));
-			((Player)sender).getLocation().getWorld().dropItemNaturally(((Player)sender).getLocation(), Borderlands.specialLootDrops("DukeRing4", ((Player)sender).getUniqueId()));
-			
-			((Player)sender).sendMessage(((Player)sender).getMaximumAir() + " max air ticks. " + ((Player)sender).getRemainingAir() + " remaining air ticks.");
-			
+
+			((Player) sender).getLocation().getWorld().dropItemNaturally(((Player) sender).getLocation(),
+					Borderlands.specialLootDrops("BaronMetal", ((Player) sender).getUniqueId()));
+			((Player) sender).getLocation().getWorld().dropItemNaturally(((Player) sender).getLocation(),
+					Borderlands.specialLootDrops("BaronGem", ((Player) sender).getUniqueId()));
+
+			((Player) sender).getLocation().getWorld().dropItemNaturally(((Player) sender).getLocation(),
+					Borderlands.specialLootDrops("BaronIngot1", ((Player) sender).getUniqueId()));
+			((Player) sender).getLocation().getWorld().dropItemNaturally(((Player) sender).getLocation(),
+					Borderlands.specialLootDrops("BaronIngot2", ((Player) sender).getUniqueId()));
+
+			((Player) sender).getLocation().getWorld().dropItemNaturally(((Player) sender).getLocation(),
+					Borderlands.specialLootDrops("DukeGem", ((Player) sender).getUniqueId()));
+			((Player) sender).getLocation().getWorld().dropItemNaturally(((Player) sender).getLocation(),
+					Borderlands.specialLootDrops("DukeMetal", ((Player) sender).getUniqueId()));
+			((Player) sender).getLocation().getWorld().dropItemNaturally(((Player) sender).getLocation(),
+					Borderlands.specialLootDrops("DukeEssence", ((Player) sender).getUniqueId()));
+
+			((Player) sender).getLocation().getWorld().dropItemNaturally(((Player) sender).getLocation(),
+					Borderlands.specialLootDrops("DukeRing1", ((Player) sender).getUniqueId()));
+			((Player) sender).getLocation().getWorld().dropItemNaturally(((Player) sender).getLocation(),
+					Borderlands.specialLootDrops("DukeRing2", ((Player) sender).getUniqueId()));
+			((Player) sender).getLocation().getWorld().dropItemNaturally(((Player) sender).getLocation(),
+					Borderlands.specialLootDrops("DukeRing3", ((Player) sender).getUniqueId()));
+			((Player) sender).getLocation().getWorld().dropItemNaturally(((Player) sender).getLocation(),
+					Borderlands.specialLootDrops("DukeRing4", ((Player) sender).getUniqueId()));
+
+			((Player) sender).sendMessage(((Player) sender).getMaximumAir() + " max air ticks. "
+					+ ((Player) sender).getRemainingAir() + " remaining air ticks.");
+
 			/*
-			sender.sendMessage(EntityType.ARROW.name() + " ... " + EntityType.HUSK.name());
-
-			Player shooter = ((Player) sender);
-
-			Location pTop = shooter.getLocation().add(0, 2, 0);
-			Location pLeft = shooter.getLocation().add(1, 2, 0);
-			Location pRight = shooter.getLocation().add(0, 2, 1);
-
-			Location targetLoc = shooter.getTargetBlock((HashSet<Byte>) null, 256).getLocation();
-
-			Vector vectorT = targetLoc.toVector().subtract(pTop.toVector());
-			vectorT.normalize();
-			vectorT.multiply(2);
-			Vector vectorL = targetLoc.toVector().subtract(pLeft.toVector());
-			vectorL.normalize();
-			vectorL.multiply(2);
-			Vector vectorR = targetLoc.toVector().subtract(pRight.toVector());
-			vectorR.normalize();
-			vectorR.multiply(2);
-
-			shooter.getWorld().spawnArrow(pTop, vectorT, 3, 3).setShooter(shooter);
-			shooter.getWorld().spawnArrow(pLeft, vectorL, 3, 3).setShooter(shooter);
-			shooter.getWorld().spawnArrow(pRight, vectorR, 3, 3).setShooter(shooter);
-
-			if (args.length > 0) {
-				sender.sendMessage("Totals stored for checks: " + ChatColor.GRAY
-						+ RunicParadise.playerProfiles.get(Bukkit.getPlayer(args[0]).getUniqueId()).mobKillCountsMap
-								.toString());
-				sender.sendMessage("Incrementals for DB save: " + ChatColor.GOLD
-						+ RunicParadise.mobKillTracker.get(Bukkit.getPlayer(args[0]).getUniqueId()).toString());
-
-			}*/
+			 * sender.sendMessage(EntityType.ARROW.name() + " ... " +
+			 * EntityType.HUSK.name());
+			 * 
+			 * Player shooter = ((Player) sender);
+			 * 
+			 * Location pTop = shooter.getLocation().add(0, 2, 0); Location
+			 * pLeft = shooter.getLocation().add(1, 2, 0); Location pRight =
+			 * shooter.getLocation().add(0, 2, 1);
+			 * 
+			 * Location targetLoc = shooter.getTargetBlock((HashSet<Byte>) null,
+			 * 256).getLocation();
+			 * 
+			 * Vector vectorT = targetLoc.toVector().subtract(pTop.toVector());
+			 * vectorT.normalize(); vectorT.multiply(2); Vector vectorL =
+			 * targetLoc.toVector().subtract(pLeft.toVector());
+			 * vectorL.normalize(); vectorL.multiply(2); Vector vectorR =
+			 * targetLoc.toVector().subtract(pRight.toVector());
+			 * vectorR.normalize(); vectorR.multiply(2);
+			 * 
+			 * shooter.getWorld().spawnArrow(pTop, vectorT, 3,
+			 * 3).setShooter(shooter); shooter.getWorld().spawnArrow(pLeft,
+			 * vectorL, 3, 3).setShooter(shooter);
+			 * shooter.getWorld().spawnArrow(pRight, vectorR, 3,
+			 * 3).setShooter(shooter);
+			 * 
+			 * if (args.length > 0) {
+			 * sender.sendMessage("Totals stored for checks: " + ChatColor.GRAY
+			 * + RunicParadise.playerProfiles.get(Bukkit.getPlayer(args[0]).
+			 * getUniqueId()).mobKillCountsMap .toString());
+			 * sender.sendMessage("Incrementals for DB save: " + ChatColor.GOLD
+			 * + RunicParadise.mobKillTracker.get(Bukkit.getPlayer(args[0]).
+			 * getUniqueId()).toString());
+			 * 
+			 * }
+			 */
 
 			break;
 		case "rpreload":
