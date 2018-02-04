@@ -946,6 +946,8 @@ public class RunicProfile {
 
 			PreparedStatement updStmt;
 
+			double prizeAdjust = 1;
+
 			int prizeKarma = 0;
 			int prizeSouls = 0;
 			int prizeRunics = 0;
@@ -984,18 +986,18 @@ public class RunicProfile {
 				RunicPlayerBukkit target = new RunicPlayerBukkit(p.getUniqueId());
 
 				if (prizeKarma > 0) {
-					new RunicPlayerBukkit(p.getUniqueId()).adjustPlayerKarma(prizeKarma);
+					new RunicPlayerBukkit(p.getUniqueId()).adjustPlayerKarma((int) (prizeKarma * 1));
 				}
 				if (prizeTokens > 0) {
-					target.setPlayerTokenBalance(target.getPlayerTokenBalance() + prizeTokens);
+					target.setPlayerTokenBalance(target.getPlayerTokenBalance() + (int) (prizeTokens * 1));
 				}
 				if (prizeSouls > 0) {
-					target.setPlayerSouls(target.getPlayerSouls() + prizeSouls);
+					target.setPlayerSouls(target.getPlayerSouls() + (int) (prizeSouls * 1));
 					p.sendMessage(ChatColor.GREEN + "You gained " + prizeSouls + " souls!");
 				}
 				if (prizeRunics > 0) {
-					RunicParadise.economy.depositPlayer(p, prizeRunics);
-					p.sendMessage(ChatColor.GREEN + "You gained " + prizeRunics + " runics!");
+					RunicParadise.economy.depositPlayer(p, (int) (prizeRunics * 1));
+					p.sendMessage(ChatColor.GREEN + "You gained " + (int) (prizeRunics * 1) + " runics!");
 				}
 				if (mzResult.getInt("ID") == 6) {
 					// Dungeon Maze
@@ -1007,11 +1009,52 @@ public class RunicProfile {
 					Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "give " + p.getName() + " witherskull 1");
 					p.sendMessage(ChatColor.GOLD + "You received a wither skull for first completion here!");
 				}
+				
+				if (mzResult.getInt("ID") == 21) {
+					// Anguish Maze
 
-				for (Player q : Bukkit.getOnlinePlayers()) {
-					TitleAPI.sendTitle(q, 2, 3, 2, ChatColor.GRAY + "" + ChatColor.BOLD + p.getDisplayName(),
-							ChatColor.YELLOW + "just completed the " + mzResult.getString("GameName")
-									+ " for the first time!");
+					ItemStack[] rewards = Commands
+							.carnivalChestReward(new Location(Bukkit.getWorld("RunicSky"), 1098, 121, 1166));
+
+					for (ItemStack i : rewards) {
+						if ( i != null && i.getType() != null && i.getType() != Material.AIR) {
+
+							p.getWorld().dropItemNaturally(p.getLocation(), i);
+						}
+					}
+
+					p.sendMessage(ChatColor.GOLD
+							+ "Congratulations! You've earned a special reward for this first-time completion!");
+					for (Player q : Bukkit.getOnlinePlayers()) {
+						TitleAPI.sendTitle(q, 2, 3, 2, ChatColor.DARK_PURPLE + "" + ChatColor.BOLD + p.getName(),
+								ChatColor.GRAY + "just completed the " + mzResult.getString("GameName")
+										+ " for the first time!");
+					}
+				} else 	if (mzResult.getInt("ID") == 22) {
+					// Heart of Anguish
+					p.sendMessage(ChatColor.GOLD
+							+ "Congratulations! You've earned a special reward for this first-time completion!");
+					ItemStack[] rewards = Commands
+							.carnivalChestReward(new Location(Bukkit.getWorld("RunicSky"), 1098, 121, 1162));
+
+					for (ItemStack i : rewards) {
+						if ( i != null && i.getType() != null && i.getType() != Material.AIR) {
+
+							p.getWorld().dropItemNaturally(p.getLocation(), i);
+						}
+					}
+
+					for (Player q : Bukkit.getOnlinePlayers()) {
+						TitleAPI.sendTitle(q, 2, 3, 2, ChatColor.DARK_PURPLE + "" + ChatColor.BOLD + p.getName(),
+								ChatColor.GRAY + "has freed the Souls of Anguish!");
+					}
+				} else {
+
+					for (Player q : Bukkit.getOnlinePlayers()) {
+						TitleAPI.sendTitle(q, 2, 3, 2, ChatColor.AQUA + "" + ChatColor.BOLD + p.getDisplayName(),
+								ChatColor.GREEN + "just completed the " + mzResult.getString("GameName")
+										+ " for the first time!");
+					}
 				}
 
 				dbStmt.close();
@@ -1030,23 +1073,33 @@ public class RunicProfile {
 				updStmt.setInt(4, puzzleID);
 				updStmt.executeUpdate();
 
+				if (mzResult.getInt("ID") == 21) {
+					prizeAdjust = 0.10;
+				} else if (mzResult.getInt("ID") == 22) {
+					prizeAdjust = 0.15;
+				} else {
+					prizeAdjust = 0.5;
+				}
+
 				if (new Date().getTime() - mcResult.getLong("LastCompletion") > RunicParadise.PUZZLE_REPEAT_TIME) {
 
 					RunicPlayerBukkit target = new RunicPlayerBukkit(p.getUniqueId());
 
 					if (prizeKarma > 0) {
-						new RunicPlayerBukkit(p.getUniqueId()).adjustPlayerKarma((int) (prizeKarma / 2));
+						new RunicPlayerBukkit(p.getUniqueId()).adjustPlayerKarma((int) (prizeKarma * prizeAdjust));
 					}
 					if (prizeTokens > 0) {
-						target.setPlayerTokenBalance(target.getPlayerTokenBalance() + (int) (prizeTokens / 2));
+						target.setPlayerTokenBalance(
+								target.getPlayerTokenBalance() + (int) (prizeTokens * prizeAdjust));
 					}
 					if (prizeSouls > 0) {
-						target.setPlayerSouls(target.getPlayerSouls() + (int) (prizeSouls / 2));
-						p.sendMessage(ChatColor.GREEN + "You gained " + ((int) (prizeSouls / 2)) + " souls!");
+						target.setPlayerSouls(target.getPlayerSouls() + (int) (prizeSouls * prizeAdjust));
+						p.sendMessage(ChatColor.GREEN + "You gained " + ((int) (prizeSouls * prizeAdjust)) + " souls!");
 					}
 					if (prizeRunics > 0) {
-						RunicParadise.economy.depositPlayer(p, (int) (prizeRunics / 2));
-						p.sendMessage(ChatColor.GREEN + "You gained " + ((int) (prizeRunics / 2)) + " runics!");
+						RunicParadise.economy.depositPlayer(p, (int) (prizeRunics * prizeAdjust));
+						p.sendMessage(
+								ChatColor.GREEN + "You gained " + ((int) (prizeRunics * prizeAdjust)) + " runics!");
 					}
 				} else {
 					// The required time hasnt passed yet to receive a reward

@@ -74,7 +74,6 @@ import com.xxmicloxx.NoteBlockAPI.RadioSongPlayer;
 import com.xxmicloxx.NoteBlockAPI.Song;
 import com.xxmicloxx.NoteBlockAPI.SongPlayer;
 
-import mkremins.fanciful.FancyMessage;
 
 /**
  * 
@@ -1301,9 +1300,9 @@ public class Commands implements CommandExecutor {
 										+ ": Sorry, someone is already in the maze. Please wait for them to finish (or fail).");
 								problem = true;
 
-							}
-							if ((e.getLocation().getX() <= 1146 && e.getLocation().getX() >= 1047)
-									&& (e.getLocation().getY() <= 160 && e.getLocation().getY() >= 85)
+							} 
+							if ((e.getLocation().getX() <= 1171 && e.getLocation().getX() >= 1047)
+									&& (e.getLocation().getY() <= 160 && e.getLocation().getY() >= 80)
 									&& (e.getLocation().getZ() <= 1152 && e.getLocation().getZ() >= 1053)) {
 								// A player is in the maze!
 								victim.sendMessage(ChatColor.DARK_RED + "DungeonMaster CrocodileHax"
@@ -3294,7 +3293,8 @@ public class Commands implements CommandExecutor {
 				sender.sendMessage(ChatColor.DARK_AQUA + "Correct usage: /punish playername");
 			} else if (args.length == 1) {
 
-				new FancyMessage(args[0]).color(DARK_RED).then(": ").color(WHITE)
+				sender.sendMessage("This command is not working right now. :(");
+			/*	new FancyMessage(args[0]).color(DARK_RED).then(": ").color(WHITE)
 						//
 						.then("Info").color(GREEN).style(UNDERLINE).suggest("/bminfo " + args[0])
 						.tooltip("Retrieves history of player on RP").then(" ")
@@ -3337,7 +3337,7 @@ public class Commands implements CommandExecutor {
 						//
 						.then("Perm").suggest("/ban " + args[0] + " ")
 						.tooltip("Prepares command to issue a 5 day tempban. Always add a reason!").color(DARK_RED)
-						.style(UNDERLINE).send(Bukkit.getPlayer(sender.getName()));
+						.style(UNDERLINE).send(Bukkit.getPlayer(sender.getName()));*/
 			}
 			break;
 		case "staff":
@@ -4135,7 +4135,7 @@ public class Commands implements CommandExecutor {
 		return playerInvItemCount;
 	}
 
-	private ItemStack[] carnivalChestReward(Location loc) {
+	public static ItemStack[] carnivalChestReward(Location loc) {
 
 		Block b = loc.getBlock();
 		org.bukkit.block.Chest chest = (org.bukkit.block.Chest) b.getState();

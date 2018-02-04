@@ -18,9 +18,6 @@ import java.util.Map.Entry;
 import java.util.Random;
 import java.util.UUID;
 import java.util.logging.Level;
-
-import mkremins.fanciful.FancyMessage;
-
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -311,21 +308,21 @@ public class Faith {
 								// player does NOT qualify for this power
 								levelColor = ChatColor.GRAY;
 							}
-
-							new FancyMessage("   Level ").color(ChatColor.BLUE)
-									//
-									.then(powerResult.getString("RequiredLevel")).color(levelColor)
-									//
-									.then(": ").color(WHITE)
-									//
-									.then(powerResult.getString("PowerName")).color(levelColor)
+							
+							
+							Bukkit.getPlayer(this.getUUID()).sendMessage(ChatColor.BLUE + "   Level " + levelColor 
+									+ powerResult.getString("RequiredLevel") + ChatColor.WHITE + ": " + levelColor
+									+ powerResult.getString("PowerName"));
+							
+							
+									/*
 									.tooltip(
 											powerResult.getString("Description").substring(0,
 													powerResult.getString("Description").length() / 2),
 											powerResult.getString("Description").substring(
 													powerResult.getString("Description").length() / 2,
 													powerResult.getString("Description").length()))
-									.send(Bukkit.getPlayer(this.getUUID()));
+									.*/
 
 						}
 						dbStmt.close();

@@ -27,8 +27,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 
-import mkremins.fanciful.FancyMessage;
-
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Effect;
@@ -552,25 +550,25 @@ public class RunicDeathChest implements Serializable {
 
 					switch (graveData.getString("Status")) {
 					case "Gone":
-						new FancyMessage("ID").color(GRAY).then("" + graveData.getInt("ID")).color(AQUA).then(" ")
+						/*new FancyMessage("ID").color(GRAY).then("" + graveData.getInt("ID")).color(AQUA).then(" ")
 								.color(GRAY).then(graveData.getString("Status")).color(GREEN).then(", Owner ")
 								.color(GRAY).then(graveData.getString("PlayerName")).color(YELLOW).then(", Looter ")
 								.color(GRAY).then(graveData.getString("LooterName")).color(YELLOW).then(", ")
 								.color(GRAY).then("Loc").color(GRAY).tooltip(graveData.getString("Location"))
-								.send(commandSender);
+								.send(commandSender);*/
 						break;
 					case "Locked":
-						new FancyMessage("ID").color(GRAY).then("" + graveData.getInt("ID")).color(AQUA).then(" ")
+						/*new FancyMessage("ID").color(GRAY).then("" + graveData.getInt("ID")).color(AQUA).then(" ")
 								.color(GRAY).then(graveData.getString("Status")).color(YELLOW).then(", Owner ")
 								.color(GRAY).then(graveData.getString("PlayerName")).color(YELLOW).then(", ")
 								.color(GRAY).then("Loc").color(GRAY).tooltip(graveData.getString("Location"))
-								.send(commandSender);
+								.send(commandSender);*/
 						break;
 					case "Unlocked":
-						new FancyMessage("ID").color(GRAY).then("" + graveData.getInt("ID")).color(AQUA).then(" ")
+						/*new FancyMessage("ID").color(GRAY).then("" + graveData.getInt("ID")).color(AQUA).then(" ")
 								.color(GRAY).then(graveData.getString("Status")).color(RED).then(", Owner ").color(GRAY)
 								.then(graveData.getString("PlayerName")).color(YELLOW).then(", ").color(GRAY)
-								.then("Loc").color(GRAY).tooltip(graveData.getString("Location")).send(commandSender);
+								.then("Loc").color(GRAY).tooltip(graveData.getString("Location")).send(commandSender);*/
 						break;
 					}
 

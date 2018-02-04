@@ -1316,7 +1316,8 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 	public void onPlayerTeleport(PlayerTeleportEvent event) {
 
 		if (event.getPlayer().hasPermission("rp.ranks.duke")) {
-			Ranks.applyFeudalBonus(event.getPlayer(), event.getTo().getWorld().getName(), event.getFrom().getWorld().getName());
+			Ranks.applyFeudalBonus(event.getPlayer(), event.getTo().getWorld().getName(),
+					event.getFrom().getWorld().getName());
 		}
 
 		Faith.tryCast_PlayerTeleported(event);
@@ -1331,6 +1332,15 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 				event.getPlayer().setGameMode(GameMode.SURVIVAL);
 
 			}
+
+			else if ((event.getFrom().getX() <= 1146 && event.getFrom().getX() >= 1047)
+					&& (event.getFrom().getY() <= 160 && event.getFrom().getY() >= 85)
+					&& (event.getFrom().getZ() <= 1152 && event.getFrom().getZ() >= 1053)) {
+				event.getPlayer().sendMessage(
+						ChatColor.DARK_RED + "DungeonMaster CrocodileHax" + ChatColor.GRAY + ": See you next time!");
+				event.getPlayer().setGameMode(GameMode.SURVIVAL);
+			}
+
 		}
 		if (event.getTo().getWorld().getName().equals("RunicSky")) {
 			if ((event.getTo().getX() <= -142 && event.getTo().getX() >= -192)
@@ -1357,7 +1367,23 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 						+ ": Teleporting into my maze is cheating. So your teleport has been cancelled. :D");
 				event.setCancelled(true);
 
-			}
+			} else if ((event.getTo().getX() <= 1171 && event.getTo().getX() >= 1047)
+					&& (event.getTo().getY() <= 160 && event.getTo().getY() >= 80)
+					&& (event.getTo().getZ() <= 1152 && event.getTo().getZ() >= 1053)) {
+				// A player is in the maze!
+				event.getPlayer().sendMessage(ChatColor.DARK_RED + "DungeonMaster CrocodileHax" + ChatColor.GRAY
+						+ ": Teleporting into my maze is cheating. So your teleport has been cancelled. :D");
+				event.setCancelled(true);
+			} /*else if ((event.getTo().getX() <= 1055 && event.getTo().getX() >= 1048)
+					&& (event.getTo().getY() <= 126 && event.getTo().getY() >= 120)
+					&& (event.getTo().getZ() <= 1157 && event.getTo().getZ() >= 1153)) {
+				// A player is in the maze!
+				event.getPlayer().sendMessage(ChatColor.DARK_RED + "DungeonMaster CrocodileHax" + ChatColor.GRAY
+						+ ": Teleporting into my maze is cheating. So your teleport has been cancelled. :D");
+				event.setCancelled(true);
+
+			}*/
+
 		}
 
 	}
@@ -1622,7 +1648,8 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 						}
 					}
 				}
-				// stop the For loop early - we're only going to check one block.
+				// stop the For loop early - we're only going to check one
+				// block.
 				return;
 			}
 		}
@@ -1649,11 +1676,24 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 					if ((deathLoc.getX() <= -142 && deathLoc.getX() >= -192)
 							&& (deathLoc.getY() <= 200 && deathLoc.getY() >= -64)
 							&& (deathLoc.getZ() <= 513 && deathLoc.getZ() >= 463)) {
+						((Player) ede.getEntity()).setHealth(((Player) ede.getEntity()).getMaxHealth());
 						ede.setCancelled(true);
 						ede.getEntity().sendMessage(ChatColor.DARK_RED + "DungeonMaster CrocodileHax" + ChatColor.GRAY
 								+ ": Looks like the score is Traps 1, You 0. Better luck next time.");
 						ede.getEntity().teleport(new Location(Bukkit.getWorld("RunicSky"), -131, 116, 509));
+
 						((Player) ede.getEntity()).setGameMode(GameMode.SURVIVAL);
+					} else if ((deathLoc.getX() <= 1171 && deathLoc.getX() >= 1047)
+							&& (deathLoc.getY() <= 160 && deathLoc.getY() >= 80)
+							&& (deathLoc.getZ() <= 1152 && deathLoc.getZ() >= 1053)) {
+						((Player) ede.getEntity()).setHealth(((Player) ede.getEntity()).getMaxHealth());
+						ede.setCancelled(true);
+						ede.getEntity().sendMessage(ChatColor.DARK_RED + "DungeonMaster CrocodileHax" + ChatColor.GRAY
+								+ ": Another soul lost to Anguish!");
+						ede.getEntity().teleport(new Location(Bukkit.getWorld("RunicSky"), 1054, 123, 1166, 89.714f, 16.2f));
+
+						((Player) ede.getEntity()).setGameMode(GameMode.SURVIVAL);
+
 					}
 				}
 			}
