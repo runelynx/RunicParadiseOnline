@@ -68,16 +68,12 @@
       <url>http://maven.sk89q.com/repo/</url>
     </repository>
     <repository>
-      <id>authlib-repo</id>
-      <url>https://repo.prok.pw/</url>
-    </repository>
-    <repository>
       <id>vault-repo</id>
       <url>http://nexus.hc.to/content/repositories/pub_releases</url>
     </repository>
     <repository>
       <id>my-local-repo</id>
-      <url>file://C:/Users/Andrew/Dropbox/.m2/repository</url>
+      <url>file://C:/Users/Andrew/.m2/repository</url>
     </repository>
     <repository>
       <id>spigot-repo</id>
@@ -103,6 +99,12 @@
     </pluginRepository>
   </pluginRepositories>
   <dependencies>
+    <dependency>
+      <groupId>io.github.runelynx.runicuniverse</groupId>
+      <artifactId>runicuniverse</artifactId>
+      <version>1.0</version>
+      <scope>provided</scope>
+    </dependency>
     <dependency>
       <groupId>com.sk89q</groupId>
       <artifactId>worldguard</artifactId>
@@ -186,6 +188,20 @@
       <artifactId>NoteBlockAPI</artifactId>
       <version>1.1.5</version>
       <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>me.mrCookieSlime</groupId>
+      <artifactId>Slimefun</artifactId>
+      <version>v4.1.15</version>
+      <scope>system</scope>
+      <systemPath>${project.basedir}/src/main/resources/Slimefun4-17.jar</systemPath>
+    </dependency>
+    <dependency>
+      <groupId>me.mrCookieSlime</groupId>
+      <artifactId>CSCoreLibPlugin</artifactId>
+      <version>v1.5.18</version>
+      <scope>system</scope>
+      <systemPath>${project.basedir}/src/main/resources/CS-CoreLib-2.jar</systemPath>
     </dependency>
   </dependencies>
   <properties>

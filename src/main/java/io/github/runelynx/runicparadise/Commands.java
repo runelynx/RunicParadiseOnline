@@ -90,7 +90,7 @@ public class Commands implements CommandExecutor {
 	public static ArrayList<Integer> PARTICLE_TASK_IDS = new ArrayList<Integer>();
 
 	@SuppressWarnings("deprecation")
-	public boolean onCommand(CommandSender sender, Command cmd, String label,
+	public boolean onCommand(final CommandSender sender, Command cmd, String label,
 
 			String[] args) {
 		// comment
@@ -1077,7 +1077,7 @@ public class Commands implements CommandExecutor {
 			}, 20);
 
 			Random rand = new Random();
-			int tempRand = rand.nextInt(5001);
+			final int tempRand = rand.nextInt(5001);
 
 			Bukkit.getServer().getScheduler().scheduleAsyncDelayedTask(instance, new Runnable() {
 				public void run() {

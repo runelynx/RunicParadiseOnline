@@ -366,7 +366,8 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 
 		Recipes.customFoodRecipes();
 
-		RunicDeathChest.syncGraveLocations();
+// Old custom Runic Graves Logic
+//		RunicDeathChest.syncGraveLocations();
 
 		for (Player p : Bukkit.getOnlinePlayers()) {
 
@@ -465,8 +466,9 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 		getCommand("rptokens").setExecutor(new Commands());
 		getCommand("dailykarma").setExecutor(new Commands());
 		getCommand("say").setExecutor(new Commands());
-		getCommand("grave").setExecutor(new Commands());
-		getCommand("graves").setExecutor(new Commands());
+// Old custom Runic Graves Logic
+//		getCommand("grave").setExecutor(new Commands());
+//		getCommand("graves").setExecutor(new Commands());
 		getCommand("rptransfer").setExecutor(new Commands());
 		getCommand("rpvote").setExecutor(new Commands());
 		getCommand("rpjobs").setExecutor(new Commands());
@@ -1229,6 +1231,8 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 	@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = false)
 	public void onBreakBlock(final BlockBreakEvent event) {
 
+// Old custom Runic Graves Logic
+/*
 		if ((event.getBlock().getType() == Material.REDSTONE_LAMP_ON
 				|| event.getBlock().getType() == Material.REDSTONE_LAMP_OFF)
 				&& !RunicDeathChest.checkHashmapForDeathLoc(event.getBlock().getLocation()).equals("NoGrave")) {
@@ -1246,7 +1250,9 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 					+ "Knocking over graves is bad luck! Right click the bottom!");
 			getServer().dispatchCommand(getServer().getConsoleSender(),
 					"effect " + event.getPlayer().getName() + " 15 3 5");
-		} else if (event.getBlock().getType() == Material.MOB_SPAWNER && !event.getPlayer().hasPermission("rp.staff")) {
+						} else */
+		
+		if (event.getBlock().getType() == Material.MOB_SPAWNER && !event.getPlayer().hasPermission("rp.staff")) {
 			event.setCancelled(true);
 			event.getPlayer().sendMessage(ChatColor.DARK_RED + "Hey put that back! Only staff can break that.");
 			// ATTEMPT CASTING BEAST-POWER / SPIRIT OF BEAVER
@@ -1414,7 +1420,8 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 				RunicParadise.showSpawnSkynetMenu(event.getPlayer());
 				event.setCancelled(true);
 			}
-
+// Old custom Runic Graves Logic
+/*
 			if (event.getClickedBlock().getType().equals(Material.BEDROCK)) {
 
 				String graveOwnerName = RunicDeathChest.checkLocForDeath(event.getClickedBlock().getLocation());
@@ -1432,7 +1439,8 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 					// do nothing
 
 				}
-			} else if (event.getClickedBlock().getType().equals(Material.MOB_SPAWNER)
+			} else */
+			if (event.getClickedBlock().getType().equals(Material.MOB_SPAWNER)
 					&& event.getPlayer().getItemInHand().getType().getId() == 383) {
 				event.setCancelled(true);
 				RunicMessaging.sendMessage(event.getPlayer(), RunicMessaging.RunicFormat.ERROR, "You cannot do that!");
@@ -2061,8 +2069,29 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 	public void onPlayerDeath(PlayerDeathEvent event) {
 		if (event.getEntity() instanceof Player) {
 
-			// Drop a grave!
-			RunicPlayerBukkit targetPlayer = new RunicPlayerBukkit(event.getEntity().getUniqueId());
+			Player deadPlayer = (Player)event.getEntity();
+			float pctExpToReturn = 0;
+
+			if (deadPlayer.hasPermission("rp.xpreturn.25")) {
+				pctExpToReturn = .25F;
+			} else if (deadPlayer.hasPermission("rp.xpreturn.20")) {
+				pctExpToReturn = .20F;
+			} else if (deadPlayer.hasPermission("rp.xpreturn.15")) {
+				pctExpToReturn = .15F;
+			} else if (deadPlayer.hasPermission("rp.xpreturn.10")) {
+				pctExpToReturn = .10F;
+			} else if (deadPlayer.hasPermission("rp.xpreturn.5")) {
+				pctExpToReturn = .05F;
+			}
+			deadPlayer.setExp(deadPlayer.getExp() * pctExpToReturn);
+
+			if (pctExpToReturn > .01F) {
+				RunicMessaging.sendMessage(deadPlayer, RunicFormat.AFTERLIFE, "Returning " + (int)100*pctExpToReturn + "% of your experience to you!");
+			}
+			
+			// Old custom Runic Graves Logic
+
+			/*
 			// Only drop a grave if world name contains Realm or Paradise (i.e.
 			// not adventure maps or sky !!
 			if (event.getEntity().getWorld().toString().contains("RunicRealm")
@@ -2096,7 +2125,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 							+ ChatColor.GRAY + "for help.");
 				}
 			}
-
+*/
 			final PlayerDeathEvent innerEvent = event;
 
 			Bukkit.getServer().getScheduler().runTaskAsynchronously(instance, new Runnable() {
@@ -2164,7 +2193,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 				}
 
 			}); // end run task async
-			targetPlayer = null;
+
 		}
 	}
 

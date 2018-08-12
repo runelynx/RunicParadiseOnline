@@ -233,16 +233,6 @@ commands:
       usage: /<command>
       permission: rp.NoPlayersAllowed
       permission-message: "You don't have permission: <permission>"
-   grave:
-      description: "RunicReaper's graves command"
-      usage: /<command>
-      permission: rp.graves
-      permission-message: "You don't have permission: <permission>"
-   graves:
-      description: "RunicReaper's graves command"
-      usage: /<command>
-      permission: rp.graves
-      permission-message: "You don't have permission: <permission>"
    rptransfer:
       description: "Used by command blocks to save/load inventory for special events"
       usage: /<command>
