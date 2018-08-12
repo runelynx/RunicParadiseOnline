@@ -1398,6 +1398,8 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 	public void onPlayerInteract(PlayerInteractEvent event) {
 		if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
 
+			//Can't remember why I put this in here but it lets anyone break skull/SF blocks with a book in hand. Eugh! 
+			/* 
 			if (event.getClickedBlock().getType() == Material.SKULL) {
 				if (event.getItem().getType().equals(Material.BOOK)) {
 					event.setCancelled(true);
@@ -1407,7 +1409,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 
 					event.getPlayer().closeInventory();
 				}
-			}
+			} */
 
 			// process Spawn SKynet menu clicks -- right click
 			if ((event.getClickedBlock().getWorld().getName().equals("RunicSky")
