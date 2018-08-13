@@ -2072,22 +2072,24 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 		if (event.getEntity() instanceof Player) {
 
 			Player deadPlayer = (Player)event.getEntity();
-			float pctExpToReturn = 0;
+			double pctExpToReturn = 0.0;
 
 			if (deadPlayer.hasPermission("rp.xpreturn.25")) {
-				pctExpToReturn = .25F;
+				pctExpToReturn = .25;
 			} else if (deadPlayer.hasPermission("rp.xpreturn.20")) {
-				pctExpToReturn = .20F;
+				pctExpToReturn = .20;
 			} else if (deadPlayer.hasPermission("rp.xpreturn.15")) {
-				pctExpToReturn = .15F;
+				pctExpToReturn = .15;
 			} else if (deadPlayer.hasPermission("rp.xpreturn.10")) {
-				pctExpToReturn = .10F;
+				pctExpToReturn = .10;
 			} else if (deadPlayer.hasPermission("rp.xpreturn.5")) {
-				pctExpToReturn = .05F;
+				pctExpToReturn = .05;
 			}
-			deadPlayer.setExp(deadPlayer.getExp() * pctExpToReturn);
+			getLogger().log(Level.INFO, deadPlayer.getName() + " died. Returning xpLevel " + deadPlayer.getLevel() + " * pctToKeep " + pctExpToReturn);
+			deadPlayer.setLevel((int)(deadPlayer.getLevel() * pctExpToReturn));
+			getLogger().log(Level.INFO, deadPlayer.getName() + " new exp level after death is " + deadPlayer.getLevel());
 
-			if (pctExpToReturn > .01F) {
+			if (pctExpToReturn > .01) {
 				RunicMessaging.sendMessage(deadPlayer, RunicFormat.AFTERLIFE, "Returning " + (int)100*pctExpToReturn + "% of your experience to you!");
 			}
 			
