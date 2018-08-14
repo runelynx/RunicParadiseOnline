@@ -438,6 +438,8 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 		getCommand("rpreload").setExecutor(new Commands());
 		getCommand("oldrankperks").setExecutor(new Commands());
 		getCommand("carnivalaxe").setExecutor(new Commands());
+		getCommand("faithweapons").setExecutor(new Commands());
+		getCommand("faithweapon").setExecutor(new Commands());
 		getCommand("headofplayer").setExecutor(new Commands());
 		getCommand("iteminfo").setExecutor(new Commands());
 		getCommand("face").setExecutor(new Commands());
