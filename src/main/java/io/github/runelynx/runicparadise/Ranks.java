@@ -52,7 +52,7 @@ public class Ranks {
 
 	final int RUNNER_DAYS = 7;
 	final int RUNNER_RUNICS = 2500;
-	final String RUNNER_KILLS = "Zombie:15, Spider:5, Skeleton:10";
+	final String RUNNER_KILLS = "Zombie:30, Spider:15, Skeleton:30";
 	final int SINGER_DAYS = 21;
 	final int SINGER_RUNICS = 5000;
 	final int SINGER_JOB_LEVEL = 5;
@@ -85,36 +85,13 @@ public class Ranks {
 	final int MASTER_DAYS = 23 * 7;
 	final int MASTER_RUNICS = 125000;
 	final int MASTER_MASTER_JOBS = 6;
-	final String MASTER_KILLS = "TBD";
+	final String MASTER_KILLS = "Zombie:750, Wither:5";
 
 	final int DUKE_RUNICS = 250000;
 	final int DUKE_MASTER_JOBS = 10;
 
 	final int BARON_RUNICS = 300000;
 	final int BARON_MASTER_JOBS = 12;
-
-	final int EXPLORER_DAYS = 7;
-	final int EXPLORER_RUNICS = 2500;
-	final String EXPLORER_KILLS = "Zombie:15, Spider:5, Skeleton:10";
-	final int BUILDER_DAYS = 21;
-	final int BUILDER_RUNICS = 5000;
-	final int BUILDER_JOB_LEVEL = 5;
-	final String BUILDER_KILLS = "Zombie:100, Skeleton:50, Squid:20, Spider:25";
-	final int ARCHITECT_DAYS = 42;
-	final int ARCHITECT_RUNICS = 10000;
-	final int ARCHITECT_JOB_LEVEL = 10;
-	final String ARCHITECT_KILLS = "Blaze:15, PigZombie:50, Ghast:10, Zombie:200";
-	final int WARDEN_DAYS = 60;
-	final int WARDEN_RUNICS = 20000;
-	final int WARDEN_JOB_LEVEL = 15;
-	final String WARDEN_KILLS = "Skeleton:100, Witch:20, Creeper:20, Cavespider: 25, IronGolem: 3";
-	final int PROTECTOR_DAYS = 90;
-	final int PROTECTOR_RUNICS = 40000;
-	final int PROTECTOR_JOB_LEVEL = 20;
-	final String PROTECTOR_KILLS = "Wither:1, Ghast:25, Spider:50, Enderman:25, IronGolem: 10";
-	final int GUARDIAN_DAYS = 120;
-	final int GUARDIAN_RUNICS = 60000;
-	final String GUARDIAN_KILLS = "Wither:2, Zombie:400, Witch:100, Creeper:50, Spider:100, Skeleton:300";
 
 	public Ranks() {
 
@@ -651,38 +628,25 @@ public class Ranks {
 						+ "; Promotion cost: " + MASTER_RUNICS);
 			}
 
-			if (killsArray[0] >= 400 && killsArray[1] >= 200 && killsArray[2] >= 400 && killsArray[7] >= 3) {
+			if (killsArray[0] >= 750 && killsArray[7] >= 5) {
 				checkKills = true;
 				failureResponse.add(ChatColor.DARK_GREEN + "[✔ OK] " + ChatColor.GRAY
 						+ "You have killed enough monsters for this promotion.");
 			} else {
-				if (killsArray[0] > 400) {
+				if (killsArray[0] > 750) {
 					failureResponse.add(ChatColor.DARK_GREEN + "[✔ OK] " + ChatColor.GRAY + "Your ZOMBIE kills: "
-							+ killsArray[0] + "; Required: 400");
+							+ killsArray[0] + "; Required: 750");
 				} else {
 					failureResponse.add(ChatColor.DARK_RED + "[✘ FAIL] " + ChatColor.GRAY + "Your ZOMBIE kills: "
-							+ killsArray[0] + "; Required: 400");
+							+ killsArray[0] + "; Required: 750");
 				}
-				if (killsArray[1] >= 200) {
-					failureResponse.add(ChatColor.DARK_GREEN + "[✔ OK] " + ChatColor.GRAY + "Your SPIDER kills: "
-							+ killsArray[1] + "; Required: 200");
-				} else {
-					failureResponse.add(ChatColor.DARK_RED + "[✘ FAIL] " + ChatColor.GRAY + "Your SPIDER kills: "
-							+ killsArray[1] + "; Required: 200");
-				}
-				if (killsArray[2] >= 400) {
-					failureResponse.add(ChatColor.DARK_GREEN + "[✔ OK] " + ChatColor.GRAY + "Your SKELETON kills: "
-							+ killsArray[2] + "; Required: 400");
-				} else {
-					failureResponse.add(ChatColor.DARK_RED + "[✘ FAIL] " + ChatColor.GRAY + "Your SKELETON kills: "
-							+ killsArray[2] + "; Required: 400");
-				}
-				if (killsArray[7] >= 3) {
+
+				if (killsArray[7] >= 5) {
 					failureResponse.add(ChatColor.DARK_GREEN + "[✔ OK] " + ChatColor.GRAY + "Your WITHER kills: "
-							+ killsArray[7] + "; Required: 3");
+							+ killsArray[7] + "; Required: 5");
 				} else {
 					failureResponse.add(ChatColor.DARK_RED + "[✘ FAIL] " + ChatColor.GRAY + "Your WITHER kills: "
-							+ killsArray[7] + "; Required: 3");
+							+ killsArray[7] + "; Required: 5");
 				}
 			}
 			if (targetPlayer.getMasteredJobCount() >= MASTER_MASTER_JOBS) {
@@ -1544,31 +1508,31 @@ public class Ranks {
 				failureResponse.add(ChatColor.DARK_RED + "[✘ FAIL] " + ChatColor.GRAY + "Your runics: " + balance
 						+ "; Promotion cost: " + RUNNER_RUNICS);
 			}
-			if (killsArray[0] >= 15 && killsArray[1] >= 5 && killsArray[2] >= 10) {
+			if (killsArray[0] >= 30 && killsArray[1] >= 15 && killsArray[2] >= 30) {
 				checkKills = true;
 				failureResponse.add(ChatColor.DARK_GREEN + "[✔ OK] " + ChatColor.GRAY
 						+ "You have killed enough monsters for this promotion.");
 			} else {
-				if (killsArray[0] > 15) {
+				if (killsArray[0] > 30) {
 					failureResponse.add(ChatColor.DARK_GREEN + "[✔ OK] " + ChatColor.GRAY + "Your ZOMBIE kills: "
-							+ killsArray[0] + "; Required: 15");
+							+ killsArray[0] + "; Required: 30");
 				} else {
 					failureResponse.add(ChatColor.DARK_RED + "[✘ FAIL] " + ChatColor.GRAY + "Your ZOMBIE kills: "
-							+ killsArray[0] + "; Required: 15");
+							+ killsArray[0] + "; Required: 30");
 				}
-				if (killsArray[1] >= 5) {
+				if (killsArray[1] >= 15) {
 					failureResponse.add(ChatColor.DARK_GREEN + "[✔ OK] " + ChatColor.GRAY + "Your SPIDER kills: "
-							+ killsArray[1] + "; Required: 5");
+							+ killsArray[1] + "; Required: 15");
 				} else {
 					failureResponse.add(ChatColor.DARK_RED + "[✘ FAIL] " + ChatColor.GRAY + "Your SPIDER kills: "
-							+ killsArray[1] + "; Required: 5");
+							+ killsArray[1] + "; Required: 15");
 				}
-				if (killsArray[2] >= 10) {
+				if (killsArray[2] >= 30) {
 					failureResponse.add(ChatColor.DARK_GREEN + "[✔ OK] " + ChatColor.GRAY + "Your SKELETON kills: "
-							+ killsArray[2] + "; Required: 10");
+							+ killsArray[2] + "; Required: 30");
 				} else {
 					failureResponse.add(ChatColor.DARK_RED + "[✘ FAIL] " + ChatColor.GRAY + "Your SKELETON kills: "
-							+ killsArray[2] + "; Required: 10");
+							+ killsArray[2] + "; Required: 30");
 				}
 			}
 

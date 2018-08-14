@@ -2072,7 +2072,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 		if (event.getEntity() instanceof Player) {
 
 			Player deadPlayer = (Player)event.getEntity();
-			double pctExpToReturn = 0.0;
+			double pctExpToReturn = 0.000;
 
 			if (deadPlayer.hasPermission("rp.xpreturn.25")) {
 				pctExpToReturn = .25;
@@ -2090,7 +2090,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 			getLogger().log(Level.INFO, deadPlayer.getName() + " new exp level after death is " + deadPlayer.getLevel());
 
 			if (pctExpToReturn > .01) {
-				RunicMessaging.sendMessage(deadPlayer, RunicFormat.AFTERLIFE, "Returning " + (int)100*pctExpToReturn + "% of your experience to you!");
+				RunicMessaging.sendMessage(deadPlayer, RunicFormat.AFTERLIFE, "Returning " + (int)100*pctExpToReturn + "% of your experience levels to you!");
 			}
 			
 			// Old custom Runic Graves Logic
