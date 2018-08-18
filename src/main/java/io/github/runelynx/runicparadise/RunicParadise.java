@@ -1706,10 +1706,22 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 
 						((Player) ede.getEntity()).setGameMode(GameMode.SURVIVAL);
 
+					} else if ((deathLoc.getX() <= 1131 && deathLoc.getX() >= 1060)
+					&& (deathLoc.getY() <= 40 && deathLoc.getY() >= 2)
+					&& (deathLoc.getZ() <= -16 && deathLoc.getZ() >= -93)) {
+						((Player) ede.getEntity()).setHealth(((Player) ede.getEntity()).getMaxHealth());
+						ede.setCancelled(true);
+						ede.getEntity().sendMessage(ChatColor.DARK_RED + "MachineMaster Tardip" + ChatColor.GRAY
+								+ ": Machines win every time!!");
+						ede.getEntity().teleport(new Location(Bukkit.getWorld("RunicSky"), 326.007, 55.000, 543.292, 64.890015f, -9.449995f));
+
+						((Player) ede.getEntity()).setGameMode(GameMode.SURVIVAL);
+
 					}
 				}
 			}
 		}
+		
 
 		// If player falls into the void, heal and teleport them to spawn
 		if (ede.getCause() == DamageCause.VOID) {
