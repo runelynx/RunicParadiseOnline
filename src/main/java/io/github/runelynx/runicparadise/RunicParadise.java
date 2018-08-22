@@ -12,16 +12,6 @@ import io.github.runelynx.runicuniverse.RunicMessaging.RunicFormat;
 import io.github.runelynx.runicuniverse.RunicUniverse;
 import io.github.runelynx.runicuniverse.RunicUniverse.*;
 
-import com.sk89q.worldedit.BlockVector;
-import com.sk89q.worldguard.bukkit.BukkitUtil;
-import com.sk89q.worldguard.bukkit.RegionContainer;
-import com.sk89q.worldguard.bukkit.WGBukkit;
-import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
-import com.sk89q.worldguard.domains.DefaultDomain;
-import com.sk89q.worldguard.protection.ApplicableRegionSet;
-import com.sk89q.worldguard.protection.managers.RegionManager;
-import com.sk89q.worldguard.protection.regions.ProtectedCuboidRegion;
-import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 
@@ -176,7 +166,8 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 
 		RunicMessaging.initializeAnnouncements(instance);
 
-		Ranks.registerSlimefunItems();
+		// ** turn back on when slimefun 1.13 is out! 
+		//Ranks.registerSlimefunItems();
 
 		getConfig().options().copyDefaults(true);
 		saveConfig();
@@ -184,7 +175,8 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 		// get the object from vault API for Permission class
 		setupPermissions();
 		setupEconomy();
-		getWorldguard();
+		
+		//getWorldguard();
 
 		this.getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
 

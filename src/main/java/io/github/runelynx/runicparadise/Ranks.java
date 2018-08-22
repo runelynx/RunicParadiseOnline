@@ -36,10 +36,14 @@ import com.connorlinfoot.titleapi.*;
 
 import io.github.runelynx.runicuniverse.RunicMessaging;
 import io.github.runelynx.runicuniverse.RunicMessaging.RunicFormat;
+
+/*
 import me.mrCookieSlime.CSCoreLibPlugin.general.Inventory.Item.CustomItem;
 import me.mrCookieSlime.Slimefun.Lists.RecipeType;
 import me.mrCookieSlime.Slimefun.Objects.Category;
 import me.mrCookieSlime.Slimefun.Objects.SlimefunItem.SlimefunItem;
+
+*/
 
 /**
  *
@@ -1798,7 +1802,7 @@ public class Ranks {
 		}
 
 	}
-
+/*
 	public static void registerSlimefunItems() {
 
 		Category category = new Category(
@@ -1919,6 +1923,6 @@ public class Ranks {
 						SlimefunItem.getItem("BLISTERING_INGOT_2"), null, SlimefunItem.getItem("BLISTERING_INGOT_2") });
 		baronIngot2.register();
 
-	}
+	}*/
 
 }

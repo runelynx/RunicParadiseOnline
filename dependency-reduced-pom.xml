@@ -120,6 +120,10 @@
           <groupId>com.sk89q.spigot</groupId>
         </exclusion>
         <exclusion>
+          <artifactId>bukkit</artifactId>
+          <groupId>org.bukkit</groupId>
+        </exclusion>
+        <exclusion>
           <artifactId>commandbook</artifactId>
           <groupId>com.sk89q</groupId>
         </exclusion>
@@ -134,6 +138,12 @@
       <artifactId>VaultAPI</artifactId>
       <version>1.6</version>
       <scope>provided</scope>
+      <exclusions>
+        <exclusion>
+          <artifactId>bukkit</artifactId>
+          <groupId>org.bukkit</groupId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>de.slikey</groupId>
@@ -156,10 +166,6 @@
         <exclusion>
           <artifactId>ProtocolLib</artifactId>
           <groupId>com.comphenix.protocol</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>spigot-api</artifactId>
-          <groupId>org.spigotmc</groupId>
         </exclusion>
         <exclusion>
           <artifactId>spigot</artifactId>

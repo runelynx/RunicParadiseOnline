@@ -4,7 +4,9 @@ author: runelynx
 description: "Bukkit plugin for Runic Paradise server."
 main: io.github.runelynx.runicparadise.RunicParadise
 version: 0.1
-depend: [NoteBlockAPI, WorldGuard, RunicUniverse, CS-CoreLib, Slimefun]
+#depend: [NoteBlockAPI, WorldGuard, RunicUniverse, CS-CoreLib, Slimefun]
+depend: [NoteBlockAPI, RunicUniverse]
+api-version: 1.13
 commands:
    rpcrates:
       description: "Grant Runic currencies to a player"
