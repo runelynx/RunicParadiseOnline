@@ -1,62 +1,18 @@
 package io.github.runelynx.runicparadise;
 
-import static org.bukkit.ChatColor.*;
+import com.connorlinfoot.titleapi.TitleAPI;
+import com.kill3rtaco.tacoserialization.InventorySerialization;
+import com.xxmicloxx.NoteBlockAPI.NBSDecoder;
+import com.xxmicloxx.NoteBlockAPI.RadioSongPlayer;
+import com.xxmicloxx.NoteBlockAPI.Song;
+import com.xxmicloxx.NoteBlockAPI.SongPlayer;
 import io.github.runelynx.runicuniverse.RunicMessaging;
 import io.github.runelynx.runicuniverse.RunicMessaging.RunicFormat;
-
-import com.sk89q.worldedit.BlockVector;
-import com.sk89q.worldguard.bukkit.BukkitUtil;
-import com.sk89q.worldguard.bukkit.RegionContainer;
-import com.sk89q.worldguard.bukkit.WGBukkit;
-import com.sk89q.worldguard.domains.DefaultDomain;
-import com.sk89q.worldguard.protection.ApplicableRegionSet;
-import com.sk89q.worldguard.protection.managers.RegionManager;
-import com.sk89q.worldguard.protection.regions.ProtectedCuboidRegion;
-import com.sk89q.worldguard.protection.regions.ProtectedRegion;
-
-import java.io.File;
-import java.sql.CallableStatement;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.text.DecimalFormat;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.UUID;
-import java.util.concurrent.ThreadLocalRandom;
-import java.util.logging.Level;
-
-import org.bukkit.Bukkit;
-
-import org.bukkit.ChatColor;
-import org.bukkit.Effect;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.OfflinePlayer;
-import org.bukkit.Particle;
-import org.bukkit.SkullType;
+import org.bukkit.*;
 import org.bukkit.block.Block;
-import org.bukkit.block.Skull;
-import org.bukkit.command.BlockCommandSender;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
-import org.bukkit.command.ConsoleCommandSender;
-import org.bukkit.enchantments.Enchantment;
+import org.bukkit.command.*;
 import org.bukkit.entity.ArmorStand;
-import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
@@ -64,15 +20,15 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.plugin.Plugin;
-import org.bukkit.util.Vector;
 
-import com.connorlinfoot.titleapi.TitleAPI;
-import com.kill3rtaco.tacoserialization.InventorySerialization;
-
-import com.xxmicloxx.NoteBlockAPI.NBSDecoder;
-import com.xxmicloxx.NoteBlockAPI.RadioSongPlayer;
-import com.xxmicloxx.NoteBlockAPI.Song;
-import com.xxmicloxx.NoteBlockAPI.SongPlayer;
+import java.io.File;
+import java.sql.*;
+import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.Date;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.logging.Level;
 
 
 /**
@@ -89,6 +45,313 @@ public class Commands implements CommandExecutor {
 
 	public static ArrayList<Integer> PARTICLE_TASK_IDS = new ArrayList<Integer>();
 
+    public static Boolean searchExplorerLocation(Location loc, Player p) {
+
+        int targetID = 0;
+        int distance = -1;
+        Boolean noneFound = false;
+
+        int greenWarmthMultiplier = 2;
+        int yellowWarmthMultiplier = 4;
+        int redWarmthMultiplier = 6;
+
+        if (RunicParadise.explorerLocations.isEmpty()) {
+            // Just in case the map is empty -- load it up! This happened on
+            // 8/10/16 somehow. :-/
+            Commands.syncExplorerLocations();
+        }
+
+        for (Location l : RunicParadise.explorerLocations.values()) {
+            if (l == null || l.getWorld() == null || l.getWorld().getName() == null) {
+                Commands.syncExplorerLocations();
+                Bukkit.getLogger().log(Level.WARNING,
+                        "RunicWarning - Runic Explorers League - Someone tried to use /explore and I encountered a null location in the explorerLocations hashmap. Therefore, resyncing the location maps now.");
+            }
+            if (l.getWorld().getName().equals(loc.getWorld().getName())) {
+                // Make sure worlds match before taking distance
+
+                if (distance == -1 || loc.distance(l) < distance) {
+                    // Compare with last distance. The idea is to only retain
+                    // the closest distance loc via this loop.
+                    distance = (int) loc.distance(l);
+                    targetID = RunicParadise.explorerLocationsReversed.get(l);
+                }
+            }
+        }
+
+        if (targetID != 0) {
+            // A distance & loc were found, so let's run our logic.
+            int difficulty = RunicParadise.explorerDifficulties.get(targetID);
+            if (distance <= difficulty) {
+                // found location!
+                RunicParadise.playerProfiles.get(p.getUniqueId()).completePlayerExploration(targetID);
+                playNBS(p, "ZeldaSecret");
+
+            } else if (distance <= greenWarmthMultiplier * difficulty) {
+                // Green OK!
+                TitleAPI.sendFullTitle(p, 1, 2, 1, ChatColor.GREEN + "✸ ✸ ✸",
+                        ChatColor.DARK_GREEN + "You are very close to a secret spot!");
+                p.sendMessage(ChatColor.DARK_GREEN + "You are very close to a secret spot!");
+            } else if (distance <= yellowWarmthMultiplier * difficulty) {
+                // Yellow OK!}
+                TitleAPI.sendFullTitle(p, 1, 2, 1, ChatColor.YELLOW + "✸ ✸ ✸",
+                        ChatColor.GOLD + "You are kinda close to a secret spot!");
+                p.sendMessage(ChatColor.GOLD + "You are kinda close to a secret spot!");
+            } else if (distance <= redWarmthMultiplier * difficulty) {
+                // Red OK!
+                TitleAPI.sendFullTitle(p, 1, 2, 1, ChatColor.RED + "✸ ✸ ✸",
+                        ChatColor.DARK_RED + "There is a secret spot in your general area!");
+                p.sendMessage(ChatColor.DARK_RED + "There is a secret spot in your general area!");
+            } else {
+                noneFound = true;
+            }
+
+        } else {
+            noneFound = true;
+        }
+
+        if (noneFound) {
+            TitleAPI.sendFullTitle(p, 1, 2, 1, ChatColor.AQUA + "✕ ✕ ✕",
+                    ChatColor.DARK_AQUA + "There are no secret spots nearby!");
+            p.sendMessage(ChatColor.DARK_AQUA + "There are no secret spots nearby!");
+        }
+
+        return false;
+    }
+
+    public static ItemStack[] carnivalChestReward(Location loc) {
+
+        Block b = loc.getBlock();
+        org.bukkit.block.Chest chest = (org.bukkit.block.Chest) b.getState();
+        return chest.getBlockInventory().getContents();
+
+    }
+
+    private static void playNBS(Player p, String song) {
+
+        try {
+            Song s = NBSDecoder.parse(
+                    new File("/home/AMP/.ampdata/instances/Survival/Minecraft/plugins/RunicParadise/" + song + ".nbs"));
+            SongPlayer sp = new RadioSongPlayer(s);
+
+            sp.setAutoDestroy(true);
+            for (Entity listener : p.getNearbyEntities(30, 30, 30)) {
+
+                if (listener instanceof Player) {
+
+                    sp.addPlayer((Player) listener);
+
+                }
+
+            }
+            sp.addPlayer(p);
+            sp.setPlaying(true);
+        } catch (Exception e) {
+        }
+
+    }
+
+    public static void syncExplorerLocations() {
+        int locCount = 0;
+
+        // reset the hashmap
+        RunicParadise.explorerLocations.clear();
+        RunicParadise.explorerDifficulties.clear();
+        RunicParadise.explorerRewards.clear();
+        RunicParadise.explorerLocationsReversed.clear();
+        RunicParadise.explorerIDs.clear();
+        RunicParadise.explorerPrereqs.clear();
+
+        // retrieve updated Explorer data
+        final Plugin instance = RunicParadise.getInstance();
+        MySQL MySQL = new MySQL(instance, instance.getConfig().getString("dbHost"),
+                instance.getConfig().getString("dbPort"), instance.getConfig().getString("dbDatabase"),
+                instance.getConfig().getString("dbUser"), instance.getConfig().getString("dbPassword"));
+        try {
+            final Connection d = MySQL.openConnection();
+            Statement dStmt = d.createStatement();
+            ResultSet explorerLocData = dStmt.executeQuery(
+                    "SELECT * FROM rp_ExplorerLocations WHERE Status != 'Disabled' ORDER BY `Order` ASC;");
+            // if (!playerData.first() && !playerData.next()) {
+            if (!explorerLocData.isBeforeFirst()) {
+                // No results
+                // do nothing
+                d.close();
+                return;
+            } else {
+                // results found!
+                while (explorerLocData.next()) {
+                    String[] locParts = explorerLocData.getString("Location").split("[\\x2E]");
+                    Location newLoc = new Location(Bukkit.getWorld(locParts[0]), Integer.parseInt(locParts[1]),
+                            Integer.parseInt(locParts[2]), Integer.parseInt(locParts[3]));
+
+                    RunicParadise.explorerLocations.put(explorerLocData.getInt("ID"), newLoc);
+                    RunicParadise.explorerLocationsReversed.put(newLoc, explorerLocData.getInt("ID"));
+                    RunicParadise.explorerDifficulties.put(explorerLocData.getInt("ID"),
+                            explorerLocData.getInt("DifficultyRadius"));
+                    RunicParadise.explorerRewards.put(explorerLocData.getInt("ID"),
+                            explorerLocData.getInt("TokenReward"));
+                    RunicParadise.explorerPrereqs.put(explorerLocData.getInt("ID"), explorerLocData.getInt("PreReq"));
+                    RunicParadise.explorerIDs.put(explorerLocData.getInt("ID"),
+                            explorerLocData.getString("LocationName"));
+
+                    locCount++;
+                }
+
+                d.close();
+
+                Bukkit.dispatchCommand(Bukkit.getConsoleSender(),
+                        "sc " + locCount + " explorer locs loaded into memory!");
+            }
+
+        } catch (SQLException z) {
+            Bukkit.getLogger().log(Level.SEVERE, "Failed map sync for explorer locs cuz " + z.getMessage());
+        }
+
+    }
+
+    public void carnivalTokenCounts(Player player) {
+        MySQL MySQL = new MySQL(instance, instance.getConfig().getString("dbHost"),
+                instance.getConfig().getString("dbPort"), instance.getConfig().getString("dbDatabase"),
+                instance.getConfig().getString("dbUser"), instance.getConfig().getString("dbPassword"));
+        final Connection d = MySQL.openConnection();
+
+        player.sendMessage(ChatColor.GRAY + "[RunicCarnival] Listing player token counts...");
+
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            try {
+                Statement dStmt = d.createStatement();
+                ResultSet playerData = dStmt.executeQuery("SELECT * FROM `rp_PlayerInfo` WHERE `PlayerName` = '"
+                        + p.getName() + "' ORDER BY `id` ASC LIMIT 1;");
+                playerData.next();
+                int tokenCount = playerData.getInt("Tokens");
+
+                player.sendMessage(ChatColor.GRAY + p.getName() + ": " + ChatColor.GREEN + "" + tokenCount);
+            } catch (SQLException e) {
+                Bukkit.getLogger().log(Level.SEVERE,
+                        "Failed token count DB check [staff cmd ct] because: " + e.getMessage());
+            }
+        }
+
+        try {
+            d.close();
+        } catch (SQLException e) {
+            Bukkit.getLogger().log(Level.SEVERE, "Failed DB close for carnivalTokenCounts because: " + e.getMessage());
+        }
+    }
+
+    public boolean addAttemptedPromotion(String newGuyName, String promoterName) {
+
+        MySQL MySQL = new MySQL(instance, instance.getConfig().getString("dbHost"),
+                instance.getConfig().getString("dbPort"), instance.getConfig().getString("dbDatabase"),
+                instance.getConfig().getString("dbUser"), instance.getConfig().getString("dbPassword"));
+
+        try {
+            final Connection dbCon = MySQL.openConnection();
+
+            String simpleProc = "{ call Add_Attempted_Promotion_Record(?, ?) }";
+            CallableStatement cs = dbCon.prepareCall(simpleProc);
+            cs.setString("NewPlayerName_param", Bukkit.getPlayer(newGuyName).getName());
+            cs.setString("PromoterName_param", Bukkit.getPlayer(promoterName).getName());
+            cs.executeUpdate();
+
+            cs.close();
+            dbCon.close();
+
+            return true;
+
+        } catch (SQLException z) {
+            Bukkit.getLogger().log(Level.SEVERE, "Failed addAttemptedPromotion - " + z.getMessage());
+            return false;
+        }
+
+    }
+
+    public int checkAttemptedPromotion(String newGuyName, String promoterName) {
+
+        MySQL MySQL = new MySQL(instance, instance.getConfig().getString("dbHost"),
+                instance.getConfig().getString("dbPort"), instance.getConfig().getString("dbDatabase"),
+                instance.getConfig().getString("dbUser"), instance.getConfig().getString("dbPassword"));
+        try {
+            final Connection dbCon = MySQL.openConnection();
+
+            String simpleProc = "{ call Count_Attempted_Promotion_Records(?, ?, ?) }";
+            CallableStatement cs = dbCon.prepareCall(simpleProc);
+            cs.setString("NewPlayerName_param", Bukkit.getPlayer(newGuyName).getName());
+            cs.setString("PromoterName_param", Bukkit.getPlayer(promoterName).getName());
+            cs.registerOutParameter("resultCount", java.sql.Types.INTEGER);
+            cs.executeUpdate();
+
+            int result = cs.getInt("resultCount");
+
+            cs.close();
+            dbCon.close();
+
+            return result;
+
+        } catch (SQLException z) {
+            Bukkit.getLogger().log(Level.SEVERE, "Failed checkAttemptedPromotion - " + z.getMessage());
+            return 0;
+        }
+
+    }
+
+    private int checkPlayerInventoryItemstackCount(Inventory i) {
+
+        ItemStack[] items = i.getContents();
+
+        int playerInvItemCount = 0;
+
+        // Count actual itemstacks in player's inventory
+        for (ItemStack item : items) {
+            if ((item != null) && (item.getTypeId() != 0)) {
+                playerInvItemCount++;
+            }
+        }
+        return playerInvItemCount;
+    }
+
+    private ItemStack[] casinoWinOrLose(Location loc) {
+
+        Block b = loc.getBlock();
+        org.bukkit.block.Chest chest = (org.bukkit.block.Chest) b.getState();
+        return chest.getBlockInventory().getContents();
+
+    }
+
+    private ItemStack giveCasinoToken(String playerName, int count) {
+        ItemStack casinoToken = new ItemStack(Material.DOUBLE_PLANT, count, (short) 0);
+        ItemMeta casinoTokenMeta = casinoToken.getItemMeta();
+        casinoTokenMeta.setDisplayName(ChatColor.GOLD + "Runic Casino Token");
+        casinoTokenMeta.setLore(Arrays.asList(ChatColor.GRAY + "A token you can use in the",
+                ChatColor.GRAY + "Runic Casino to gamble.", ChatColor.GRAY + "You can buy more with runics",
+                ChatColor.GRAY + "or convert these back to runics.", ChatColor.GRAY + "Visit the casino using /games",
+                " ", ChatColor.GREEN + "Purchased by " + ChatColor.DARK_GREEN + playerName));
+        casinoToken.setItemMeta(casinoTokenMeta);
+        return casinoToken;
+    }
+
+    private void displayELParticle(Location loc, Player p) {
+
+        for (int degree = 0; degree < 360; degree++) {
+            double radians = Math.toRadians(degree);
+            double x = Math.cos(radians);
+            double z = Math.sin(radians);
+            loc.add(x, 1.5, z);
+            loc.getWorld().playEffect(loc, Effect.MOBSPAWNER_FLAMES, 1);
+
+            loc.subtract(x, 1.5, z);
+        }
+
+        Song s = NBSDecoder.parse(
+                new File("/home/AMP/.ampdata/instances/Survival/Minecraft/plugins/RunicParadise/ZeldaTriforce.nbs"));
+        SongPlayer sp = new RadioSongPlayer(s);
+        sp.setAutoDestroy(true);
+        sp.addPlayer(p);
+        sp.setPlaying(true);
+
+    }
+
 	@SuppressWarnings("deprecation")
 	public boolean onCommand(final CommandSender sender, Command cmd, String label,
 
@@ -102,7 +365,7 @@ public class Commands implements CommandExecutor {
 		// general approach is that errors will return immediately;
 		// successful runs will return after the switch completes
 		switch (cmd.getName()) {
-
+			/* Removing the claim command with the intro of RESIDENCE plugin
 		case "claim":
 
 			Boolean showClaimHelp = false;
@@ -190,7 +453,7 @@ public class Commands implements CommandExecutor {
 						"You cannot create overlapping regions with this command, and the size must be between 5 and 40.");
 			}
 
-			break;
+			break;   --- END claim command  */
 		case "fixranks":
 			RunicUtilities.fixGroupManager();
 			break;
@@ -498,17 +761,17 @@ public class Commands implements CommandExecutor {
 				// display command help
 				RunicMessaging.sendMessage(((Player) sender), RunicMessaging.RunicFormat.EXPLORER,
 						"Displaying command help");
-				((Player) sender)
+                sender
 						.sendMessage(ChatColor.RED + "Create new spot. el create [name] [tokens] [req'd proximity]");
-				((Player) sender).sendMessage(ChatColor.DARK_GRAY + " /el create Rune's_Secret_Spot 5 5");
-				((Player) sender).sendMessage(ChatColor.RED + "Disable a spot. Get ID from website. el remove [id]");
-				((Player) sender).sendMessage(ChatColor.DARK_GRAY + " /el remove 22");
-				((Player) sender).sendMessage(ChatColor.RED + "Enable a spot. Get ID from website. el enable [id]");
-				((Player) sender).sendMessage(ChatColor.DARK_GRAY + " /el enable 22");
-				((Player) sender).sendMessage(ChatColor.RED + "Set a prereq on a location. el prereq ID PreReqID");
-				((Player) sender).sendMessage(ChatColor.DARK_GRAY + " /el prereq 6 2");
-				((Player) sender).sendMessage(ChatColor.RED + "Reload location data. Use after changing anything!");
-				((Player) sender).sendMessage(ChatColor.DARK_GRAY + " /el reload");
+                sender.sendMessage(ChatColor.DARK_GRAY + " /el create Rune's_Secret_Spot 5 5");
+                sender.sendMessage(ChatColor.RED + "Disable a spot. Get ID from website. el remove [id]");
+                sender.sendMessage(ChatColor.DARK_GRAY + " /el remove 22");
+                sender.sendMessage(ChatColor.RED + "Enable a spot. Get ID from website. el enable [id]");
+                sender.sendMessage(ChatColor.DARK_GRAY + " /el enable 22");
+                sender.sendMessage(ChatColor.RED + "Set a prereq on a location. el prereq ID PreReqID");
+                sender.sendMessage(ChatColor.DARK_GRAY + " /el prereq 6 2");
+                sender.sendMessage(ChatColor.RED + "Reload location data. Use after changing anything!");
+                sender.sendMessage(ChatColor.DARK_GRAY + " /el reload");
 
 			}
 
@@ -671,7 +934,7 @@ public class Commands implements CommandExecutor {
 					((LivingEntity) e).setAI(false);
 					((LivingEntity) e).setCollidable(false);
 					((LivingEntity) e).setRemoveWhenFarAway(false);
-					((LivingEntity) e).setInvulnerable(true);
+                    e.setInvulnerable(true);
 				}
 			}
 			break;
@@ -679,7 +942,7 @@ public class Commands implements CommandExecutor {
 			for (Entity e : ((Player) sender).getNearbyEntities(2, 2, 2)) {
 				if (e instanceof LivingEntity) {
 					((LivingEntity) e).setAI(true);
-					((LivingEntity) e).setInvulnerable(false);
+                    e.setInvulnerable(false);
 					((LivingEntity) e).setCollidable(true);
 					((LivingEntity) e).setRemoveWhenFarAway(true);
 				}
@@ -1174,34 +1437,34 @@ public class Commands implements CommandExecutor {
 				 * +
 				 * "You must have the gift in your hand to use that command.");
 				 * return true; }
-				 * 
+                 *
 				 * final Connection e = MySQL.openConnection();
-				 * 
+                 *
 				 * // ///////////// try { // Statement eStmt =
 				 * e.createStatement();
-				 * 
+                 *
 				 * PreparedStatement eStmt = e .prepareStatement(
 				 * "SELECT UUID FROM rp_PlayerInfo WHERE PlayerName = '" +
 				 * args[1] + "' LIMIT 1;");
-				 * 
+                 *
 				 * ResultSet result = eStmt.executeQuery();
-				 * 
+                 *
 				 * if (!result.isBeforeFirst()) { // no result found
 				 * sender.sendMessage(ChatColor.ITALIC + "" + ChatColor.DARK_RED
 				 * + "No player found with that name. Please use full names.");
 				 * } else { // Location does exist in the DB and data
 				 * retrieved!!
-				 * 
+                 *
 				 * result.next();
-				 * 
+                 *
 				 * new Gift((Player) sender, UUID.fromString(result
 				 * .getString("UUID")));
-				 * 
+                 *
 				 * Bukkit.getServer().dispatchCommand(
 				 * Bukkit.getServer().getConsoleSender(), "mail send " + args[1]
 				 * + " You received a gift from " + sender.getName() +
 				 * ". Use /gift to claim it!"); }
-				 * 
+                 *
 				 * } catch (SQLException err) { Bukkit.Bukkit.getLogger()
 				 * .log(Level.SEVERE, "Cant check gift Gift because: " +
 				 * err.getMessage()); }
@@ -1271,7 +1534,7 @@ public class Commands implements CommandExecutor {
 
 			if (args.length == 3 && args[0].equals("enter")) {
 				Player victim = Bukkit.getPlayer(args[2]);
-				
+
 				// check for players in the maze or entry zone
 				for (Entity e : victim.getNearbyEntities(200, 100, 200)) {
 					if (e instanceof Player) {
@@ -1307,7 +1570,7 @@ public class Commands implements CommandExecutor {
 										+ ": Sorry, someone is already in the maze. Please wait for them to finish (or fail).");
 								problem = true;
 
-							} 
+                            }
 							if ((e.getLocation().getX() <= 1171 && e.getLocation().getX() >= 1047)
 									&& (e.getLocation().getY() <= 160 && e.getLocation().getY() >= 80)
 									&& (e.getLocation().getZ() <= 1152 && e.getLocation().getZ() >= 1053)) {
@@ -1651,7 +1914,7 @@ public class Commands implements CommandExecutor {
 				final Connection dbCon = MySQL.openConnection();
 				Statement dbStmt = dbCon.createStatement();
 				ResultSet powerResult = dbStmt.executeQuery("SELECT * FROM rp_PlayerPromotions WHERE PlayerName='"
-						+ ((Player) sender).getName() + "' AND NewRank='" + args[0] + "' LIMIT 1;");
+                        + sender.getName() + "' AND NewRank='" + args[0] + "' LIMIT 1;");
 				if (!powerResult.isBeforeFirst()) {
 					// No results
 					// do nothing
@@ -1692,7 +1955,7 @@ public class Commands implements CommandExecutor {
 			meta1.setDisplayName(ChatColor.AQUA + "" + "The_King_Cacti");
 			skull.setItemMeta(meta1);
 			((Player) sender).getWorld().dropItemNaturally(((Player) sender).getLocation(), skull);
-			((Player) sender)
+            sender
 					.sendMessage(ChatColor.YELLOW + "" + ChatColor.BOLD + "You've been infected with CactiFever!");
 			break;
 		case "runiceye":
@@ -1962,8 +2225,7 @@ public class Commands implements CommandExecutor {
 			} else {
 				sender.sendMessage(ChatColor.GRAY + "[" + ChatColor.BLUE + "Runic" + ChatColor.DARK_AQUA + "Faith"
 						+ ChatColor.GRAY + "] " + ChatColor.RED + "Invalid command or you don't have permission!");
-				;
-			}
+            }
 
 			break;
 		case "rpjobs":
@@ -2352,27 +2614,27 @@ public class Commands implements CommandExecutor {
 				targetPlayer.incrementPlayerVotes();
 
 				/*
-				 * 
+                 *
 				 * RunicParadise.economy.depositPlayer(Bukkit.getOfflinePlayer(
 				 * args[1]), 1000);
-				 * 
+                 *
 				 * // String command = "eco give " + args[1] + " 1000"; //
 				 * Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command);
-				 * 
+                 *
 				 * // command = "graves givesouls " + args[1] + " " + votecount;
 				 * // Bukkit.dispatchCommand(Bukkit.getConsoleSender(),
 				 * command);
-				 * 
+                 *
 				 * // targetPlayer.setPlayerSouls(targetPlayer.getPlayerSouls()
 				 * + // votecount); targetPlayer.addPlayerSouls(1);
 				 * RunicMessaging.sendMessage(Bukkit.getPlayer(args[1]),
 				 * RunicMessaging.RunicFormat.EMPTY, "You gained a soul!");
-				 * 
+                 *
 				 * targetPlayer.incrementPlayerVotes();
 				 * targetPlayer.adjustPlayerKarma(3); int newTokenBalance =
 				 * targetPlayer.getPlayerTokenBalance() + 2;
 				 * targetPlayer.setPlayerTokenBalance(newTokenBalance);
-				 * 
+                 *
 				 * rand = new Random(); // int randomNum = rand.nextInt((max -
 				 * min) + 1) + min; int randomNum = rand.nextInt((100 - 1) + 1)
 				 * + 1; if (randomNum <= 5) { String command =
@@ -2380,9 +2642,9 @@ public class Commands implements CommandExecutor {
 				 * Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command);
 				 * command = "say §4L§cu§6c§ek§2y §av§bo§3t§1e§9!§d! " + args[1]
 				 * + " got 7 extra souls!";
-				 * 
+                 *
 				 * Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command);
-				 * 
+                 *
 				 * command = "say §4L§cu§6c§ek§2y §av§bo§3t§1e§9!§d! " + args[1]
 				 * + " got 10 extra karma!"; targetPlayer.adjustPlayerKarma(10);
 				 * Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command); }
@@ -3144,7 +3406,7 @@ public class Commands implements CommandExecutor {
 		case "settler":
 		case "seeker":
 			if (Bukkit.getPlayer(args[0]).hasPermission("rp.ready")
-					&& checkAttemptedPromotion(args[0], ((Player) sender).getName()) == 0) {
+                    && checkAttemptedPromotion(args[0], sender.getName()) == 0) {
 
 				RunicParadise.perms.playerAddGroup(null, Bukkit.getPlayer(args[0]), "Seeker");
 
@@ -3160,7 +3422,7 @@ public class Commands implements CommandExecutor {
 				addAttemptedPromotion(args[0], senderPlayer.getPlayerName());
 				RunicParadise.playerProfiles.get((Bukkit.getPlayer(args[0])).getUniqueId()).setChatColor("GREEN", true);
 
-			} else if (checkAttemptedPromotion(args[0], ((Player) sender).getName()) == 0
+            } else if (checkAttemptedPromotion(args[0], sender.getName()) == 0
 					&& RunicParadise.newReadyPlayer.containsKey(Bukkit.getPlayer(args[0]).getName())) {
 				// command sender has not tried to promote this player yet AND
 				// the player is a valid newbie
@@ -3174,7 +3436,7 @@ public class Commands implements CommandExecutor {
 					sender.sendMessage(ChatColor.RED + "You were too slow... and didn't get any karma this time. ");
 				}
 
-				addAttemptedPromotion(args[0], ((Player) sender).getName());
+                addAttemptedPromotion(args[0], sender.getName());
 			} else {
 				// completely invalid attmept
 				sender.sendMessage(ChatColor.RED + "You can't use that command on that player anymore.");
@@ -3224,14 +3486,14 @@ public class Commands implements CommandExecutor {
 			 * OLD /READY LOGIC REQUIRING PLAYER PROMOTION if (sender instanceof
 			 * Player) { boolean promoterFound = false; final String
 			 * newPlayerName = ((Player) sender).getName();
-			 * 
+             *
 			 * if (!RunicParadise.newReadyPlayer.containsKey(newPlayerName)) {
 			 * RunicParadise.newReadyPlayer.put( ((Player) sender).getName(),
 			 * "unused"); Bukkit.getServer().getScheduler()
 			 * .scheduleAsyncDelayedTask(instance, new Runnable() { public void
 			 * run() { RunicParadise.newReadyPlayer .remove(newPlayerName); } },
 			 * 6000); }
-			 * 
+             *
 			 * for (Player p : Bukkit.getOnlinePlayers()) { if
 			 * (p.hasPermission("rp.settlerpromotions")) { promoterFound = true;
 			 * p.sendMessage(ChatColor.GOLD + "[RunicRanks] " +
@@ -3241,32 +3503,32 @@ public class Commands implements CommandExecutor {
 			 * ChatColor.AQUA + "/seeker " + sender.getName() +
 			 * ChatColor.LIGHT_PURPLE + " to promote them.");
 			 * RunicParadise.perms.playerAdd(((Player) sender), "rp.ready");
-			 * 
+             *
 			 * } }
-			 * 
+             *
 			 * // tell the other server this one is reconnected to the universe
 			 * ByteArrayDataOutput out = ByteStreams.newDataOutput();
 			 * out.writeUTF("Forward"); // So BungeeCord knows to forward it
 			 * out.writeUTF("ONLINE"); out.writeUTF("PlayerReady"); // The
 			 * channel name to check if // this // your data
-			 * 
+             *
 			 * ByteArrayOutputStream msgbytes = new ByteArrayOutputStream();
 			 * DataOutputStream msgout = new DataOutputStream(msgbytes);
-			 * 
+             *
 			 * try { msgout.writeUTF(((Player) sender).getDisplayName()); // You
 			 * // can // do // anything // msgout msgout.writeShort(123); }
 			 * catch (IOException e) { }
-			 * 
+             *
 			 * out.writeShort(msgbytes.toByteArray().length);
 			 * out.write(msgbytes.toByteArray());
-			 * 
+             *
 			 * // If you don't care about the player // Player player =
 			 * Iterables.getFirst(Bukkit.getOnlinePlayers(), // null); // Else,
 			 * specify them
-			 * 
+             *
 			 * ((Player) sender).sendPluginMessage(instance, "BungeeCord",
 			 * out.toByteArray());
-			 * 
+             *
 			 * if (promoterFound) { sender.sendMessage(ChatColor.GOLD +
 			 * "[RunicRanks] " + ChatColor.LIGHT_PURPLE +
 			 * "Staff is online and has been notified that you need a promotion."
@@ -3278,7 +3540,7 @@ public class Commands implements CommandExecutor {
 			 * "Post an introduction on our forums and we'll promote you very soon :)"
 			 * ); sender.sendMessage(ChatColor.LIGHT_PURPLE +
 			 * "Website: http://www.runic-paradise.com"); }
-			 * 
+             *
 			 * }
 			 */
 			break;
@@ -3381,7 +3643,7 @@ public class Commands implements CommandExecutor {
 					sender.sendMessage(
 							ChatColor.AQUA + "/punish <name>" + ChatColor.GRAY + " Tool to help with punish commands");
 					sender.sendMessage(ChatColor.AQUA + "/staff cf" + ChatColor.GRAY + " Check farming status");
-					if (((Player) sender).hasPermission("rp.staff.director")) {
+                    if (sender.hasPermission("rp.staff.director")) {
 						sender.sendMessage(
 								ChatColor.AQUA + "/censor" + ChatColor.GRAY + " Chat censor for all servers");
 					}
@@ -3551,7 +3813,7 @@ public class Commands implements CommandExecutor {
 						+ Bukkit.getPlayer(pUUID).getDisplayName());
 				commandPlayer.sendMessageToPlayer(ChatColor.DARK_AQUA + "✦Personal information");
 				commandPlayer.sendMessageToPlayer(ChatColor.GRAY + "  Runic balance: " + ChatColor.GOLD
-						+ df.format(RunicParadise.economy.getBalance((OfflinePlayer) Bukkit.getPlayer(pUUID)))
+                        + df.format(RunicParadise.economy.getBalance(Bukkit.getPlayer(pUUID)))
 						+ ChatColor.GRAY + ", Votes: " + ChatColor.GOLD + targetPlayer.getPlayerVoteCount());
 				commandPlayer.sendMessageToPlayer(ChatColor.GRAY + "  Date joined: " + ChatColor.GOLD
 						+ sdf.format(targetPlayer.getJoinDate().getTime()) + ChatColor.GRAY + ", Days since joining: "
@@ -3681,35 +3943,35 @@ public class Commands implements CommandExecutor {
 			((Player) sender).getLocation().getWorld().dropItemNaturally(((Player) sender).getLocation(),
 					Borderlands.specialLootDrops("DukeRing4", ((Player) sender).getUniqueId()));
 
-			((Player) sender).sendMessage(((Player) sender).getMaximumAir() + " max air ticks. "
+            sender.sendMessage(((Player) sender).getMaximumAir() + " max air ticks. "
 					+ ((Player) sender).getRemainingAir() + " remaining air ticks.");
 
 			/*
 			 * sender.sendMessage(EntityType.ARROW.name() + " ... " +
 			 * EntityType.HUSK.name());
-			 * 
+             *
 			 * Player shooter = ((Player) sender);
-			 * 
+             *
 			 * Location pTop = shooter.getLocation().add(0, 2, 0); Location
 			 * pLeft = shooter.getLocation().add(1, 2, 0); Location pRight =
 			 * shooter.getLocation().add(0, 2, 1);
-			 * 
+             *
 			 * Location targetLoc = shooter.getTargetBlock((HashSet<Byte>) null,
 			 * 256).getLocation();
-			 * 
+             *
 			 * Vector vectorT = targetLoc.toVector().subtract(pTop.toVector());
 			 * vectorT.normalize(); vectorT.multiply(2); Vector vectorL =
 			 * targetLoc.toVector().subtract(pLeft.toVector());
 			 * vectorL.normalize(); vectorL.multiply(2); Vector vectorR =
 			 * targetLoc.toVector().subtract(pRight.toVector());
 			 * vectorR.normalize(); vectorR.multiply(2);
-			 * 
+             *
 			 * shooter.getWorld().spawnArrow(pTop, vectorT, 3,
 			 * 3).setShooter(shooter); shooter.getWorld().spawnArrow(pLeft,
 			 * vectorL, 3, 3).setShooter(shooter);
 			 * shooter.getWorld().spawnArrow(pRight, vectorR, 3,
 			 * 3).setShooter(shooter);
-			 * 
+             *
 			 * if (args.length > 0) {
 			 * sender.sendMessage("Totals stored for checks: " + ChatColor.GRAY
 			 * + RunicParadise.playerProfiles.get(Bukkit.getPlayer(args[0]).
@@ -3717,7 +3979,7 @@ public class Commands implements CommandExecutor {
 			 * sender.sendMessage("Incrementals for DB save: " + ChatColor.GOLD
 			 * + RunicParadise.mobKillTracker.get(Bukkit.getPlayer(args[0]).
 			 * getUniqueId()).toString());
-			 * 
+             *
 			 * }
 			 */
 
@@ -3880,7 +4142,7 @@ public class Commands implements CommandExecutor {
 					 * ChatColor.BLUE + "Tokens: " + tokenBal + ChatColor.AQUA +
 					 * " ☽ " + ChatColor.DARK_AQUA + "♫ " + ChatColor.GREEN +
 					 * "♪");
-					 * 
+                     *
 					 * // player.sendMessage(ChatColor.WHITE + "" + //
 					 * ChatColor.ITALIC // + "Format: /games [option]");
 					 * player.sendMessage(ChatColor.DARK_RED + "[1] " +
@@ -4039,313 +4301,6 @@ public class Commands implements CommandExecutor {
 
 		return true;
 
-	}
-
-	public void carnivalTokenCounts(Player player) {
-		MySQL MySQL = new MySQL(instance, instance.getConfig().getString("dbHost"),
-				instance.getConfig().getString("dbPort"), instance.getConfig().getString("dbDatabase"),
-				instance.getConfig().getString("dbUser"), instance.getConfig().getString("dbPassword"));
-		final Connection d = MySQL.openConnection();
-
-		player.sendMessage(ChatColor.GRAY + "[RunicCarnival] Listing player token counts...");
-
-		for (Player p : Bukkit.getOnlinePlayers()) {
-			try {
-				Statement dStmt = d.createStatement();
-				ResultSet playerData = dStmt.executeQuery("SELECT * FROM `rp_PlayerInfo` WHERE `PlayerName` = '"
-						+ p.getName() + "' ORDER BY `id` ASC LIMIT 1;");
-				playerData.next();
-				int tokenCount = playerData.getInt("Tokens");
-
-				player.sendMessage(ChatColor.GRAY + p.getName() + ": " + ChatColor.GREEN + "" + tokenCount);
-			} catch (SQLException e) {
-				Bukkit.getLogger().log(Level.SEVERE,
-						"Failed token count DB check [staff cmd ct] because: " + e.getMessage());
-			}
-		}
-
-		try {
-			d.close();
-		} catch (SQLException e) {
-			Bukkit.getLogger().log(Level.SEVERE, "Failed DB close for carnivalTokenCounts because: " + e.getMessage());
-		}
-	}
-
-	public boolean addAttemptedPromotion(String newGuyName, String promoterName) {
-
-		MySQL MySQL = new MySQL(instance, instance.getConfig().getString("dbHost"),
-				instance.getConfig().getString("dbPort"), instance.getConfig().getString("dbDatabase"),
-				instance.getConfig().getString("dbUser"), instance.getConfig().getString("dbPassword"));
-
-		try {
-			final Connection dbCon = MySQL.openConnection();
-
-			String simpleProc = "{ call Add_Attempted_Promotion_Record(?, ?) }";
-			CallableStatement cs = dbCon.prepareCall(simpleProc);
-			cs.setString("NewPlayerName_param", Bukkit.getPlayer(newGuyName).getName());
-			cs.setString("PromoterName_param", Bukkit.getPlayer(promoterName).getName());
-			cs.executeUpdate();
-
-			cs.close();
-			dbCon.close();
-
-			return true;
-
-		} catch (SQLException z) {
-			Bukkit.getLogger().log(Level.SEVERE, "Failed addAttemptedPromotion - " + z.getMessage());
-			return false;
-		}
-
-	}
-
-	public int checkAttemptedPromotion(String newGuyName, String promoterName) {
-
-		MySQL MySQL = new MySQL(instance, instance.getConfig().getString("dbHost"),
-				instance.getConfig().getString("dbPort"), instance.getConfig().getString("dbDatabase"),
-				instance.getConfig().getString("dbUser"), instance.getConfig().getString("dbPassword"));
-		try {
-			final Connection dbCon = MySQL.openConnection();
-
-			String simpleProc = "{ call Count_Attempted_Promotion_Records(?, ?, ?) }";
-			CallableStatement cs = dbCon.prepareCall(simpleProc);
-			cs.setString("NewPlayerName_param", Bukkit.getPlayer(newGuyName).getName());
-			cs.setString("PromoterName_param", Bukkit.getPlayer(promoterName).getName());
-			cs.registerOutParameter("resultCount", java.sql.Types.INTEGER);
-			cs.executeUpdate();
-
-			int result = cs.getInt("resultCount");
-
-			cs.close();
-			dbCon.close();
-
-			return result;
-
-		} catch (SQLException z) {
-			Bukkit.getLogger().log(Level.SEVERE, "Failed checkAttemptedPromotion - " + z.getMessage());
-			return 0;
-		}
-
-	}
-
-	private int checkPlayerInventoryItemstackCount(Inventory i) {
-
-		ItemStack[] items = i.getContents();
-
-		int playerInvItemCount = 0;
-
-		// Count actual itemstacks in player's inventory
-		for (ItemStack item : items) {
-			if ((item != null) && (item.getTypeId() != 0)) {
-				playerInvItemCount++;
-			}
-		}
-		return playerInvItemCount;
-	}
-
-	public static ItemStack[] carnivalChestReward(Location loc) {
-
-		Block b = loc.getBlock();
-		org.bukkit.block.Chest chest = (org.bukkit.block.Chest) b.getState();
-		return chest.getBlockInventory().getContents();
-
-	}
-
-	private ItemStack[] casinoWinOrLose(Location loc) {
-
-		Block b = loc.getBlock();
-		org.bukkit.block.Chest chest = (org.bukkit.block.Chest) b.getState();
-		return chest.getBlockInventory().getContents();
-
-	}
-
-	private ItemStack giveCasinoToken(String playerName, int count) {
-		ItemStack casinoToken = new ItemStack(Material.DOUBLE_PLANT, count, (short) 0);
-		ItemMeta casinoTokenMeta = casinoToken.getItemMeta();
-		casinoTokenMeta.setDisplayName(ChatColor.GOLD + "Runic Casino Token");
-		casinoTokenMeta.setLore(Arrays.asList(ChatColor.GRAY + "A token you can use in the",
-				ChatColor.GRAY + "Runic Casino to gamble.", ChatColor.GRAY + "You can buy more with runics",
-				ChatColor.GRAY + "or convert these back to runics.", ChatColor.GRAY + "Visit the casino using /games",
-				" ", ChatColor.GREEN + "Purchased by " + ChatColor.DARK_GREEN + playerName));
-		casinoToken.setItemMeta(casinoTokenMeta);
-		return casinoToken;
-	}
-
-	private void displayELParticle(Location loc, Player p) {
-
-		for (int degree = 0; degree < 360; degree++) {
-			double radians = Math.toRadians(degree);
-			double x = Math.cos(radians);
-			double z = Math.sin(radians);
-			loc.add(x, 1.5, z);
-			loc.getWorld().playEffect(loc, Effect.MOBSPAWNER_FLAMES, 1);
-
-			loc.subtract(x, 1.5, z);
-		}
-
-		Song s = NBSDecoder.parse(
-				new File("/home/AMP/.ampdata/instances/Survival/Minecraft/plugins/RunicParadise/ZeldaTriforce.nbs"));
-		SongPlayer sp = new RadioSongPlayer(s);
-		sp.setAutoDestroy(true);
-		sp.addPlayer(p);
-		sp.setPlaying(true);
-
-	}
-
-	private static void playNBS(Player p, String song) {
-
-		try {
-			Song s = NBSDecoder.parse(
-					new File("/home/AMP/.ampdata/instances/Survival/Minecraft/plugins/RunicParadise/" + song + ".nbs"));
-			SongPlayer sp = new RadioSongPlayer(s);
-
-			sp.setAutoDestroy(true);
-			for (Entity listener : p.getNearbyEntities(30, 30, 30)) {
-
-				if (listener instanceof Player) {
-
-					sp.addPlayer((Player) listener);
-
-				}
-
-			}
-			sp.addPlayer(p);
-			sp.setPlaying(true);
-		} catch (Exception e) {
-		}
-
-	}
-
-	public static void syncExplorerLocations() {
-		int locCount = 0;
-
-		// reset the hashmap
-		RunicParadise.explorerLocations.clear();
-		RunicParadise.explorerDifficulties.clear();
-		RunicParadise.explorerRewards.clear();
-		RunicParadise.explorerLocationsReversed.clear();
-		RunicParadise.explorerIDs.clear();
-		RunicParadise.explorerPrereqs.clear();
-
-		// retrieve updated Explorer data
-		final Plugin instance = RunicParadise.getInstance();
-		MySQL MySQL = new MySQL(instance, instance.getConfig().getString("dbHost"),
-				instance.getConfig().getString("dbPort"), instance.getConfig().getString("dbDatabase"),
-				instance.getConfig().getString("dbUser"), instance.getConfig().getString("dbPassword"));
-		try {
-			final Connection d = MySQL.openConnection();
-			Statement dStmt = d.createStatement();
-			ResultSet explorerLocData = dStmt.executeQuery(
-					"SELECT * FROM rp_ExplorerLocations WHERE Status != 'Disabled' ORDER BY `Order` ASC;");
-			// if (!playerData.first() && !playerData.next()) {
-			if (!explorerLocData.isBeforeFirst()) {
-				// No results
-				// do nothing
-				d.close();
-				return;
-			} else {
-				// results found!
-				while (explorerLocData.next()) {
-					String[] locParts = explorerLocData.getString("Location").split("[\\x2E]");
-					Location newLoc = new Location(Bukkit.getWorld(locParts[0]), Integer.parseInt(locParts[1]),
-							Integer.parseInt(locParts[2]), Integer.parseInt(locParts[3]));
-
-					RunicParadise.explorerLocations.put(explorerLocData.getInt("ID"), newLoc);
-					RunicParadise.explorerLocationsReversed.put(newLoc, explorerLocData.getInt("ID"));
-					RunicParadise.explorerDifficulties.put(explorerLocData.getInt("ID"),
-							explorerLocData.getInt("DifficultyRadius"));
-					RunicParadise.explorerRewards.put(explorerLocData.getInt("ID"),
-							explorerLocData.getInt("TokenReward"));
-					RunicParadise.explorerPrereqs.put(explorerLocData.getInt("ID"), explorerLocData.getInt("PreReq"));
-					RunicParadise.explorerIDs.put(explorerLocData.getInt("ID"),
-							explorerLocData.getString("LocationName"));
-
-					locCount++;
-				}
-
-				d.close();
-
-				Bukkit.dispatchCommand(Bukkit.getConsoleSender(),
-						"sc " + locCount + " explorer locs loaded into memory!");
-			}
-
-		} catch (SQLException z) {
-			Bukkit.getLogger().log(Level.SEVERE, "Failed map sync for explorer locs cuz " + z.getMessage());
-		}
-
-	}
-
-	public static Boolean searchExplorerLocation(Location loc, Player p) {
-
-		int targetID = 0;
-		int distance = -1;
-		Boolean noneFound = false;
-
-		int greenWarmthMultiplier = 2;
-		int yellowWarmthMultiplier = 4;
-		int redWarmthMultiplier = 6;
-
-		if (RunicParadise.explorerLocations.isEmpty()) {
-			// Just in case the map is empty -- load it up! This happened on
-			// 8/10/16 somehow. :-/
-			Commands.syncExplorerLocations();
-		}
-
-		for (Location l : RunicParadise.explorerLocations.values()) {
-			if (l == null || l.getWorld() == null || l.getWorld().getName() == null) {
-				Commands.syncExplorerLocations();
-				Bukkit.getLogger().log(Level.WARNING,
-						"RunicWarning - Runic Explorers League - Someone tried to use /explore and I encountered a null location in the explorerLocations hashmap. Therefore, resyncing the location maps now.");
-			}
-			if (l.getWorld().getName().equals(loc.getWorld().getName())) {
-				// Make sure worlds match before taking distance
-
-				if ((distance != -1 && loc.distance(l) < distance) || (distance == -1)) {
-					// Compare with last distance. The idea is to only retain
-					// the closest distance loc via this loop.
-					distance = (int) loc.distance(l);
-					targetID = RunicParadise.explorerLocationsReversed.get(l);
-				}
-			}
-		}
-
-		if (targetID != 0) {
-			// A distance & loc were found, so let's run our logic.
-			int difficulty = RunicParadise.explorerDifficulties.get(targetID);
-			if (distance <= difficulty) {
-				// found location!
-				RunicParadise.playerProfiles.get(p.getUniqueId()).completePlayerExploration(targetID);
-				playNBS(p, "ZeldaSecret");
-
-			} else if (distance <= greenWarmthMultiplier * difficulty) {
-				// Green OK!
-				TitleAPI.sendFullTitle(p, 1, 2, 1, ChatColor.GREEN + "✸ ✸ ✸",
-						ChatColor.DARK_GREEN + "You are very close to a secret spot!");
-				p.sendMessage(ChatColor.DARK_GREEN + "You are very close to a secret spot!");
-			} else if (distance <= yellowWarmthMultiplier * difficulty) {
-				// Yellow OK!}
-				TitleAPI.sendFullTitle(p, 1, 2, 1, ChatColor.YELLOW + "✸ ✸ ✸",
-						ChatColor.GOLD + "You are kinda close to a secret spot!");
-				p.sendMessage(ChatColor.GOLD + "You are kinda close to a secret spot!");
-			} else if (distance <= redWarmthMultiplier * difficulty) {
-				// Red OK!
-				TitleAPI.sendFullTitle(p, 1, 2, 1, ChatColor.RED + "✸ ✸ ✸",
-						ChatColor.DARK_RED + "There is a secret spot in your general area!");
-				p.sendMessage(ChatColor.DARK_RED + "There is a secret spot in your general area!");
-			} else {
-				noneFound = true;
-			}
-
-		} else {
-			noneFound = true;
-		}
-
-		if (noneFound) {
-			TitleAPI.sendFullTitle(p, 1, 2, 1, ChatColor.AQUA + "✕ ✕ ✕",
-					ChatColor.DARK_AQUA + "There are no secret spots nearby!");
-			p.sendMessage(ChatColor.DARK_AQUA + "There are no secret spots nearby!");
-		}
-
-		return false;
 	}
 
 	public static Boolean givePlayerExplorationReward(int locID, Player p) {

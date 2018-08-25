@@ -48,3 +48,5 @@ Temporary Items
 .projectdependency-reduced-pom.xml
 mvn
 JarDesc.jardescOLD
+/.idea
+.RunicParadise.iml

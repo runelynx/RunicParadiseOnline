@@ -5,16 +5,17 @@
  */
 package io.github.runelynx.runicparadise;
 
-import java.util.Arrays;
-
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.FurnaceRecipe;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ShapelessRecipe;
 import org.bukkit.inventory.meta.ItemMeta;
+
+import java.util.Arrays;
 
 /**
  *
@@ -96,7 +97,7 @@ public class Recipes {
 				ChatColor.GRAY + "Grants " + ChatColor.BLUE
 						+ "30min health regeneration"));
 		newItem.setItemMeta(meta);
-		ShapelessRecipe newRecipe = new ShapelessRecipe(newItem);
+		ShapelessRecipe newRecipe = new ShapelessRecipe(new NamespacedKey(RunicParadise.getInstance(), "RP_REGEN_STEAK"), newItem);
 		newRecipe.addIngredient(1, Material.QUARTZ, 910);
 		newRecipe.addIngredient(1, Material.COOKED_BEEF);
 		Bukkit.getServer().addRecipe(newRecipe);
@@ -109,7 +110,7 @@ public class Recipes {
 				ChatColor.GRAY + "Grants " + ChatColor.BLUE
 						+ "30min health regeneration"));
 		newItem.setItemMeta(meta);
-		newRecipe = new ShapelessRecipe(newItem);
+		newRecipe = new ShapelessRecipe(new NamespacedKey(RunicParadise.getInstance(), "RP_REGEN_CHICKEN"), newItem);
 		newRecipe.addIngredient(1, Material.QUARTZ, 910);
 		newRecipe.addIngredient(1, Material.COOKED_CHICKEN);
 		Bukkit.getServer().addRecipe(newRecipe);
@@ -123,7 +124,7 @@ public class Recipes {
 				ChatColor.GRAY + "Grants " + ChatColor.BLUE
 						+ "30min health regeneration"));
 		newItem.setItemMeta(meta);
-		newRecipe = new ShapelessRecipe(newItem);
+		newRecipe = new ShapelessRecipe(new NamespacedKey(RunicParadise.getInstance(), "RP_REGEN_FISH"), newItem);
 		newRecipe.addIngredient(1, Material.QUARTZ, 910);
 		newRecipe.addIngredient(1, Material.COOKED_SALMON);
 		Bukkit.getServer().addRecipe(newRecipe);
@@ -136,7 +137,7 @@ public class Recipes {
 				ChatColor.GRAY + "Grants " + ChatColor.BLUE
 						+ "15min mining speed"));
 		newItem.setItemMeta(meta);
-		newRecipe = new ShapelessRecipe(newItem);
+		newRecipe = new ShapelessRecipe(new NamespacedKey(RunicParadise.getInstance(), "RP_HASTE_BREAD"), newItem);
 		newRecipe.addIngredient(1, Material.QUARTZ, 903);
 		newRecipe.addIngredient(1, Material.BREAD);
 		Bukkit.getServer().addRecipe(newRecipe);
@@ -149,7 +150,7 @@ public class Recipes {
 				+ "Is it Thanksgiving already?", ChatColor.GRAY + "Grants "
 				+ ChatColor.BLUE + "20min strong attacks"));
 		newItem.setItemMeta(meta);
-		newRecipe = new ShapelessRecipe(newItem);
+		newRecipe = new ShapelessRecipe(new NamespacedKey(RunicParadise.getInstance(), "RP_STRENGTH_PIE"), newItem);
 		newRecipe.addIngredient(1, Material.QUARTZ, 905);
 		newRecipe.addIngredient(1, Material.PUMPKIN_PIE);
 		Bukkit.getServer().addRecipe(newRecipe);
@@ -162,7 +163,7 @@ public class Recipes {
 				+ "Best served with applesauce", ChatColor.GRAY + "Grants "
 				+ ChatColor.BLUE + "1hr nightvision"));
 		newItem.setItemMeta(meta);
-		newRecipe = new ShapelessRecipe(newItem);
+		newRecipe = new ShapelessRecipe(new NamespacedKey(RunicParadise.getInstance(), "RP_NIGHTVISION_PORK"), newItem);
 		newRecipe.addIngredient(1, Material.QUARTZ, 916);
 		newRecipe.addIngredient(1, Material.GRILLED_PORKCHOP);
 		Bukkit.getServer().addRecipe(newRecipe);
@@ -176,7 +177,7 @@ public class Recipes {
 						ChatColor.GRAY + "Grants " + ChatColor.BLUE
 								+ "1hr nightvision"));
 		newItem.setItemMeta(meta);
-		newRecipe = new ShapelessRecipe(newItem);
+		newRecipe = new ShapelessRecipe(new NamespacedKey(RunicParadise.getInstance(), "RP_NIGHTVISION_POTATO"), newItem);
 		newRecipe.addIngredient(1, Material.QUARTZ, 916);
 		newRecipe.addIngredient(1, Material.BAKED_POTATO);
 		Bukkit.getServer().addRecipe(newRecipe);
@@ -189,13 +190,13 @@ public class Recipes {
 				ChatColor.GRAY + "Now with chocolate chips!", ChatColor.GRAY
 						+ "Grants " + ChatColor.BLUE + "20min speed boost"));
 		newItem.setItemMeta(meta);
-		newRecipe = new ShapelessRecipe(newItem);
+		newRecipe = new ShapelessRecipe(new NamespacedKey(RunicParadise.getInstance(), "RP_SPEED_COOKIE"), newItem);
 		newRecipe.addIngredient(1, Material.QUARTZ, 901);
 		newRecipe.addIngredient(1, Material.COOKIE);
 		Bukkit.getServer().addRecipe(newRecipe);
 
 		// FAITH WEAPON 1
-		newRecipe = new ShapelessRecipe(customItemStacks("FAITH_SWORD_1"));
+		newRecipe = new ShapelessRecipe(new NamespacedKey(RunicParadise.getInstance(), "RP_FAITH_SWORD_1"), customItemStacks("FAITH_SWORD_1"));
 		newRecipe.addIngredient(1, Material.GOLD_NUGGET);
 		newRecipe.addIngredient(1, Material.REDSTONE);
 		newRecipe.addIngredient(1, Material.INK_SACK, 4);
@@ -203,7 +204,7 @@ public class Recipes {
 		Bukkit.getServer().addRecipe(newRecipe);
 
 		// FAITH WEAPON 2
-		newRecipe = new ShapelessRecipe(customItemStacks("FAITH_SWORD_2"));
+		newRecipe = new ShapelessRecipe(new NamespacedKey(RunicParadise.getInstance(), "RP_FAITH_SWORD_2"), customItemStacks("FAITH_SWORD_2"));
 		newRecipe.addIngredient(1, Material.GOLD_NUGGET);
 		newRecipe.addIngredient(1, Material.REDSTONE);
 		newRecipe.addIngredient(1, Material.INK_SACK, 4);
@@ -212,7 +213,7 @@ public class Recipes {
 		Bukkit.getServer().addRecipe(newRecipe);
 
 		// FAITH WEAPON 3
-		newRecipe = new ShapelessRecipe(customItemStacks("FAITH_SWORD_3"));
+		newRecipe = new ShapelessRecipe(new NamespacedKey(RunicParadise.getInstance(), "RP_FAITH_SWORD_3"), customItemStacks("FAITH_SWORD_3"));
 		newRecipe.addIngredient(1, Material.GOLD_NUGGET);
 		newRecipe.addIngredient(1, Material.REDSTONE);
 		newRecipe.addIngredient(1, Material.INK_SACK, 4);
