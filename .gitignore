@@ -42,3 +42,9 @@ Network Trash Folder
 Temporary Items
 .apdisk
 /target
+/.vscode
+/.settings
+.classpath
+.projectdependency-reduced-pom.xml
+mvn
+JarDesc.jardescOLD
