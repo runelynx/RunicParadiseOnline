@@ -45,8 +45,9 @@ Temporary Items
 /.vscode
 /.settings
 .classpath
-.projectdependency-reduced-pom.xml
+.project
+dependency-reduced-pom.xml
 mvn
 JarDesc.jardescOLD
 /.idea
-.RunicParadise.iml
+*.iml
