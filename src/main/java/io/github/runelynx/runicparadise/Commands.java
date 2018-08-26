@@ -151,7 +151,7 @@ public class Commands implements CommandExecutor {
 
     }
 
-    public static void syncExplorerLocations() {
+    public static boolean syncExplorerLocations() {
         int locCount = 0;
 
         // reset the hashmap
@@ -177,7 +177,7 @@ public class Commands implements CommandExecutor {
                 // No results
                 // do nothing
                 d.close();
-                return;
+                return true;
             } else {
                 // results found!
                 while (explorerLocData.next()) {
@@ -207,7 +207,7 @@ public class Commands implements CommandExecutor {
         } catch (SQLException z) {
             Bukkit.getLogger().log(Level.SEVERE, "Failed map sync for explorer locs cuz " + z.getMessage());
         }
-
+        return true;
     }
 
     public void carnivalTokenCounts(Player player) {

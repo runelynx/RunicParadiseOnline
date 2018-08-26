@@ -6,52 +6,87 @@ sswwsswwsswws * To change this license header, choose License Headers in Project
 
 package io.github.runelynx.runicparadise;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Random;
-import java.util.UUID;
-import java.util.concurrent.ThreadLocalRandom;
-import java.util.logging.Level;
-
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Color;
-import org.bukkit.Location;
-import org.bukkit.Material;
+import io.github.runelynx.runicuniverse.RunicMessaging;
+import io.github.runelynx.runicuniverse.RunicMessaging.RunicFormat;
+import org.bukkit.*;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.Creeper;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
-import org.bukkit.entity.Projectile;
-import org.bukkit.entity.Skeleton;
-import org.bukkit.entity.TippedArrow;
-import org.bukkit.entity.Zombie;
+import org.bukkit.entity.*;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityShootBowEvent;
-import org.bukkit.event.entity.EntityTargetEvent.TargetReason;
 import org.bukkit.event.entity.EntityTargetLivingEntityEvent;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
-import org.bukkit.inventory.meta.PotionMeta;
-import org.bukkit.potion.PotionData;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
-import org.bukkit.potion.PotionType;
 import org.bukkit.util.Vector;
 
-import io.github.runelynx.runicuniverse.RunicMessaging;
-import io.github.runelynx.runicuniverse.RunicMessaging.RunicFormat;
+import java.util.ArrayList;
+import java.util.Random;
+import java.util.UUID;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  *
  * @author Andrew
  */
 public class Borderlands {
+
+    public static boolean initializeBorderlands() {
+
+        Borderlands.startScheduledTasks();
+
+        Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(),
+                "sc " + ChatColor.DARK_RED + "Borderlands has been initialized!");
+
+        return true;
+    }
+
+    public static void startScheduledTasks() {
+        /*
+         * Bukkit.getScheduler().scheduleSyncRepeatingTask(RunicParadise.
+         * getInstance(), new Runnable() {
+         *
+         * @Override public void run() { grantZombieShamanBonus();
+         *
+         * }
+         *
+         * }, 200L, 900L);
+         */
+
+    }
+
+    public static void handleEntityTargetEventBL(EntityTargetLivingEntityEvent event) {
+
+        // ZombieShaman Regeneration effect
+
+        if (event.getEntity().getCustomName() != null && event.getEntity().getCustomName().contains("Zombie Shaman")
+                && event.getTarget() instanceof Player
+                && ((LivingEntity) event.getEntity()).getPotionEffect(PotionEffectType.REGENERATION) == null) {
+            // Target reason is one that makes us believe this is a mob
+            // attacking a player
+            // Targeter is Zombie Shaman (BL)
+            // Targetee is a Player
+            // Targeter does not have regen effect active
+
+            for (Entity e : event.getEntity().getNearbyEntities(20, 20, 20)) {
+                if (e.getType() == EntityType.ZOMBIE) {
+                    ((Zombie) e).addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 600, 1));
+                }
+
+                ((Zombie) event.getEntity()).addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 600, 1));
+
+                if (e instanceof Player) {
+                    RunicMessaging.sendMessage(((Player) e), RunicMessaging.RunicFormat.BORDERLANDS,
+                            "Zombie Shaman blessed his zombie brothers with regeneration");
+                }
+            }
+
+        }
+
+    }
 
 	public enum Mobs {
 		ZOMBIE_FALLENKNIGHT(2.0, "Fallen Knight Zombie", EntityType.ZOMBIE, "Loot", true, true, 0, 2),
@@ -82,8 +117,8 @@ public class Borderlands {
 		private int potionEffects;
 		private int tier;
 
-		private Mobs(double expMod, String name, EntityType type, String loot, Boolean armorFlag, Boolean weaponFlag,
-				int pEffectCount, int t) {
+        Mobs(double expMod, String name, EntityType type, String loot, Boolean armorFlag, Boolean weaponFlag,
+             int pEffectCount, int t) {
 			this.expModifier = expMod;
 			this.justTextName = name;
 			this.entityType = type;
@@ -109,58 +144,6 @@ public class Borderlands {
 				break;
 			}
 		}
-	}
-
-	public static void startScheduledTasks() {
-		/*
-		 * Bukkit.getScheduler().scheduleSyncRepeatingTask(RunicParadise.
-		 * getInstance(), new Runnable() {
-		 * 
-		 * @Override public void run() { grantZombieShamanBonus();
-		 * 
-		 * }
-		 * 
-		 * }, 200L, 900L);
-		 */
-
-	}
-
-	public static void handleEntityTargetEventBL(EntityTargetLivingEntityEvent event) {
-
-		// ZombieShaman Regeneration effect
-
-		if (event.getEntity().getCustomName() != null && event.getEntity().getCustomName().contains("Zombie Shaman")
-				&& event.getTarget() instanceof Player
-				&& ((LivingEntity) event.getEntity()).getPotionEffect(PotionEffectType.REGENERATION) == null) {
-			// Target reason is one that makes us believe this is a mob
-			// attacking a player
-			// Targeter is Zombie Shaman (BL)
-			// Targetee is a Player
-			// Targeter does not have regen effect active
-
-			for (Entity e : event.getEntity().getNearbyEntities(20, 20, 20)) {
-				if (e.getType() == EntityType.ZOMBIE) {
-					((Zombie) e).addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 600, 1));
-				}
-
-				((Zombie) event.getEntity()).addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 600, 1));
-
-				if (e instanceof Player) {
-					RunicMessaging.sendMessage(((Player) e), RunicMessaging.RunicFormat.BORDERLANDS,
-							"Zombie Shaman blessed his zombie brothers with regeneration");
-				}
-			}
-
-		}
-
-	}
-
-	public static void initializeBorderlands() {
-
-		Borderlands.startScheduledTasks();
-
-		Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(),
-				"sc " + ChatColor.DARK_RED + "Borderlands has been initialized!");
 	}
 
 	public static Boolean spawnBLMob(CreatureSpawnEvent event) {
