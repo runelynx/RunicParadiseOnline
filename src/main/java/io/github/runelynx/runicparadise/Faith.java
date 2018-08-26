@@ -1,37 +1,10 @@
 package io.github.runelynx.runicparadise;
 
-import static org.bukkit.Bukkit.getLogger;
-import static org.bukkit.ChatColor.WHITE;
 import io.github.runelynx.runicuniverse.RunicMessaging;
 import io.github.runelynx.runicuniverse.RunicMessaging.RunicFormat;
-
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map.Entry;
-import java.util.Random;
-import java.util.UUID;
-import java.util.logging.Level;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.Sound;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.block.Block;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Monster;
-import org.bukkit.entity.Player;
-import org.bukkit.entity.Wither;
-import org.bukkit.entity.Wolf;
+import org.bukkit.entity.*;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockGrowEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
@@ -47,6 +20,14 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
+
+import java.sql.*;
+import java.util.*;
+import java.util.Date;
+import java.util.Map.Entry;
+import java.util.logging.Level;
+
+import static org.bukkit.Bukkit.getLogger;
 
 /**
  * @author andrew
@@ -91,28 +72,28 @@ public class Faith {
 		Inventory faithInventory = Bukkit.createInventory(null, 45,
 				ChatColor.BLUE + "Runic " + ChatColor.DARK_AQUA + "Faith " + ChatColor.DARK_GRAY + "Selection Menu");
 
-		ItemStack sun = new ItemStack(Material.RED_SANDSTONE, 1);
+		ItemStack sun = new ItemStack(Material.RED_SANDSTONE);
 		ItemMeta sunMeta = sun.getItemMeta();
 		sunMeta.setDisplayName("Sun");
 		sun.setItemMeta(sunMeta);
 
-		ItemStack moon = new ItemStack(Material.ENDER_STONE, 1);
+		ItemStack moon = new ItemStack(Material.ENDER_STONE);
 		ItemMeta moonMeta = moon.getItemMeta();
 		moonMeta.setDisplayName("Moon");
 		moon.setItemMeta(moonMeta);
 
-		ItemStack flame = new ItemStack(Material.STAINED_GLASS, 1);
+		ItemStack flame = new ItemStack(Material.STAINED_GLASS);
 		ItemMeta flameMeta = flame.getItemMeta();
 		flame.setDurability((short) 1);
 		flameMeta.setDisplayName("Fire");
 		flame.setItemMeta(flameMeta);
 
-		ItemStack water = new ItemStack(Material.PRISMARINE, 1);
+		ItemStack water = new ItemStack(Material.PRISMARINE);
 		ItemMeta waterMeta = water.getItemMeta();
 		waterMeta.setDisplayName("Water");
 		water.setItemMeta(waterMeta);
 
-		ItemStack air = new ItemStack(Material.STAINED_GLASS, 1);
+		ItemStack air = new ItemStack(Material.STAINED_GLASS);
 		air.setDurability((short) 0);
 		ItemMeta airMeta = air.getItemMeta();
 		airMeta.setDisplayName("Air");
@@ -123,42 +104,42 @@ public class Faith {
 		earthMeta.setDisplayName("Earth");
 		earth.setItemMeta(earthMeta);
 
-		ItemStack aether = new ItemStack(Material.QUARTZ_BLOCK, 1);
+		ItemStack aether = new ItemStack(Material.QUARTZ_BLOCK);
 		ItemMeta aetherMeta = aether.getItemMeta();
 		aetherMeta.setDisplayName("Aether");
 		aether.setItemMeta(aetherMeta);
 
-		ItemStack nether = new ItemStack(Material.NETHERRACK, 1);
+		ItemStack nether = new ItemStack(Material.NETHERRACK);
 		ItemMeta netherMeta = nether.getItemMeta();
 		netherMeta.setDisplayName("Nether");
 		nether.setItemMeta(netherMeta);
 
-		ItemStack nature = new ItemStack(Material.LEAVES, 1);
+		ItemStack nature = new ItemStack(Material.LEAVES);
 		ItemMeta natureMeta = nature.getItemMeta();
 		natureMeta.setDisplayName("Nature");
 		nature.setItemMeta(natureMeta);
 
-		ItemStack tech = new ItemStack(Material.BEACON, 1);
+		ItemStack tech = new ItemStack(Material.BEACON);
 		ItemMeta techMeta = tech.getItemMeta();
 		techMeta.setDisplayName("Tech");
 		tech.setItemMeta(techMeta);
 
-		ItemStack time = new ItemStack(Material.WATCH, 1);
+		ItemStack time = new ItemStack(Material.WATCH);
 		ItemMeta timeMeta = time.getItemMeta();
 		timeMeta.setDisplayName("Time");
 		time.setItemMeta(timeMeta);
 
-		ItemStack fate = new ItemStack(Material.ENDER_PEARL, 1);
+		ItemStack fate = new ItemStack(Material.ENDER_PEARL);
 		ItemMeta fateMeta = fate.getItemMeta();
 		fateMeta.setDisplayName("Fate");
 		fate.setItemMeta(fateMeta);
 
-		ItemStack stars = new ItemStack(Material.BLAZE_POWDER, 1);
+		ItemStack stars = new ItemStack(Material.BLAZE_POWDER);
 		ItemMeta starsMeta = stars.getItemMeta();
 		starsMeta.setDisplayName("Stars");
 		stars.setItemMeta(starsMeta);
 
-		ItemStack blocked = new ItemStack(Material.BARRIER, 1);
+		ItemStack blocked = new ItemStack(Material.BARRIER);
 		ItemMeta blockedMeta = blocked.getItemMeta();
 		blockedMeta.setDisplayName("This faith is not available to you");
 		blocked.setItemMeta(blockedMeta);
@@ -431,12 +412,7 @@ public class Faith {
 		if (this.faithLevels.containsKey(faithName)) {
 			if (this.faithLevels.get(faithName) >= level) {
 				// ensure the faith is ACTIVE
-
-				if (new RunicPlayerBukkit(this.getUUID()).getActiveFaith().equals(faithName)) {
-					return true;
-				} else {
-					return false;
-				}
+				return new RunicPlayerBukkit(this.getUUID()).getActiveFaith().equals(faithName);
 			} else {
 				return false;
 			}
@@ -625,25 +601,25 @@ public class Faith {
 	}
 
 	private String displayLevelBar(double input) {
-		String bar = ChatColor.AQUA + "";
+		StringBuilder bar = new StringBuilder();
+		bar.append(ChatColor.AQUA);
 		int counter = 0;
 
 		while (counter <= input) {
-			bar += "|";
+			bar.append("|");
 			counter++;
 		}
 
-		bar += ChatColor.DARK_BLUE + "|";
+		bar.append(ChatColor.DARK_BLUE).append("|");
 		counter++;
 
-		bar += ChatColor.GRAY + "";
+		bar.append(ChatColor.GRAY);
 		while (counter <= 50) {
-			bar += "|";
+			bar.append("|");
 			counter++;
 		}
 
-		return bar;
-
+		return bar.toString();
 	}
 
 	public void retrievePlayerData(UUID nUUID) {
@@ -850,13 +826,7 @@ public class Faith {
 		Faith pfo = RunicParadise.faithMap.get(p.getUniqueId());
 		String faith = pfo.getPrimaryFaith();
 		int level = pfo.getPrimaryFaithLevel();
-		boolean daytime;
-
-		if ((Bukkit.getWorld("RunicRealm").getTime() > 14000 && Bukkit.getWorld("RunicRealm").getTime() < 23000)) {
-			daytime = false;
-		} else {
-			daytime = true;
-		}
+		final boolean daytime = (Bukkit.getWorld("RunicRealm").getTime() <= 14000 || Bukkit.getWorld("RunicRealm").getTime() >= 23000);
 
 		if (!(event.getCause() == DamageCause.ENTITY_EXPLOSION && event.getCause() == DamageCause.ENTITY_ATTACK
 				&& event.getCause() == DamageCause.PROJECTILE)) {
@@ -980,13 +950,7 @@ public class Faith {
 		Faith pfo = RunicParadise.faithMap.get(p.getUniqueId());
 		String faith = pfo.getPrimaryFaith();
 		int level = pfo.getPrimaryFaithLevel();
-		boolean daytime;
-
-		if ((Bukkit.getWorld("RunicRealm").getTime() > 14000 && Bukkit.getWorld("RunicRealm").getTime() < 23000)) {
-			daytime = false;
-		} else {
-			daytime = true;
-		}
+		final boolean daytime = (Bukkit.getWorld("RunicRealm").getTime() <= 14000 || Bukkit.getWorld("RunicRealm").getTime() >= 23000);
 
 		switch (faith) {
 
@@ -1382,7 +1346,7 @@ public class Faith {
 
 				tryForRankItem(player, "Fate InevitableDemise");
 
-				for (final Entity entity : getTargets.getTargetList(player.getLocation(), 2)) {
+				for (final Entity entity : RunicUtilities.getTargetList(player.getLocation(), 2)) {
 					if (((entity instanceof LivingEntity)) && (entity != player)) {
 						((LivingEntity) entity).setHealth(0);
 					}
@@ -1432,7 +1396,7 @@ public class Faith {
 			tryForRankItem(p, "Flame UnstableEmbers");
 
 
-			for (Entity entity : getTargets.getTargetList(p.getLocation(), 4)) {
+			for (Entity entity : RunicUtilities.getTargetList(p.getLocation(), 4)) {
 				if (((entity instanceof LivingEntity)) && (entity != p)) {
 					((LivingEntity) entity).damage(4);
 				}
@@ -1464,7 +1428,7 @@ public class Faith {
 					sendCastMessage(player, spellName, "Air");
 					tryForRankItem(player, "Air TempestArmor");
 
-					for (final Entity entity : getTargets.getTargetList(player.getLocation(), 5)) {
+					for (final Entity entity : RunicUtilities.getTargetList(player.getLocation(), 5)) {
 						if (((entity instanceof Monster)) && (entity != player)) {
 							((LivingEntity) entity).setVelocity(
 									((LivingEntity) entity).getLocation().getDirection().multiply(2.5D).setY(0.7D));
@@ -1490,7 +1454,7 @@ public class Faith {
 		Random rand = new Random();
 		int number = rand.nextInt(100) + 1;
 		if (number >= 97) {
-			for (Entity entity : getTargets.getTargetList(player.getLocation(), 40)) {
+			for (Entity entity : RunicUtilities.getTargetList(player.getLocation(), 40)) {
 				if (entity instanceof Player) {
 					String spellName = "Healing Breeze";
 					sendCastMessage(player, spellName, "Air");

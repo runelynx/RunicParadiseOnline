@@ -30,11 +30,6 @@ import java.util.Date;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.logging.Level;
 
-
-/**
- * 
- * @author Andrew
- */
 public class Commands implements CommandExecutor {
 
 	Ranks rank = new Ranks();
@@ -120,7 +115,6 @@ public class Commands implements CommandExecutor {
     }
 
     public static ItemStack[] carnivalChestReward(Location loc) {
-
         Block b = loc.getBlock();
         org.bukkit.block.Chest chest = (org.bukkit.block.Chest) b.getState();
         return chest.getBlockInventory().getContents();
@@ -128,7 +122,6 @@ public class Commands implements CommandExecutor {
     }
 
     private static void playNBS(Player p, String song) {
-
         try {
             Song s = NBSDecoder.parse(
                     new File("/home/AMP/.ampdata/instances/Survival/Minecraft/plugins/RunicParadise/" + song + ".nbs"));
@@ -136,19 +129,14 @@ public class Commands implements CommandExecutor {
 
             sp.setAutoDestroy(true);
             for (Entity listener : p.getNearbyEntities(30, 30, 30)) {
-
                 if (listener instanceof Player) {
-
                     sp.addPlayer((Player) listener);
-
                 }
 
             }
             sp.addPlayer(p);
             sp.setPlaying(true);
-        } catch (Exception e) {
-        }
-
+        } catch (Exception ignored) {}
     }
 
     public static boolean syncExplorerLocations() {
@@ -259,12 +247,10 @@ public class Commands implements CommandExecutor {
             dbCon.close();
 
             return true;
-
         } catch (SQLException z) {
             Bukkit.getLogger().log(Level.SEVERE, "Failed addAttemptedPromotion - " + z.getMessage());
             return false;
         }
-
     }
 
     public int checkAttemptedPromotion(String newGuyName, String promoterName) {
@@ -293,11 +279,9 @@ public class Commands implements CommandExecutor {
             Bukkit.getLogger().log(Level.SEVERE, "Failed checkAttemptedPromotion - " + z.getMessage());
             return 0;
         }
-
     }
 
     private int checkPlayerInventoryItemstackCount(Inventory i) {
-
         ItemStack[] items = i.getContents();
 
         int playerInvItemCount = 0;
@@ -312,7 +296,6 @@ public class Commands implements CommandExecutor {
     }
 
     private ItemStack[] casinoWinOrLose(Location loc) {
-
         Block b = loc.getBlock();
         org.bukkit.block.Chest chest = (org.bukkit.block.Chest) b.getState();
         return chest.getBlockInventory().getContents();
@@ -332,7 +315,6 @@ public class Commands implements CommandExecutor {
     }
 
     private void displayELParticle(Location loc, Player p) {
-
         for (int degree = 0; degree < 360; degree++) {
             double radians = Math.toRadians(degree);
             double x = Math.cos(radians);
@@ -463,7 +445,7 @@ public class Commands implements CommandExecutor {
 					playerA.getInventory().getItemInOffHand());
 			break;
 		case "runicspawntravel":
-			spawnTransportBeacon(((Player) sender).getLocation(), ((Player) sender));
+				spawnTransportBeacon(((Player) sender).getLocation(), ((Player) sender));
 			break;
 		case "sendentity":
 			Player q = ((Player) sender);
@@ -806,8 +788,8 @@ public class Commands implements CommandExecutor {
 			// casino buytokens PLAYER RUNICS TOKENS
 			// casino selltokens PLAYER RUNICS TOKENS
 			// casino winorlose PLAYER RUNICS TOKENS WINSLOTS TOTALSLOTS
-
-			if (args != null) {
+			// TODO: needs more fixing
+			if (args != null && args.length > 0) {
 				// //////////////////////////////////////////
 				if (args[0].equalsIgnoreCase("buytokens") && args.length == 4) {
 
@@ -965,7 +947,7 @@ public class Commands implements CommandExecutor {
 			sender.sendMessage(ChatColor.YELLOW + "Explosions break blocks in the mining world.");
 			break;
 		case "holotest":
-
+			// TODO: needs fixing
 			if (args[0].equals("Guard")) {
 				ArmorStand a = ((Player) sender).getLocation().getWorld()
 						.spawn(((Player) sender).getLocation().subtract(0, 0.75, 0), ArmorStand.class);
@@ -1317,7 +1299,7 @@ public class Commands implements CommandExecutor {
 
 			break;
 		case "iteminfo":
-
+			// TODO: needs fixing
 			String itemMeta = ((Player) sender).getItemInHand().getItemMeta().toString();
 			String itemData = ((Player) sender).getItemInHand().getData().toString();
 			String itemDurability = ((Player) sender).getItemInHand().getDurability() + "";
@@ -1341,8 +1323,9 @@ public class Commands implements CommandExecutor {
 
 			Bukkit.getServer().getScheduler().scheduleAsyncDelayedTask(instance, new Runnable() {
 				public void run() {
-					Bukkit.dispatchCommand(Bukkit.getConsoleSender(),
-							"essentials:bc Mining world is resetting in 2 minutes!");
+//					Bukkit.dispatchCommand(Bukkit.getConsoleSender(),
+//							"essentials:bc Mining world is resetting in 2 minutes!");
+					Bukkit.broadcast("Mining world is resetting in 2 minutes!", "*");
 				}
 			}, 20);
 
@@ -1948,7 +1931,8 @@ public class Commands implements CommandExecutor {
 			}
 			break;
 		case "cactifever":
-			ItemStack skull = new ItemStack(397, 1, (short) 3);
+			// TODO: needs fixing
+			ItemStack skull = new ItemStack(Material.SKULL, 1, (short) 3);
 			SkullMeta meta1 = (SkullMeta) skull.getItemMeta();
 
 			meta1.setOwner("The_King_Cacti");
@@ -4012,6 +3996,7 @@ public class Commands implements CommandExecutor {
 			}
 			break;
 		case "say":
+			// TODO: needs fixing
 			if (sender instanceof ConsoleCommandSender) {
 				String message = "";
 				for (String b : args) {
@@ -4079,8 +4064,10 @@ public class Commands implements CommandExecutor {
 
 					} else {
 						// No record found, proceed!
-						Bukkit.dispatchCommand(Bukkit.getConsoleSender(),
-								"give " + sender.getName() + " 397 1 3 {SkullOwner: " + args[0] + "}");
+						String command = String.format("give %s minecraft:player_head{SkullOwner:{Name:\"%s\"}} 1", sender.getName(), args[0]);
+						Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command);
+//						Bukkit.dispatchCommand(Bukkit.getConsoleSender(),
+//								"give " + sender.getName() + " 397 1 3 {SkullOwner: " + args[0] + "}");
 						try {
 
 							PreparedStatement insertStmt = d.prepareStatement(
@@ -4224,6 +4211,7 @@ public class Commands implements CommandExecutor {
 			break;
 		case "testerchat":
 		case "tc":
+			// Not existent in plugin.yml
 			String senderName = "";
 			if (sender instanceof Player) {
 				Player player = (Player) sender;

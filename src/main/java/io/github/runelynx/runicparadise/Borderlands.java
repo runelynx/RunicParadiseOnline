@@ -1,9 +1,3 @@
-/*
-sswwsswwsswws * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package io.github.runelynx.runicparadise;
 
 import io.github.runelynx.runicuniverse.RunicMessaging;
@@ -28,12 +22,7 @@ import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
-/**
- *
- * @author Andrew
- */
 public class Borderlands {
-
     public static boolean initializeBorderlands() {
 
         Borderlands.startScheduledTasks();
@@ -175,9 +164,8 @@ public class Borderlands {
 					Entity z = event.getLocation().getWorld().spawnEntity(event.getLocation(), EntityType.ZOMBIE);
 					Borderlands.buildBLMob_Zombie((Zombie) z, Mobs.ZOMBIE_SHAMAN);
 				}
-			} else {
-				// Just spawn a normal zombie
-			}
+			}  // Just spawn a normal zombie
+
 			return true;
 
 		} else if (event.getEntityType() == EntityType.SKELETON) {
@@ -197,9 +185,8 @@ public class Borderlands {
 			} else if (random <= 75) {
 				Borderlands.buildBLMob_Skeleton((Skeleton) event.getEntity(), Mobs.SKELETON_GRANITE);
 
-			} else {
-				// Just spawn a normal skeleton
-			}
+			}  // Just spawn a normal skeleton
+
 
 			return true;
 		} else if (event.getEntityType() == EntityType.CREEPER) {
@@ -210,9 +197,7 @@ public class Borderlands {
 			if (random <= 15) {
 				Borderlands.buildBLMob_Creeper((Creeper) event.getEntity(), Mobs.CREEPER_CRAZED);
 
-			} else {
-				// Just spawn a normal skeleton
-			}
+			}  // Just spawn a normal skeleton
 
 			return true;
 		} else {
@@ -253,9 +238,8 @@ public class Borderlands {
 			} else if (RunicParadise.playerProfiles.get(p.getUniqueId()).rankDropCountLast24Hours <= 1
 					&& !RunicParadise.playerProfiles.get(p.getUniqueId()).isFarming) {
 				percentChanceForSpecialRankDrop = .37;
-			} else {
-				// player is farming
-			}
+			}  // player is farming
+
 
 		}
 
@@ -869,13 +853,7 @@ public class Borderlands {
 	 * }
 	 */
 
-	private static void buildBLMob_Zombie(Zombie monster, Mobs mob) {
-
-		monster.setCustomName(mob.customName);
-		monster.setCustomNameVisible(true);
-		monster.setRemoveWhenFarAway(true);
-		monster.setBaby(false);
-
+	private static void setMonsterEquipment(LivingEntity monster, Mobs mob) {
 		if (mob.hasArmor) {
 			monster.getEquipment().setHelmet(Borderlands.mobArmory(mob.justTextName + "Helm"));
 			monster.getEquipment().setHelmetDropChance(0.075F);
@@ -886,6 +864,16 @@ public class Borderlands {
 			monster.getEquipment().setLeggings(Borderlands.mobArmory(mob.justTextName + "Legs"));
 			monster.getEquipment().setLeggingsDropChance(0.075F);
 		}
+	}
+
+	private static void buildBLMob_Zombie(Zombie monster, Mobs mob) {
+
+		monster.setCustomName(mob.customName);
+		monster.setCustomNameVisible(true);
+		monster.setRemoveWhenFarAway(true);
+		monster.setBaby(false);
+
+		setMonsterEquipment(monster, mob);
 		if (mob.hasWeapon) {
 			monster.getEquipment().setItemInMainHand(Borderlands.mobArmory(mob.justTextName + "Weapon"));
 			monster.getEquipment().setItemInMainHandDropChance(0.075F);
@@ -906,16 +894,7 @@ public class Borderlands {
 		monster.setCustomNameVisible(true);
 		monster.setRemoveWhenFarAway(true);
 
-		if (mob.hasArmor) {
-			monster.getEquipment().setHelmet(Borderlands.mobArmory(mob.justTextName + "Helm"));
-			monster.getEquipment().setHelmetDropChance(0.075F);
-			monster.getEquipment().setBoots(Borderlands.mobArmory(mob.justTextName + "Boots"));
-			monster.getEquipment().setBootsDropChance(0.0075F);
-			monster.getEquipment().setChestplate(Borderlands.mobArmory(mob.justTextName + "Chest"));
-			monster.getEquipment().setChestplateDropChance(0.075F);
-			monster.getEquipment().setLeggings(Borderlands.mobArmory(mob.justTextName + "Legs"));
-			monster.getEquipment().setLeggingsDropChance(0.075F);
-		}
+		setMonsterEquipment(monster, mob);
 		if (mob.hasWeapon) {
 			monster.getEquipment().setItemInMainHand(Borderlands.mobArmory(mob.justTextName + "Weapon"));
 			monster.getEquipment().setItemInMainHandDropChance(0.075F);
@@ -931,7 +910,6 @@ public class Borderlands {
 	}
 
 	private static void buildBLMob_Creeper(Creeper monster, Mobs mob) {
-
 		monster.setCustomName(mob.customName);
 		monster.setCustomNameVisible(true);
 		monster.setRemoveWhenFarAway(true);
@@ -946,9 +924,7 @@ public class Borderlands {
 	}
 
 	private static PotionEffect mobAlchemy(String key) {
-
 		switch (key) {
-
 		case "Goliath Zombie1":
 			return new PotionEffect(PotionEffectType.SLOW, 9999999, 1);
 		case "Shaman Zombie1":
@@ -1190,7 +1166,7 @@ public class Borderlands {
 
 	}
 
-	public static ItemStack specialLootDrops(String key, UUID playerUUID) {
+	static ItemStack specialLootDrops(String key, UUID playerUUID) {
 		ItemStack item;
 		ItemMeta meta;
 		ArrayList<String> loreText = new ArrayList<String>();
@@ -1417,9 +1393,6 @@ public class Borderlands {
 			return item;
 		default:
 			return null;
-
 		}
-
 	}
-
 }

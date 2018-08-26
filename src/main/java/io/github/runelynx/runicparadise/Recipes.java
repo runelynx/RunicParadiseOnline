@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package io.github.runelynx.runicparadise;
 
 import org.bukkit.Bukkit;
@@ -17,14 +12,8 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.Arrays;
 
-/**
- *
- * @author Andrew
- */
-public class Recipes {
-
+class Recipes {
 	public static ItemStack customItemStacks(String key) {
-		
 		ItemStack newItem;
 		ItemMeta meta;
 
@@ -83,10 +72,9 @@ public class Recipes {
 	}
 
     public static boolean customFoodRecipes() {
-
 		// ROTTEN FLESH INTO LEATHER
 		FurnaceRecipe fleshLeather = new FurnaceRecipe(new ItemStack(
-				Material.LEATHER, 1), Material.ROTTEN_FLESH);
+				Material.LEATHER), Material.ROTTEN_FLESH);
 		Bukkit.getServer().addRecipe(fleshLeather);
 
 		// REGENERATION STEAK

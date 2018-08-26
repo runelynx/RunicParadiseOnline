@@ -1,10 +1,3 @@
-/*
-
-
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package io.github.runelynx.runicparadise;
 
 import com.google.common.io.ByteArrayDataInput;
@@ -53,10 +46,6 @@ import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
- *
- * @author runelynx
- */
 public final class RunicParadise extends JavaPlugin implements Listener, PluginMessageListener {
 
 	private static Plugin instance;
@@ -65,29 +54,29 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 	public static Economy economy = null;
 	public static final long PUZZLE_REPEAT_TIME = 518400000;
 
-	public static HashMap<UUID, Faith> faithMap = new HashMap<UUID, Faith>();
-	public static HashMap<String, Integer> powerReqsMap = new HashMap<String, Integer>();
-	public static HashMap<String, String[]> faithSettingsMap = new HashMap<String, String[]>();
-	public static HashMap<String, ChatColor> rankColors = new HashMap<String, ChatColor>();
-	public static HashMap<UUID, String> protectedPlayers = new HashMap<UUID, String>();
-	public static HashMap<Location, String[]> runicEyes = new HashMap<Location, String[]>();
-	public static HashMap<Entity, String> runicEyeEntities = new HashMap<Entity, String>();
-	public static HashMap<Location, String[]> prayerBooks = new HashMap<Location, String[]>();
-	public static HashMap<Entity, String> prayerBookEntities = new HashMap<Entity, String>();
-	public static HashMap<String, String> newReadyPlayer = new HashMap<String, String>();
-	public static HashMap<UUID, Integer> giftIDTracker = new HashMap<UUID, Integer>();
-	public static HashMap<Integer, Location> explorerLocations = new HashMap<Integer, Location>();
-	public static HashMap<Integer, Integer> explorerDifficulties = new HashMap<Integer, Integer>();
-	public static HashMap<Integer, Integer> explorerRewards = new HashMap<Integer, Integer>();
-	public static LinkedHashMap<Location, Integer> explorerLocationsReversed = new LinkedHashMap<Location, Integer>();
-	public static HashMap<Integer, String> explorerIDs = new HashMap<Integer, String>();
-	public static HashMap<Integer, Integer> explorerPrereqs = new HashMap<Integer, Integer>();
-	public static ArrayList<Integer> repairableItemTypes = new ArrayList<Integer>();
-	public static HashMap<EntityType, Integer> trackableEntityKillsMap = new HashMap<EntityType, Integer>();
+	public static HashMap<UUID, Faith> faithMap = new HashMap<>();
+	public static HashMap<String, Integer> powerReqsMap = new HashMap<>();
+	public static HashMap<String, String[]> faithSettingsMap = new HashMap<>();
+	public static HashMap<String, ChatColor> rankColors = new HashMap<>();
+	public static HashMap<UUID, String> protectedPlayers = new HashMap<>();
+	public static HashMap<Location, String[]> runicEyes = new HashMap<>();
+	public static HashMap<Entity, String> runicEyeEntities = new HashMap<>();
+	public static HashMap<Location, String[]> prayerBooks = new HashMap<>();
+	public static HashMap<Entity, String> prayerBookEntities = new HashMap<>();
+	public static HashMap<String, String> newReadyPlayer = new HashMap<>();
+	public static HashMap<UUID, Integer> giftIDTracker = new HashMap<>();
+	public static HashMap<Integer, Location> explorerLocations = new HashMap<>();
+	public static HashMap<Integer, Integer> explorerDifficulties = new HashMap<>();
+	public static HashMap<Integer, Integer> explorerRewards = new HashMap<>();
+	public static LinkedHashMap<Location, Integer> explorerLocationsReversed = new LinkedHashMap<>();
+	public static HashMap<Integer, String> explorerIDs = new HashMap<>();
+	public static HashMap<Integer, Integer> explorerPrereqs = new HashMap<>();
+	public static ArrayList<Integer> repairableItemTypes = new ArrayList<>();
+	public static HashMap<EntityType, Integer> trackableEntityKillsMap = new HashMap<>();
 
-	public static HashMap<UUID, HashMap<EntityType, Integer>> mobKillTracker = new HashMap<UUID, HashMap<EntityType, Integer>>();
+	public static HashMap<UUID, HashMap<EntityType, Integer>> mobKillTracker = new HashMap<>();
 
-	public static HashMap<UUID, RunicProfile> playerProfiles = new HashMap<UUID, RunicProfile>();
+	public static HashMap<UUID, RunicProfile> playerProfiles = new HashMap<>();
 
 	public static Random randomSeed = new Random();
 
@@ -610,7 +599,6 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 
 	// valid puzzleTypes = M / P
 	public static void showRunicCarnivalMenu_Puzzles(Player p, Character puzzleType) {
-
 		String typeSingle;
 		String typePlural;
 		if (puzzleType == 'M') {
@@ -624,11 +612,10 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 				ChatColor.DARK_RED + "" + ChatColor.BOLD + "Runic Carnival - " + typePlural);
 
 		ItemMeta meta;
-		ArrayList<String> mainLore = new ArrayList<String>();
-		mainLore.add(ChatColor.YELLOW + "x");
-		mainLore.add(ChatColor.YELLOW + "x");
-		mainLore.add(ChatColor.YELLOW + "x");
-		mainLore.add(ChatColor.YELLOW + "x");
+		ArrayList<String> mainLore = new ArrayList<>();
+		for (int i = 0; i < 4; ++i) {
+			mainLore.add(ChatColor.YELLOW + "x");
+		}
 
 		ItemStack main = new ItemStack(Material.BEACON, 1);
 		meta = main.getItemMeta();
@@ -1046,7 +1033,6 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 
 	@EventHandler
 	public void onEntityTargetLivingEntityEvent(EntityTargetLivingEntityEvent event) {
-
 		Borderlands.handleEntityTargetEventBL(event);
 
 		if (event.getEntity() instanceof Player && protectedPlayers.containsKey(event.getTarget().getUniqueId())) {
@@ -1089,7 +1075,6 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onPlayerTeleport(PlayerTeleportEvent event) {
-
 		if (event.getPlayer().hasPermission("rp.ranks.duke")) {
 			Ranks.applyFeudalBonus(event.getPlayer(), event.getTo().getWorld().getName(),
 					event.getFrom().getWorld().getName());
@@ -1156,9 +1141,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 				event.setCancelled(true);
 
 			}*/
-
 		}
-
 	}
 
 	@EventHandler
@@ -1180,7 +1163,6 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 		} else
 		// Runic Profile - Main Menu
 		if (event.getInventory().getTitle().contains("Profile :: Main Menu")) {
-
 			if (event.getSlot() == 10) {
 				// Player wants to open Kill Counts menu
 				// Close the inventory screen
@@ -1399,7 +1381,6 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 				break;
 			default:
 				break;
-
 			}
 			event.setCancelled(true);
 		} else
@@ -1632,7 +1613,6 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 	@SuppressWarnings("deprecation")
 	@EventHandler
 	public void onPlayerJoin(final PlayerJoinEvent pje) {
-
 		if (!playerProfiles.containsKey(pje.getPlayer().getUniqueId())) {
 			playerProfiles.put(pje.getPlayer().getUniqueId(), new RunicProfile(pje.getPlayer().getUniqueId()));
 		}
@@ -1670,9 +1650,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 									+ ChatColor.DARK_PURPLE
 									+ " has voted 125 times! They can now make small backpacks! Check your votes with /rp and vote today!!");
 						}
-
 					}
-
 				}
 			}
 		}, 120);
@@ -1973,8 +1951,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 
 		// check for Monsters... Flying=Ghast... Slime=Slime/Magmacube...
 		// WaterMob = Squid
-		if (ede.getEntity() instanceof LivingEntity) {
-
+		if (ede.getEntity() != null) {
 			final LivingEntity monsterEnt = ede.getEntity();
 
 			// if a monster has died and killer was player
@@ -2001,7 +1978,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 			}
 
 			if (monsterEnt.getKiller() == null || !(monsterEnt.getKiller() instanceof Player)
-					|| ede.getEntity().getWorld().equals("plotworld")) {
+					|| ede.getEntity().getWorld().getName().equals("plotworld")) {
 				// [RP] Entity death detected but player=null or world=plotworld
 				// OR killer not a player
 				// so nothing recorded!
@@ -2487,14 +2464,11 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 				zStmt.close();
 
 			}
-
 			dbConn.close();
-
 		} catch (SQLException e) {
 			getLogger().log(Level.SEVERE,
 					"Cant work with DB updatePlayerInfoOnJoin for " + playerName + " because: " + e.getMessage());
 		}
-
 	}
 
 	// Add Runic Eye
@@ -2553,7 +2527,6 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 
 	// Add Runic Eye
 	public static void loadPrayerBooks() {
-
 		prayerBooks.clear();
 
 		// remove the eyes before we add them again
@@ -2568,7 +2541,6 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 				instance.getConfig().getString("dbUser"), instance.getConfig().getString("dbPassword"));
 
 		try {
-
 			final Connection dbCon = MySQL.openConnection();
 			Statement dbStmt = dbCon.createStatement();
 			ResultSet bookResult = dbStmt.executeQuery("SELECT * FROM rp_PrayerBooks;");
@@ -2653,9 +2625,8 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 		MySQL MySQL = new MySQL(instance, instance.getConfig().getString("dbHost"),
 				instance.getConfig().getString("dbPort"), instance.getConfig().getString("dbDatabase"),
 				instance.getConfig().getString("dbUser"), instance.getConfig().getString("dbPassword"));
-		String eyeList = "";
+		StringBuilder eyeList = new StringBuilder();
 		try {
-
 			final Connection dbCon = MySQL.openConnection();
 			Statement dbStmt = dbCon.createStatement();
 			ResultSet eyeResult = dbStmt.executeQuery("SELECT * FROM rp_RunicEyes;");
@@ -2690,12 +2661,10 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 					RunicParadise.runicEyes.put(targetLoc.add(-0.5, -1, -0.5),
 							new String[] { eyeResult.getString("Name"), item.getUniqueId().toString(),
 									eyeResult.getString("Message") });
-					eyeList += eyeResult.getString("Name") + ". ";
+					eyeList.append(eyeResult.getString("Name")).append(". ");
 				}
-
 				dbCon.close();
 			}
-
 		} catch (SQLException z) {
 			Bukkit.getLogger().log(Level.SEVERE, "Failed Faith.faithSettings " + z.getMessage());
 		}
@@ -2734,7 +2703,6 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 
 			}
 		}); // end run task async
-
 	}
 
 	private boolean setupPermissions() {
@@ -2796,16 +2764,14 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 			return BlockFace.SOUTH_WEST;
 
 		return BlockFace.WEST;
-
 	}
 
 	public static void showRunicCarnivalMenu(Player p) {
-
 		Inventory carnivalMenu = Bukkit.createInventory(null, 45,
 				ChatColor.DARK_RED + "" + ChatColor.BOLD + "Runic Carnival Menu");
 
 		ItemMeta meta;
-		ArrayList<String> mainLore = new ArrayList<String>();
+		ArrayList<String> mainLore = new ArrayList<>();
 		mainLore.add(ChatColor.YELLOW + "The Runic Carnival is where you'll");
 		mainLore.add(ChatColor.YELLOW + "find minigames, mazes, parkours,");
 		mainLore.add(ChatColor.YELLOW + "and arenas. Click the blocks below");
@@ -2918,8 +2884,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 
 	@EventHandler(priority = EventPriority.NORMAL)
 	public void onPlayerDeath(PlayerDeathEvent event) {
-		if (event.getEntity() instanceof Player) {
-
+		if (event.getEntity() != null) {
 			Player deadPlayer = event.getEntity();
 			double pctExpToReturn = 0.000;
 
@@ -2942,43 +2907,6 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 				RunicMessaging.sendMessage(deadPlayer, RunicFormat.AFTERLIFE, "Returning " + 100 * pctExpToReturn + "% of your experience levels to you!");
 			}
 
-			// Old custom Runic Graves Logic
-
-			/*
-			// Only drop a grave if world name contains Realm or Paradise (i.e.
-			// not adventure maps or sky !!
-			if (event.getEntity().getWorld().toString().contains("RunicRealm")
-					|| event.getEntity().getWorld().toString().contains("Mining")) {
-
-				// force Keep Inventory on the event!! because the world-level
-				// setting is unreliable with multiverse :(
-				event.setKeepInventory(true);
-
-				if (targetPlayer.checkPlayerPermission("rp.graves") && targetPlayer.getPlayerSouls() == 0) {
-					// Player has the graves permission and no souls left... so
-					// trigger a grave!
-
-					RunicDeathChest.savePlayerDeath_v19((Player) event.getEntity(), event.getEntity().getLocation());
-
-					// Old version, not used anymore!!
-					// RunicDeathChest.savePlayerDeath((Player)
-					// event.getEntity(),
-					// event.getEntity().getLocation());
-					targetPlayer.sendMessageToPlayer(ChatColor.DARK_GRAY + "[RunicReaper] " + ChatColor.GRAY
-							+ "A grave with your items and exp has been left where you died.");
-				} else if (targetPlayer.getPlayerSouls() > 0 && targetPlayer.checkPlayerPermission("rp.graves")) {
-					// Player has souls left, so decrement their souls and do
-					// NOT
-					// trigger a grave!
-					targetPlayer.setPlayerSouls(targetPlayer.getPlayerSouls() - 1);
-					targetPlayer.sendMessageToPlayer(
-							ChatColor.DARK_GRAY + "[RunicReaper] " + ChatColor.GRAY + "Used a soul! You have "
-									+ ChatColor.AQUA + targetPlayer.getPlayerSouls() + ChatColor.GRAY + " remaining. ");
-					targetPlayer.sendMessageToPlayer(ChatColor.GRAY + "Type " + ChatColor.DARK_GRAY + "/warp graves "
-							+ ChatColor.GRAY + "for help.");
-				}
-			}
-*/
 			final PlayerDeathEvent innerEvent = event;
 
 			Bukkit.getServer().getScheduler().runTaskAsynchronously(instance, new Runnable() {
@@ -3046,7 +2974,6 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 				}
 
 			}); // end run task async
-
 		}
 	}
 
@@ -3056,7 +2983,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 				ChatColor.BOLD + "" + ChatColor.GOLD + "Explorer's League");
 
 		ItemMeta meta;
-		ArrayList<String> mainLore = new ArrayList<String>();
+		ArrayList<String> mainLore = new ArrayList<>();
 		mainLore.add(ChatColor.YELLOW + "x");
 		mainLore.add(ChatColor.YELLOW + "x");
 		mainLore.add(ChatColor.YELLOW + "x");
@@ -3064,13 +2991,12 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 
 		int countLocs = 1;
 		int slotTracker = 18;
-		ChatColor textColor = ChatColor.DARK_GREEN;
-		Short iconColor = 13;
+		ChatColor textColor;
+		Short iconColor;
 		ArrayList<String> iconLore = new ArrayList<String>();
 		// get all active explore locs and loop through them to build the
 		// inventory
 		for (int i : RunicParadise.explorerLocationsReversed.values()) {
-
 			// To paginate, only allow 27 locations per page
 			if ((page == 1 && countLocs < 28)
 					|| (page > 1 && countLocs > ((page - 1) * 27) && countLocs < ((page * 27) + 1))) {
@@ -3535,7 +3461,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 				ChatColor.DARK_PURPLE + "" + ChatColor.BOLD + "SkyNet Warp Orb");
 
 		ItemMeta meta;
-		ArrayList<String> mainLore = new ArrayList<String>();
+		ArrayList<String> mainLore = new ArrayList<>();
 		mainLore.add(ChatColor.YELLOW + "The Spawn SkyNet is a travel");
 		mainLore.add(ChatColor.YELLOW + "network that gets you to places");
 		mainLore.add(ChatColor.YELLOW + "around spawn quickly! Click a");
@@ -3685,16 +3611,13 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 		SkullMeta headMeta = (SkullMeta) item.getItemMeta();
 		headMeta.setDisplayName(name);
 		GameProfile profile = new GameProfile(UUID.randomUUID(), null);
-		profile.getProperties().put("textures", new Property("textures", new String(data), new String("signed")));
+		profile.getProperties().put("textures", new Property("textures", data, "signed"));
 		Field profileField = null;
 		try {
 			profileField = headMeta.getClass().getDeclaredField("profile");
 			profileField.setAccessible(true);
 			profileField.set(headMeta, profile);
-		} catch (NoSuchFieldException e1) {
-		} catch (IllegalArgumentException e2) {
-		} catch (IllegalAccessException e3) {
-		}
+		} catch (NoSuchFieldException | IllegalAccessException | IllegalArgumentException ignored) {}
 		item.setItemMeta(headMeta);
 		return item;
 	}

@@ -1,12 +1,14 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package io.github.runelynx.runicparadise;
 
-import static io.github.runelynx.runicparadise.RunicParadise.economy;
-import static io.github.runelynx.runicparadise.RunicParadise.perms;
+import com.connorlinfoot.titleapi.TitleAPI;
+import io.github.runelynx.runicuniverse.RunicMessaging;
+import io.github.runelynx.runicuniverse.RunicMessaging.RunicFormat;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.plugin.Plugin;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -15,27 +17,12 @@ import java.sql.Statement;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.logging.Level;
 
-import org.bukkit.Bukkit;
-
+import static io.github.runelynx.runicparadise.RunicParadise.economy;
+import static io.github.runelynx.runicparadise.RunicParadise.perms;
 import static org.bukkit.Bukkit.getLogger;
-
-import org.bukkit.ChatColor;
-import org.bukkit.DyeColor;
-import org.bukkit.Material;
-import org.bukkit.attribute.Attribute;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.material.MaterialData;
-import org.bukkit.plugin.Plugin;
-import com.connorlinfoot.titleapi.*;
-
-import io.github.runelynx.runicuniverse.RunicMessaging;
-import io.github.runelynx.runicuniverse.RunicMessaging.RunicFormat;
 
 /*
 import me.mrCookieSlime.CSCoreLibPlugin.general.Inventory.Item.CustomItem;
