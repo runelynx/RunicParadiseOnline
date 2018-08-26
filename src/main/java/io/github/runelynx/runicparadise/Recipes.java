@@ -82,7 +82,7 @@ public class Recipes {
 
 	}
 
-	public static void customFoodRecipes() {
+    public static boolean customFoodRecipes() {
 
 		// ROTTEN FLESH INTO LEATHER
 		FurnaceRecipe fleshLeather = new FurnaceRecipe(new ItemStack(
@@ -221,5 +221,7 @@ public class Recipes {
 		newRecipe.addIngredient(1, Material.GOLD_SWORD);
 		newRecipe.addIngredient(1, Material.DIAMOND);
 		Bukkit.getServer().addRecipe(newRecipe);
+
+        return true;
 	}
 }

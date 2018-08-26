@@ -92,7 +92,6 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 	public static Random randomSeed = new Random();
 
 	Ranks ranks = new Ranks();
-	private Entity monsterEnt;
 
 	public static Plugin getInstance() {
 		return instance;
@@ -108,28 +107,130 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 
 	}
 
-	public void onEnable() {
-		instance = this;
+	public void initializeRunicSystems() {
+		this.getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
+		Bukkit.getServer().getPluginManager().registerEvents(this, this);
+		BukkitScheduler scheduler = Bukkit.getServer().getScheduler();
 
 		RunicMessaging.initializeAnnouncements(instance);
 
-		// ** turn back on when slimefun 1.13 is out! 
+		// ** turn back on when slimefun 1.13 is out!
 		//Ranks.registerSlimefunItems();
+
+
+		if (setupPermissions()) {
+			getLogger().info("[RunicParadise] Hooked into Vault Permissions");
+		}
+
+		if (setupEconomy()) {
+			getLogger().info("[RunicParadise] Hooked into Vault Economy");
+		}
 
 		getConfig().options().copyDefaults(true);
 		saveConfig();
 
-		// get the object from vault API for Permission class
-		setupPermissions();
-		setupEconomy();
-		
-		//getWorldguard();
+		if (Borderlands.initializeBorderlands()) {
+			getLogger().info("[RunicParadise] Initialized borderlands");
+		}
 
-		this.getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
+		if (controlKeepInventory()) {
+			getLogger().info("[RunicParadise] Updated KeepInventory settings");
+		}
 
-		getLogger().info("RunicParadise Plugin: onEnable has been invoked!");
-		String tempInvSetting = "gamerule keepInventory "
-				+ instance.getConfig().getString("keepInventoryOnDeathEnabled");
+		if (defineEntityTracking()) {
+			getLogger().info("[RunicParadise] Defined entity kill tracking rules");
+		}
+
+		if (defineRepairableItems()) {
+			getLogger().info("[RunicParadise] Defined repairable items using /rpfix");
+		}
+
+		if (Recipes.customFoodRecipes()) {
+			getLogger().info("[RunicParadise] Created custom recipes");
+		}
+
+		if (defineRankColors()) {
+			getLogger().info("[RunicParadise] Defined default rank colors");
+		}
+
+		if (startupRunicFaith(scheduler)) {
+			getLogger().info("[RunicParadise] Started up Runic Faith");
+		}
+
+		if (registerCommands()) {
+			getLogger().info("[RunicParadise] Commands registered");
+		}
+
+		int loadedProfiles = loadPlayerProfiles();
+		if (loadedProfiles >= 0) {
+			getLogger().info("[RunicParadise] Loaded " + loadedProfiles + " player profiles");
+		}
+
+		if (testDatabaseConnection()) {
+			getLogger().info("[RunicParadise] Database connection successful");
+		}
+
+		if (Commands.syncExplorerLocations()) {
+			getLogger().info("[RunicParadise] Explorer locations are now synchronized");
+		}
+	}
+
+	public boolean scheduleFaithTasks(BukkitScheduler scheduler) {
+		// Check for spirit of wolf spellcast every 3 minutes
+		scheduler.runTaskTimer(this, new Runnable() {
+
+			@Override
+			public void run() {
+				RunicParadise.loadRunicEyes();
+				RunicParadise.loadPrayerBooks();
+
+			}
+
+		}, 0L, 3600L);
+
+		scheduler.runTaskTimer(this, new Runnable() {
+
+			@Override
+			public void run() {
+
+				for (Player p : Bukkit.getWorld("RunicRealm_nether").getPlayers()) {
+					if (faithMap.get(p.getUniqueId()).checkEquippedFaithLevel("Nether",
+							RunicParadise.powerReqsMap.get("Netherborn"))) {
+						faithMap.get(p.getUniqueId()).castNether_Netherborn(p);
+					}
+
+				}
+
+			}
+		}, 0L, Faith.NETHER_NETHERBORN_TIMING);
+
+		return true;
+	}
+
+	public boolean defineRankColors() {
+		rankColors.put("Ghost", ChatColor.GRAY);
+		rankColors.put("Seeker", ChatColor.GREEN);
+		rankColors.put("Runner", ChatColor.DARK_GREEN);
+		rankColors.put("Singer", ChatColor.YELLOW);
+		rankColors.put("Brawler", ChatColor.GOLD);
+		rankColors.put("Keeper", ChatColor.AQUA);
+		rankColors.put("Guard", ChatColor.DARK_AQUA);
+		rankColors.put("Hunter", ChatColor.BLUE);
+		rankColors.put("Slayer", ChatColor.LIGHT_PURPLE);
+		rankColors.put("Warder", ChatColor.LIGHT_PURPLE);
+		rankColors.put("Champion", ChatColor.DARK_PURPLE);
+		rankColors.put("Master", ChatColor.RED);
+		rankColors.put("Duke", ChatColor.WHITE);
+		rankColors.put("Baron", ChatColor.WHITE);
+		rankColors.put("Count", ChatColor.WHITE);
+		rankColors.put("Lord", ChatColor.WHITE);
+		rankColors.put("God", ChatColor.DARK_BLUE);
+
+		return true;
+	}
+
+	public boolean controlKeepInventory() {
+		String tempInvSetting = "gamerule keepInventory " + instance.getConfig().getString("keepInventoryOnDeathEnabled");
 		Bukkit.dispatchCommand(Bukkit.getConsoleSender(), tempInvSetting);
 		tempInvSetting = "mvrule keepInventory true RunicSky";
 		Bukkit.dispatchCommand(Bukkit.getConsoleSender(), tempInvSetting);
@@ -141,9 +242,10 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 		Bukkit.dispatchCommand(Bukkit.getConsoleSender(), tempInvSetting);
 		tempInvSetting = "mvrule keepInventory true RunicRealm_the_end";
 		Bukkit.dispatchCommand(Bukkit.getConsoleSender(), tempInvSetting);
+		return true;
+	}
 
-		Borderlands.initializeBorderlands();
-
+	public boolean defineEntityTracking() {
 		// Register entity types to track kills for player profile data. 0=dont
 		// track, 1=do track hostile, 2=do track passive
 		// If you update these, be sure to also update the database retrieval in
@@ -239,7 +341,10 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 		trackableEntityKillsMap.put(EntityType.UNKNOWN, 0);
 		trackableEntityKillsMap.put(EntityType.WEATHER, 0);
 		trackableEntityKillsMap.put(EntityType.WITHER_SKULL, 0);
+		return true;
+	}
 
+	public boolean defineRepairableItems() {
 		// Establish repairable items for //rpfix command
 		// Diamond tools + armor
 		repairableItemTypes.add(276);
@@ -301,54 +406,58 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 		repairableItemTypes.add(346);
 		repairableItemTypes.add(261);
 
-		// Initialize a new EffectManager
+		return true;
+	}
 
-		Recipes.customFoodRecipes();
-
-// Old custom Runic Graves Logic
-//		RunicDeathChest.syncGraveLocations();
-
+	public boolean startupRunicFaith(BukkitScheduler scheduler) {
 		for (Player p : Bukkit.getOnlinePlayers()) {
-
-			// Load RunicFaith
+			// Load RunicFaith for players currently online
 			faithMap.put(p.getUniqueId(), new Faith(p.getUniqueId()));
 			RunicMessaging.sendMessage(p, RunicMessaging.RunicFormat.FAITH, ChatColor.BLUE + "Faith system activated!");
+		}
+		Faith.getFaithSettings();
+		Faith.getPowerSettings();
 
-			// Messaging
-			RunicMessaging.sendMessage(p, RunicMessaging.RunicFormat.SYSTEM,
-					"RunicParadise plugin is " + ChatColor.DARK_GREEN + "starting up" + ChatColor.GRAY + "...");
+		scheduleFaithTasks(scheduler);
 
+		return true;
+	}
+
+	public int loadPlayerProfiles() {
+		int count = 0;
+		for (Player p : Bukkit.getOnlinePlayers()) {
 			// Load RunicProfile
 			if (!playerProfiles.containsKey(p.getUniqueId())) {
 				playerProfiles.put(p.getUniqueId(), new RunicProfile(p.getUniqueId()));
 			}
+			count++;
+		}
+		return count;
+	}
 
+	public boolean testDatabaseConnection() {
+		// Establish MySQL connection
+		int dbPort;
+		try {
+			dbPort = Integer.parseInt(instance.getConfig().getString("dbPort"));
+		} catch (Exception e) {
+			dbPort = 3301;
+			System.out.println("[RunicParadise] Config file field dbPort not an integer! Using 3301 as default.");
 		}
 
-		Faith.getFaithSettings();
-		Faith.getPowerSettings();
-		// loadRunicEyes();
+		try {
+			final MySQL MySQL = new MySQL(instance, instance.getConfig().getString("dbHost"),
+					instance.getConfig().getString("dbPort"), instance.getConfig().getString("dbDatabase"),
+					instance.getConfig().getString("dbUser"), instance.getConfig().getString("dbPassword"));
+			return true;
+		} catch (Exception b) {
+			getLogger().warning("[RunicParadise] FAILED TO CONNECT TO DATABASE!!!");
+			return false;
+		}
+	}
 
-		Commands.syncExplorerLocations();
-
-		rankColors.put("Ghost", ChatColor.GRAY);
-		rankColors.put("Seeker", ChatColor.GREEN);
-		rankColors.put("Runner", ChatColor.DARK_GREEN);
-		rankColors.put("Singer", ChatColor.YELLOW);
-		rankColors.put("Brawler", ChatColor.GOLD);
-		rankColors.put("Keeper", ChatColor.AQUA);
-		rankColors.put("Guard", ChatColor.DARK_AQUA);
-		rankColors.put("Hunter", ChatColor.BLUE);
-		rankColors.put("Slayer", ChatColor.LIGHT_PURPLE);
-		rankColors.put("Warder", ChatColor.LIGHT_PURPLE);
-		rankColors.put("Champion", ChatColor.DARK_PURPLE);
-		rankColors.put("Master", ChatColor.RED);
-		rankColors.put("Duke", ChatColor.WHITE);
-		rankColors.put("Baron", ChatColor.WHITE);
-		rankColors.put("Count", ChatColor.WHITE);
-		rankColors.put("Lord", ChatColor.WHITE);
-		rankColors.put("God", ChatColor.DARK_BLUE);
-
+	public boolean registerCommands() {
+		//TODO Move this to its own method and link to init method
 		// This will throw a NullPointerException if you don't have the command
 		// defined in your plugin.yml file!
 		getCommand("rpcrates").setExecutor(new Commands());
@@ -420,74 +529,23 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 		getCommand("cactifever").setExecutor(new Commands());
 		getCommand("voice").setExecutor(new Commands());
 		getCommand("discord").setExecutor(new Commands());
+		return true;
+	}
 
-		Bukkit.getServer().getPluginManager().registerEvents(this, this);
-
-		// Establish MySQL connection
-		int dbPort;
-		try {
-			dbPort = Integer.parseInt(instance.getConfig().getString("dbPort"));
-		} catch (Exception e) {
-			dbPort = 3301;
-			System.out.println("[RunicParadise] Config file field dbPort not an integer! Using 3301 as default.");
+	public void onEnable() {
+		instance = this;
+		getLogger().info("[RunicParadise] Enabling plugin...");
+		for (Player p : Bukkit.getOnlinePlayers()) {
+			// Messaging
+			RunicMessaging.sendMessage(p, RunicMessaging.RunicFormat.SYSTEM,
+					"RunicParadise plugin is " + ChatColor.DARK_GREEN + "starting up" + ChatColor.GRAY + "...");
 		}
-		final MySQL MySQL = new MySQL(instance, instance.getConfig().getString("dbHost"),
-				instance.getConfig().getString("dbPort"), instance.getConfig().getString("dbDatabase"),
-				instance.getConfig().getString("dbUser"), instance.getConfig().getString("dbPassword"));
 
-		BukkitScheduler scheduler = Bukkit.getServer().getScheduler();
+		initializeRunicSystems();
 
-		// Check for spirit of wolf spellcast every 3 minutes
-		scheduler.runTaskTimer(this, new Runnable() {
-
-			@Override
-			public void run() {
-				RunicParadise.loadRunicEyes();
-				RunicParadise.loadPrayerBooks();
-
-			}
-
-		}, 0L, 3600L);
-
+		//TODO Move this to its own method and link to init method. Maybe just kill it for RP 5.0.
 		/*
-		 * // Check for spirit of wolf spellcast every 3 minutes
-		 * scheduler.runTaskTimer(this, new Runnable() {
-		 * 
-		 * @Override public void run() { for (Entry<UUID, Powers> entry :
-		 * powersMap.entrySet()) { UUID pUUID = entry.getKey(); Powers powerObj
-		 * = entry.getValue();
-		 * 
-		 * Long currentTime = Bukkit.getWorld("RunicRealm").getTime();
-		 * 
-		 * if (currentTime > 14000 && currentTime < 23000) { // Check player's
-		 * Beasts skill for casting Spirit of // Wolf
-		 * Bukkit.getConsoleSender().sendMessage(
-		 * "Current time in Spirit of Wolf check: " + currentTime); if
-		 * (powerObj.getSkillBeasts() >= 300) {
-		 * Powers.spellSpiritOfTheWolf(pUUID, Bukkit
-		 * .getPlayer(pUUID).getLocation()); } }
-		 * 
-		 * }
-		 * 
-		 * } }, 0L, 3600L);
-		 */
-
-		scheduler.runTaskTimer(this, new Runnable() {
-
-			@Override
-			public void run() {
-
-				for (Player p : Bukkit.getWorld("RunicRealm_nether").getPlayers()) {
-					if (faithMap.get(p.getUniqueId()).checkEquippedFaithLevel("Nether",
-							RunicParadise.powerReqsMap.get("Netherborn"))) {
-						faithMap.get(p.getUniqueId()).castNether_Netherborn(p);
-					}
-
-				}
-
-			}
-		}, 0L, Faith.NETHER_NETHERBORN_TIMING);
-
+		//This stops players from gliding in the RP4.0 big spawn
 		scheduler.runTaskTimerAsynchronously(this, new Runnable() {
 
 			@Override
@@ -503,7 +561,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 				}
 
 			}
-		}, 0L, 70L);
+		}, 0L, 70L);  */
 	}
 
 	public void onDisable() {

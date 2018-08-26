@@ -1,6 +1,5 @@
 package com.kill3rtaco.tacoserialization;
 
-import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -131,8 +130,8 @@ public class PlayerStatsSerialization {
 				player.setFoodLevel(stats.getInt("food"));
 			if(stats.has("health"))
 				player.setHealth(stats.getDouble("health"));
-			if(stats.has("gamemode"))
-				player.setGameMode(GameMode.getByValue(stats.getInt("gamemode")));
+            //if(stats.has("gamemode"))
+            //	player.setGameMode(GameMode.getByValue(stats.getInt("gamemode")));
 			if(stats.has("level"))
 				player.setLevel(stats.getInt("level"));
 			if(stats.has("potion-effects"))
