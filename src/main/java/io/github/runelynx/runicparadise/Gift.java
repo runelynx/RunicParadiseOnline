@@ -21,10 +21,6 @@ import org.json.JSONObject;
 
 import com.kill3rtaco.tacoserialization.InventorySerialization;
 
-/**
- * @author andrew
- *
- */
 public class Gift {
 
 	private static Plugin instance = RunicParadise.getInstance();
@@ -161,7 +157,6 @@ public class Gift {
 			Bukkit.getLogger().log(Level.SEVERE,
 					"Cant check gift Gift because: " + err.getMessage());
 		}
-
 	}
 
 	private void setID(int newID) {

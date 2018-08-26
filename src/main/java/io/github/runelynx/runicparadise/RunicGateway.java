@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package io.github.runelynx.runicparadise;
 
 import java.util.Arrays;
@@ -20,17 +15,10 @@ import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.Plugin;
 
-/**
- *
- * @author Andrew
- */
 public class RunicGateway {
-
     private Plugin instance = RunicParadise.getInstance();
 
-    public RunicGateway() {
-
-    }
+    public RunicGateway() {}
 
     public static int checkPlayerInventoryForItemDataCount(Player player, int id, int dataValue) {
         PlayerInventory inventory = player.getInventory();
@@ -47,9 +35,7 @@ public class RunicGateway {
 
     public static int removePlayerInventoryItemData(Player player, int id, int dataValue) {
         PlayerInventory inventory = player.getInventory();
-        int cleared = inventory.clear(id, dataValue);
-        return cleared;
-
+        return inventory.clear(id, dataValue);
     }
 
     public static void givePlayerItemData(Player player, int count, int id, int dataValue, String displayName, String lore1, String lore2, String lore3) {
@@ -68,7 +54,7 @@ public class RunicGateway {
             Entity damager = ((EntityDamageByEntityEvent) event).getDamager();
             if (damager instanceof Projectile) {
                 Object shooter = ((Projectile) damager).getShooter();
-                if (shooter != null && (shooter instanceof Entity)) {
+                if (shooter instanceof Entity) {
                     getLogger().log(Level.SEVERE, "[RP] Trying to log player death SHOOTER: " + shooter.toString());
                     return (Entity) shooter;
                 }
@@ -84,7 +70,6 @@ public class RunicGateway {
     //send message to players
     //playerName is not used if toAllPlayers= true
     public void sendMessage(boolean toAllPlayers, String playerName, String Message) {
-
         if (toAllPlayers) {
             for (Player p : Bukkit.getOnlinePlayers()) {
                 p.sendMessage(Message);

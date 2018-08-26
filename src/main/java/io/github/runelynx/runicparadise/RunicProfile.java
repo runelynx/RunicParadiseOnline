@@ -1,42 +1,29 @@
 package io.github.runelynx.runicparadise;
 
-import static org.bukkit.Bukkit.getLogger;
-
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.text.DecimalFormat;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-import java.util.logging.Level;
-
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.OfflinePlayer;
+import com.connorlinfoot.titleapi.TitleAPI;
+import io.github.runelynx.runicuniverse.RunicMessaging;
+import org.bukkit.*;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.Plugin;
 
-import com.connorlinfoot.titleapi.TitleAPI;
+import java.sql.*;
+import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.UUID;
+import java.util.logging.Level;
 
-import io.github.runelynx.runicuniverse.RunicMessaging;
+import static org.bukkit.Bukkit.getLogger;
 
 public class RunicProfile {
-
 	final static int FARMING_COUNT_THRESHOLD = 7;
 
 	int karmaBalance;

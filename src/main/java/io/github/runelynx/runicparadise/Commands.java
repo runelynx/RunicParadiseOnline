@@ -30,11 +30,6 @@ import java.util.Date;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.logging.Level;
 
-
-/**
- * 
- * @author Andrew
- */
 public class Commands implements CommandExecutor {
 
 	Ranks rank = new Ranks();
@@ -120,7 +115,6 @@ public class Commands implements CommandExecutor {
     }
 
     public static ItemStack[] carnivalChestReward(Location loc) {
-
         Block b = loc.getBlock();
         org.bukkit.block.Chest chest = (org.bukkit.block.Chest) b.getState();
         return chest.getBlockInventory().getContents();
@@ -128,7 +122,6 @@ public class Commands implements CommandExecutor {
     }
 
     private static void playNBS(Player p, String song) {
-
         try {
             Song s = NBSDecoder.parse(
                     new File("/home/AMP/.ampdata/instances/Survival/Minecraft/plugins/RunicParadise/" + song + ".nbs"));
@@ -136,19 +129,14 @@ public class Commands implements CommandExecutor {
 
             sp.setAutoDestroy(true);
             for (Entity listener : p.getNearbyEntities(30, 30, 30)) {
-
                 if (listener instanceof Player) {
-
                     sp.addPlayer((Player) listener);
-
                 }
 
             }
             sp.addPlayer(p);
             sp.setPlaying(true);
-        } catch (Exception e) {
-        }
-
+        } catch (Exception ignored) {}
     }
 
     public static boolean syncExplorerLocations() {
@@ -259,12 +247,10 @@ public class Commands implements CommandExecutor {
             dbCon.close();
 
             return true;
-
         } catch (SQLException z) {
             Bukkit.getLogger().log(Level.SEVERE, "Failed addAttemptedPromotion - " + z.getMessage());
             return false;
         }
-
     }
 
     public int checkAttemptedPromotion(String newGuyName, String promoterName) {
@@ -293,11 +279,9 @@ public class Commands implements CommandExecutor {
             Bukkit.getLogger().log(Level.SEVERE, "Failed checkAttemptedPromotion - " + z.getMessage());
             return 0;
         }
-
     }
 
     private int checkPlayerInventoryItemstackCount(Inventory i) {
-
         ItemStack[] items = i.getContents();
 
         int playerInvItemCount = 0;
@@ -312,7 +296,6 @@ public class Commands implements CommandExecutor {
     }
 
     private ItemStack[] casinoWinOrLose(Location loc) {
-
         Block b = loc.getBlock();
         org.bukkit.block.Chest chest = (org.bukkit.block.Chest) b.getState();
         return chest.getBlockInventory().getContents();
@@ -332,7 +315,6 @@ public class Commands implements CommandExecutor {
     }
 
     private void displayELParticle(Location loc, Player p) {
-
         for (int degree = 0; degree < 360; degree++) {
             double radians = Math.toRadians(degree);
             double x = Math.cos(radians);

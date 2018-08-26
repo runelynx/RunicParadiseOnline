@@ -1,6 +1,3 @@
-/**
- * 
- */
 package io.github.runelynx.runicparadise;
 
 import static org.bukkit.Bukkit.getLogger;

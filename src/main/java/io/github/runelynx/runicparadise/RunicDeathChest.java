@@ -1,61 +1,35 @@
 package io.github.runelynx.runicparadise;
 
-import static org.bukkit.Bukkit.getLogger;
-import static org.bukkit.ChatColor.AQUA;
-import static org.bukkit.ChatColor.GRAY;
-import static org.bukkit.ChatColor.GREEN;
-import static org.bukkit.ChatColor.RED;
-import static org.bukkit.ChatColor.YELLOW;
-
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.Serializable;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.logging.Level;
-
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Effect;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.OfflinePlayer;
+import com.kill3rtaco.tacoserialization.InventorySerialization;
+import com.kill3rtaco.tacoserialization.SingleItemSerialization;
+import io.github.runelynx.runicuniverse.RunicMessaging;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Sign;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.configuration.MemorySection;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 
-import com.kill3rtaco.tacoserialization.InventorySerialization;
-import com.kill3rtaco.tacoserialization.SingleItemSerialization;
+import java.io.*;
+import java.sql.*;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.Date;
+import java.util.logging.Level;
 
-import io.github.runelynx.runicuniverse.RunicMessaging;
+import static org.bukkit.Bukkit.getLogger;
 
 public class RunicDeathChest implements Serializable {
-
-	private static HashMap<Long, ItemStack[]> deathArmor = new HashMap<Long, ItemStack[]>();
-	private static HashMap<Long, ItemStack[]> deathInventory = new HashMap<Long, ItemStack[]>();
-	private static HashMap<Long, ItemStack> deathOffhand = new HashMap<Long, ItemStack>();
-	private static HashMap<Integer, String> graveLocations = new HashMap<Integer, String>();
-	private static HashMap<Integer, String> graveStatus = new HashMap<Integer, String>();
-	private static HashMap<String, Integer> graveID = new HashMap<String, Integer>();
+	private static HashMap<Long, ItemStack[]> deathArmor = new HashMap<>();
+	private static HashMap<Long, ItemStack[]> deathInventory = new HashMap<>();
+	private static HashMap<Long, ItemStack> deathOffhand = new HashMap<>();
+	private static HashMap<Integer, String> graveLocations = new HashMap<>();
+	private static HashMap<Integer, String> graveStatus = new HashMap<>();
+	private static HashMap<String, Integer> graveID = new HashMap<>();
 
 	public static String checkLocForDeath(Location loc) {
 		final Plugin instance = RunicParadise.getInstance();
@@ -1265,7 +1239,6 @@ public class RunicDeathChest implements Serializable {
 	}
 
 	private static ItemStack[] loadItemsFromYML(long graveID, String type) {
-
 		if (type.equals("Inventory")) {
 
 			String filename = graveID + "-inventory.yml";
@@ -1277,11 +1250,8 @@ public class RunicDeathChest implements Serializable {
 
 
 			List<ItemStack> inv = (List<ItemStack>) graveConfig.getList("Items");
-			ItemStack[] itemList = (ItemStack[]) inv.toArray(new ItemStack[0]);
-			return itemList;
-
+			return inv.toArray(new ItemStack[0]);
 		} else if (type.equals("Equipment")) {
-
 			String filename = graveID + "-equipment.yml";
 			File graveFile = new File("/home/AMP/.ampdata/instances/Survival/Minecraft/plugins/RunicParadise/graves",
 					filename);
@@ -1290,13 +1260,9 @@ public class RunicDeathChest implements Serializable {
 			Bukkit.getLogger().log(Level.INFO, filename);
 
 			List<ItemStack> armor = (List<ItemStack>) graveConfig.getList("Items");
-			ItemStack[] itemList = (ItemStack[]) armor.toArray(new ItemStack[0]);
-			return itemList;
-
+			return armor.toArray(new ItemStack[0]);
 		}
-
 
 		return null;
 	}
-
 }

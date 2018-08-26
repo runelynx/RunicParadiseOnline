@@ -10,14 +10,15 @@ import java.util.List;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 
 public class RunicUtilities {
 
 	public static Boolean isInteger(String x) {
-
 		if (x == null) {
 			return false;
 		}
@@ -28,10 +29,9 @@ public class RunicUtilities {
 		} catch (NumberFormatException e) {
 			return false;
 		}
-
 	}
 
-	public static void fixGroupManager() {
+	static void fixGroupManager() {
 
 		// save any pending changes
 		Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "sc Saving any pending permissions changes...");
@@ -90,7 +90,6 @@ public class RunicUtilities {
 	}
 
 	public static void silentFixGroupManager() {
-
 		// save any pending changes
 		Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "mansave");
 
@@ -102,43 +101,30 @@ public class RunicUtilities {
 		FileConfiguration userConfig = YamlConfiguration.loadConfiguration(userFile);
 
 		for (Player p : Bukkit.getOnlinePlayers()) {
-
 			if (userConfig.contains("users." + p.getUniqueId().toString())) {
 				// user has a UUID branch
-
 				if (userConfig.contains("users." + p.getName())) {
 					// user has a name branch too!
-
 					try {
 						userConfig.getConfigurationSection("users").set(p.getName(), null);
-
 					} catch (Exception e) {
 						e.printStackTrace();
-
 					}
-
 				}
-
-			} else if (userConfig.contains("users." + p.getName())) {
-				// user only has a name branch too!
-
+			} else {
+				userConfig.contains("users." + p.getName());
 			}
-
 		}
 
 		try {
 			userConfig.save(userFile);
-
 			Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "manload RunicRealm");
-
 		} catch (IOException e) {
 			e.printStackTrace();
-
 		}
-
 	}
 
-	public static void convertGroupManager(Player p) {
+	static void convertGroupManager(Player p) {
 
 		if (!p.hasPermission("rp.convertedperms")) {
 
@@ -249,4 +235,15 @@ public class RunicUtilities {
 
 	}
 
+	static List<Entity> getTargetList(Location loc, int radius) {
+		List<Entity> target = new ArrayList<>();
+		int rs = radius * radius;
+		Location tmp = new Location(loc.getWorld(), 0.0D, 0.0D, 0.0D);
+		for (Entity entity : loc.getWorld().getEntities()) {
+			if (entity.getLocation(tmp).distanceSquared(loc) < rs) {
+				target.add(entity);
+			}
+		}
+		return target;
+	}
 }
