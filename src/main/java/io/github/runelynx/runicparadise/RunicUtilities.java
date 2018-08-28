@@ -246,4 +246,11 @@ public class RunicUtilities {
 		}
 		return target;
 	}
+
+	static String toStringOr(Object obj, String or) {
+		if (obj == null) {
+			return or;
+		}
+		return obj.toString();
+	}
 }

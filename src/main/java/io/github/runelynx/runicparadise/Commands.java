@@ -29,6 +29,8 @@ import java.util.*;
 import java.util.Date;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.logging.Level;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class Commands implements CommandExecutor {
 
@@ -335,9 +337,7 @@ public class Commands implements CommandExecutor {
     }
 
 	@SuppressWarnings("deprecation")
-	public boolean onCommand(final CommandSender sender, Command cmd, String label,
-
-			String[] args) {
+	public boolean onCommand(final CommandSender sender, Command cmd, String label, String[] args) {
 		// comment
 
 		MySQL MySQL = new MySQL(instance, instance.getConfig().getString("dbHost"),
@@ -524,7 +524,6 @@ public class Commands implements CommandExecutor {
 						d.close();
 						dStmt.close();
 					} else {
-
 						// PLAYER TRYING TO BUY TOO MANY TICKETS
 						RunicMessaging.sendMessage(rafflePlayer, RunicMessaging.RunicFormat.RAFFLE,
 								"You can only buy up to " + maxPurchaseTickets + " tickets for the "
@@ -535,7 +534,7 @@ public class Commands implements CommandExecutor {
 					Bukkit.getLogger().log(Level.SEVERE, "Failed raffle ticket check" + e.getMessage());
 				}
 			} else if (args.length == 3 && args[0].equalsIgnoreCase("give") && Integer.parseInt(args[1]) > 0) {
-				if (!(sender instanceof Player) || rafflePlayer.hasPermission("rp.rafflestaff")) {
+				if (rafflePlayer.hasPermission("rp.rafflestaff")) {
 					// STAFF GIVING TICKETS -- OR CMD BLOCK
 					try {
 						final Connection d = MySQL.openConnection();
@@ -556,15 +555,11 @@ public class Commands implements CommandExecutor {
 						RunicMessaging.sendMessage(Bukkit.getPlayer(args[2]), RunicMessaging.RunicFormat.RAFFLE,
 								"You just received " + Integer.parseInt(args[1]) + " "
 										+ ChatColor.translateAlternateColorCodes('&', raffleNameColor) + " tickets!");
-
 					} catch (SQLException e) {
 						Bukkit.getLogger().log(Level.SEVERE, "Failed raffle ticket give" + e.getMessage());
 					}
-
 				}
-			}
-
-			else {
+			} else {
 				// HANDLE RAFFLE DEFAULT TEXT
 				try {
 					final Connection d = MySQL.openConnection();
@@ -781,10 +776,8 @@ public class Commands implements CommandExecutor {
 		 }
 			break;
 		case "casinotoken":
-
 			break;
 		case "casino":
-
 			// casino buytokens PLAYER RUNICS TOKENS
 			// casino selltokens PLAYER RUNICS TOKENS
 			// casino winorlose PLAYER RUNICS TOKENS WINSLOTS TOTALSLOTS
@@ -911,24 +904,10 @@ public class Commands implements CommandExecutor {
 
 			break;
 		case "freezemob":
-			for (Entity e : ((Player) sender).getNearbyEntities(2, 2, 2)) {
-				if (e instanceof LivingEntity) {
-					((LivingEntity) e).setAI(false);
-					((LivingEntity) e).setCollidable(false);
-					((LivingEntity) e).setRemoveWhenFarAway(false);
-                    e.setInvulnerable(true);
-				}
-			}
+			freezeMob((Player) sender, true);
 			break;
 		case "unfreezemob":
-			for (Entity e : ((Player) sender).getNearbyEntities(2, 2, 2)) {
-				if (e instanceof LivingEntity) {
-					((LivingEntity) e).setAI(true);
-                    e.setInvulnerable(false);
-					((LivingEntity) e).setCollidable(true);
-					((LivingEntity) e).setRemoveWhenFarAway(true);
-				}
-			}
+			freezeMob((Player) sender, false);
 			break;
 		case "wild":
 			((Player) sender).teleport(
@@ -946,381 +925,10 @@ public class Commands implements CommandExecutor {
 					+ "The mining world portal is ahead of you. That world resets sometimes so do not build or leave any items or graves there or you risk losing them!");
 			sender.sendMessage(ChatColor.YELLOW + "Explosions break blocks in the mining world.");
 			break;
-		case "holotest":
-			// TODO: needs fixing
-			if (args[0].equals("Guard")) {
-				ArmorStand a = ((Player) sender).getLocation().getWorld()
-						.spawn(((Player) sender).getLocation().subtract(0, 0.75, 0), ArmorStand.class);
-				a.setGravity(false);
-				a.setVisible(false);
-				a.setCustomName(ChatColor.DARK_AQUA + "Guard");
-				a.setCustomNameVisible(true);
-			}
-			if (args[0].equals("Keeper")) {
-				ArmorStand a = ((Player) sender).getLocation().getWorld()
-						.spawn(((Player) sender).getLocation().subtract(0, 0.75, 0), ArmorStand.class);
-				a.setGravity(false);
-				a.setVisible(false);
-				a.setCustomName(ChatColor.AQUA + "Keeper");
-				a.setCustomNameVisible(true);
-			}
-			if (args[0].equals("Brawler")) {
-				ArmorStand a = ((Player) sender).getLocation().getWorld()
-						.spawn(((Player) sender).getLocation().subtract(0, 0.75, 0), ArmorStand.class);
-				a.setGravity(false);
-				a.setVisible(false);
-				a.setCustomName(ChatColor.GOLD + "Brawler");
-				a.setCustomNameVisible(true);
-			}
-			if (args[0].equals("Singer")) {
-				ArmorStand a = ((Player) sender).getLocation().getWorld()
-						.spawn(((Player) sender).getLocation().subtract(0, 0.75, 0), ArmorStand.class);
-				a.setGravity(false);
-				a.setVisible(false);
-				a.setCustomName(ChatColor.YELLOW + "Singer");
-				a.setCustomNameVisible(true);
-			}
-			if (args[0].equals("Runner")) {
-				ArmorStand a = ((Player) sender).getLocation().getWorld()
-						.spawn(((Player) sender).getLocation().subtract(0, 0.75, 0), ArmorStand.class);
-				a.setGravity(false);
-				a.setVisible(false);
-				a.setCustomName(ChatColor.DARK_GREEN + "Runner");
-				a.setCustomNameVisible(true);
-			}
-
-			if (args[0].equals("Seeker")) {
-				ArmorStand a = ((Player) sender).getLocation().getWorld()
-						.spawn(((Player) sender).getLocation().subtract(0, 0.75, 0), ArmorStand.class);
-				a.setGravity(false);
-				a.setVisible(false);
-				a.setCustomName(ChatColor.GREEN + "Seeker");
-				a.setCustomNameVisible(true);
-			}
-			if (args[0].equals("Master")) {
-				ArmorStand a = ((Player) sender).getLocation().getWorld()
-						.spawn(((Player) sender).getLocation().subtract(0, 0.75, 0), ArmorStand.class);
-				a.setGravity(false);
-				a.setVisible(false);
-				a.setCustomName(ChatColor.RED + "Master");
-				a.setCustomNameVisible(true);
-			}
-
-			if (args[0].equals("Champion")) {
-				ArmorStand a = ((Player) sender).getLocation().getWorld()
-						.spawn(((Player) sender).getLocation().subtract(0, 0.75, 0), ArmorStand.class);
-				a.setGravity(false);
-				a.setVisible(false);
-				a.setCustomName(ChatColor.DARK_PURPLE + "Champion");
-				a.setCustomNameVisible(true);
-			}
-
-			if (args[0].equals("Warder")) {
-				ArmorStand a = ((Player) sender).getLocation().getWorld()
-						.spawn(((Player) sender).getLocation().subtract(0, 0.75, 0), ArmorStand.class);
-				a.setGravity(false);
-				a.setVisible(false);
-				a.setCustomName(ChatColor.LIGHT_PURPLE + "Warder");
-				a.setCustomNameVisible(true);
-			}
-
-			if (args[0].equals("Slayer")) {
-				ArmorStand a = ((Player) sender).getLocation().getWorld()
-						.spawn(((Player) sender).getLocation().subtract(0, 0.75, 0), ArmorStand.class);
-				a.setGravity(false);
-				a.setVisible(false);
-				a.setCustomName(ChatColor.BLUE + "Sla" + ChatColor.LIGHT_PURPLE + "yer");
-				a.setCustomNameVisible(true);
-			}
-
-			if (args[0].equals("Hunter")) {
-				ArmorStand a = ((Player) sender).getLocation().getWorld()
-						.spawn(((Player) sender).getLocation().subtract(0, 0.75, 0), ArmorStand.class);
-				a.setGravity(false);
-				a.setVisible(false);
-				a.setCustomName(ChatColor.BLUE + "Hunter");
-				a.setCustomNameVisible(true);
-			}
-
-			if (args[0].equals("Tutorial1")) {
-				ArmorStand a = ((Player) sender).getLocation().getWorld()
-						.spawn(((Player) sender).getLocation().subtract(0, 0.25, 0), ArmorStand.class);
-				a.setGravity(false);
-				a.setVisible(false);
-				a.setCustomName(ChatColor.RED + "Death, Religion,");
-				a.setCustomNameVisible(true);
-
-				ArmorStand b = ((Player) sender).getLocation().getWorld()
-						.spawn(((Player) sender).getLocation().subtract(0, 0.50, 0), ArmorStand.class);
-				b.setGravity(false);
-				b.setVisible(false);
-				b.setCustomName(ChatColor.RED + "and Powers");
-				b.setCustomNameVisible(true);
-			}
-
-			if (args[0].equals("Tutorial2")) {
-				ArmorStand a = ((Player) sender).getLocation().getWorld()
-						.spawn(((Player) sender).getLocation().subtract(0, 0.25, 0), ArmorStand.class);
-				a.setGravity(false);
-				a.setVisible(false);
-				a.setCustomName(ChatColor.RED + "Jobs, Shops,");
-				a.setCustomNameVisible(true);
-
-				ArmorStand b = ((Player) sender).getLocation().getWorld()
-						.spawn(((Player) sender).getLocation().subtract(0, 0.50, 0), ArmorStand.class);
-				b.setGravity(false);
-				b.setVisible(false);
-				b.setCustomName(ChatColor.RED + "Locks, and Claims");
-				b.setCustomNameVisible(true);
-			}
-
-			if (args[0].equals("Tutorial3")) {
-
-				ArmorStand b = ((Player) sender).getLocation().getWorld()
-						.spawn(((Player) sender).getLocation().subtract(0, 0.50, 0), ArmorStand.class);
-				b.setGravity(false);
-				b.setVisible(false);
-				b.setCustomName(ChatColor.AQUA + "Farming and Slimefun");
-				b.setCustomNameVisible(true);
-			}
-
-			if (args[0].equals("Tutorial4")) {
-
-				ArmorStand a = ((Player) sender).getLocation().getWorld()
-						.spawn(((Player) sender).getLocation().subtract(0, 0.25, 0), ArmorStand.class);
-				a.setGravity(false);
-				a.setVisible(false);
-				a.setCustomName(ChatColor.LIGHT_PURPLE + "Hall of Staff");
-				a.setCustomNameVisible(true);
-
-			}
-
-			if (args[0].equals("Tutorial5")) {
-
-				ArmorStand a = ((Player) sender).getLocation().getWorld()
-						.spawn(((Player) sender).getLocation().subtract(0, 0.25, 0), ArmorStand.class);
-				a.setGravity(false);
-				a.setVisible(false);
-				a.setCustomName(ChatColor.AQUA + "Hall of Heroes");
-				a.setCustomNameVisible(true);
-
-			}
-
-			if (args[0].equals("Tutorial6")) {
-
-				ArmorStand a = ((Player) sender).getLocation().getWorld()
-						.spawn(((Player) sender).getLocation().subtract(0, 0.25, 0), ArmorStand.class);
-				a.setGravity(false);
-				a.setVisible(false);
-				a.setCustomName(ChatColor.DARK_RED + "Hall of Battles");
-				a.setCustomNameVisible(true);
-
-			}
-
-			if (args[0].equals("Donateo")) {
-				ArmorStand a = ((Player) sender).getLocation().getWorld()
-						.spawn(((Player) sender).getLocation().subtract(0, 0.50, 0), ArmorStand.class);
-				a.setGravity(false);
-				a.setVisible(false);
-				a.setCustomName(ChatColor.RED + "D" + ChatColor.YELLOW + "o" + ChatColor.GREEN + "n" + ChatColor.AQUA
-						+ "a" + ChatColor.LIGHT_PURPLE + "t" + ChatColor.RED + "o" + ChatColor.YELLOW + "r");
-				a.setCustomNameVisible(true);
-
-				ArmorStand b = ((Player) sender).getLocation().getWorld()
-						.spawn(((Player) sender).getLocation().subtract(0, 0.75, 0), ArmorStand.class);
-				b.setGravity(false);
-				b.setVisible(false);
-				b.setCustomName(ChatColor.WHITE + "Perks");
-				b.setCustomNameVisible(true);
-			}
-
-			if (args[0].equals("TylerAfkRoom")) {
-				ArmorStand a = ((Player) sender).getLocation().getWorld()
-						.spawn(((Player) sender).getLocation().subtract(0, 0.25, 0), ArmorStand.class);
-				a.setGravity(false);
-				a.setVisible(false);
-				a.setCustomName(ChatColor.DARK_RED + "Tyler's AFK Room");
-				a.setCustomNameVisible(true);
-
-				ArmorStand b = ((Player) sender).getLocation().getWorld()
-						.spawn(((Player) sender).getLocation().subtract(0, 0.5, 0), ArmorStand.class);
-				b.setGravity(false);
-				b.setVisible(false);
-				b.setCustomName(ChatColor.DARK_PURPLE + "Built as a thank you for");
-				b.setCustomNameVisible(true);
-
-				ArmorStand c = ((Player) sender).getLocation().getWorld()
-						.spawn(((Player) sender).getLocation().subtract(0, 0.75, 0), ArmorStand.class);
-				c.setGravity(false);
-				c.setVisible(false);
-				c.setCustomName(ChatColor.LIGHT_PURPLE + "Runic Paradise Staff");
-				c.setCustomNameVisible(true);
-			}
-
-			if (args[0].equals("WildPortals")) {
-				ArmorStand a = ((Player) sender).getLocation().getWorld()
-						.spawn(((Player) sender).getLocation().subtract(0, 0.25, 0), ArmorStand.class);
-				a.setGravity(false);
-				a.setVisible(false);
-				a.setCustomName(ChatColor.AQUA + "Runic " + ChatColor.GREEN + "Paradise");
-				a.setCustomNameVisible(true);
-
-				ArmorStand b = ((Player) sender).getLocation().getWorld()
-						.spawn(((Player) sender).getLocation().subtract(0, 0.5, 0), ArmorStand.class);
-				b.setGravity(false);
-				b.setVisible(false);
-				b.setCustomName("Wilderness");
-				b.setCustomNameVisible(true);
-
-				ArmorStand c = ((Player) sender).getLocation().getWorld()
-						.spawn(((Player) sender).getLocation().subtract(0, 0.75, 0), ArmorStand.class);
-				c.setGravity(false);
-				c.setVisible(false);
-				c.setCustomName("Portals");
-				c.setCustomNameVisible(true);
-			}
-
-			if (args[0].equals("ShopPortals")) {
-				ArmorStand a = ((Player) sender).getLocation().getWorld()
-						.spawn(((Player) sender).getLocation().subtract(0, 0.25, 0), ArmorStand.class);
-				a.setGravity(false);
-				a.setVisible(false);
-				a.setCustomName(ChatColor.AQUA + "Runic " + ChatColor.GREEN + "Paradise");
-				a.setCustomNameVisible(true);
-
-				ArmorStand b = ((Player) sender).getLocation().getWorld()
-						.spawn(((Player) sender).getLocation().subtract(0, 0.5, 0), ArmorStand.class);
-				b.setGravity(false);
-				b.setVisible(false);
-				b.setCustomName("Shops, Towns");
-				b.setCustomNameVisible(true);
-
-				ArmorStand c = ((Player) sender).getLocation().getWorld()
-						.spawn(((Player) sender).getLocation().subtract(0, 0.75, 0), ArmorStand.class);
-				c.setGravity(false);
-				c.setVisible(false);
-				c.setCustomName("and Games");
-				c.setCustomNameVisible(true);
-			}
-
-			if (args[0].equals("Graves")) {
-				ArmorStand a = ((Player) sender).getLocation().getWorld()
-						.spawn(((Player) sender).getLocation().subtract(0, 0.25, 0), ArmorStand.class);
-				a.setGravity(false);
-				a.setVisible(false);
-				a.setCustomName(ChatColor.AQUA + "Runic " + ChatColor.GREEN + "Paradise");
-				a.setCustomNameVisible(true);
-
-				ArmorStand b = ((Player) sender).getLocation().getWorld()
-						.spawn(((Player) sender).getLocation().subtract(0, 0.5, 0), ArmorStand.class);
-				b.setGravity(false);
-				b.setVisible(false);
-				b.setCustomName("Death, Graves");
-				b.setCustomNameVisible(true);
-
-				ArmorStand c = ((Player) sender).getLocation().getWorld()
-						.spawn(((Player) sender).getLocation().subtract(0, 0.75, 0), ArmorStand.class);
-				c.setGravity(false);
-				c.setVisible(false);
-				c.setCustomName("and Souls");
-				c.setCustomNameVisible(true);
-			}
-
-			if (args[0].equals("FaithPortals")) {
-				ArmorStand a = ((Player) sender).getLocation().getWorld()
-						.spawn(((Player) sender).getLocation().subtract(0, 0.5040, 0), ArmorStand.class);
-				a.setGravity(false);
-				a.setVisible(false);
-				a.setCustomName(ChatColor.AQUA + "Runic " + ChatColor.GREEN + "Paradise");
-				a.setCustomNameVisible(true);
-
-				ArmorStand b = ((Player) sender).getLocation().getWorld()
-						.spawn(((Player) sender).getLocation().subtract(0, 0.75, 0), ArmorStand.class);
-				b.setGravity(false);
-				b.setVisible(false);
-				b.setCustomName("Faith Temples");
-				b.setCustomNameVisible(true);
-
-				ArmorStand c = ((Player) sender).getLocation().getWorld()
-						.spawn(((Player) sender).getLocation().subtract(0, 1.0, 0), ArmorStand.class);
-				c.setGravity(false);
-				c.setVisible(false);
-				c.setCustomName("and Info");
-				c.setCustomNameVisible(true);
-			}
-
-			if (args[0].equals("Clubhouses")) {
-				ArmorStand a = ((Player) sender).getLocation().getWorld()
-						.spawn(((Player) sender).getLocation().subtract(0, 0.25, 0), ArmorStand.class);
-				a.setGravity(false);
-				a.setVisible(false);
-				a.setCustomName(ChatColor.AQUA + "Runic " + ChatColor.GREEN + "Paradise");
-				a.setCustomNameVisible(true);
-
-				ArmorStand b = ((Player) sender).getLocation().getWorld()
-						.spawn(((Player) sender).getLocation().subtract(0, 0.5, 0), ArmorStand.class);
-				b.setGravity(false);
-				b.setVisible(false);
-				b.setCustomName("Rank Clubhouses");
-				b.setCustomNameVisible(true);
-			}
-
-			if (args[0].equals("AmusementPark")) {
-				ArmorStand a = ((Player) sender).getLocation().getWorld()
-						.spawn(((Player) sender).getLocation().subtract(0, 0.25, 0), ArmorStand.class);
-				a.setGravity(false);
-				a.setVisible(false);
-				a.setCustomName(ChatColor.GRAY + "Amusement Park");
-				a.setCustomNameVisible(true);
-
-				ArmorStand b = ((Player) sender).getLocation().getWorld()
-						.spawn(((Player) sender).getLocation().subtract(0, 0.5, 0), ArmorStand.class);
-				b.setGravity(false);
-				b.setVisible(false);
-				b.setCustomName(ChatColor.DARK_RED + "Coming Soon");
-				b.setCustomNameVisible(true);
-			}
-
-			if (args[0].equals("MiningWorld")) {
-				ArmorStand a = ((Player) sender).getLocation().getWorld()
-						.spawn(((Player) sender).getLocation().subtract(0, 0.25, 0), ArmorStand.class);
-				a.setGravity(false);
-				a.setVisible(false);
-				a.setCustomName(ChatColor.GRAY + "Mining World");
-				a.setCustomNameVisible(true);
-
-				ArmorStand b = ((Player) sender).getLocation().getWorld()
-						.spawn(((Player) sender).getLocation().subtract(0, 0.5, 0), ArmorStand.class);
-				b.setGravity(false);
-				b.setVisible(false);
-				b.setCustomName(ChatColor.DARK_PURPLE + "Resets Daily");
-				b.setCustomNameVisible(true);
-			}
-
-			break;
 		case "iteminfo":
-			// TODO: needs fixing
-			String itemMeta = ((Player) sender).getItemInHand().getItemMeta().toString();
-			String itemData = ((Player) sender).getItemInHand().getData().toString();
-			String itemDurability = ((Player) sender).getItemInHand().getDurability() + "";
-			String itemType = ((Player) sender).getItemInHand().getType().toString();
-			String itemID = ((Player) sender).getItemInHand().getTypeId() + "";
-
-			sender.sendMessage(ChatColor.GOLD + "Meta: " + ChatColor.GRAY + itemMeta);
-			sender.sendMessage(ChatColor.GOLD + "Data: " + ChatColor.GRAY + itemData);
-			sender.sendMessage(ChatColor.GOLD + "Durability: " + ChatColor.GRAY + itemDurability);
-			sender.sendMessage(ChatColor.GOLD + "Type: " + ChatColor.GRAY + itemType);
-			sender.sendMessage(ChatColor.GOLD + "TypeId: " + ChatColor.GRAY + itemID);
-
-			ItemStack[] stack;
-			stack = new ItemStack[1];
-			stack[0] = ((Player) sender).getItemInHand();
-
-			sender.sendMessage(ChatColor.GOLD + RunicSerialization.serializeItemStackList(stack).toString());
-
+			itemInfoCommand((Player) sender);
 			break;
 		case "miningreset":
-
 			Bukkit.getServer().getScheduler().scheduleAsyncDelayedTask(instance, new Runnable() {
 				public void run() {
 //					Bukkit.dispatchCommand(Bukkit.getConsoleSender(),
@@ -1390,12 +998,10 @@ public class Commands implements CommandExecutor {
 
 			break;
 		case "miningworldreminder":
-
 			for (Player p : Bukkit.getWorld("Mining").getPlayers()) {
 				p.sendMessage(ChatColor.GRAY + "" + ChatColor.ITALIC
 						+ "Mining world resets every day! Don't leave anything here; items or graves!");
 			}
-
 			break;
 		case "gift":
 			if (args.length == 0) {
@@ -2637,7 +2243,6 @@ public class Commands implements CommandExecutor {
 			}
 			break;
 		case "rptransfer":
-
 			final int MAX_UFOTRANSFER_ITEMS = 10;
 			Bukkit.getLogger().log(Level.INFO, "[RPTransfer] Command received.");
 			if (args.length == 3 && args[0].equals("ufotransfer1.8")) {
@@ -2922,7 +2527,6 @@ public class Commands implements CommandExecutor {
 			}
 			break;
 		case "rpcrates":
-
 			if (args.length == 2) {
 
 				switch (args[0]) {
@@ -3768,8 +3372,6 @@ public class Commands implements CommandExecutor {
 
 			break;
 		case "rp":
-		case "RP":
-		case "Rp":
 			if (sender instanceof Player) {
 				Player p = ((Player) sender);
 				UUID pUUID;
@@ -3898,9 +3500,6 @@ public class Commands implements CommandExecutor {
 			}
 			break;
 		case "rptest":
-		case "RPTEST":
-		case "Rptest":
-
 			((Player) sender).getLocation().getWorld().dropItemNaturally(((Player) sender).getLocation(),
 					Borderlands.specialLootDrops("BaronMetal", ((Player) sender).getUniqueId()));
 			((Player) sender).getLocation().getWorld().dropItemNaturally(((Player) sender).getLocation(),
@@ -3969,8 +3568,6 @@ public class Commands implements CommandExecutor {
 
 			break;
 		case "rpreload":
-		case "RPRELOAD":
-		case "Rpreload":
 			instance.reloadConfig();
 			if (sender instanceof Player) {
 				Player player = (Player) sender;
@@ -4044,7 +3641,6 @@ public class Commands implements CommandExecutor {
 			break;
 		case "headofplayer":
 		case "face":
-
 			if (args.length == 1) {
 				try {
 					final Connection d = MySQL.openConnection();
@@ -4097,9 +3693,7 @@ public class Commands implements CommandExecutor {
 
 			break;
 		case "rpgames":
-		case "RPGAMES":
 		case "games":
-		case "GAMES":
 			if (sender instanceof Player) {
 				Player player = (Player) sender;
 				int tokenBal = 0;
@@ -4248,7 +3842,6 @@ public class Commands implements CommandExecutor {
 			break;
 		case "staffchat":
 		case "sc":
-
 			String senderName1 = "";
 			if (sender instanceof Player) {
 				Player player = (Player) sender;
@@ -4410,36 +4003,57 @@ public class Commands implements CommandExecutor {
 			p.sendMessage(ChatColor.DARK_RED
 					+ "You don't have anything in your hands to be repaired. Put items you want repaired in both hands before using the command!");
 		}
-
 	}
 
-	public static String whoIsNearPlayer(Player p) {
+	private static void itemInfoCommandAdd(StringBuilder message, String description, String data) {
+    	message.append(ChatColor.GOLD).append(description).append(ChatColor.GRAY).append(data).append("\n");
+	}
 
+	private static void itemInfoCommand(Player sender) {
+    	ItemStack itemInHand = sender.getInventory().getItemInMainHand();
+
+    	StringBuilder message = new StringBuilder();
+		itemInfoCommandAdd(message, "Meta: ", RunicUtilities.toStringOr(itemInHand.getItemMeta(), "no item meta"));
+		itemInfoCommandAdd(message, "Data: ", RunicUtilities.toStringOr(itemInHand.getData(), "no item data"));
+		itemInfoCommandAdd(message, "Durability: ", String.valueOf(itemInHand.getDurability()));
+		itemInfoCommandAdd(message, "Type: ", itemInHand.getType().toString());
+		itemInfoCommandAdd(message, "Type id: ", String.valueOf(itemInHand.getTypeId()));
+		message.append(ChatColor.GOLD).append(RunicSerialization.serializeItemStackList(new ItemStack[] { itemInHand }).toString());
+		sender.sendMessage(message.toString());
+	}
+
+	private static void freezeMob(Player near, boolean freeze) {
+		for (Entity i : near.getNearbyEntities(2, 2, 2)) {
+			if (i instanceof LivingEntity) {
+				LivingEntity e = (LivingEntity) i;
+				e.setAI(!freeze);
+				e.setCollidable(!freeze);
+				e.setRemoveWhenFarAway(!freeze);
+				e.setInvulnerable(freeze);
+			}
+		}
+	}
+
+	private static String whoIsNearPlayer(Player p) {
 		int count = 0;
-		String response = ChatColor.GRAY + "Players near " + p.getDisplayName() + ChatColor.GRAY + ": ";
-
-		for (Entity e : p.getNearbyEntities(50, 50, 50)) {
-
-			if (e instanceof Player) {
-
+		StringBuilder response = new StringBuilder(ChatColor.GRAY + "Players near " + p.getDisplayName() + ChatColor.GRAY + ": ");
+		for (Entity entity : p.getNearbyEntities(50, 50, 50)) {
+			if (entity instanceof Player) {
+				Player player = (Player) entity;
 				if (count == 0) {
-					response += ((Player) e).getDisplayName();
+					response.append(player.getDisplayName());
 				} else {
-					response += ChatColor.WHITE + ", " + ((Player) e).getDisplayName();
+					response.append(ChatColor.WHITE).append(", ").append(player.getDisplayName());
 				}
 				count++;
 			}
-
 		}
 
 		if (count == 0) {
-			response += ChatColor.GRAY + "None";
+			response.append(ChatColor.GRAY).append("None");
 		} else {
-			response += ChatColor.GRAY + " (" + count + ")";
+			response.append(ChatColor.GRAY).append(" (").append(count).append(")");
 		}
-
-		return response;
-
+		return response.toString();
 	}
-
 }
