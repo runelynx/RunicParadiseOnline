@@ -1073,26 +1073,25 @@ public class Faith {
 					this.incrementSkill(p, faithName);
 				}
 
-				if (RunicParadise.randomSeed.nextInt((100 - 0) + 1) + 0 <= 50 && chance == 1) {
+				if (RunicParadise.randomSeed.nextInt(101) <= 50 && chance == 1) {
 					p.getWorld().playSound(p.getLocation(), Sound.BLOCK_ANVIL_BREAK, 10, 1);
 					p.setItemInHand(null);
 					p.sendMessage(ChatColor.GRAY + "[" + ChatColor.BLUE + "Runic" + ChatColor.DARK_AQUA + "Faith"
 							+ ChatColor.GRAY + "] " + ChatColor.BLUE + "Your faith sword shatters into dust!");
-				} else if (RunicParadise.randomSeed.nextInt((100 - 0) + 1) + 0 <= 30 && chance == 2) {
+				} else if (RunicParadise.randomSeed.nextInt(101) <= 30 && chance == 2) {
 					p.getWorld().playSound(p.getLocation(), Sound.BLOCK_ANVIL_BREAK, 10, 1);
 					p.setItemInHand(null);
 					p.sendMessage(ChatColor.GRAY + "[" + ChatColor.BLUE + "Runic" + ChatColor.DARK_AQUA + "Faith"
 							+ ChatColor.GRAY + "] " + ChatColor.BLUE + "Your faith sword shatters into dust!");
 
-				} else if (RunicParadise.randomSeed.nextInt((100 - 0) + 1) + 0 <= 10 && chance == 3) {
+				} else if (RunicParadise.randomSeed.nextInt(101) <= 10 && chance == 3) {
 					p.getWorld().playSound(p.getLocation(), Sound.BLOCK_ANVIL_BREAK, 10, 1);
 
 					p.setItemInHand(null);
 					p.sendMessage(ChatColor.GRAY + "[" + ChatColor.BLUE + "Runic" + ChatColor.DARK_AQUA + "Faith"
 							+ ChatColor.GRAY + "] " + ChatColor.BLUE + "Your faith sword shatters into dust!");
 
-				} else if (RunicParadise.randomSeed.nextInt((100 - 0) + 1) + 0 <= 20 && chance == 4) {
-
+				} else if (RunicParadise.randomSeed.nextInt(101) <= 20 && chance == 4) {
 					ItemMeta metaQ = p.getItemInHand().getItemMeta();
 					if (metaQ.getLore().get(6).contains("Charges: 5")) {
 						metaQ.setLore(Arrays.asList(ChatColor.GRAY + "A corrupted axe with a crimson glow", " ",
@@ -1149,7 +1148,7 @@ public class Faith {
 		}
 	}
 
-	public int trySkillUpViaPrayer(Player p, String faithName, boolean withKarma) {
+	private int trySkillUpViaPrayer(Player p, String faithName, boolean withKarma) {
 
 		if (!this.checkEquippedFaithLevel(faithName,
 				Integer.parseInt(RunicParadise.faithSettingsMap.get(faithName)[4]))) {
@@ -1158,9 +1157,7 @@ public class Faith {
 			int limit;
 
 			if (withKarma) {
-
 				limit = 3;
-
 				while (counter < limit) {
 					this.incrementSkill(p, faithName);
 					if (this.checkEquippedFaithLevel(faithName,
@@ -1195,9 +1192,8 @@ public class Faith {
 		}
 	}
 
-	public String getPrimaryFaith() {
+	String getPrimaryFaith() {
 		return this.primaryFaithName;
-
 	}
 
 	private void sendCastMessage(Player p, String spellName, String faithName) {
@@ -1207,10 +1203,10 @@ public class Faith {
 
 	}
 
-	public void castSun_Sunflare(UUID pUUID, Player p) {
+	private void castSun_Sunflare(UUID pUUID, Player p) {
 		// 2% chance on receiving damage to set all nearby monsters on fire
 		String spellName = "Sunflare";
-		if ((RunicParadise.randomSeed.nextInt((100 - 0) + 1) + 0) <= 2) {
+		if ((RunicParadise.randomSeed.nextInt(101)) <= 2) {
 			List<Entity> nearby = p.getNearbyEntities(8, 8, 8);
 			for (Entity tmp : nearby) {
 				if (tmp instanceof Monster)
@@ -1227,7 +1223,7 @@ public class Faith {
 	public void castMoon_LunarCalm(UUID pUUID, final Player p) {
 		// 1% chance to stop mobs from targeting player for 4 seconds
 		String spellName = "Lunar Calm";
-		if ((RunicParadise.randomSeed.nextInt((100 - 0) + 1) + 0) <= 1) {
+		if ((RunicParadise.randomSeed.nextInt(101)) <= 1) {
 
 			// register protection now
 			RunicParadise.protectedPlayers.put(p.getUniqueId(), p.getDisplayName());
@@ -1249,44 +1245,33 @@ public class Faith {
 			}
 
 			// schedule removal of protection 80 tickets out
-			Bukkit.getServer().getScheduler().scheduleAsyncDelayedTask(instance, new Runnable() {
-				public void run() {
-					for (Entity tmp : nearby) {
-						if (tmp instanceof Monster) {
-							((Monster) tmp).setTarget(null);
-							((Monster) tmp).setTarget(null);
-						}
+			Bukkit.getServer().getScheduler().scheduleAsyncDelayedTask(instance, () -> {
+				for (Entity tmp : nearby) {
+					if (tmp instanceof Monster) {
+						((Monster) tmp).setTarget(null);
+						((Monster) tmp).setTarget(null);
 					}
 				}
 			}, 20);
-			Bukkit.getServer().getScheduler().scheduleAsyncDelayedTask(instance, new Runnable() {
-				public void run() {
-					for (Entity tmp : nearby) {
-						if (tmp instanceof Monster) {
-							((Monster) tmp).setTarget(null);
-							((Monster) tmp).setTarget(null);
-						}
+			Bukkit.getServer().getScheduler().scheduleAsyncDelayedTask(instance, () -> {
+				for (Entity tmp : nearby) {
+					if (tmp instanceof Monster) {
+						((Monster) tmp).setTarget(null);
+						((Monster) tmp).setTarget(null);
 					}
 				}
 			}, 40);
-			Bukkit.getServer().getScheduler().scheduleAsyncDelayedTask(instance, new Runnable() {
-				public void run() {
-					for (Entity tmp : nearby) {
-						if (tmp instanceof Monster) {
-							((Monster) tmp).setTarget(null);
-							((Monster) tmp).setTarget(null);
-						}
+			Bukkit.getServer().getScheduler().scheduleAsyncDelayedTask(instance, () -> {
+				for (Entity tmp : nearby) {
+					if (tmp instanceof Monster) {
+						((Monster) tmp).setTarget(null);
+						((Monster) tmp).setTarget(null);
 					}
 				}
 			}, 60);
 
 			int count = nearby.size();
-			boolean playerProtected;
-			if (RunicParadise.protectedPlayers.containsKey(p.getUniqueId())) {
-				playerProtected = true;
-			} else {
-				playerProtected = false;
-			}
+			boolean playerProtected = RunicParadise.protectedPlayers.containsKey(p.getUniqueId());
 			sendCastMessage(p, spellName, "Moon");
 			tryForRankItem(p, "Moon LunarCalm");
 			getLogger().log(Level.INFO, "Faith Info: " + p.getName() + " just cast " + spellName + "! Calmed " + count
@@ -1295,10 +1280,10 @@ public class Faith {
 		}
 	}
 
-	public void castSun_SolarPower(UUID pUUID, Player p) {
+	private void castSun_SolarPower(UUID pUUID, Player p) {
 		// 2% chance to empower player when dealing damage to monsters
 		String spellName = "Solar Power";
-		if ((RunicParadise.randomSeed.nextInt((100 - 0) + 1) + 0) <= 2) {
+		if ((RunicParadise.randomSeed.nextInt(101)) <= 2) {
 			p.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 300, 1));
 			p.addPotionEffect(new PotionEffect(PotionEffectType.INCREASE_DAMAGE, 300, 1));
 
@@ -1306,14 +1291,13 @@ public class Faith {
 
 			tryForRankItem(p, "Sun SolarPower");
 			getLogger().log(Level.INFO, "Faith Info: " + p.getName() + " just cast " + spellName + "!");
-
 		}
 	}
 
 	public void castFlame_VolcanicFury(UUID pUUID, Player p) {
 		// 2% chance to +damage when dealing damage to monsters
 		String spellName = "Volcanic Fury";
-		if ((RunicParadise.randomSeed.nextInt((100 - 0) + 1) + 0) <= 4) {
+		if ((RunicParadise.randomSeed.nextInt(101)) <= 4) {
 			p.addPotionEffect(new PotionEffect(PotionEffectType.INCREASE_DAMAGE, 150, 2));
 
 			sendCastMessage(p, spellName, "Fire");
@@ -1324,10 +1308,10 @@ public class Faith {
 		}
 	}
 
-	public void castMoon_CelestialHealing(UUID pUUID, Player p) {
+	private void castMoon_CelestialHealing(UUID pUUID, Player p) {
 		// 1% chance to gain regeneration
 		String spellName = "Celestial Healing";
-		if ((RunicParadise.randomSeed.nextInt((100 - 0) + 1) + 0) <= 2) {
+		if ((RunicParadise.randomSeed.nextInt(101)) <= 2) {
 			p.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 300, 0));
 			p.addPotionEffect(new PotionEffect(PotionEffectType.HEAL, 1, 0));
 
@@ -1337,8 +1321,7 @@ public class Faith {
 		}
 	}
 
-	public void castFate_InevitableDemise(UUID pUUID, Player player, LivingEntity monster) {
-
+	private void castFate_InevitableDemise(UUID pUUID, Player player, LivingEntity monster) {
 		if (player.getHealth() <= 6) {
 			Random rand = new Random();
 			int number = rand.nextInt(100) + 1;
@@ -1356,10 +1339,9 @@ public class Faith {
 
 	}
 
-	public void castTime_Rewind(Player p) {
+	private void castTime_Rewind(Player p) {
 		Random rand1 = new Random();
 		if (rand1.nextInt(100) + 1 <= 10) {
-
 			if (p.getHealth() <= 3) {
 				Random rand = new Random();
 				int number = rand.nextInt(100) + 1;
@@ -1370,10 +1352,9 @@ public class Faith {
 				}
 			}
 		}
-
 	}
 
-	public void castNether_Netherborn(Player p) {
+	void castNether_Netherborn(Player p) {
 		// Boost player whenever theyre in the nether
 		String spellName = "Netherborn";
 
@@ -1381,20 +1362,16 @@ public class Faith {
 		p.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, NETHER_NETHERBORN_TIMING, 0));
 		sendCastMessage(p, spellName, "Nether");
 		getLogger().log(Level.INFO, "Faith Info: " + p.getName() + " just cast " + spellName + "!");
-
 	}
 
 	// Flame : Unstable Embers
-	public void castFlame_UnstableEmbers(Player p) {
-
+	private void castFlame_UnstableEmbers(Player p) {
 		Random rand = new Random();
 		int number = rand.nextInt(100) + 1;
 		if (number >= 90) {
-
 			String spellName = "Unstable Embers";
 			sendCastMessage(p, spellName, "Fire");
 			tryForRankItem(p, "Flame UnstableEmbers");
-
 
 			for (Entity entity : RunicUtilities.getTargetList(p.getLocation(), 4)) {
 				if (((entity instanceof LivingEntity)) && (entity != p)) {
@@ -1402,22 +1379,18 @@ public class Faith {
 				}
 			}
 		}
-
 	}
 
 	// ==========================
 	// Wind : TempestArmor
 
 	@SuppressWarnings("deprecation")
-	public void castAir_TempestArmor(Player player) {
-
+	private void castAir_TempestArmor(Player player) {
 		ItemStack i = player.getInventory().getHelmet();
 		ItemStack j = player.getInventory().getChestplate();
 		ItemStack k = player.getInventory().getLeggings();
 		ItemStack l = player.getInventory().getBoots();
-		if (i == null || j == null || k == null || l == null) {
-			return;
-		} else {
+		if (i != null && j != null && k != null && l != null) {
 			if (i.getType() == Material.GOLD_HELMET && j.getType() == Material.GOLD_CHESTPLATE
 					&& k.getType() == Material.GOLD_LEGGINGS && l.getType() == Material.GOLD_BOOTS) {
 				Random rand = new Random();
@@ -1430,27 +1403,20 @@ public class Faith {
 
 					for (final Entity entity : RunicUtilities.getTargetList(player.getLocation(), 5)) {
 						if (((entity instanceof Monster)) && (entity != player)) {
-							((LivingEntity) entity).setVelocity(
-									((LivingEntity) entity).getLocation().getDirection().multiply(2.5D).setY(0.7D));
-							final World w = ((LivingEntity) entity).getWorld();
-							Bukkit.getServer().getScheduler().scheduleAsyncDelayedTask(instance, new Runnable() {
-								public void run() {
-									w.strikeLightning(((LivingEntity) entity).getLocation());
-								}
-							}, 20);
+							entity.setVelocity(entity.getLocation().getDirection().multiply(2.5D).setY(0.7D));
+							final World w = entity.getWorld();
+							Bukkit.getServer().getScheduler().scheduleAsyncDelayedTask(instance, () -> w.strikeLightning(entity.getLocation()), 20);
 						}
 					}
 				}
 			}
 		}
-
 	}
 
 	// ==========================
 	// Wind : Healing Breeze
 
-	public void castAir_HealingBreeze(Player player) {
-
+	private void castAir_HealingBreeze(Player player) {
 		Random rand = new Random();
 		int number = rand.nextInt(100) + 1;
 		if (number >= 97) {
@@ -1462,18 +1428,16 @@ public class Faith {
 					tryForRankItem(player, "Air HealingBreeze");
 
 					((LivingEntity) entity).addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 200, 1));
-					((Player) entity).sendMessage(
-							ChatColor.GRAY + "" + ChatColor.ITALIC + "You feel refreshed by a soothing breeze");
+					entity.sendMessage(ChatColor.GRAY + "" + ChatColor.ITALIC + "You feel refreshed by a soothing breeze");
 				}
 			}
 		}
-
 	}
 
 	// ==========================
 	// Earth : Earth's Bounty
 
-	public void castEarth_EarthsBounty(PlayerInteractEvent e) {
+	void castEarth_EarthsBounty(PlayerInteractEvent e) {
 
 		Player p = e.getPlayer();
 		if ((p.getItemInHand() != null) && (p.getItemInHand().getType().equals(Material.GLOWSTONE_DUST))) {
@@ -1518,8 +1482,7 @@ public class Faith {
 	// ==========================
 	// Water OneWithTheSea
 
-	public void castWater_DeepWader(PlayerInteractEvent e) {
-
+	void castWater_DeepWader(PlayerInteractEvent e) {
 		Player p = e.getPlayer();
 		if ((p.getItemInHand() != null) && (p.getItemInHand().getType().equals(Material.GLOWSTONE_DUST))) {
 
@@ -1534,21 +1497,17 @@ public class Faith {
 
 					String spellName = "Deep Wader";
 
-
 					sendCastMessage(e.getPlayer(), spellName, "Water");
 					tryForRankItem(e.getPlayer(), "Water DeepWader");
-
 				}
 			}
-
 		}
 	}
 
 	// ===========================
 	// Water : Protective Bubble
 
-	public void castWater_ProtectiveBubble(final Player player) {
-
+	private void castWater_ProtectiveBubble(final Player player) {
 		Random rand = new Random();
 		int number = rand.nextInt(100) + 1;
 		if (number >= 97) {
@@ -1559,20 +1518,15 @@ public class Faith {
 			sendCastMessage(player, spellName, "Water");
 			tryForRankItem(player, "Water ProtectiveBubble");
 
-			Bukkit.getServer().getScheduler().scheduleAsyncDelayedTask(instance, new Runnable() {
-				public void run() {
-					player.removePotionEffect(PotionEffectType.ABSORPTION);
-				}
-			}, 320);
-
+			Bukkit.getServer().getScheduler().scheduleAsyncDelayedTask(instance,
+					() -> player.removePotionEffect(PotionEffectType.ABSORPTION), 320);
 		}
-
 	}
 
 	// ==========================
 	// Nether : Vampirism
 
-	public void castNether_Vampirism(EntityDeathEvent event) {
+	private void castNether_Vampirism(EntityDeathEvent event) {
 		Entity e = event.getEntity();
 
 		EntityDamageByEntityEvent nEvent = (EntityDamageByEntityEvent) e.getLastDamageCause();
@@ -1591,14 +1545,12 @@ public class Faith {
 			sendCastMessage(p, spellName, "Nether");
 			tryForRankItem(p, "Nether Vampirism");
 		}
-
 	}
 
 	// ==========================
 	// Aether : Gravity Flux
 
-	public void castAether_GravityFlux(Player p) {
-
+	private void castAether_GravityFlux(Player p) {
 		Random rand = new Random();
 		int number = rand.nextInt(100) + 1;
 		if (number <= 4) {
@@ -1617,8 +1569,7 @@ public class Faith {
 	// ==========================
 	// Aether : Graceful Steps
 
-	public void castAether_GracefulSteps(Player p) {
-
+	private void castAether_GracefulSteps(Player p) {
 		Random rand = new Random();
 		int number = rand.nextInt(100) + 1;
 		if (number <= 20) {
@@ -1634,8 +1585,7 @@ public class Faith {
 	// ==========================
 	// Nature: Wild Growth
 
-	public void castNature_WildGrowth(BlockGrowEvent event, Player p) {
-
+	private void castNature_WildGrowth(BlockGrowEvent event, Player p) {
 		event.getBlock().setData((byte) (event.getBlock().getData() + 1));
 	}
 
@@ -1643,21 +1593,17 @@ public class Faith {
 	// Nature : Forest Armor
 
 	@SuppressWarnings("deprecation")
-	public void castNature_ForestArmor(Player player) {
-
+	private void castNature_ForestArmor(Player player) {
 		ItemStack i = player.getInventory().getHelmet();
 		ItemStack j = player.getInventory().getChestplate();
 		ItemStack k = player.getInventory().getLeggings();
 		ItemStack l = player.getInventory().getBoots();
-		if (i == null || j == null || k == null || l == null) {
-			return;
-		} else {
+		if (i != null && j != null && k != null && l != null) {
 			if (i.getType() == Material.LEATHER_HELMET && j.getType() == Material.LEATHER_CHESTPLATE
 					&& k.getType() == Material.LEATHER_LEGGINGS && l.getType() == Material.LEATHER_BOOTS) {
 				Random rand = new Random();
 				int number = rand.nextInt(100) + 1;
 				if (number >= 96) {
-
 					String spellName = "Forest Armor";
 					sendCastMessage(player, spellName, "Nature");
 					final Wolf wolf1 = (Wolf) player.getWorld().spawnEntity(player.getLocation(), EntityType.WOLF);
@@ -1672,24 +1618,20 @@ public class Faith {
 					wolf2.setTamed(true);
 					wolf2.setCustomName(ChatColor.YELLOW + player.getName() + "'s Wolf");
 					wolf2.setCustomNameVisible(true);
-					Bukkit.getServer().getScheduler().scheduleAsyncDelayedTask(instance, new Runnable() {
-						public void run() {
-							wolf1.setHealth(0);
-							wolf2.setHealth(0);
-						}
+					Bukkit.getServer().getScheduler().scheduleAsyncDelayedTask(instance, () -> {
+						wolf1.setHealth(0);
+						wolf2.setHealth(0);
 					}, 400);
 				}
 			}
 		}
-
 	}
 
 	// =========================
 	// Water :: Arctic Frost
 
 	@SuppressWarnings("deprecation")
-	public void castWater_ArcticFrost(Player p) {
-
+	private void castWater_ArcticFrost(Player p) {
 		Random rand = new Random();
 		int number = rand.nextInt(100) + 1;
 		if (number <= 3) {
@@ -1704,11 +1646,9 @@ public class Faith {
 				}
 			}
 		}
-
 	}
 
-	public static void pray(Location locKey, Player p) {
-
+	static void pray(Location locKey, Player p) {
 		RunicPlayerBukkit targetPlayer = new RunicPlayerBukkit(p.getUniqueId());
 		boolean needKarma = false;
 		int numItems = Integer.parseInt(RunicParadise.prayerBooks.get(locKey)[4]);
@@ -1760,7 +1700,6 @@ public class Faith {
 						Short.parseShort((RunicParadise.prayerBooks.get(locKey)[15]))) };
 
 		switch (numItems) {
-
 		case 1:
 			if (p.getInventory().contains(item1)) {
 				// Player has enough of first item!
@@ -1778,7 +1717,6 @@ public class Faith {
 						// player is at max level, prayer failed!!
 						return;
 					}
-
 				} else if (!needKarma) {
 					// Karma not needed for this prayer
 
@@ -1791,23 +1729,20 @@ public class Faith {
 						return;
 					}
 
-				} else if (needKarma) {
+				} else {
 					// Karma is needed for this prayer and player doesnt have
 					// enough!
 					p.sendMessage("This prayer costs 2 karma; you don't have enough!!");
 					return;
 				}
-
 			} else {
-				// player doesnt have enough items :(
+				// player doesn't have enough items :(
 				p.sendMessage(
 						"Your prayer is rejected! Do you have the right items? Be sure each stack is just the right amount!");
 				return;
 			}
-
 			break;
 		case 2:
-
 			if (p.getInventory().contains(item1) && p.getInventory().contains(item2)) {
 				// Player has enough of first item!
 
@@ -1825,7 +1760,6 @@ public class Faith {
 						// player is at max level, prayer failed!!
 						return;
 					}
-
 				} else if (!needKarma) {
 					// Karma not needed for this prayer
 
@@ -1838,14 +1772,12 @@ public class Faith {
 						// player is at max level, prayer failed!!
 						return;
 					}
-
-				} else if (needKarma) {
+				} else {
 					// Karma is needed for this prayer and player doesnt have
 					// enough!
 					p.sendMessage("This prayer costs 2 karma; you don't have enough!!");
 					return;
 				}
-
 			} else {
 				// player doesnt have enough items :(
 				p.sendMessage(
@@ -1854,7 +1786,6 @@ public class Faith {
 			}
 			break;
 		case 3:
-
 			if (p.getInventory().contains(item1) && p.getInventory().contains(item2)
 					&& p.getInventory().contains(item3)) {
 				// Player has enough of first item!
@@ -1889,13 +1820,12 @@ public class Faith {
 						return;
 					}
 
-				} else if (needKarma) {
+				} else {
 					// Karma is needed for this prayer and player doesnt have
 					// enough!
 					p.sendMessage("This prayer costs 2 karma; you don't have enough!!");
 					return;
 				}
-
 			} else {
 				// player doesnt have enough items :(
 				p.sendMessage(
@@ -1924,7 +1854,6 @@ public class Faith {
 						// player is at max level, prayer failed!!
 						return;
 					}
-
 				} else if (!needKarma) {
 					// Karma not needed for this prayer
 
@@ -1940,13 +1869,12 @@ public class Faith {
 						return;
 					}
 
-				} else if (needKarma) {
+				} else {
 					// Karma is needed for this prayer and player doesnt have
 					// enough!
 					p.sendMessage("This prayer costs 2 karma; you don't have enough!!");
 					return;
 				}
-
 			} else {
 				// player doesnt have enough items :(
 				p.sendMessage(
@@ -1958,11 +1886,9 @@ public class Faith {
 			p.sendMessage("Invalid numItems! Should be 1-4. Report this to Rune please.");
 			break;
 		}
-
 	}
 
 	private void resetFaithSlimefunPermissions(UUID pUUID, String activeFaith) {
-
 		if (activeFaith != null && this.faithLevels.get(activeFaith) != null) {
 			Player p = Bukkit.getPlayer(pUUID);
 
@@ -1993,14 +1919,12 @@ public class Faith {
 				if (this.faithLevels.get(activeFaith) >= 250) {
 					RunicParadise.perms.playerAdd(p, "rp.slimefun.sun250");
 				}
-
 			} else if (this.faithLevels.get(activeFaith) >= 100 && activeFaith.equals("Moon")) {
 				RunicParadise.perms.playerAdd(p, "rp.slimefun.moon100");
 
 				if (this.faithLevels.get(activeFaith) >= 250) {
 					RunicParadise.perms.playerAdd(p, "rp.slimefun.moon250");
 				}
-
 			} else if (this.faithLevels.get(activeFaith) >= 150 && activeFaith.equals("Earth")) {
 				RunicParadise.perms.playerAdd(p, "rp.slimefun.earth150");
 
@@ -2029,10 +1953,8 @@ public class Faith {
 				if (this.faithLevels.get(activeFaith) >= 350) {
 					RunicParadise.perms.playerAdd(p, "rp.slimefun.fire350");
 				}
-
 			} else if (this.faithLevels.get(activeFaith) >= 275 && activeFaith.equals("Air")) {
 				RunicParadise.perms.playerAdd(p, "rp.slimefun.air275");
-
 			} else if (this.faithLevels.get(activeFaith) >= 75 && activeFaith.equals("Nature")) {
 				RunicParadise.perms.playerAdd(p, "rp.slimefun.nature75");
 			} else if (this.faithLevels.get(activeFaith) >= 100 && activeFaith.equals("Tech")) {
@@ -2047,25 +1969,18 @@ public class Faith {
 				if (this.faithLevels.get(activeFaith) >= 400) {
 					RunicParadise.perms.playerAdd(p, "rp.slimefun.tech400");
 				}
-
 			} else if (this.faithLevels.get(activeFaith) >= 300 && activeFaith.equals("Aether")) {
 				RunicParadise.perms.playerAdd(p, "rp.slimefun.aether300");
-
 			}
-
 		}
-
 	}
 
-	public void tryForRankItem(Player p, String info) {
-
+	private void tryForRankItem(Player p, String info) {
 		String rank = RunicParadise.perms.getPrimaryGroup(p);
 
 		if ((RunicParadise.playerProfiles.get(p.getUniqueId()).isPlayerFarming())) {
-
 			return;
 			// player is farming, don't even try for a drop
-
 		}
 
 		Random rand = new Random();
