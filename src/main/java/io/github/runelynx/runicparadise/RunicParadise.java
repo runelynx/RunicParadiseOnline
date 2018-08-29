@@ -34,6 +34,7 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitScheduler;
 import org.bukkit.util.Vector;
+import org.json.JSONException;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
@@ -96,7 +97,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 
 	}
 
-	public void initializeRunicSystems() {
+	public void initializeRunicSystems() throws IOException, JSONException {
 		this.getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
 		Bukkit.getServer().getPluginManager().registerEvents(this, this);
 		BukkitScheduler scheduler = Bukkit.getServer().getScheduler();
@@ -445,7 +446,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 		}
 	}
 
-	public boolean registerCommands() {
+	public boolean registerCommands() throws IOException, JSONException {
 		//TODO Move this to its own method and link to init method
 		// This will throw a NullPointerException if you don't have the command
 		// defined in your plugin.yml file!
@@ -462,7 +463,8 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 		getCommand("freezemob").setExecutor(new Commands());
 		getCommand("unfreezemob").setExecutor(new Commands());
 		getCommand("runiceye").setExecutor(new Commands());
-		getCommand("holotest").setExecutor(new Commands());
+//		getCommand("holotest").setExecutor(new Commands());
+		getCommand("holotest").setExecutor(new HologramCommand(getDataFolder(), getLogger()));
 		getCommand("runicspawntravel").setExecutor(new Commands());
 		getCommand("casino").setExecutor(new Commands());
 		getCommand("rp").setExecutor(new Commands());
@@ -530,7 +532,11 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 					"RunicParadise plugin is " + ChatColor.DARK_GREEN + "starting up" + ChatColor.GRAY + "...");
 		}
 
-		initializeRunicSystems();
+		try {
+			initializeRunicSystems();
+		} catch (Exception e) {
+			getLogger().log(Level.WARNING, e.toString());
+		}
 
 		//TODO Move this to its own method and link to init method. Maybe just kill it for RP 5.0.
 		/*

@@ -52,12 +52,6 @@ public class RunicPlayerBukkit {
 
 	private static Plugin instance = RunicParadise.getInstance();
 
-	/**
-	 * Start up the player object using player UUID
-	 * 
-	 * @param playerName
-	 *            Player name string
-	 */
 	public RunicPlayerBukkit(UUID playerID) {
 		refreshPlayerObject(Bukkit.getPlayer(playerID));
 
