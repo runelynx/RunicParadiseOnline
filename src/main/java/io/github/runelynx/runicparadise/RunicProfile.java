@@ -1612,7 +1612,6 @@ public class RunicProfile {
 	}
 
 	public void showProfileOptionsMenu(Player p) {
-
 		Inventory poMenu = Bukkit.createInventory(null, 54,
 				ChatColor.DARK_RED + "" + ChatColor.BOLD + "Profile :: Chat Options");
 
@@ -1624,7 +1623,7 @@ public class RunicProfile {
 		mainLore.add(ChatColor.YELLOW + "to see what options are available");
 		mainLore.add(ChatColor.YELLOW + "and how to change each of them.");
 
-		ItemStack mainCenter = new ItemStack(Material.WOOL, 1, (byte) 8);
+		ItemStack mainCenter = new ItemStack(Material.LIGHT_GRAY_WOOL);
 		meta = mainCenter.getItemMeta();
 		meta.setDisplayName(ChatColor.YELLOW + "" + ChatColor.BOLD + "Chat Options");
 		meta.setLore(mainLore);
@@ -1641,7 +1640,7 @@ public class RunicProfile {
 
 		// GENDER
 
-		ArrayList<String> genderLore = new ArrayList<String>();
+		ArrayList<String> genderLore = new ArrayList<>();
 		genderLore.add("");
 		genderLore.add(ChatColor.WHITE + "This setting controls how your rank");
 		genderLore.add(ChatColor.WHITE + "displays for dukes, barons, and lords.");
@@ -1653,7 +1652,7 @@ public class RunicProfile {
 
 		if (this.getGender() == 'M') {
 
-			genderIcon = new ItemStack(Material.WOOL, 1, (byte) 3);
+			genderIcon = new ItemStack(Material.LIGHT_BLUE_WOOL);
 			genderMeta = genderIcon.getItemMeta();
 			genderMeta.setDisplayName(
 					ChatColor.GRAY + "Currently Active: " + ChatColor.BLUE + "" + ChatColor.BOLD + "Boy");
@@ -1663,7 +1662,7 @@ public class RunicProfile {
 
 		} else if (this.getGender() == 'F') {
 
-			genderIcon = new ItemStack(Material.WOOL, 1, (byte) 6);
+			genderIcon = new ItemStack(Material.PINK_WOOL);
 			genderMeta = genderIcon.getItemMeta();
 			genderMeta.setDisplayName(
 					ChatColor.GRAY + "Currently Active: " + ChatColor.RED + "" + ChatColor.BOLD + "Girl");
@@ -1672,7 +1671,7 @@ public class RunicProfile {
 			genderIcon.setItemMeta(genderMeta);
 
 		} else {
-			genderIcon = new ItemStack(Material.WOOL, 1, (byte) 15);
+			genderIcon = new ItemStack(Material.BLACK_WOOL);
 			genderMeta = genderIcon.getItemMeta();
 			genderMeta.setDisplayName(
 					ChatColor.GRAY + "Currently Active: " + ChatColor.YELLOW + "" + ChatColor.BOLD + "ERROR");
@@ -1696,7 +1695,7 @@ public class RunicProfile {
 		// 28 GREEN
 		if (player.hasPermission("rp.chatcolors.green")
 				|| RunicParadise.perms.getPrimaryGroup(player).equals("Seeker")) {
-			colorIcon = new ItemStack(Material.WOOL, 1, (byte) 5);
+			colorIcon = new ItemStack(Material.LIME_WOOL);
 			colorMeta = colorIcon.getItemMeta();
 			colorMeta.setDisplayName(ChatColor.GREEN + "" + ChatColor.BOLD + "Green");
 
@@ -1712,7 +1711,7 @@ public class RunicProfile {
 		// 29 D GREEN
 		if (player.hasPermission("rp.chatcolors.dark_green")
 				|| RunicParadise.perms.getPrimaryGroup(player).equals("Runner")) {
-			colorIcon = new ItemStack(Material.WOOL, 1, (byte) 13);
+			colorIcon = new ItemStack(Material.GREEN_WOOL);
 			colorMeta = colorIcon.getItemMeta();
 			colorMeta.setDisplayName(ChatColor.DARK_GREEN + "" + ChatColor.BOLD + "Dark Green");
 
@@ -1728,7 +1727,7 @@ public class RunicProfile {
 		// 30 YELLOW
 		if (player.hasPermission("rp.chatcolors.yellow")
 				|| RunicParadise.perms.getPrimaryGroup(player).equals("Singer")) {
-			colorIcon = new ItemStack(Material.WOOL, 1, (byte) 4);
+			colorIcon = new ItemStack(Material.YELLOW_WOOL);
 			colorMeta = colorIcon.getItemMeta();
 			colorMeta.setDisplayName(ChatColor.YELLOW + "" + ChatColor.BOLD + "Yellow");
 
@@ -1744,7 +1743,7 @@ public class RunicProfile {
 		// 31 GOLD
 		if (player.hasPermission("rp.chatcolors.gold")
 				|| RunicParadise.perms.getPrimaryGroup(player).equals("Brawler")) {
-			colorIcon = new ItemStack(Material.WOOL, 1, (byte) 1);
+			colorIcon = new ItemStack(Material.ORANGE_WOOL);
 			colorMeta = colorIcon.getItemMeta();
 			colorMeta.setDisplayName(ChatColor.GOLD + "" + ChatColor.BOLD + "Gold");
 
@@ -1760,7 +1759,7 @@ public class RunicProfile {
 		// 32 AQUA
 		if (player.hasPermission("rp.chatcolors.aqua")
 				|| RunicParadise.perms.getPrimaryGroup(player).equals("Keeper")) {
-			colorIcon = new ItemStack(Material.WOOL, 1, (byte) 3);
+			colorIcon = new ItemStack(Material.LIGHT_BLUE_WOOL);
 			colorMeta = colorIcon.getItemMeta();
 			colorMeta.setDisplayName(ChatColor.AQUA + "" + ChatColor.BOLD + "Aqua");
 
@@ -1776,7 +1775,7 @@ public class RunicProfile {
 		// 33 D AQUA
 		if (player.hasPermission("rp.chatcolors.dark_aqua")
 				|| RunicParadise.perms.getPrimaryGroup(player).equals("Guard")) {
-			colorIcon = new ItemStack(Material.WOOL, 1, (byte) 9);
+			colorIcon = new ItemStack(Material.CYAN_WOOL);
 			colorMeta = colorIcon.getItemMeta();
 			colorMeta.setDisplayName(ChatColor.DARK_AQUA + "" + ChatColor.BOLD + "Dark Aqua");
 
@@ -1792,7 +1791,7 @@ public class RunicProfile {
 		// 34 BLUE
 		if (player.hasPermission("rp.chatcolors.blue")
 				|| RunicParadise.perms.getPrimaryGroup(player).equals("Hunter")) {
-			colorIcon = new ItemStack(Material.WOOL, 1, (byte) 11);
+			colorIcon = new ItemStack(Material.BLUE_WOOL);
 			colorMeta = colorIcon.getItemMeta();
 			colorMeta.setDisplayName(ChatColor.BLUE + "" + ChatColor.BOLD + "Blue");
 
@@ -1808,7 +1807,7 @@ public class RunicProfile {
 		// 38 L PURPLE
 		if (player.hasPermission("rp.chatcolors.light_purple")
 				|| RunicParadise.perms.getPrimaryGroup(player).equals("Warder")) {
-			colorIcon = new ItemStack(Material.WOOL, 1, (byte) 2);
+			colorIcon = new ItemStack(Material.MAGENTA_WOOL);
 			colorMeta = colorIcon.getItemMeta();
 			colorMeta.setDisplayName(ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + "Light Purple");
 
@@ -1824,7 +1823,7 @@ public class RunicProfile {
 		// 39 D PURPLE
 		if (player.hasPermission("rp.chatcolors.dark_purple")
 				|| RunicParadise.perms.getPrimaryGroup(player).equals("Champion")) {
-			colorIcon = new ItemStack(Material.WOOL, 1, (byte) 10);
+			colorIcon = new ItemStack(Material.PURPLE_WOOL);
 			colorMeta = colorIcon.getItemMeta();
 			colorMeta.setDisplayName(ChatColor.DARK_PURPLE + "" + ChatColor.BOLD + "Dark Purple");
 
@@ -1839,7 +1838,7 @@ public class RunicProfile {
 
 		// 41 RED
 		if (player.hasPermission("rp.chatcolors.red") || RunicParadise.perms.getPrimaryGroup(player).equals("Master")) {
-			colorIcon = new ItemStack(Material.WOOL, 1, (byte) 14);
+			colorIcon = new ItemStack(Material.RED_WOOL);
 			colorMeta = colorIcon.getItemMeta();
 			colorMeta.setDisplayName(ChatColor.RED + "" + ChatColor.BOLD + "Red");
 
@@ -1854,7 +1853,7 @@ public class RunicProfile {
 
 		// 42 WHITE
 		if (player.hasPermission("rp.chatcolors.white")) {
-			colorIcon = new ItemStack(Material.WOOL, 1, (byte) 0);
+			colorIcon = new ItemStack(Material.WHITE_WOOL);
 			colorMeta = colorIcon.getItemMeta();
 			colorMeta.setDisplayName(ChatColor.WHITE + "" + ChatColor.BOLD + "White");
 
@@ -1937,7 +1936,7 @@ public class RunicProfile {
 		afterlifeLore.add("");
 		afterlifeLore.add(ChatColor.GRAY + "/warp graves " + ChatColor.WHITE + "for more info.");
 
-		ItemStack afterlifeIcon = new ItemStack(Material.TOTEM, 1);
+		ItemStack afterlifeIcon = new ItemStack(Material.TOTEM_OF_UNDYING);
 		ItemMeta afterlifeMeta = afterlifeIcon.getItemMeta();
 		afterlifeMeta.setDisplayName(ChatColor.DARK_RED + "Death & Graves");
 		afterlifeMeta.setLore(afterlifeLore);
@@ -1947,7 +1946,7 @@ public class RunicProfile {
 
 		// JOBS
 
-		ArrayList<String> jobsLore = new ArrayList<String>();
+		ArrayList<String> jobsLore = new ArrayList<>();
 		jobsLore.add("");
 		jobsLore.add(ChatColor.YELLOW + "# of jobs mastered: " + ChatColor.GRAY
 				+ +RunicParadise.playerProfiles.get(p.getUniqueId()).getJobMasteryCount());
@@ -2204,7 +2203,7 @@ public class RunicProfile {
 		carnivalLore.add(ChatColor.GRAY + "Type /games to learn more");
 		carnivalLore.add(ChatColor.GRAY + "about Runic Carnival");
 
-		ItemStack carnivalIcon = new ItemStack(Material.RAW_FISH, 1, (short) 3);
+		ItemStack carnivalIcon = new ItemStack(Material.PUFFERFISH);
 		ItemMeta carnivalMeta = carnivalIcon.getItemMeta();
 		carnivalMeta.setDisplayName(ChatColor.DARK_RED + "Carnival Stats");
 		carnivalMeta.setLore(carnivalLore);
@@ -2213,7 +2212,5 @@ public class RunicProfile {
 		poMenu.setItem(16, carnivalIcon);
 
 		p.openInventory(poMenu);
-
 	}
-
 }

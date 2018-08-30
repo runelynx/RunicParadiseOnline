@@ -19,7 +19,7 @@ public class FireworkSerialization {
 	
 	public static FireworkMeta getFireworkMeta(JSONObject json) {
 		try {
-			FireworkMeta dummy = (FireworkMeta) new ItemStack(Material.FIREWORK).getItemMeta();
+			FireworkMeta dummy = (FireworkMeta) new ItemStack(Material.FIREWORK_ROCKET).getItemMeta();
 			dummy.setPower(json.optInt("power", 1));
 			JSONArray effects = json.getJSONArray("effects");
 			for(int i = 0; i < effects.length(); i++) {

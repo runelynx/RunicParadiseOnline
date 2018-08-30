@@ -603,6 +603,51 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 		}
 	}
 
+	private static void putGlassOnInventory(Inventory inventory, ItemStack main) {
+		ItemStack slot1 = new ItemStack(Material.PURPLE_STAINED_GLASS_PANE);
+		ItemMeta meta = slot1.getItemMeta();
+		meta.setDisplayName(" ");
+		slot1.setItemMeta(meta);
+		ItemStack slot2 = new ItemStack(Material.MAGENTA_STAINED_GLASS_PANE);
+		meta = slot2.getItemMeta();
+		meta.setDisplayName(" ");
+		slot2.setItemMeta(meta);
+		ItemStack slot3 = new ItemStack(Material.PINK_STAINED_GLASS_PANE);
+		meta = slot3.getItemMeta();
+		meta.setDisplayName(" ");
+		slot3.setItemMeta(meta);
+		ItemStack slot4 = new ItemStack(Material.RED_STAINED_GLASS_PANE);
+		meta = slot4.getItemMeta();
+		meta.setDisplayName(" ");
+		slot4.setItemMeta(meta);
+		ItemStack slot6 = new ItemStack(Material.YELLOW_STAINED_GLASS_PANE);
+		meta = slot6.getItemMeta();
+		meta.setDisplayName(" ");
+		slot6.setItemMeta(meta);
+		ItemStack slot7 = new ItemStack(Material.GREEN_STAINED_GLASS_PANE);
+		meta = slot7.getItemMeta();
+		meta.setDisplayName(" ");
+		slot7.setItemMeta(meta);
+		ItemStack slot8 = new ItemStack(Material.CYAN_STAINED_GLASS_PANE);
+		meta = slot8.getItemMeta();
+		meta.setDisplayName(" ");
+		slot8.setItemMeta(meta);
+		ItemStack slot9 = new ItemStack(Material.BLUE_STAINED_GLASS_PANE);
+		meta = slot9.getItemMeta();
+		meta.setDisplayName(" ");
+		slot9.setItemMeta(meta);
+
+		inventory.setItem(0, slot1);
+		inventory.setItem(1, slot2);
+		inventory.setItem(2, slot3);
+		inventory.setItem(3, slot4);
+		inventory.setItem(4, main);
+		inventory.setItem(5, slot6);
+		inventory.setItem(6, slot7);
+		inventory.setItem(7, slot8);
+		inventory.setItem(8, slot9);
+	}
+
 	// valid puzzleTypes = M / P
 	public static void showRunicCarnivalMenu_Puzzles(Player p, Character puzzleType) {
 		String typeSingle;
@@ -629,48 +674,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 		meta.setLore(mainLore);
 		main.setItemMeta(meta);
 
-		ItemStack slot1 = new ItemStack(Material.STAINED_GLASS_PANE, 1, (short) 10);
-		meta = slot1.getItemMeta();
-		meta.setDisplayName(" ");
-		slot1.setItemMeta(meta);
-		ItemStack slot2 = new ItemStack(Material.STAINED_GLASS_PANE, 1, (short) 2);
-		meta = slot2.getItemMeta();
-		meta.setDisplayName(" ");
-		slot2.setItemMeta(meta);
-		ItemStack slot3 = new ItemStack(Material.STAINED_GLASS_PANE, 1, (short) 6);
-		meta = slot3.getItemMeta();
-		meta.setDisplayName(" ");
-		slot3.setItemMeta(meta);
-		ItemStack slot4 = new ItemStack(Material.STAINED_GLASS_PANE, 1, (short) 14);
-		meta = slot4.getItemMeta();
-		meta.setDisplayName(" ");
-		slot4.setItemMeta(meta);
-		ItemStack slot6 = new ItemStack(Material.STAINED_GLASS_PANE, 1, (short) 4);
-		meta = slot6.getItemMeta();
-		meta.setDisplayName(" ");
-		slot6.setItemMeta(meta);
-		ItemStack slot7 = new ItemStack(Material.STAINED_GLASS_PANE, 1, (short) 13);
-		meta = slot7.getItemMeta();
-		meta.setDisplayName(" ");
-		slot7.setItemMeta(meta);
-		ItemStack slot8 = new ItemStack(Material.STAINED_GLASS_PANE, 1, (short) 9);
-		meta = slot8.getItemMeta();
-		meta.setDisplayName(" ");
-		slot8.setItemMeta(meta);
-		ItemStack slot9 = new ItemStack(Material.STAINED_GLASS_PANE, 1, (short) 11);
-		meta = slot9.getItemMeta();
-		meta.setDisplayName(" ");
-		slot9.setItemMeta(meta);
-
-		puzzleMenu.setItem(0, slot1);
-		puzzleMenu.setItem(1, slot2);
-		puzzleMenu.setItem(2, slot3);
-		puzzleMenu.setItem(3, slot4);
-		puzzleMenu.setItem(4, main);
-		puzzleMenu.setItem(5, slot6);
-		puzzleMenu.setItem(6, slot7);
-		puzzleMenu.setItem(7, slot8);
-		puzzleMenu.setItem(8, slot9);
+		putGlassOnInventory(puzzleMenu, main);
 
 		ItemStack wings;
 		wings = new ItemStack(Material.ELYTRA, 1);
@@ -1014,7 +1018,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 					"effect " + event.getPlayer().getName() + " 15 3 5");
 						} else */
 
-		if (event.getBlock().getType() == Material.MOB_SPAWNER && !event.getPlayer().hasPermission("rp.staff")) {
+		if (event.getBlock().getType() == Material.SPAWNER && !event.getPlayer().hasPermission("rp.staff")) {
 			event.setCancelled(true);
 			event.getPlayer().sendMessage(ChatColor.DARK_RED + "Hey put that back! Only staff can break that.");
 			// ATTEMPT CASTING BEAST-POWER / SPIRIT OF BEAVER
@@ -1716,16 +1720,16 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 			} */
 
 			// process Spawn SKynet menu clicks -- right click
-			if ((event.getClickedBlock().getWorld().getName().equals("RunicSky")
-					&& ((event.getClickedBlock().getType() == Material.SKULL && event.getClickedBlock().getLocation()
-							.subtract(0, 1, 0).getBlock().getType() == Material.STAINED_GLASS_PANE)
-							|| (event.getClickedBlock().getType() == Material.ARMOR_STAND && (event.getClickedBlock()
-									.getLocation().add(0, 1, 0).getBlock().getType() == Material.STAINED_GLASS_PANE
-									|| event.getClickedBlock().getLocation().getBlock()
-											.getType() == Material.STAINED_GLASS_PANE))))) {
-				RunicParadise.showSpawnSkynetMenu(event.getPlayer());
-				event.setCancelled(true);
-			}
+			if (event.getClickedBlock().getWorld().getName().equals("RunicSky"))
+				if (((event.getClickedBlock().getType() == Material.PLAYER_HEAD) && (event.getClickedBlock().getLocation()
+						.subtract(0, 1, 0).getBlock().getType() == Material.PURPLE_STAINED_GLASS_PANE))
+						|| ((event.getClickedBlock().getType() == Material.ARMOR_STAND) && ((event.getClickedBlock()
+						.getLocation().add(0, 1, 0).getBlock().getType() == Material.PURPLE_STAINED_GLASS_PANE)
+						|| (event.getClickedBlock().getLocation().getBlock()
+						.getType() == Material.PURPLE_STAINED_GLASS_PANE)))) {
+					RunicParadise.showSpawnSkynetMenu(event.getPlayer());
+					event.setCancelled(true);
+				}
 // Old custom Runic Graves Logic
 /*
 			if (event.getClickedBlock().getType().equals(Material.BEDROCK)) {
@@ -1746,29 +1750,29 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 
 				}
 			} else */
-			if (event.getClickedBlock().getType().equals(Material.MOB_SPAWNER)
+			if (event.getClickedBlock().getType().equals(Material.SPAWNER)
 					&& event.getPlayer().getItemInHand().getType().getId() == 383) {
 				event.setCancelled(true);
 				RunicMessaging.sendMessage(event.getPlayer(), RunicMessaging.RunicFormat.ERROR, "You cannot do that!");
 
-			} else if (event.getClickedBlock().getType().equals(Material.getMaterial(98))
+			} else if (event.getClickedBlock().getType().equals(Material.STONE_BRICKS)
 					&& event.getPlayer().hasPermission("rp.admin")
 					&& event.getPlayer().getItemInHand().getType() == Material.BLAZE_ROD) {
 				placeRunicEye(event.getClickedBlock().getLocation(), event.getPlayer());
 
-			} else if (event.getClickedBlock().getType().equals(Material.getMaterial(98))
+			} else if (event.getClickedBlock().getType().equals(Material.STONE_BRICKS)
 					&& runicEyes.containsKey(event.getClickedBlock().getLocation())) {
 				// player has right clicked a stone block and its a runic eye
 				// location!
 				event.getPlayer().sendMessage(ChatColor.GOLD + "" + ChatColor.ITALIC + "You hear the "
 						+ runicEyes.get(event.getClickedBlock().getLocation())[0] + " in your mind...");
 				event.getPlayer().sendMessage(ChatColor.GRAY + runicEyes.get(event.getClickedBlock().getLocation())[2]);
-			} else if (event.getClickedBlock().getType().equals(Material.getMaterial(98))
+			} else if (event.getClickedBlock().getType().equals(Material.STONE_BRICKS)
 					&& event.getPlayer().hasPermission("rp.admin")
 					&& event.getPlayer().getItemInHand().getType() == Material.BOOK) {
 				placePrayerBook(event.getClickedBlock().getLocation(), event.getPlayer());
 
-			} else if (event.getClickedBlock().getType().equals(Material.getMaterial(98))
+			} else if (event.getClickedBlock().getType().equals(Material.STONE_BRICKS)
 					&& prayerBooks.containsKey(event.getClickedBlock().getLocation())) {
 				// player has right clicked a stone block and its a prayer book
 				// location!
@@ -1788,13 +1792,13 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 			}
 		} else if (event.getAction() == Action.LEFT_CLICK_BLOCK) {
 			// process Spawn SKynet menu clicks -- right click
-			if (event.getClickedBlock().getType() == Material.SKULL
+			if (event.getClickedBlock().getType() == Material.PLAYER_HEAD
 					&& event.getClickedBlock().getWorld().getName().equals("RunicSky") && event.getClickedBlock()
-							.getLocation().subtract(0, 1, 0).getBlock().getType() == Material.STAINED_GLASS_PANE) {
+							.getLocation().subtract(0, 1, 0).getBlock().getType() == Material.PURPLE_STAINED_GLASS_PANE) {
 				RunicParadise.showSpawnSkynetMenu(event.getPlayer());
 				event.setCancelled(true);
 			}
-			if (event.getClickedBlock().getType().equals(Material.SMOOTH_BRICK)
+			if (event.getClickedBlock().getType().equals(Material.CHISELED_STONE_BRICKS)
 					&& prayerBooks.containsKey(event.getClickedBlock().getLocation())) {
 				// player has left clicked a stone block and its a prayer book
 				// location!
@@ -2654,7 +2658,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 					Location targetLoc = new Location(Bukkit.getWorld(locParts[0]), Integer.parseInt(locParts[1]),
 							Integer.parseInt(locParts[2]), Integer.parseInt(locParts[3]));
 
-					Item item = targetLoc.getWorld().dropItemNaturally(targetLoc, new ItemStack(Material.EYE_OF_ENDER));
+					Item item = targetLoc.getWorld().dropItemNaturally(targetLoc, new ItemStack(Material.ENDER_EYE));
 
 					item.setCustomName(eyeResult.getString("Name"));
 					item.setCustomNameVisible(true);
@@ -2789,48 +2793,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 		meta.setLore(mainLore);
 		main.setItemMeta(meta);
 
-		ItemStack slot1 = new ItemStack(Material.STAINED_GLASS_PANE, 1, (short) 10);
-		meta = slot1.getItemMeta();
-		meta.setDisplayName(" ");
-		slot1.setItemMeta(meta);
-		ItemStack slot2 = new ItemStack(Material.STAINED_GLASS_PANE, 1, (short) 2);
-		meta = slot2.getItemMeta();
-		meta.setDisplayName(" ");
-		slot2.setItemMeta(meta);
-		ItemStack slot3 = new ItemStack(Material.STAINED_GLASS_PANE, 1, (short) 6);
-		meta = slot3.getItemMeta();
-		meta.setDisplayName(" ");
-		slot3.setItemMeta(meta);
-		ItemStack slot4 = new ItemStack(Material.STAINED_GLASS_PANE, 1, (short) 14);
-		meta = slot4.getItemMeta();
-		meta.setDisplayName(" ");
-		slot4.setItemMeta(meta);
-		ItemStack slot6 = new ItemStack(Material.STAINED_GLASS_PANE, 1, (short) 4);
-		meta = slot6.getItemMeta();
-		meta.setDisplayName(" ");
-		slot6.setItemMeta(meta);
-		ItemStack slot7 = new ItemStack(Material.STAINED_GLASS_PANE, 1, (short) 13);
-		meta = slot7.getItemMeta();
-		meta.setDisplayName(" ");
-		slot7.setItemMeta(meta);
-		ItemStack slot8 = new ItemStack(Material.STAINED_GLASS_PANE, 1, (short) 9);
-		meta = slot8.getItemMeta();
-		meta.setDisplayName(" ");
-		slot8.setItemMeta(meta);
-		ItemStack slot9 = new ItemStack(Material.STAINED_GLASS_PANE, 1, (short) 11);
-		meta = slot9.getItemMeta();
-		meta.setDisplayName(" ");
-		slot9.setItemMeta(meta);
-
-		carnivalMenu.setItem(0, slot1);
-		carnivalMenu.setItem(1, slot2);
-		carnivalMenu.setItem(2, slot3);
-		carnivalMenu.setItem(3, slot4);
-		carnivalMenu.setItem(4, main);
-		carnivalMenu.setItem(5, slot6);
-		carnivalMenu.setItem(6, slot7);
-		carnivalMenu.setItem(7, slot8);
-		carnivalMenu.setItem(8, slot9);
+		putGlassOnInventory(carnivalMenu, main);
 
 		ItemStack infoCenter = createHead(
 				ChatColor.RESET + "" + ChatColor.BOLD + "" + ChatColor.DARK_PURPLE + "Info Center",
@@ -2870,7 +2833,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 		carnivalMenu.setItem(33, battleTower);
 		carnivalMenu.setItem(34, creationZone);
 
-		ItemStack token = new ItemStack(Material.DOUBLE_PLANT, 1, (short) 0);
+		ItemStack token = new ItemStack(Material.SUNFLOWER);
 		ItemMeta meta1 = token.getItemMeta();
 		ArrayList<String> tokenLore = new ArrayList<>();
 
@@ -2998,8 +2961,8 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 		int countLocs = 1;
 		int slotTracker = 18;
 		ChatColor textColor;
-		Short iconColor;
-		ArrayList<String> iconLore = new ArrayList<String>();
+		short iconColor;
+		ArrayList<String> iconLore = new ArrayList<>();
 		// get all active explore locs and loop through them to build the
 		// inventory
 		for (int i : RunicParadise.explorerLocationsReversed.values()) {
@@ -3032,10 +2995,9 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 					iconLore.add(" ");
 					iconLore.add(ChatColor.GRAY + "Reward: " + ChatColor.GREEN + RunicParadise.explorerRewards.get(i)
 							+ " Tokens");
-
 				}
 
-				ItemStack icon = new ItemStack(Material.STAINED_GLASS_PANE, 1, iconColor);
+				ItemStack icon = new ItemStack(RunicUtilities.getGlassColor(iconColor));
 				meta = icon.getItemMeta();
 
 				meta.setDisplayName(textColor + RunicParadise.explorerIDs.get(i));
@@ -3099,59 +3061,17 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 		meta.setDisplayName(ChatColor.GOLD + "" + ChatColor.BOLD + "Carnival Menu");
 		main.setItemMeta(meta);
 
-		ItemStack slot1 = new ItemStack(Material.STAINED_GLASS_PANE, 1, (short) 10);
-		meta = slot1.getItemMeta();
-		meta.setDisplayName(" ");
-		slot1.setItemMeta(meta);
-		ItemStack slot2 = new ItemStack(Material.STAINED_GLASS_PANE, 1, (short) 2);
-		meta = slot2.getItemMeta();
-		meta.setDisplayName(" ");
-		slot2.setItemMeta(meta);
-		ItemStack slot3 = new ItemStack(Material.STAINED_GLASS_PANE, 1, (short) 6);
-		meta = slot3.getItemMeta();
-		meta.setDisplayName(" ");
-		slot3.setItemMeta(meta);
-		ItemStack slot4 = new ItemStack(Material.STAINED_GLASS_PANE, 1, (short) 14);
-		meta = slot4.getItemMeta();
-		meta.setDisplayName(" ");
-		slot4.setItemMeta(meta);
-		ItemStack slot6 = new ItemStack(Material.STAINED_GLASS_PANE, 1, (short) 4);
-		meta = slot6.getItemMeta();
-		meta.setDisplayName(" ");
-		slot6.setItemMeta(meta);
-		ItemStack slot7 = new ItemStack(Material.STAINED_GLASS_PANE, 1, (short) 13);
-		meta = slot7.getItemMeta();
-		meta.setDisplayName(" ");
-		slot7.setItemMeta(meta);
-		ItemStack slot8 = new ItemStack(Material.STAINED_GLASS_PANE, 1, (short) 9);
-		meta = slot8.getItemMeta();
-		meta.setDisplayName(" ");
-		slot8.setItemMeta(meta);
-		ItemStack slot9 = new ItemStack(Material.STAINED_GLASS_PANE, 1, (short) 11);
-		meta = slot9.getItemMeta();
-		meta.setDisplayName(" ");
-		slot9.setItemMeta(meta);
-
-		exploreMenu.setItem(0, slot1);
-		exploreMenu.setItem(1, slot2);
-		exploreMenu.setItem(2, slot3);
-		exploreMenu.setItem(3, slot4);
-		exploreMenu.setItem(4, main);
-		exploreMenu.setItem(5, slot6);
-		exploreMenu.setItem(6, slot7);
-		exploreMenu.setItem(7, slot8);
-		exploreMenu.setItem(8, slot9);
+		putGlassOnInventory(exploreMenu, main);
 
 		p.openInventory(exploreMenu);
 	}
 
 	public static void showRunicCarnivalMenu_BattleTower(Player p) {
-
 		Inventory carnivalMenu = Bukkit.createInventory(null, 45,
 				ChatColor.DARK_RED + "" + ChatColor.BOLD + "Runic Carnival - Arenas");
 
 		ItemMeta meta;
-		ArrayList<String> mainLore = new ArrayList<String>();
+		ArrayList<String> mainLore = new ArrayList<>();
 		mainLore.add(ChatColor.YELLOW + "x");
 		mainLore.add(ChatColor.YELLOW + "x");
 		mainLore.add(ChatColor.YELLOW + "x");
@@ -3163,91 +3083,50 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 		meta.setLore(mainLore);
 		main.setItemMeta(meta);
 
-		ItemStack slot1 = new ItemStack(Material.STAINED_GLASS_PANE, 1, (short) 10);
-		meta = slot1.getItemMeta();
-		meta.setDisplayName(" ");
-		slot1.setItemMeta(meta);
-		ItemStack slot2 = new ItemStack(Material.STAINED_GLASS_PANE, 1, (short) 2);
-		meta = slot2.getItemMeta();
-		meta.setDisplayName(" ");
-		slot2.setItemMeta(meta);
-		ItemStack slot3 = new ItemStack(Material.STAINED_GLASS_PANE, 1, (short) 6);
-		meta = slot3.getItemMeta();
-		meta.setDisplayName(" ");
-		slot3.setItemMeta(meta);
-		ItemStack slot4 = new ItemStack(Material.STAINED_GLASS_PANE, 1, (short) 14);
-		meta = slot4.getItemMeta();
-		meta.setDisplayName(" ");
-		slot4.setItemMeta(meta);
-		ItemStack slot6 = new ItemStack(Material.STAINED_GLASS_PANE, 1, (short) 4);
-		meta = slot6.getItemMeta();
-		meta.setDisplayName(" ");
-		slot6.setItemMeta(meta);
-		ItemStack slot7 = new ItemStack(Material.STAINED_GLASS_PANE, 1, (short) 13);
-		meta = slot7.getItemMeta();
-		meta.setDisplayName(" ");
-		slot7.setItemMeta(meta);
-		ItemStack slot8 = new ItemStack(Material.STAINED_GLASS_PANE, 1, (short) 9);
-		meta = slot8.getItemMeta();
-		meta.setDisplayName(" ");
-		slot8.setItemMeta(meta);
-		ItemStack slot9 = new ItemStack(Material.STAINED_GLASS_PANE, 1, (short) 11);
-		meta = slot9.getItemMeta();
-		meta.setDisplayName(" ");
-		slot9.setItemMeta(meta);
+		putGlassOnInventory(carnivalMenu, main);
 
-		carnivalMenu.setItem(0, slot1);
-		carnivalMenu.setItem(1, slot2);
-		carnivalMenu.setItem(2, slot3);
-		carnivalMenu.setItem(3, slot4);
-		carnivalMenu.setItem(4, main);
-		carnivalMenu.setItem(5, slot6);
-		carnivalMenu.setItem(6, slot7);
-		carnivalMenu.setItem(7, slot8);
-		carnivalMenu.setItem(8, slot9);
-
-		ArrayList<String> pvpLore = new ArrayList<String>();
+		ArrayList<String> pvpLore = new ArrayList<>();
 		pvpLore.add(ChatColor.RED + "PvP");
-		ArrayList<String> pveLore = new ArrayList<String>();
+		ArrayList<String> pveLore = new ArrayList<>();
 		pveLore.add(ChatColor.AQUA + "No PvP (PvE)");
 
 		ItemStack paintball;
-		paintball = new ItemStack(Material.SNOW_BALL, 1);
+		paintball = new ItemStack(Material.SNOWBALL);
 		meta = paintball.getItemMeta();
 		meta.setDisplayName("Paintball");
 		meta.setLore(pvpLore);
 		paintball.setItemMeta(meta);
 
 		ItemStack blockhunt;
-		blockhunt = new ItemStack(Material.BOOKSHELF, 1);
+		blockhunt = new ItemStack(Material.BOOKSHELF);
 		meta = blockhunt.getItemMeta();
 		meta.setDisplayName("Blockhunt");
 		meta.setLore(pvpLore);
 		blockhunt.setItemMeta(meta);
 
 		ItemStack ctf;
-		ctf = new ItemStack(Material.BANNER, 1);
+		ctf = new ItemStack(Material.BLACK_BANNER);
 		meta = ctf.getItemMeta();
 		meta.setDisplayName("Capture the Flag");
 		meta.setLore(pvpLore);
 		ctf.setItemMeta(meta);
 
 		ItemStack pvpArena;
-		pvpArena = new ItemStack(Material.IRON_AXE, 1);
+		pvpArena = new ItemStack(Material.IRON_AXE);
 		meta = pvpArena.getItemMeta();
 		meta.setDisplayName("PvP Arena");
 		meta.setLore(pvpLore);
 		pvpArena.setItemMeta(meta);
 
 		ItemStack spleef;
-		spleef = new ItemStack(Material.GOLD_SPADE, 1);
+		spleef = new ItemStack(Material.GOLDEN_SHOVEL);
 		meta = spleef.getItemMeta();
 		meta.setDisplayName("Spleef");
 		meta.setLore(pvpLore);
 		spleef.setItemMeta(meta);
 
 		ItemStack mobarena;
-		mobarena = new ItemStack(Material.SKULL_ITEM, 1, (short) SkullType.ZOMBIE.ordinal());
+		mobarena = new ItemStack(Material.ZOMBIE_HEAD);
 		meta = mobarena.getItemMeta();
 		meta.setDisplayName("Mob Arena");
 		mobarena.setItemMeta(meta);
@@ -3261,7 +3140,6 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 		carnivalMenu.setItem(31, mobarena);
 
 		p.openInventory(carnivalMenu);
-
 	}
 
 	public static long getPlayerMazeLastCompletion(Player p, int puzzleID) {
@@ -3612,7 +3490,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 	}
 
 	public static ItemStack createHead(String name, String data) {
-		ItemStack item = new ItemStack(Material.SKULL_ITEM);
+		ItemStack item = new ItemStack(Material.PLAYER_HEAD);
 		item.setDurability((short) 3);
 		SkullMeta headMeta = (SkullMeta) item.getItemMeta();
 		headMeta.setDisplayName(name);

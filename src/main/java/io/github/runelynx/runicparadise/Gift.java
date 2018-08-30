@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.UUID;
 import java.util.logging.Level;
 
+import io.github.runelynx.runicparadise.tempserialization.InventorySerialization;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
@@ -18,8 +19,6 @@ import org.bukkit.plugin.Plugin;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import com.kill3rtaco.tacoserialization.InventorySerialization;
 
 public class Gift {
 

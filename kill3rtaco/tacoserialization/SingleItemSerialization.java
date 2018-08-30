@@ -53,7 +53,7 @@ public class SingleItemSerialization {
 			JSONObject values = new JSONObject();
 			if(items == null)
 				return null;
-			int id = items.getTypeId();
+			int id = items.getType().getId();
 			int amount = items.getAmount();
 			int data = items.getDurability();
 			boolean hasMeta = items.hasItemMeta();
@@ -62,15 +62,15 @@ public class SingleItemSerialization {
 			int repairPenalty = 0;
 			Material mat = items.getType();
 			JSONObject bookMeta = null, armorMeta = null, skullMeta = null, fwMeta = null;
-			if(mat == Material.BOOK_AND_QUILL || mat == Material.WRITTEN_BOOK) {
+			if(mat == Material.WRITABLE_BOOK || mat == Material.WRITTEN_BOOK) {
 				bookMeta = BookSerialization.serializeBookMeta((BookMeta) items.getItemMeta());
 			} else if(mat == Material.ENCHANTED_BOOK) {
 				bookMeta = BookSerialization.serializeEnchantedBookMeta((EnchantmentStorageMeta) items.getItemMeta());
 			} else if(Util.isLeatherArmor(mat)) {
 				armorMeta = LeatherArmorSerialization.serializeArmor((LeatherArmorMeta) items.getItemMeta());
-			} else if(mat == Material.SKULL_ITEM) {
+			} else if(mat == Material.PLAYER_HEAD) {
 				skullMeta = SkullSerialization.serializeSkull((SkullMeta) items.getItemMeta());
-			} else if(mat == Material.FIREWORK) {
+			} else if(mat == Material.FIREWORK_ROCKET) {
 				fwMeta = FireworkSerialization.serializeFireworkMeta((FireworkMeta) items.getItemMeta());
 			}
 			if(hasMeta) {
@@ -188,7 +188,7 @@ public static ItemStack getItem(JSONObject item, int index) {
 				throw new IllegalArgumentException("Item " + index + " - No Material found with id of " + id);
 			Material mat = Material.getMaterial(id);
 			ItemStack stuff = new ItemStack(mat, amount, (short) data);
-			if((mat == Material.BOOK_AND_QUILL || mat == Material.WRITTEN_BOOK) && item.has("book-meta")) {
+			if((mat == Material.WRITABLE_BOOK || mat == Material.WRITTEN_BOOK) && item.has("book-meta")) {
 				BookMeta meta = BookSerialization.getBookMeta(item.getJSONObject("book-meta"));
 				stuff.setItemMeta(meta);
 			} else if(mat == Material.ENCHANTED_BOOK && item.has("book-meta")) {
@@ -197,10 +197,10 @@ public static ItemStack getItem(JSONObject item, int index) {
 			} else if(Util.isLeatherArmor(mat) && item.has("armor-meta")) {
 				LeatherArmorMeta meta = LeatherArmorSerialization.getLeatherArmorMeta(item.getJSONObject("armor-meta"));
 				stuff.setItemMeta(meta);
-			} else if(mat == Material.SKULL_ITEM && item.has("skull-meta")) {
+			} else if(mat == Material.PLAYER_HEAD && item.has("skull-meta")) {
 				SkullMeta meta = SkullSerialization.getSkullMeta(item.getJSONObject("skull-meta"));
 				stuff.setItemMeta(meta);
-			} else if(mat == Material.FIREWORK && item.has("firework-meta")) {
+			} else if(mat == Material.FIREWORK_ROCKET && item.has("firework-meta")) {
 				FireworkMeta meta = FireworkSerialization.getFireworkMeta(item.getJSONObject("firework-meta"));
 				stuff.setItemMeta(meta);
 			}

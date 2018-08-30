@@ -4,20 +4,18 @@ import java.io.File;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 
 public class RunicUtilities {
-
 	public static Boolean isInteger(String x) {
 		if (x == null) {
 			return false;
@@ -252,5 +250,36 @@ public class RunicUtilities {
 			return or;
 		}
 		return obj.toString();
+	}
+
+	static Material getGlassColor(short type) {
+		final Material[] glassTypes = new Material[] {
+				Material.WHITE_STAINED_GLASS,
+				Material.ORANGE_STAINED_GLASS,
+				Material.MAGENTA_STAINED_GLASS,
+				Material.LIGHT_BLUE_STAINED_GLASS,
+				Material.YELLOW_STAINED_GLASS,
+				Material.LIME_STAINED_GLASS,
+				Material.PINK_STAINED_GLASS,
+				Material.GRAY_STAINED_GLASS,
+				Material.LIGHT_GRAY_STAINED_GLASS,
+				Material.CYAN_STAINED_GLASS,
+				Material.PURPLE_STAINED_GLASS,
+				Material.BLUE_STAINED_GLASS,
+				Material.BROWN_STAINED_GLASS,
+				Material.GREEN_STAINED_GLASS,
+				Material.RED_STAINED_GLASS,
+				Material.BLACK_STAINED_GLASS
+		};
+		return glassTypes[type];
+	}
+
+	static Material idToMaterial(int id) {
+		final Material[] materials = Material.values();
+		Optional<Material> result = Arrays.stream(materials).filter(x -> x.getId() == id).findFirst();
+		if (result.isPresent()) {
+			return result.get();
+		}
+		throw new RuntimeException("No material with that id");
 	}
 }
