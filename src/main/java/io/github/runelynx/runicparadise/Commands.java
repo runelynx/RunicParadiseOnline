@@ -11,7 +11,6 @@ import io.github.runelynx.runicuniverse.RunicMessaging.RunicFormat;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.command.*;
-import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -30,7 +29,6 @@ import java.util.Date;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class Commands implements CommandExecutor {
 
@@ -541,7 +539,7 @@ public class Commands implements CommandExecutor {
 						Statement dStmt = d.createStatement();
 
 						PreparedStatement insertStmt = d.prepareStatement(
-								"INSERT INTO rp_RunicRaffleTickets (PlayerName, UUID, Timestamp, RaffleID, Source, Quantity) VALUES "
+                                "INSERT INTO rpgame.rp_RunicRaffleTickets (PlayerName, UUID, Timestamp, RaffleID, Source, Quantity) VALUES "
 										+ "('" + Bukkit.getOfflinePlayer(args[2]).getName() + "', '"
 										+ Bukkit.getOfflinePlayer(args[2]).getUniqueId().toString() + "', "
 										+ (new Date().getTime()) + ", 1, 'Given', " + Integer.parseInt(args[1]) + ");");
@@ -567,7 +565,7 @@ public class Commands implements CommandExecutor {
 
 					// GET CURRENT PURCHASED TICKET COUNT
 					ResultSet playerData = dStmt.executeQuery(
-							"SELECT SUM(Quantity) AS ticketcount FROM `rp_RunicRaffleTickets` WHERE `UUID` = '"
+                            "SELECT SUM(Quantity) AS ticketcount FROM rpgame.rp_RunicRaffleTickets WHERE UUID = '"
 									+ rafflePlayer.getUniqueId().toString()
 									+ "' AND Source = 'Purchased' ORDER BY `ID` DESC;");
 
@@ -632,7 +630,7 @@ public class Commands implements CommandExecutor {
 					final Connection d = MySQL.openConnection();
 					Statement dStmt = d.createStatement();
 					PreparedStatement insertStmt = d.prepareStatement(
-							"INSERT INTO rp_ExplorerLocations (LocationName, Location, TokenReward, DifficultyRadius, Creator) VALUES "
+                            "INSERT INTO rpgame.rp_ExplorerLocations (LocationName, Location, TokenReward, DifficultyRadius, Creator) VALUES "
 									+ "('" + locationName + "', '" + locString + "', " + tokenReward + ", "
 									+ difficultyRadius + ", '" + sender.getName() + "');");
 
