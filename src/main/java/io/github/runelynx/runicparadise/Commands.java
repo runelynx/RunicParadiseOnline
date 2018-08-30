@@ -42,7 +42,7 @@ public class Commands implements CommandExecutor {
 
 	public static ArrayList<Integer> PARTICLE_TASK_IDS = new ArrayList<Integer>();
 
-    public static Boolean searchExplorerLocation(Location loc, Player p) {
+    private static boolean searchExplorerLocation(Location loc, Player p) {
 
         int targetID = 0;
         int distance = -1;
@@ -116,7 +116,7 @@ public class Commands implements CommandExecutor {
         return false;
     }
 
-    public static ItemStack[] carnivalChestReward(Location loc) {
+    static ItemStack[] carnivalChestReward(Location loc) {
         Block b = loc.getBlock();
         org.bukkit.block.Chest chest = (org.bukkit.block.Chest) b.getState();
         return chest.getBlockInventory().getContents();
@@ -141,7 +141,7 @@ public class Commands implements CommandExecutor {
         } catch (Exception ignored) {}
     }
 
-    public static boolean syncExplorerLocations() {
+    static boolean syncExplorerLocations() {
         int locCount = 0;
 
         // reset the hashmap
@@ -200,7 +200,7 @@ public class Commands implements CommandExecutor {
         return true;
     }
 
-    public void carnivalTokenCounts(Player player) {
+    private void carnivalTokenCounts(Player player) {
         MySQL MySQL = new MySQL(instance, instance.getConfig().getString("dbHost"),
                 instance.getConfig().getString("dbPort"), instance.getConfig().getString("dbDatabase"),
                 instance.getConfig().getString("dbUser"), instance.getConfig().getString("dbPassword"));
@@ -230,7 +230,7 @@ public class Commands implements CommandExecutor {
         }
     }
 
-    public boolean addAttemptedPromotion(String newGuyName, String promoterName) {
+    private boolean addAttemptedPromotion(String newGuyName, String promoterName) {
 
         MySQL MySQL = new MySQL(instance, instance.getConfig().getString("dbHost"),
                 instance.getConfig().getString("dbPort"), instance.getConfig().getString("dbDatabase"),
@@ -255,7 +255,7 @@ public class Commands implements CommandExecutor {
         }
     }
 
-    public int checkAttemptedPromotion(String newGuyName, String promoterName) {
+    private int checkAttemptedPromotion(String newGuyName, String promoterName) {
 
         MySQL MySQL = new MySQL(instance, instance.getConfig().getString("dbHost"),
                 instance.getConfig().getString("dbPort"), instance.getConfig().getString("dbDatabase"),
@@ -3884,7 +3884,7 @@ public class Commands implements CommandExecutor {
 
 	}
 
-	public static Boolean givePlayerExplorationReward(int locID, Player p) {
+	static boolean givePlayerExplorationReward(int locID, Player p) {
 		int tokenReward = RunicParadise.explorerRewards.get(locID);
 
 		RunicPlayerBukkit targetPlayer = new RunicPlayerBukkit(p.getUniqueId());
@@ -3897,7 +3897,7 @@ public class Commands implements CommandExecutor {
 		return false;
 	}
 
-	public static void spawnTransportBeacon(Location loc, Player p) {
+	private static void spawnTransportBeacon(Location loc, Player p) {
 		Location clayLoc = new Location(loc.getWorld(), loc.getX(), (loc.getY() - 1.0), loc.getZ());
 		Location glassLoc = new Location(loc.getWorld(), loc.getX(), loc.getY(), loc.getZ());
 
@@ -3911,7 +3911,7 @@ public class Commands implements CommandExecutor {
 
 	}
 
-	public static void repairCommand(Player p, ItemStack main, ItemStack off) {
+	private static void repairCommand(Player p, ItemStack main, ItemStack off) {
 
 		boolean mainOkToRepair = false;
 		boolean offOkToRepair = false;
@@ -4035,25 +4035,13 @@ public class Commands implements CommandExecutor {
 	}
 
 	private static String whoIsNearPlayer(Player p) {
-		int count = 0;
-		StringBuilder response = new StringBuilder(ChatColor.GRAY + "Players near " + p.getDisplayName() + ChatColor.GRAY + ": ");
-		for (Entity entity : p.getNearbyEntities(50, 50, 50)) {
-			if (entity instanceof Player) {
-				Player player = (Player) entity;
-				if (count == 0) {
-					response.append(player.getDisplayName());
-				} else {
-					response.append(ChatColor.WHITE).append(", ").append(player.getDisplayName());
-				}
-				count++;
-			}
-		}
-
-		if (count == 0) {
-			response.append(ChatColor.GRAY).append("None");
-		} else {
-			response.append(ChatColor.GRAY).append(" (").append(count).append(")");
-		}
-		return response.toString();
+		String result = p.getNearbyEntities(50, 50, 50)
+				.stream()
+				.filter(x -> x instanceof Player)
+				.map(x -> { return (Player) x; })
+				.map(Player::getDisplayName)
+				.collect(Collectors.joining(", "));
+		String formatString = ChatColor.GRAY + "Players near %s" + ChatColor.GRAY + ": %s";
+		return String.format(formatString, p.getDisplayName(), result.isEmpty() ? "None" : result);
 	}
 }

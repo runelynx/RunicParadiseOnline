@@ -568,16 +568,11 @@ public class RunicProfile {
 		}
 	}
 
-	public Boolean isPlayerFarming() {
-		if (this.farmKillCounter >= FARMING_COUNT_THRESHOLD) {
-			return true;
-		} else {
-			return false;
-		}
+	boolean isPlayerFarming() {
+		return this.farmKillCounter >= FARMING_COUNT_THRESHOLD;
 	}
 
 	private void retrieveJobsData() {
-
 		MySQL MySQL = new MySQL(instance, instance.getConfig().getString("dbHost"),
 				instance.getConfig().getString("dbPort"), instance.getConfig().getString("dbDatabase"),
 				instance.getConfig().getString("dbUser"), instance.getConfig().getString("dbPassword"));
@@ -611,15 +606,12 @@ public class RunicProfile {
 				this.currentJob = "None";
 				this.currentJobLevel = 0;
 			}
-
 		} catch (SQLException e) {
 			getLogger().log(Level.SEVERE, "Failed DB check [refreshPlayerObject] because: " + e.getMessage());
 		}
-
 	}
 
 	private void retrieveBasicData() {
-
 		MySQL MySQL = new MySQL(instance, instance.getConfig().getString("dbHost"),
 				instance.getConfig().getString("dbPort"), instance.getConfig().getString("dbDatabase"),
 				instance.getConfig().getString("dbUser"), instance.getConfig().getString("dbPassword"));
@@ -639,12 +631,9 @@ public class RunicProfile {
 			ResultSet faithData = dStmt3.executeQuery();
 
 			if (faithData.isBeforeFirst()) {
-
 				faithData.next();
 				this.setFaithPowerLevel(faithData.getInt("FPL"));
-
 			} else {
-
 				this.setFaithPowerLevel(0);
 			}
 
@@ -689,7 +678,6 @@ public class RunicProfile {
 	}
 
 	private void retrieveDropData() {
-
 		MySQL MySQL = new MySQL(instance, instance.getConfig().getString("dbHost"),
 				instance.getConfig().getString("dbPort"), instance.getConfig().getString("dbDatabase"),
 				instance.getConfig().getString("dbUser"), instance.getConfig().getString("dbPassword"));
@@ -721,11 +709,9 @@ public class RunicProfile {
 		} catch (SQLException e) {
 			getLogger().log(Level.SEVERE, "Failed DB check [retrieveDropData] because: " + e.getMessage());
 		}
-
 	}
 
 	private void retrieveMobKillsData() {
-
 		MySQL MySQL = new MySQL(instance, instance.getConfig().getString("dbHost"),
 				instance.getConfig().getString("dbPort"), instance.getConfig().getString("dbDatabase"),
 				instance.getConfig().getString("dbUser"), instance.getConfig().getString("dbPassword"));
@@ -739,7 +725,6 @@ public class RunicProfile {
 			ResultSet playerData = dStmt2.executeQuery();
 
 			while (playerData.next()) {
-
 				// A fresh start
 				this.mobKillCountsMap.clear();
 
@@ -797,14 +782,12 @@ public class RunicProfile {
 				this.mobKillCountsMap.put(EntityType.WITHER_SKELETON, playerData.getInt("WITHER_SKELETON"));
 			}
 
-		} catch (
-
-		SQLException e) {
+		} catch (SQLException e) {
 			getLogger().log(Level.SEVERE, "Failed getPlayerKillCount because: " + e.getMessage());
 		}
 	}
 
-	public Boolean getMazeAndParkoursCompletedFirstTime() {
+	private boolean getMazeAndParkoursCompletedFirstTime() {
 		MySQL MySQL = new MySQL(instance, instance.getConfig().getString("dbHost"),
 				instance.getConfig().getString("dbPort"), instance.getConfig().getString("dbDatabase"),
 				instance.getConfig().getString("dbUser"), instance.getConfig().getString("dbPassword"));
