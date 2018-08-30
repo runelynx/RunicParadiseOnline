@@ -1169,7 +1169,7 @@ public class Borderlands {
 	static ItemStack specialLootDrops(String key, UUID playerUUID) {
 		ItemStack item;
 		ItemMeta meta;
-		ArrayList<String> loreText = new ArrayList<String>();
+		ArrayList<String> loreText = new ArrayList<>();
 
 		switch (key) {
 		case "BaronPendant1":

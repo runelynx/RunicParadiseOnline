@@ -994,7 +994,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 
 	}
 
-	@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = false)
+	@EventHandler(priority = EventPriority.LOWEST)
 	public void onBreakBlock(final BlockBreakEvent event) {
 
 // Old custom Runic Graves Logic

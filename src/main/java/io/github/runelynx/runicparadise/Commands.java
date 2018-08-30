@@ -4014,7 +4014,7 @@ public class Commands implements CommandExecutor {
 		itemInfoCommandAdd(message, "Durability: ", String.valueOf(itemInHand.getDurability()));
 		itemInfoCommandAdd(message, "Type: ", itemInHand.getType().toString());
 		itemInfoCommandAdd(message, "Type id: ", String.valueOf(itemInHand.getType().getId()));
-		message.append(ChatColor.GOLD).append(RunicSerialization.serializeItemStackList(new ItemStack[] { itemInHand }).toString());
+		message.append(ChatColor.GOLD).append(RunicSerialization.serializeTry(new ItemStack[] { itemInHand }).toString());
 		sender.sendMessage(message.toString());
 	}
 
