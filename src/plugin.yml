@@ -309,3 +309,9 @@ commands:
    hmsay:
       description: "Herobrines Mansion message command."
       usage: /<command> [option]    
+   email:
+      usage: /<command>
+      permission: rp.admin
+   getrunestones:
+      usage: /<command>
+      permission: rp.admin

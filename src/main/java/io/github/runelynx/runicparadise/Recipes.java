@@ -103,19 +103,18 @@ class Recipes {
 		newRecipe.addIngredient(1, Material.COOKED_CHICKEN);
 		Bukkit.getServer().addRecipe(newRecipe);
 
-
 		// REGENERATION FISH
-//		newItem = new ItemStack(Material.COOKED_SALMON, 3, (short) 910);
-//		meta = newItem.getItemMeta();
-//		meta.setDisplayName(ChatColor.GREEN + "Fish Filet");
-//		meta.setLore(Arrays.asList(ChatColor.GRAY + "Fresh from the bay",
-//				ChatColor.GRAY + "Grants " + ChatColor.BLUE
-//						+ "30min health regeneration"));
-//		newItem.setItemMeta(meta);
-//		newRecipe = new ShapelessRecipe(new NamespacedKey(RunicParadise.getInstance(), "RP_REGEN_FISH"), newItem);
-//		newRecipe.addIngredient(1, Material.QUARTZ, 910);
-//		newRecipe.addIngredient(1, Material.COOKED_SALMON);
-//		Bukkit.getServer().addRecipe(newRecipe);
+		newItem = new ItemStack(Material.COOKED_SALMON, 3, (short) 910);
+		meta = newItem.getItemMeta();
+		meta.setDisplayName(ChatColor.GREEN + "Fish Filet");
+		meta.setLore(Arrays.asList(ChatColor.GRAY + "Fresh from the bay",
+				ChatColor.GRAY + "Grants " + ChatColor.BLUE
+						+ "30min health regeneration"));
+		newItem.setItemMeta(meta);
+		newRecipe = new ShapelessRecipe(new NamespacedKey(RunicParadise.getInstance(), "RP_REGEN_FISH"), newItem);
+		newRecipe.addIngredient(1, Material.QUARTZ, 910);
+		newRecipe.addIngredient(1, Material.COOKED_SALMON);
+		Bukkit.getServer().addRecipe(newRecipe);
 
 		// HASTE BREAD
 		newItem = new ItemStack(Material.BREAD, 3, (short) 903);

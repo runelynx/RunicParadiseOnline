@@ -463,7 +463,6 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 		getCommand("freezemob").setExecutor(new Commands());
 		getCommand("unfreezemob").setExecutor(new Commands());
 		getCommand("runiceye").setExecutor(new Commands());
-//		getCommand("holotest").setExecutor(new Commands());
 		getCommand("holotest").setExecutor(new HologramCommand(getDataFolder(), getLogger()));
 		getCommand("runicspawntravel").setExecutor(new Commands());
 		getCommand("casino").setExecutor(new Commands());
@@ -507,9 +506,6 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 		getCommand("rptokens").setExecutor(new Commands());
 		getCommand("dailykarma").setExecutor(new Commands());
 		getCommand("say").setExecutor(new Commands());
-// Old custom Runic Graves Logic
-//		getCommand("grave").setExecutor(new Commands());
-//		getCommand("graves").setExecutor(new Commands());
 		getCommand("rptransfer").setExecutor(new Commands());
 		getCommand("rpvote").setExecutor(new Commands());
 		getCommand("rpjobs").setExecutor(new Commands());
@@ -520,6 +516,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 		getCommand("cactifever").setExecutor(new Commands());
 		getCommand("voice").setExecutor(new Commands());
 		getCommand("discord").setExecutor(new Commands());
+		getCommand("email").setExecutor(new EmailTest());
 		return true;
 	}
 
@@ -1428,7 +1425,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 				// teleport to mobarena entry
 				event.getWhoClicked().teleport(new Location(Bukkit.getWorld("RunicSky"), 381.530, 56.00, 528.890,
 						(float) -359.09937, (float) 1.2000911));
-				RunicMessaging.sendMessage((Player) event.getWhoClicked(), RunicFormat.HELP, ChatColor.RED + "Empty your inventory before entering the arena!!");
+				RunicMessaging.sendMessage((Player) event.getWhoClicked(), RunicFormat.HELP, ChatColor.RED + "Empty your inventory before ppentering the arena!!");
 				break;
 
 			default:
