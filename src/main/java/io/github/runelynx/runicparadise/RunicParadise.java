@@ -517,6 +517,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 		getCommand("voice").setExecutor(new Commands());
 		getCommand("discord").setExecutor(new Commands());
 		getCommand("rpversion").setExecutor(new Commands());
+		getCommand("getrunestones").setExecutor(new Commands());
 		getCommand("email").setExecutor(new EmailTest());
 		return true;
 	}
@@ -2731,7 +2732,6 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 	}
 
 	public static BlockFace getPlayerFacing(Player player) {
-
 		float y = player.getLocation().getYaw();
 		if (y < 0)
 			y += 360;

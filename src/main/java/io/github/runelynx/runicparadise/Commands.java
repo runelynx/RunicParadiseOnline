@@ -350,6 +350,10 @@ public class Commands implements CommandExecutor {
 		// general approach is that errors will return immediately;
 		// successful runs will return after the switch completes
 		switch (cmd.getName()) {
+		case "getrunestones":
+			Player ppp = (Player) sender;
+			ppp.getInventory().addItem(CustomItems.createRandomDukeRing(ppp));
+			break;
 		case "rpversion":
 			handleRpVersion(sender);
 			break;
@@ -2524,23 +2528,23 @@ public class Commands implements CommandExecutor {
 
 			break;
 		case "rankitem":
-			if (args.length == 3 && args[1].equals("DukeMetal") && args[0].equalsIgnoreCase("Give")) {
-				Bukkit.getPlayer(args[2]).getLocation().getWorld().dropItemNaturally(
-						Bukkit.getPlayer(args[2]).getLocation(),
-						Borderlands.specialLootDrops("DukeMetal", Bukkit.getPlayer(args[2]).getUniqueId()));
-				Bukkit.getPlayer(args[2]).getLocation().getWorld().dropItemNaturally(
-						Bukkit.getPlayer(args[2]).getLocation(),
-						Borderlands.specialLootDrops("DukeMetal", Bukkit.getPlayer(args[2]).getUniqueId()));
-			} else if (args.length == 3 && args[1].equals("BaronMetal") && args[0].equalsIgnoreCase("Give")) {
-				Bukkit.getPlayer(args[2]).getLocation().getWorld().dropItemNaturally(
-						Bukkit.getPlayer(args[2]).getLocation(),
-						Borderlands.specialLootDrops("BaronMetal", Bukkit.getPlayer(args[2]).getUniqueId()));
-			} else if (args.length == 3 && args[0].equalsIgnoreCase("Check")) {
-
-				// rankitem check duke runelynx
-				Ranks.craftFeudalJewelry(Bukkit.getPlayer(args[2]), args[1]);
+			if (args.length == 3) {
+				if (args[1].equals("DukeMetal") && args[0].equalsIgnoreCase("Give")) {
+					Bukkit.getPlayer(args[2]).getLocation().getWorld().dropItemNaturally(
+							Bukkit.getPlayer(args[2]).getLocation(),
+							Borderlands.specialLootDrops("DukeMetal", Bukkit.getPlayer(args[2]).getUniqueId()));
+					Bukkit.getPlayer(args[2]).getLocation().getWorld().dropItemNaturally(
+							Bukkit.getPlayer(args[2]).getLocation(),
+							Borderlands.specialLootDrops("DukeMetal", Bukkit.getPlayer(args[2]).getUniqueId()));
+				} else if (args[1].equals("BaronMetal") && args[0].equalsIgnoreCase("Give")) {
+					Bukkit.getPlayer(args[2]).getLocation().getWorld().dropItemNaturally(
+							Bukkit.getPlayer(args[2]).getLocation(),
+							Borderlands.specialLootDrops("BaronMetal", Bukkit.getPlayer(args[2]).getUniqueId()));
+				} else if (args[0].equalsIgnoreCase("Check")) {
+					// rankitem check duke runelynx
+					Ranks.craftFeudalJewelry(Bukkit.getPlayer(args[2]), args[1]);
+				}
 			}
-
 			break;
 		case "rptokens":
 
@@ -3961,7 +3965,8 @@ public class Commands implements CommandExecutor {
 		itemInfoCommandAdd(message, "Type: ", itemInHand.getType().toString());
 		itemInfoCommandAdd(message, "Type id: ", String.valueOf(itemInHand.getType().getId()));
 		itemInfoCommandAdd(message, "Namespace: ", itemInHand.getType().getKey().toString());
-		message.append(ChatColor.GOLD).append(RunicSerialization.serializeTry(new ItemStack[] { itemInHand }));
+		message.append(ChatColor.GOLD).append(
+				Objects.requireNonNull(RunicSerialization.serializeTry(new ItemStack[]{itemInHand})).replace(ChatColor.COLOR_CHAR, '&'));
 		sender.sendMessage(message.toString());
 	}
 

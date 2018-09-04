@@ -5,6 +5,7 @@ import io.github.runelynx.runicuniverse.RunicMessaging;
 import io.github.runelynx.runicuniverse.RunicMessaging.RunicFormat;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -16,7 +17,9 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.logging.Level;
 
@@ -1599,11 +1602,10 @@ public class Ranks {
 	}
 
 	public static boolean craftFeudalJewelry(Player p, String rank) {
-
 		boolean checkGem = false;
 		boolean checkMetal = false;
 		boolean checkEssence = false;
-		ArrayList<String> messages = new ArrayList<String>();
+		List<String> messages = new ArrayList<>();
 
 		if (rank.equalsIgnoreCase("Duke")) {
 			if (p.getInventory().containsAtLeast(Borderlands.specialLootDrops("DukeGem", p.getUniqueId()), 64)) {
@@ -1647,21 +1649,7 @@ public class Ranks {
 
 				p.updateInventory();
 
-				int random = ThreadLocalRandom.current().nextInt(1, 100 + 1);
-
-				if (random < 25) {
-					Bukkit.getWorld(p.getLocation().getWorld().getUID()).dropItemNaturally(p.getLocation(),
-							Borderlands.specialLootDrops("DukeRing1", p.getUniqueId()));
-				} else if (random < 50) {
-					Bukkit.getWorld(p.getLocation().getWorld().getUID()).dropItemNaturally(p.getLocation(),
-							Borderlands.specialLootDrops("DukeRing2", p.getUniqueId()));
-				} else if (random < 75) {
-					Bukkit.getWorld(p.getLocation().getWorld().getUID()).dropItemNaturally(p.getLocation(),
-							Borderlands.specialLootDrops("DukeRing3", p.getUniqueId()));
-				} else {
-					Bukkit.getWorld(p.getLocation().getWorld().getUID()).dropItemNaturally(p.getLocation(),
-							Borderlands.specialLootDrops("DukeRing4", p.getUniqueId()));
-				}
+				p.getWorld().dropItemNaturally(p.getLocation(), CustomItems.createRandomDukeRing(p));
 
 				return true;
 
@@ -1733,61 +1721,47 @@ public class Ranks {
 		return false;
 	}
 
-	public static void applyFeudalBonus(Player p, String world, String fromWorld) {
+	private static String[] ALLOWED_WORLDS_FOR_DUKE_BARON = new String[] {
+			"RunicRealm",
+			"_nether",
+			"the_end",
+			"Mining"
+	};
 
-		if ((p.getEnderChest().contains(Borderlands.specialLootDrops("DukeRing1", p.getUniqueId()))
-				|| p.getEnderChest().contains(Borderlands.specialLootDrops("DukeRing2", p.getUniqueId()))
-				|| p.getEnderChest().contains(Borderlands.specialLootDrops("DukeRing3", p.getUniqueId()))
-				|| p.getEnderChest().contains(Borderlands.specialLootDrops("DukeRing4", p.getUniqueId())))
-				&& p.hasPermission("rp.ranks.duke")) {
+	static void applyFeudalBonus(Player p, String toWorld, String fromWorld) {
+		boolean hasDukeRing = Arrays.stream(p.getEnderChest().getContents()).anyMatch(item -> CustomItems.isDukeRingFor(item, p.getUniqueId()));
+		boolean toWorldIsNormal = Arrays.stream(ALLOWED_WORLDS_FOR_DUKE_BARON).anyMatch(toWorld::contains);
+		boolean fromWorldIsNormal = Arrays.stream(ALLOWED_WORLDS_FOR_DUKE_BARON).anyMatch(fromWorld::contains);
 
-			if (world.contains("RunicRealm") || world.contains("_end") || world.contains("_nether")
-					|| world.contains("Mining")) {
-
+		if (hasDukeRing && p.hasPermission("rp.ranks.duke")) {
+			if (toWorldIsNormal) {
 				if (p.getMaxHealth() < 24) {
-
 					p.setMaxHealth(24);
-
-					if (fromWorld.equalsIgnoreCase("RunicRealm") || fromWorld.contains("_end")
-							|| fromWorld.contains("_nether") || fromWorld.contains("Mining")) {
-						// no message
-					} else {
+					if (!fromWorldIsNormal) {
 						RunicMessaging.sendMessage(p, RunicFormat.RANKS, "Your ring glows brightly!");
 					}
 				}
-
 			} else {
 				p.resetMaxHealth();
 			}
-
 		} else {
 			p.resetMaxHealth();
 		}
 
 		if ((p.getEnderChest().contains(Borderlands.specialLootDrops("BaronPendant1", p.getUniqueId())))
 				|| p.getEnderChest().contains(Borderlands.specialLootDrops("BaronPendant2", p.getUniqueId()))) {
-
-			if (world.contains("RunicRealm") || world.contains("_end") || world.contains("_nether")
-					|| world.contains("Mining")) {
-
+			if (toWorldIsNormal) {
 				if (p.getMaximumAir() < 360) {
 					p.setMaximumAir(360);
 					p.setRemainingAir(360);
-
-					if (fromWorld.equalsIgnoreCase("RunicRealm") || fromWorld.contains("_end")
-							|| fromWorld.contains("_nether") || fromWorld.contains("Mining")) {
-						// no message
-					} else {
+					if (!fromWorldIsNormal) {
 						RunicMessaging.sendMessage(p, RunicFormat.RANKS, "Your pendant buzzes with energy!");
 					}
-
 				} else {
 					p.setMaximumAir(300);
 				}
 			}
-
 		}
-
 	}
 /*
 	public static void registerSlimefunItems() {

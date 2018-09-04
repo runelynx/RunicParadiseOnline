@@ -30,8 +30,6 @@ class RunicSerialization {
 				e.printStackTrace();
 			}
 			return out;
-
-//			return obj.toString();
 		}
 		return null;
 	}
