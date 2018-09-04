@@ -19,8 +19,14 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.plugin.Plugin;
+import org.json.JSONObject;
+import org.json.JSONTokener;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.sql.*;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
@@ -344,95 +350,9 @@ public class Commands implements CommandExecutor {
 		// general approach is that errors will return immediately;
 		// successful runs will return after the switch completes
 		switch (cmd.getName()) {
-			/* Removing the claim command with the intro of RESIDENCE plugin
-		case "claim":
-
-			Boolean showClaimHelp = false;
-
-			try {
-				if (args.length == 0) {
-					showClaimHelp = true;
-				} else if (Integer.parseInt(args[0]) >= 5 && Integer.parseInt(args[0]) <= 40) {
-					int requestedRadius = Integer.parseInt(args[0]);
-
-					Location claimCenterLoc = ((Player) sender).getLocation();
-					RegionContainer container = RunicParadise.wgPlugin.getRegionContainer();
-					RegionManager regions = container.get(claimCenterLoc.getWorld());
-					// Check to make sure that "regions" is not null
-					ApplicableRegionSet set = regions.getApplicableRegions(BukkitUtil.toVector(claimCenterLoc));
-
-					int minX = claimCenterLoc.getBlockX() - requestedRadius;
-					int minY = claimCenterLoc.getBlockY() - requestedRadius;
-					int minZ = claimCenterLoc.getBlockZ() - requestedRadius;
-
-					int maxX = claimCenterLoc.getBlockX() + requestedRadius;
-					int maxY = claimCenterLoc.getBlockY() + requestedRadius;
-					int maxZ = claimCenterLoc.getBlockZ() + requestedRadius;
-
-					// claimCenterLoc.getWorld().playEffect(claimCenterLoc,
-					// Particle.TOTEM, arg2);
-
-					BlockVector min = new BlockVector(minX, minY, minZ);
-					BlockVector max = new BlockVector(maxX, maxY, maxZ);
-					ProtectedRegion test = new ProtectedCuboidRegion("dummy", min, max);
-					ApplicableRegionSet ars = regions.getApplicableRegions(test);
-
-					if (set.isVirtual() || set.size() == 0) {
-						// no overlapping regions were found!
-						// create the region!
-
-						int numMod = new Random().nextInt(999) + 100;
-						String newRegionName = sender.getName() + numMod;
-
-						ProtectedRegion newRegion = new ProtectedCuboidRegion(newRegionName, min, max);
-						RegionContainer rContainer = RunicParadise.wgPlugin.getRegionContainer();
-						RegionManager rManager = rContainer.get(((Player) sender).getLocation().getWorld());
-						rManager.addRegion(newRegion);
-
-						DefaultDomain owners = newRegion.getOwners();
-						owners.addPlayer(((Player) sender).getUniqueId());
-
-						RunicMessaging.sendMessage(((Player) sender), RunicMessaging.RunicFormat.HELP,
-								"Your protection is now set! Type " + ChatColor.GREEN + "/rg i" + ChatColor.GRAY
-										+ " for details.");
-
-					} else {
-						// overlapping regions were found
-						String overlappingRegions = "";
-						for (ProtectedRegion pr : set.getRegions()) {
-							overlappingRegions += ChatColor.GRAY + "[" + ChatColor.BLUE + pr.getId() + ChatColor.GRAY
-									+ "] ";
-						}
-
-						RunicMessaging.sendMessage(((Player) sender), RunicMessaging.RunicFormat.HELP,
-								"Your requested claim overlaps with these regions:");
-						RunicMessaging.sendMessage(((Player) sender), RunicMessaging.RunicFormat.EMPTY,
-								overlappingRegions);
-						RunicMessaging.sendMessage(((Player) sender), RunicMessaging.RunicFormat.EMPTY,
-								"Reduce the requested size or ask staff for help.");
-					}
-				} else {
-					showClaimHelp = true;
-				}
-			} catch (NumberFormatException nfe) {
-				// bad command format
-				showClaimHelp = true;
-			}
-
-			if (showClaimHelp) {
-				RunicMessaging.sendMessage(((Player) sender), RunicMessaging.RunicFormat.HELP, "Use " + ChatColor.YELLOW
-						+ "/claim X" + ChatColor.GRAY + " to create a protected area around you.");
-
-				RunicMessaging.sendMessage(((Player) sender), RunicMessaging.RunicFormat.EMPTY,
-						"Replace X with how many blocks in each direction you want the protection to extend.");
-				RunicMessaging.sendMessage(((Player) sender), RunicMessaging.RunicFormat.EMPTY,
-						"Example: " + ChatColor.GOLD + "/claim 20" + ChatColor.GRAY
-								+ " creates a protected area 20 blocks in each direction from where you stand.");
-				RunicMessaging.sendMessage(((Player) sender), RunicMessaging.RunicFormat.EMPTY,
-						"You cannot create overlapping regions with this command, and the size must be between 5 and 40.");
-			}
-
-			break;   --- END claim command  */
+		case "rpversion":
+			handleRpVersion(sender);
+			break;
 		case "fixranks":
 			RunicUtilities.fixGroupManager();
 			break;
@@ -3882,6 +3802,32 @@ public class Commands implements CommandExecutor {
 
 		return true;
 
+	}
+
+	void handleRpVersion(CommandSender sender) {
+		try {
+			InputStream input = Commands.class.getResourceAsStream("/git.properties");
+			JSONObject json = new JSONObject(new JSONTokener(input));
+			input.close();
+
+			json.remove("git.build.host");
+			json.remove("git.build.user.email");
+			json.remove("git.build.user.name");
+			json.remove("git.commit.user.email");
+			json.remove("git.commit.user.name");
+			json.remove("git.remote.origin.url");
+
+			StringBuilder message = new StringBuilder(ChatColor.BLUE + "Version information: \n");
+			for (String key : json.keySet()) {
+				Object value = json.get(key);
+				message.append(ChatColor.GREEN).append(key).append(ChatColor.RESET).append(" : ")
+						.append(ChatColor.AQUA).append(value.toString()).append('\n');
+			}
+			sender.sendMessage(message.toString());
+		} catch (Exception e) {
+			e.printStackTrace();
+			sender.sendMessage(e.toString());
+		}
 	}
 
 	static boolean givePlayerExplorationReward(int locID, Player p) {

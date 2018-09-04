@@ -315,3 +315,5 @@ commands:
    getrunestones:
       usage: /<command>
       permission: rp.admin
+   rpversion:
+      usage: /<command>

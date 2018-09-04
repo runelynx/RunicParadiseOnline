@@ -516,6 +516,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 		getCommand("cactifever").setExecutor(new Commands());
 		getCommand("voice").setExecutor(new Commands());
 		getCommand("discord").setExecutor(new Commands());
+		getCommand("rpversion").setExecutor(new Commands());
 		getCommand("email").setExecutor(new EmailTest());
 		return true;
 	}
