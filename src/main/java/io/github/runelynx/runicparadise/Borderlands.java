@@ -135,8 +135,7 @@ public class Borderlands {
 		}
 	}
 
-	public static Boolean spawnBLMob(CreatureSpawnEvent event) {
-
+	static boolean spawnBLMob(CreatureSpawnEvent event) {
 		if (event.getEntityType() == EntityType.ZOMBIE) {
 
 			// nextInt is normally exclusive of the top value,
@@ -210,7 +209,7 @@ public class Borderlands {
 
 		Random rand = new Random();
 		int value = rand.nextInt(1000);
-		Boolean isBL = false;
+		boolean isBL = false;
 		String playerCurrentRank = RunicParadise.perms.getPrimaryGroup(p);
 
 		double percentChanceForSpecialRankDrop = 0;

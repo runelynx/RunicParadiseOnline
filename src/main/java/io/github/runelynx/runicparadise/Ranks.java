@@ -5,7 +5,6 @@ import io.github.runelynx.runicuniverse.RunicMessaging;
 import io.github.runelynx.runicuniverse.RunicMessaging.RunicFormat;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -35,10 +34,6 @@ import me.mrCookieSlime.Slimefun.Objects.SlimefunItem.SlimefunItem;
 
 */
 
-/**
- *
- * @author Andrew
- */
 public class Ranks {
 
 	private Plugin instance = RunicParadise.getInstance();
@@ -458,7 +453,7 @@ public class Ranks {
 			getLogger().log(Level.SEVERE, "Failed DB check for checkPromotion because: " + e.getMessage());
 		}
 
-		Float daysRequired;
+		float daysRequired;
 
 		switch (rank) {
 		case "Duke":
@@ -503,14 +498,7 @@ public class Ranks {
 			}
 
 			if (checkFeudalJewelry && checkRunics && checkJobMasteries && checkMazes) {
-				if (execute == false) {
-					// just checking... we're not executing the promotion!!
-					user.sendMessage(
-							ChatColor.DARK_GREEN + "[RunicRanks] Congratulations! You qualify for a promotion!");
-					user.sendMessage(ChatColor.DARK_GREEN + "Promotion to Baron costs " + BARON_RUNICS + " Runics.");
-					user.sendMessage(ChatColor.DARK_GREEN + "Type " + ChatColor.AQUA + "/rankup now"
-							+ ChatColor.DARK_GREEN + " to accept the promotion.");
-				} else {
+				if (execute) {
 					// ok now we're executing the promotion.
 					economy.withdrawPlayer(user.getName(), BARON_RUNICS);
 					promotePlayer(user, "Baron");
@@ -520,6 +508,13 @@ public class Ranks {
 					tempRank.congratsPromotion(user.getName(), "Baron");
 					logPromotion(user.getName(), "Baron", new Date().getTime());
 					RunicParadise.playerProfiles.get(user.getUniqueId()).setChatColor("YELLOW", true);
+				} else {
+					// just checking... we're not executing the promotion!!
+					user.sendMessage(
+							ChatColor.DARK_GREEN + "[RunicRanks] Congratulations! You qualify for a promotion!");
+					user.sendMessage(ChatColor.DARK_GREEN + "Promotion to Baron costs " + BARON_RUNICS + " Runics.");
+					user.sendMessage(ChatColor.DARK_GREEN + "Type " + ChatColor.AQUA + "/rankup now"
+							+ ChatColor.DARK_GREEN + " to accept the promotion.");
 				}
 			} else {
 				ineligible = true;
@@ -1531,14 +1526,7 @@ public class Ranks {
 			}
 
 			if (checkDays && checkRunics && checkKills) {
-				if (execute == false) {
-					// just checking... we're not executing the promotion!!
-					user.sendMessage(
-							ChatColor.DARK_GREEN + "[RunicRanks] Congratulations! You qualify for a promotion!");
-					user.sendMessage(ChatColor.DARK_GREEN + "Promotion to Runner costs " + RUNNER_RUNICS + " Runics.");
-					user.sendMessage(ChatColor.DARK_GREEN + "Type " + ChatColor.AQUA + "/rankup now"
-							+ ChatColor.DARK_GREEN + " to accept the promotion.");
-				} else {
+				if (execute) {
 					// ok now we're executing the promotion.
 					economy.withdrawPlayer(user.getName(), RUNNER_RUNICS);
 					promotePlayer(user, "Runner");
@@ -1548,6 +1536,13 @@ public class Ranks {
 					tempRank.congratsPromotion(user.getName(), "Runner");
 					logPromotion(user.getName(), "Runner", new Date().getTime());
 					RunicParadise.playerProfiles.get(user.getUniqueId()).setChatColor("DARK_GREEN", true);
+				} else {
+					// just checking... we're not executing the promotion!!
+					user.sendMessage(
+							ChatColor.DARK_GREEN + "[RunicRanks] Congratulations! You qualify for a promotion!");
+					user.sendMessage(ChatColor.DARK_GREEN + "Promotion to Runner costs " + RUNNER_RUNICS + " Runics.");
+					user.sendMessage(ChatColor.DARK_GREEN + "Type " + ChatColor.AQUA + "/rankup now"
+							+ ChatColor.DARK_GREEN + " to accept the promotion.");
 				}
 			} else {
 				ineligible = true;
@@ -1560,7 +1555,7 @@ public class Ranks {
 
 		// if player isnt eligible, give them all the stored responses to tell
 		// them why
-		if (ineligible == true) {
+		if (ineligible) {
 			user.sendMessage(ChatColor.RED + "[RunicRanks] You do not qualify for a promotion yet...");
 			String[] itemArray = new String[failureResponse.size()];
 			String[] returnedArray = failureResponse.toArray(itemArray);
@@ -1685,8 +1680,6 @@ public class Ranks {
 
 			if (checkGem && checkMetal && checkEssence) {
 				// player has all needed materials!
-
-				int counter = 0;
 
 				ItemStack essence = Borderlands.specialLootDrops("BaronGem", null);
 				essence.setAmount(1);
