@@ -19,7 +19,7 @@ class Recipes {
 
 		switch (key) {
 			case "FAITH_SWORD_1":
-					newItem = new ItemStack(Material.GOLD_SWORD, 1);
+					newItem = new ItemStack(Material.GOLDEN_SWORD, 1);
 					meta = newItem.getItemMeta();
 					meta.setDisplayName(ChatColor.GOLD + "Sword of Faith");
 					meta.setLore(Arrays.asList(ChatColor.GRAY
@@ -31,7 +31,7 @@ class Recipes {
 					newItem.addUnsafeEnchantment(Enchantment.DURABILITY, 99);
 					return newItem;
 			case "FAITH_SWORD_2":
-					newItem = new ItemStack(Material.GOLD_SWORD, 1);
+					newItem = new ItemStack(Material.GOLDEN_SWORD, 1);
 					meta = newItem.getItemMeta();
 					meta.setDisplayName(ChatColor.DARK_GREEN + "Sword of Ardent Faith");
 					meta.setLore(Arrays.asList(ChatColor.GRAY
@@ -43,7 +43,7 @@ class Recipes {
 					newItem.addUnsafeEnchantment(Enchantment.DURABILITY, 99);
 					return newItem;
 			case "FAITH_SWORD_3":
-					newItem = new ItemStack(Material.GOLD_SWORD, 1);
+					newItem = new ItemStack(Material.GOLDEN_SWORD, 1);
 					meta = newItem.getItemMeta();
 					meta.setDisplayName(ChatColor.DARK_BLUE + "Sword of Devoted Faith");
 					meta.setLore(Arrays.asList(ChatColor.GRAY
@@ -55,7 +55,7 @@ class Recipes {
 					newItem.addUnsafeEnchantment(Enchantment.DURABILITY, 99);
 					return newItem;
 			case "FAITH_AXE_1":
-					newItem = new ItemStack(Material.GOLD_AXE, 1);
+					newItem = new ItemStack(Material.GOLDEN_AXE, 1);
 					meta = newItem.getItemMeta();
 					meta.setDisplayName(ChatColor.DARK_PURPLE + "Hatchet of Devious Faith");
 					meta.setLore(Arrays.asList(ChatColor.GRAY + "A corrupted axe with a crimson glow", " ",
@@ -103,19 +103,18 @@ class Recipes {
 		newRecipe.addIngredient(1, Material.COOKED_CHICKEN);
 		Bukkit.getServer().addRecipe(newRecipe);
 
-
 		// REGENERATION FISH
-//		newItem = new ItemStack(Material.COOKED_SALMON, 3, (short) 910);
-//		meta = newItem.getItemMeta();
-//		meta.setDisplayName(ChatColor.GREEN + "Fish Filet");
-//		meta.setLore(Arrays.asList(ChatColor.GRAY + "Fresh from the bay",
-//				ChatColor.GRAY + "Grants " + ChatColor.BLUE
-//						+ "30min health regeneration"));
-//		newItem.setItemMeta(meta);
-//		newRecipe = new ShapelessRecipe(new NamespacedKey(RunicParadise.getInstance(), "RP_REGEN_FISH"), newItem);
-//		newRecipe.addIngredient(1, Material.QUARTZ, 910);
-//		newRecipe.addIngredient(1, Material.COOKED_SALMON);
-//		Bukkit.getServer().addRecipe(newRecipe);
+		newItem = new ItemStack(Material.COOKED_SALMON, 3, (short) 910);
+		meta = newItem.getItemMeta();
+		meta.setDisplayName(ChatColor.GREEN + "Fish Filet");
+		meta.setLore(Arrays.asList(ChatColor.GRAY + "Fresh from the bay",
+				ChatColor.GRAY + "Grants " + ChatColor.BLUE
+						+ "30min health regeneration"));
+		newItem.setItemMeta(meta);
+		newRecipe = new ShapelessRecipe(new NamespacedKey(RunicParadise.getInstance(), "RP_REGEN_FISH"), newItem);
+		newRecipe.addIngredient(1, Material.QUARTZ, 910);
+		newRecipe.addIngredient(1, Material.COOKED_SALMON);
+		Bukkit.getServer().addRecipe(newRecipe);
 
 		// HASTE BREAD
 		newItem = new ItemStack(Material.BREAD, 3, (short) 903);
@@ -144,7 +143,7 @@ class Recipes {
 		Bukkit.getServer().addRecipe(newRecipe);
 
 		// NIGHTVISION PORKCHOP
-		newItem = new ItemStack(Material.GRILLED_PORK, 3, (short) 916);
+		newItem = new ItemStack(Material.COOKED_PORKCHOP, 3, (short) 916);
 		meta = newItem.getItemMeta();
 		meta.setDisplayName(ChatColor.GREEN + "Porkchop");
 		meta.setLore(Arrays.asList(ChatColor.GRAY
@@ -153,7 +152,7 @@ class Recipes {
 		newItem.setItemMeta(meta);
 		newRecipe = new ShapelessRecipe(new NamespacedKey(RunicParadise.getInstance(), "RP_NIGHTVISION_PORK"), newItem);
 		newRecipe.addIngredient(1, Material.QUARTZ, 916);
-		newRecipe.addIngredient(1, Material.GRILLED_PORK);
+		newRecipe.addIngredient(1, Material.COOKED_PORKCHOP);
 		Bukkit.getServer().addRecipe(newRecipe);
 
 		// NIGHTVISION potato
@@ -187,26 +186,26 @@ class Recipes {
 		newRecipe = new ShapelessRecipe(new NamespacedKey(RunicParadise.getInstance(), "RP_FAITH_SWORD_1"), customItemStacks("FAITH_SWORD_1"));
 		newRecipe.addIngredient(1, Material.GOLD_NUGGET);
 		newRecipe.addIngredient(1, Material.REDSTONE);
-		newRecipe.addIngredient(1, Material.INK_SACK, 4);
-		newRecipe.addIngredient(1, Material.GOLD_SWORD);
+		newRecipe.addIngredient(1, Material.INK_SAC, 4);
+		newRecipe.addIngredient(1, Material.GOLDEN_SWORD);
 		Bukkit.getServer().addRecipe(newRecipe);
 
 		// FAITH WEAPON 2
 		newRecipe = new ShapelessRecipe(new NamespacedKey(RunicParadise.getInstance(), "RP_FAITH_SWORD_2"), customItemStacks("FAITH_SWORD_2"));
 		newRecipe.addIngredient(1, Material.GOLD_NUGGET);
 		newRecipe.addIngredient(1, Material.REDSTONE);
-		newRecipe.addIngredient(1, Material.INK_SACK, 4);
+		newRecipe.addIngredient(1, Material.INK_SAC, 4);
 		newRecipe.addIngredient(1, Material.DIAMOND);
-		newRecipe.addIngredient(1, Material.GOLD_SWORD);
+		newRecipe.addIngredient(1, Material.GOLDEN_SWORD);
 		Bukkit.getServer().addRecipe(newRecipe);
 
 		// FAITH WEAPON 3
 		newRecipe = new ShapelessRecipe(new NamespacedKey(RunicParadise.getInstance(), "RP_FAITH_SWORD_3"), customItemStacks("FAITH_SWORD_3"));
 		newRecipe.addIngredient(1, Material.GOLD_NUGGET);
 		newRecipe.addIngredient(1, Material.REDSTONE);
-		newRecipe.addIngredient(1, Material.INK_SACK, 4);
+		newRecipe.addIngredient(1, Material.INK_SAC, 4);
 		newRecipe.addIngredient(1, Material.EMERALD);
-		newRecipe.addIngredient(1, Material.GOLD_SWORD);
+		newRecipe.addIngredient(1, Material.GOLDEN_SWORD);
 		newRecipe.addIngredient(1, Material.DIAMOND);
 		Bukkit.getServer().addRecipe(newRecipe);
 

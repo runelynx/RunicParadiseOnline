@@ -1,7 +1,7 @@
 package io.github.runelynx.runicparadise;
 
-import com.kill3rtaco.tacoserialization.InventorySerialization;
-import com.kill3rtaco.tacoserialization.SingleItemSerialization;
+import io.github.runelynx.runicparadise.tempserialization.InventorySerialization;
+import io.github.runelynx.runicparadise.tempserialization.SingleItemSerialization;
 import io.github.runelynx.runicuniverse.RunicMessaging;
 import org.bukkit.*;
 import org.bukkit.block.Block;
@@ -743,9 +743,9 @@ public class RunicDeathChest implements Serializable {
 
 	}
 
-	public static void savePlayerDeath_v19(Player player, Location loc) {
+	static void savePlayerDeath_v19(Player player, Location loc) {
 		final Plugin instance = RunicParadise.getInstance();
-		Boolean criticalFail = false;
+		boolean criticalFail = false;
 
 		MySQL MySQL = new MySQL(instance, instance.getConfig().getString("dbHost"),
 				instance.getConfig().getString("dbPort"), instance.getConfig().getString("dbDatabase"),
@@ -755,10 +755,10 @@ public class RunicDeathChest implements Serializable {
 		// define which item types we'll put into the grave
 		Integer[] protectedItemsTemp = new Integer[] { 0, 443, 6, 8, 9, 10, 11, 18, 51, 176, 177, 321, 340, 358, 386,
 				387, 395, 397, 401, 402, 403, 425, 442 };
-		ArrayList<Integer> protectedItems = new ArrayList<Integer>(Arrays.asList(protectedItemsTemp));
+		ArrayList<Integer> protectedItems = new ArrayList<>(Arrays.asList(protectedItemsTemp));
 
 		// prepare array of ItemStack to serialize
-		ArrayList<ItemStack> itemBuilder = new ArrayList<ItemStack>();
+		ArrayList<ItemStack> itemBuilder = new ArrayList<>();
 		int invSlot = 0;
 		int itemCounter = 0;
 
@@ -766,7 +766,7 @@ public class RunicDeathChest implements Serializable {
 		// offhand/armor
 		while (invSlot < 36) {
 			if (player.getInventory().getItem(invSlot) != null) {
-				if (!protectedItems.contains(player.getInventory().getItem(invSlot).getTypeId()))
+				if (!protectedItems.contains(player.getInventory().getItem(invSlot).getType().getId()))
 					itemBuilder.add(player.getInventory().getItem(invSlot));
 				itemCounter++;
 			}
@@ -791,13 +791,13 @@ public class RunicDeathChest implements Serializable {
 		// ////////////////////////////////////
 		// Now handle armor + offhand
 		// prepare array of ItemStack to serialize
-		ArrayList<ItemStack> equipBuilder = new ArrayList<ItemStack>();
+		ArrayList<ItemStack> equipBuilder = new ArrayList<>();
 		int equipCounter = 0;
 
 		// Gather all items in player's inventory, stay inside the 36 slots - no
 		// offhand/armor
 		if (player.getInventory().getChestplate() != null) {
-			if (!protectedItems.contains(player.getInventory().getChestplate().getTypeId())) {
+			if (!protectedItems.contains(player.getInventory().getChestplate().getType().getId())) {
 				equipBuilder.add(player.getInventory().getChestplate());
 
 				signCounter++;
@@ -817,7 +817,7 @@ public class RunicDeathChest implements Serializable {
 		}
 
 		if (player.getInventory().getHelmet() != null) {
-			if (!protectedItems.contains(player.getInventory().getHelmet().getTypeId())) {
+			if (!protectedItems.contains(player.getInventory().getHelmet().getType().getId())) {
 				equipBuilder.add(player.getInventory().getHelmet());
 				signCounter++;
 				equipCounter++;
@@ -833,7 +833,7 @@ public class RunicDeathChest implements Serializable {
 			player.getInventory().setLeggings(null);
 		}
 		if (player.getInventory().getItemInOffHand() != null) {
-			if (!protectedItems.contains(player.getInventory().getItemInOffHand().getTypeId())) {
+			if (!protectedItems.contains(player.getInventory().getItemInOffHand().getType().getId())) {
 				equipBuilder.add(player.getInventory().getItemInOffHand());
 				signCounter++;
 				equipCounter++;
@@ -971,7 +971,7 @@ public class RunicDeathChest implements Serializable {
 			int slotChecker = 0;
 			while (slotChecker < 36) {
 				if (player.getInventory().getItem(slotChecker) != null
-						&& !protectedItems.contains(player.getInventory().getItem(slotChecker).getTypeId())) {
+						&& !protectedItems.contains(player.getInventory().getItem(slotChecker).getType().getId())) {
 					player.getInventory().setItem(slotChecker, null);
 				}
 				slotChecker++;
@@ -988,7 +988,7 @@ public class RunicDeathChest implements Serializable {
 
 			loc.getBlock().setType(Material.BEDROCK);
 			Block b = loc.add(0, 1, 0).getBlock();
-			b.setType(Material.SIGN_POST);
+			b.setType(Material.SIGN);
 			BlockState state = b.getState();
 			Sign sign = (Sign) state;
 

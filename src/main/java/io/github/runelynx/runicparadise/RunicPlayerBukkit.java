@@ -1231,49 +1231,49 @@ public class RunicPlayerBukkit {
 	 * checkPlayerInventoryForItemDataCount()
 	 */
 
-	public int checkPlayerInventoryForItemDataCount(int id, int dataValue) {
-		PlayerInventory inventory = Bukkit.getPlayer(this.playerUUID)
-				.getInventory();
-		ItemStack[] items = inventory.getContents();
-		int has = 0;
-		for (ItemStack item : items) {
-			if ((item != null) && (item.getTypeId() == id)
-					&& (item.getDurability() == dataValue)
-					&& (item.getAmount() > 0)) {
-				has += item.getAmount();
+//	public int checkPlayerInventoryForItemDataCount(int id, int dataValue) {
+//		PlayerInventory inventory = Bukkit.getPlayer(this.playerUUID)
+//				.getInventory();
+//		ItemStack[] items = inventory.getContents();
+//		int has = 0;
+//		for (ItemStack item : items) {
+//			if ((item != null) && (item.getTypeId() == id)
+//					&& (item.getDurability() == dataValue)
+//					&& (item.getAmount() > 0)) {
+//				has += item.getAmount();
+//
+//			}
+//		}
+//		return has;
+//	}
 
-			}
-		}
-		return has;
-	}
+//	public int removePlayerInventoryItemData(int id, int dataValue) {
+//		PlayerInventory inventory = Bukkit.getPlayer(this.playerUUID)
+//				.getInventory();
+//		int cleared = inventory.clear(id, dataValue);
+//		return cleared;
+//
+//	}
 
-	public int removePlayerInventoryItemData(int id, int dataValue) {
-		PlayerInventory inventory = Bukkit.getPlayer(this.playerUUID)
-				.getInventory();
-		int cleared = inventory.clear(id, dataValue);
-		return cleared;
-
-	}
-
-	public void givePlayerItemData(int count, int id, int dataValue,
-			int loreCount, String displayName, String lore1, String lore2,
-			String lore3) {
-		ItemStack newItem = new ItemStack(id, count, (short) dataValue);
-		ItemMeta meta = newItem.getItemMeta();
-		meta.setDisplayName(displayName);
-		if (loreCount == 1) {
-			meta.setLore(Arrays.asList(lore1));
-		} else if (loreCount == 2) {
-			meta.setLore(Arrays.asList(lore1, lore2));
-		} else if (loreCount >= 3) {
-			meta.setLore(Arrays.asList(lore1, lore2, lore3));
-		}
-
-		newItem.setItemMeta(meta);
-		PlayerInventory inventory = Bukkit.getPlayer(this.playerUUID)
-				.getInventory();
-		inventory.addItem(newItem);
-	}
+//	public void givePlayerItemData(int count, int id, int dataValue,
+//			int loreCount, String displayName, String lore1, String lore2,
+//			String lore3) {
+//		ItemStack newItem = new ItemStack(id, count, (short) dataValue);
+//		ItemMeta meta = newItem.getItemMeta();
+//		meta.setDisplayName(displayName);
+//		if (loreCount == 1) {
+//			meta.setLore(Arrays.asList(lore1));
+//		} else if (loreCount == 2) {
+//			meta.setLore(Arrays.asList(lore1, lore2));
+//		} else if (loreCount >= 3) {
+//			meta.setLore(Arrays.asList(lore1, lore2, lore3));
+//		}
+//
+//		newItem.setItemMeta(meta);
+//		PlayerInventory inventory = Bukkit.getPlayer(this.playerUUID)
+//				.getInventory();
+//		inventory.addItem(newItem);
+//	}
 
 	public void givePlayerItemStack(ItemStack[] items) {
 

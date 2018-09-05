@@ -6,6 +6,7 @@ main: io.github.runelynx.runicparadise.RunicParadise
 version: 0.1
 #depend: [NoteBlockAPI, WorldGuard, RunicUniverse, CS-CoreLib, Slimefun]
 depend: [NoteBlockAPI, RunicUniverse]
+api-version: 1.13
 commands:
    rpcrates:
       description: "Grant Runic currencies to a player"
@@ -308,3 +309,11 @@ commands:
    hmsay:
       description: "Herobrines Mansion message command."
       usage: /<command> [option]    
+   email:
+      usage: /<command>
+      permission: rp.admin
+   getrunestones:
+      usage: /<command>
+      permission: rp.admin
+   rpversion:
+      usage: /<command>

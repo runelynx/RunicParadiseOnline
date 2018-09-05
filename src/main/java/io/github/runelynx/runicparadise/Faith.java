@@ -16,6 +16,8 @@ import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.material.Crops;
+import org.bukkit.material.MaterialData;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -77,14 +79,13 @@ public class Faith {
 		sunMeta.setDisplayName("Sun");
 		sun.setItemMeta(sunMeta);
 
-		ItemStack moon = new ItemStack(Material.ENDER_STONE);
+		ItemStack moon = new ItemStack(Material.END_STONE);
 		ItemMeta moonMeta = moon.getItemMeta();
 		moonMeta.setDisplayName("Moon");
 		moon.setItemMeta(moonMeta);
 
-		ItemStack flame = new ItemStack(Material.STAINED_GLASS);
+		ItemStack flame = new ItemStack(Material.ORANGE_STAINED_GLASS);
 		ItemMeta flameMeta = flame.getItemMeta();
-		flame.setDurability((short) 1);
 		flameMeta.setDisplayName("Fire");
 		flame.setItemMeta(flameMeta);
 
@@ -93,13 +94,12 @@ public class Faith {
 		waterMeta.setDisplayName("Water");
 		water.setItemMeta(waterMeta);
 
-		ItemStack air = new ItemStack(Material.STAINED_GLASS);
-		air.setDurability((short) 0);
+		ItemStack air = new ItemStack(Material.WHITE_STAINED_GLASS);
 		ItemMeta airMeta = air.getItemMeta();
 		airMeta.setDisplayName("Air");
 		air.setItemMeta(airMeta);
 
-		ItemStack earth = new ItemStack(Material.DIRT, 1, (short) 2);
+		ItemStack earth = new ItemStack(Material.PODZOL);
 		ItemMeta earthMeta = earth.getItemMeta();
 		earthMeta.setDisplayName("Earth");
 		earth.setItemMeta(earthMeta);
@@ -114,7 +114,7 @@ public class Faith {
 		netherMeta.setDisplayName("Nether");
 		nether.setItemMeta(netherMeta);
 
-		ItemStack nature = new ItemStack(Material.LEAVES);
+		ItemStack nature = new ItemStack(Material.OAK_LEAVES);
 		ItemMeta natureMeta = nature.getItemMeta();
 		natureMeta.setDisplayName("Nature");
 		nature.setItemMeta(natureMeta);
@@ -124,7 +124,7 @@ public class Faith {
 		techMeta.setDisplayName("Tech");
 		tech.setItemMeta(techMeta);
 
-		ItemStack time = new ItemStack(Material.WATCH);
+		ItemStack time = new ItemStack(Material.CLOCK);
 		ItemMeta timeMeta = time.getItemMeta();
 		timeMeta.setDisplayName("Time");
 		time.setItemMeta(timeMeta);
@@ -757,7 +757,7 @@ public class Faith {
 					q.sendMessage(ChatColor.GRAY + "[" + ChatColor.BLUE + "Runic" + ChatColor.DARK_AQUA + "Faith"
 							+ ChatColor.GRAY + "] " + ChatColor.BLUE + p.getDisplayName() + ChatColor.BLUE
 							+ " just maxxed their " + ChatColor.WHITE + faithName + ChatColor.BLUE + " faith!");
-					q.getWorld().playSound(q.getLocation(), Sound.ENTITY_FIREWORK_LARGE_BLAST, 10, 1);
+					q.getWorld().playSound(q.getLocation(), Sound.ENTITY_FIREWORK_ROCKET_LARGE_BLAST, 10, 1);
 
 				}
 			}
@@ -770,14 +770,6 @@ public class Faith {
 			return false;
 		}
 	}
-
-	/**
-	 * 
-	 * @param faithName
-	 * @param chance
-	 *            Integer chance multiplier... 3% * Chance
-	 * @return 0=Error/Failure, 1=Success/NoSkillUp, 2=Success/SkillUp
-	 */
 
 	public static void tryCast_PlayerTookFallDamage(Player p) {
 		Faith pfo = RunicParadise.faithMap.get(p.getUniqueId());
@@ -1100,7 +1092,7 @@ public class Faith {
 								ChatColor.BLUE + "Shatters when charges reach zero", " ",
 								ChatColor.GREEN + "Charges: 4"));
 						p.getItemInHand().setItemMeta(metaQ);
-						p.getWorld().playSound(p.getLocation(), Sound.BLOCK_NOTE_HARP, 10, 1);
+						p.getWorld().playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_HARP, 10, 1);
 					} else if (metaQ.getLore().get(6).contains("Charges: 4")) {
 						metaQ.setLore(Arrays.asList(ChatColor.GRAY + "A corrupted axe with a crimson glow", " ",
 								ChatColor.BLUE + "20% to increase faith",
@@ -1108,7 +1100,7 @@ public class Faith {
 								ChatColor.BLUE + "Shatters when charges reach zero", " ",
 								ChatColor.YELLOW + "Charges: 3"));
 						p.getItemInHand().setItemMeta(metaQ);
-						p.getWorld().playSound(p.getLocation(), Sound.BLOCK_NOTE_HARP, 10, 1);
+						p.getWorld().playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_HARP, 10, 1);
 					} else if (metaQ.getLore().get(6).contains("Charges: 3")) {
 						metaQ.setLore(Arrays.asList(ChatColor.GRAY + "A corrupted axe with a crimson glow", " ",
 								ChatColor.BLUE + "20% to increase faith",
@@ -1116,7 +1108,7 @@ public class Faith {
 								ChatColor.BLUE + "Shatters when charges reach zero", " ",
 								ChatColor.RED + "Charges: 2"));
 						p.getItemInHand().setItemMeta(metaQ);
-						p.getWorld().playSound(p.getLocation(), Sound.BLOCK_NOTE_HARP, 10, 1);
+						p.getWorld().playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_HARP, 10, 1);
 					} else if (metaQ.getLore().get(6).contains("Charges: 2")) {
 						metaQ.setLore(Arrays.asList(ChatColor.GRAY + "A corrupted axe with a crimson glow", " ",
 								ChatColor.BLUE + "20% to increase faith",
@@ -1124,7 +1116,7 @@ public class Faith {
 								ChatColor.BLUE + "Shatters when charges reach zero", " ",
 								ChatColor.DARK_RED + "Charges: 1"));
 						p.getItemInHand().setItemMeta(metaQ);
-						p.getWorld().playSound(p.getLocation(), Sound.BLOCK_NOTE_HARP, 10, 1);
+						p.getWorld().playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_HARP, 10, 1);
 					} else if (metaQ.getLore().get(6).contains("Charges: 1")) {
 						p.setItemInHand(null);
 						p.sendMessage(ChatColor.GRAY + "[" + ChatColor.BLUE + "Runic" + ChatColor.DARK_AQUA + "Faith"
@@ -1391,8 +1383,8 @@ public class Faith {
 		ItemStack k = player.getInventory().getLeggings();
 		ItemStack l = player.getInventory().getBoots();
 		if (i != null && j != null && k != null && l != null) {
-			if (i.getType() == Material.GOLD_HELMET && j.getType() == Material.GOLD_CHESTPLATE
-					&& k.getType() == Material.GOLD_LEGGINGS && l.getType() == Material.GOLD_BOOTS) {
+			if (i.getType() == Material.GOLDEN_HELMET && j.getType() == Material.GOLDEN_CHESTPLATE
+					&& k.getType() == Material.GOLDEN_LEGGINGS && l.getType() == Material.GOLDEN_BOOTS) {
 				Random rand = new Random();
 				int number = rand.nextInt(100) + 1;
 				if (number >= 96) {
@@ -1487,7 +1479,8 @@ public class Faith {
 		if ((p.getItemInHand() != null) && (p.getItemInHand().getType().equals(Material.GLOWSTONE_DUST))) {
 
 			Block block = e.getPlayer().getLocation().getBlock();
-			if (block.getType() == Material.WATER || block.getType() == Material.STATIONARY_WATER) {
+			// TODO: might need fixing
+			if (block.getType() == Material.WATER || block.getType() == Material.WATER) {
 				if (p.getLevel() >= 2) {
 					int removel = 2;
 					int plevel = p.getLevel() - removel;
@@ -1585,8 +1578,33 @@ public class Faith {
 	// ==========================
 	// Nature: Wild Growth
 
+	private static CropState nextGrowthState(CropState original) {
+		switch (original) {
+			case SEEDED:
+				return CropState.GERMINATED;
+			case GERMINATED:
+				return CropState.VERY_SMALL;
+			case VERY_SMALL:
+				return CropState.SMALL;
+			case SMALL:
+				return CropState.MEDIUM;
+			case MEDIUM:
+				return CropState.TALL;
+			case TALL:
+				return CropState.VERY_TALL;
+			case VERY_TALL:
+				return CropState.RIPE;
+			default:
+				return CropState.RIPE;
+		}
+	}
+
 	private void castNature_WildGrowth(BlockGrowEvent event, Player p) {
-		event.getBlock().setData((byte) (event.getBlock().getData() + 1));
+		MaterialData data = event.getNewState().getData();
+		if (data instanceof Crops) {
+			Crops crops = (Crops) data;
+			crops.setState(crops.getState());
+		}
 	}
 
 	// =========================
@@ -1667,35 +1685,35 @@ public class Faith {
 		}
 
 		ItemStack item1 = new ItemStack(
-				Material.getMaterial(Integer.parseInt(RunicParadise.prayerBooks.get(locKey)[5])),
+				RunicUtilities.idToMaterial(Integer.parseInt(RunicParadise.prayerBooks.get(locKey)[5])),
 				Integer.parseInt(RunicParadise.prayerBooks.get(locKey)[7]),
 				Short.parseShort((RunicParadise.prayerBooks.get(locKey)[6])));
 		ItemStack[] item1a = new ItemStack[] {
-				new ItemStack(Material.getMaterial(Integer.parseInt(RunicParadise.prayerBooks.get(locKey)[5])),
+				new ItemStack(RunicUtilities.idToMaterial(Integer.parseInt(RunicParadise.prayerBooks.get(locKey)[5])),
 						Integer.parseInt(RunicParadise.prayerBooks.get(locKey)[7]),
 						Short.parseShort((RunicParadise.prayerBooks.get(locKey)[6]))) };
 		ItemStack item2 = new ItemStack(
-				Material.getMaterial(Integer.parseInt(RunicParadise.prayerBooks.get(locKey)[8])),
+				RunicUtilities.idToMaterial(Integer.parseInt(RunicParadise.prayerBooks.get(locKey)[8])),
 				Integer.parseInt(RunicParadise.prayerBooks.get(locKey)[10]),
 				Short.parseShort((RunicParadise.prayerBooks.get(locKey)[9])));
 		ItemStack[] item2a = new ItemStack[] {
-				new ItemStack(Material.getMaterial(Integer.parseInt(RunicParadise.prayerBooks.get(locKey)[8])),
+				new ItemStack(RunicUtilities.idToMaterial(Integer.parseInt(RunicParadise.prayerBooks.get(locKey)[8])),
 						Integer.parseInt(RunicParadise.prayerBooks.get(locKey)[10]),
 						Short.parseShort((RunicParadise.prayerBooks.get(locKey)[9]))) };
 		ItemStack item3 = new ItemStack(
-				Material.getMaterial(Integer.parseInt(RunicParadise.prayerBooks.get(locKey)[11])),
+				RunicUtilities.idToMaterial(Integer.parseInt(RunicParadise.prayerBooks.get(locKey)[11])),
 				Integer.parseInt(RunicParadise.prayerBooks.get(locKey)[13]),
 				Short.parseShort((RunicParadise.prayerBooks.get(locKey)[12])));
 		ItemStack[] item3a = new ItemStack[] {
-				new ItemStack(Material.getMaterial(Integer.parseInt(RunicParadise.prayerBooks.get(locKey)[11])),
+				new ItemStack(RunicUtilities.idToMaterial(Integer.parseInt(RunicParadise.prayerBooks.get(locKey)[11])),
 						Integer.parseInt(RunicParadise.prayerBooks.get(locKey)[13]),
 						Short.parseShort((RunicParadise.prayerBooks.get(locKey)[12]))) };
 		ItemStack item4 = new ItemStack(
-				Material.getMaterial(Integer.parseInt(RunicParadise.prayerBooks.get(locKey)[14])),
+				RunicUtilities.idToMaterial(Integer.parseInt(RunicParadise.prayerBooks.get(locKey)[14])),
 				Integer.parseInt(RunicParadise.prayerBooks.get(locKey)[16]),
 				Short.parseShort((RunicParadise.prayerBooks.get(locKey)[15])));
 		ItemStack[] item4a = new ItemStack[] {
-				new ItemStack(Material.getMaterial(Integer.parseInt(RunicParadise.prayerBooks.get(locKey)[14])),
+				new ItemStack(RunicUtilities.idToMaterial(Integer.parseInt(RunicParadise.prayerBooks.get(locKey)[14])),
 						Integer.parseInt(RunicParadise.prayerBooks.get(locKey)[16]),
 						Short.parseShort((RunicParadise.prayerBooks.get(locKey)[15]))) };
 

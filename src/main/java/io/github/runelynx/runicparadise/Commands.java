@@ -1,11 +1,11 @@
 package io.github.runelynx.runicparadise;
 
 import com.connorlinfoot.titleapi.TitleAPI;
-import com.kill3rtaco.tacoserialization.InventorySerialization;
 import com.xxmicloxx.NoteBlockAPI.NBSDecoder;
 import com.xxmicloxx.NoteBlockAPI.RadioSongPlayer;
 import com.xxmicloxx.NoteBlockAPI.Song;
 import com.xxmicloxx.NoteBlockAPI.SongPlayer;
+import io.github.runelynx.runicparadise.tempserialization.InventorySerialization;
 import io.github.runelynx.runicuniverse.RunicMessaging;
 import io.github.runelynx.runicuniverse.RunicMessaging.RunicFormat;
 import org.bukkit.*;
@@ -19,8 +19,14 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.plugin.Plugin;
+import org.json.JSONObject;
+import org.json.JSONTokener;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.sql.*;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
@@ -41,10 +47,9 @@ public class Commands implements CommandExecutor {
 	public static ArrayList<Integer> PARTICLE_TASK_IDS = new ArrayList<Integer>();
 
     private static boolean searchExplorerLocation(Location loc, Player p) {
-
         int targetID = 0;
         int distance = -1;
-        Boolean noneFound = false;
+        boolean noneFound = false;
 
         int greenWarmthMultiplier = 2;
         int yellowWarmthMultiplier = 4;
@@ -288,7 +293,7 @@ public class Commands implements CommandExecutor {
 
         // Count actual itemstacks in player's inventory
         for (ItemStack item : items) {
-            if ((item != null) && (item.getTypeId() != 0)) {
+            if ((item != null) && (item.getType() != Material.AIR)) {
                 playerInvItemCount++;
             }
         }
@@ -303,7 +308,7 @@ public class Commands implements CommandExecutor {
     }
 
     private ItemStack giveCasinoToken(String playerName, int count) {
-        ItemStack casinoToken = new ItemStack(Material.DOUBLE_PLANT, count, (short) 0);
+        ItemStack casinoToken = new ItemStack(Material.SUNFLOWER, count);
         ItemMeta casinoTokenMeta = casinoToken.getItemMeta();
         casinoTokenMeta.setDisplayName(ChatColor.GOLD + "Runic Casino Token");
         casinoTokenMeta.setLore(Arrays.asList(ChatColor.GRAY + "A token you can use in the",
@@ -345,95 +350,13 @@ public class Commands implements CommandExecutor {
 		// general approach is that errors will return immediately;
 		// successful runs will return after the switch completes
 		switch (cmd.getName()) {
-			/* Removing the claim command with the intro of RESIDENCE plugin
-		case "claim":
-
-			Boolean showClaimHelp = false;
-
-			try {
-				if (args.length == 0) {
-					showClaimHelp = true;
-				} else if (Integer.parseInt(args[0]) >= 5 && Integer.parseInt(args[0]) <= 40) {
-					int requestedRadius = Integer.parseInt(args[0]);
-
-					Location claimCenterLoc = ((Player) sender).getLocation();
-					RegionContainer container = RunicParadise.wgPlugin.getRegionContainer();
-					RegionManager regions = container.get(claimCenterLoc.getWorld());
-					// Check to make sure that "regions" is not null
-					ApplicableRegionSet set = regions.getApplicableRegions(BukkitUtil.toVector(claimCenterLoc));
-
-					int minX = claimCenterLoc.getBlockX() - requestedRadius;
-					int minY = claimCenterLoc.getBlockY() - requestedRadius;
-					int minZ = claimCenterLoc.getBlockZ() - requestedRadius;
-
-					int maxX = claimCenterLoc.getBlockX() + requestedRadius;
-					int maxY = claimCenterLoc.getBlockY() + requestedRadius;
-					int maxZ = claimCenterLoc.getBlockZ() + requestedRadius;
-
-					// claimCenterLoc.getWorld().playEffect(claimCenterLoc,
-					// Particle.TOTEM, arg2);
-
-					BlockVector min = new BlockVector(minX, minY, minZ);
-					BlockVector max = new BlockVector(maxX, maxY, maxZ);
-					ProtectedRegion test = new ProtectedCuboidRegion("dummy", min, max);
-					ApplicableRegionSet ars = regions.getApplicableRegions(test);
-
-					if (set.isVirtual() || set.size() == 0) {
-						// no overlapping regions were found!
-						// create the region!
-
-						int numMod = new Random().nextInt(999) + 100;
-						String newRegionName = sender.getName() + numMod;
-
-						ProtectedRegion newRegion = new ProtectedCuboidRegion(newRegionName, min, max);
-						RegionContainer rContainer = RunicParadise.wgPlugin.getRegionContainer();
-						RegionManager rManager = rContainer.get(((Player) sender).getLocation().getWorld());
-						rManager.addRegion(newRegion);
-
-						DefaultDomain owners = newRegion.getOwners();
-						owners.addPlayer(((Player) sender).getUniqueId());
-
-						RunicMessaging.sendMessage(((Player) sender), RunicMessaging.RunicFormat.HELP,
-								"Your protection is now set! Type " + ChatColor.GREEN + "/rg i" + ChatColor.GRAY
-										+ " for details.");
-
-					} else {
-						// overlapping regions were found
-						String overlappingRegions = "";
-						for (ProtectedRegion pr : set.getRegions()) {
-							overlappingRegions += ChatColor.GRAY + "[" + ChatColor.BLUE + pr.getId() + ChatColor.GRAY
-									+ "] ";
-						}
-
-						RunicMessaging.sendMessage(((Player) sender), RunicMessaging.RunicFormat.HELP,
-								"Your requested claim overlaps with these regions:");
-						RunicMessaging.sendMessage(((Player) sender), RunicMessaging.RunicFormat.EMPTY,
-								overlappingRegions);
-						RunicMessaging.sendMessage(((Player) sender), RunicMessaging.RunicFormat.EMPTY,
-								"Reduce the requested size or ask staff for help.");
-					}
-				} else {
-					showClaimHelp = true;
-				}
-			} catch (NumberFormatException nfe) {
-				// bad command format
-				showClaimHelp = true;
-			}
-
-			if (showClaimHelp) {
-				RunicMessaging.sendMessage(((Player) sender), RunicMessaging.RunicFormat.HELP, "Use " + ChatColor.YELLOW
-						+ "/claim X" + ChatColor.GRAY + " to create a protected area around you.");
-
-				RunicMessaging.sendMessage(((Player) sender), RunicMessaging.RunicFormat.EMPTY,
-						"Replace X with how many blocks in each direction you want the protection to extend.");
-				RunicMessaging.sendMessage(((Player) sender), RunicMessaging.RunicFormat.EMPTY,
-						"Example: " + ChatColor.GOLD + "/claim 20" + ChatColor.GRAY
-								+ " creates a protected area 20 blocks in each direction from where you stand.");
-				RunicMessaging.sendMessage(((Player) sender), RunicMessaging.RunicFormat.EMPTY,
-						"You cannot create overlapping regions with this command, and the size must be between 5 and 40.");
-			}
-
-			break;   --- END claim command  */
+		case "getrunestones":
+			Player ppp = (Player) sender;
+			ppp.getInventory().addItem(CustomItems.createRandomDukeRing(ppp));
+			break;
+		case "rpversion":
+			handleRpVersion(sender);
+			break;
 		case "fixranks":
 			RunicUtilities.fixGroupManager();
 			break;
@@ -805,7 +728,7 @@ public class Commands implements CommandExecutor {
 				} else if (args[0].equalsIgnoreCase("selltokens") && args.length == 4) {
 					// check if player is holding tokens
 
-					if (Bukkit.getPlayer(args[1]).getInventory().getItemInMainHand().getType() == Material.DOUBLE_PLANT
+					if (Bukkit.getPlayer(args[1]).getInventory().getItemInMainHand().getType() == Material.SUNFLOWER
 							&& Bukkit.getPlayer(args[1]).getInventory().getItemInMainHand().getItemMeta().getLore()
 									.toString().contains("Purchased")) {
 						// player is holding a valid token
@@ -867,7 +790,7 @@ public class Commands implements CommandExecutor {
 
 						// now play the game
 
-						Boolean winner;
+						boolean winner;
 						if (ThreadLocalRandom.current().nextInt(1, Integer.parseInt(args[5]) + 1) <= Integer
 								.parseInt(args[4])) {
 							winner = true;
@@ -1536,7 +1459,7 @@ public class Commands implements CommandExecutor {
 			break;
 		case "cactifever":
 			// TODO: needs fixing
-			ItemStack skull = new ItemStack(Material.SKULL, 1, (short) 3);
+			ItemStack skull = new ItemStack(Material.PLAYER_HEAD, 1, (short) 3);
 			SkullMeta meta1 = (SkullMeta) skull.getItemMeta();
 
 			meta1.setOwner("The_King_Cacti");
@@ -2605,23 +2528,23 @@ public class Commands implements CommandExecutor {
 
 			break;
 		case "rankitem":
-			if (args.length == 3 && args[1].equals("DukeMetal") && args[0].equalsIgnoreCase("Give")) {
-				Bukkit.getPlayer(args[2]).getLocation().getWorld().dropItemNaturally(
-						Bukkit.getPlayer(args[2]).getLocation(),
-						Borderlands.specialLootDrops("DukeMetal", Bukkit.getPlayer(args[2]).getUniqueId()));
-				Bukkit.getPlayer(args[2]).getLocation().getWorld().dropItemNaturally(
-						Bukkit.getPlayer(args[2]).getLocation(),
-						Borderlands.specialLootDrops("DukeMetal", Bukkit.getPlayer(args[2]).getUniqueId()));
-			} else if (args.length == 3 && args[1].equals("BaronMetal") && args[0].equalsIgnoreCase("Give")) {
-				Bukkit.getPlayer(args[2]).getLocation().getWorld().dropItemNaturally(
-						Bukkit.getPlayer(args[2]).getLocation(),
-						Borderlands.specialLootDrops("BaronMetal", Bukkit.getPlayer(args[2]).getUniqueId()));
-			} else if (args.length == 3 && args[0].equalsIgnoreCase("Check")) {
-
-				// rankitem check duke runelynx
-				Ranks.craftFeudalJewelry(Bukkit.getPlayer(args[2]), args[1]);
+			if (args.length == 3) {
+				if (args[1].equals("DukeMetal") && args[0].equalsIgnoreCase("Give")) {
+					Bukkit.getPlayer(args[2]).getLocation().getWorld().dropItemNaturally(
+							Bukkit.getPlayer(args[2]).getLocation(),
+							Borderlands.specialLootDrops("DukeMetal", Bukkit.getPlayer(args[2]).getUniqueId()));
+					Bukkit.getPlayer(args[2]).getLocation().getWorld().dropItemNaturally(
+							Bukkit.getPlayer(args[2]).getLocation(),
+							Borderlands.specialLootDrops("DukeMetal", Bukkit.getPlayer(args[2]).getUniqueId()));
+				} else if (args[1].equals("BaronMetal") && args[0].equalsIgnoreCase("Give")) {
+					Bukkit.getPlayer(args[2]).getLocation().getWorld().dropItemNaturally(
+							Bukkit.getPlayer(args[2]).getLocation(),
+							Borderlands.specialLootDrops("BaronMetal", Bukkit.getPlayer(args[2]).getUniqueId()));
+				} else if (args[0].equalsIgnoreCase("Check")) {
+					// rankitem check duke runelynx
+					Ranks.craftFeudalJewelry(Bukkit.getPlayer(args[2]), args[1]);
+				}
 			}
-
 			break;
 		case "rptokens":
 
@@ -2886,74 +2809,77 @@ public class Commands implements CommandExecutor {
 				// and gives them that number of tokens
 				// /rptokens taketrophy PLAYER
 			} else if (args.length == 2 && args[0].equals("taketrophy")) {
-
-				RunicPlayerBukkit targetPlayer = new RunicPlayerBukkit(args[1]);
-
-				int trophyCount = targetPlayer.checkPlayerInventoryForItemDataCount(371, 99);
-
-				if (trophyCount > 0) {
-
-					int newBalance = targetPlayer.getPlayerTokenBalance() + trophyCount;
-					if (newBalance < 0) {
-						newBalance = 0;
-					}
-
-					// Update their balance
-					if (targetPlayer.setPlayerTokenBalance(newBalance)) {
-						// DB update worked
-						targetPlayer.sendMessageToPlayer(ChatColor.GOLD + "[RunicCarnival] You have turned in "
-								+ ChatColor.GREEN + trophyCount + ChatColor.GOLD + " carnival trophies!");
-						targetPlayer.sendMessageToPlayer(ChatColor.GOLD + "[RunicCarnival] Your new token balance: "
-								+ ChatColor.GREEN + +newBalance + ChatColor.GOLD + " tokens");
-						if (sender instanceof Player) {
-
-							RunicPlayerBukkit senderPlayer = new RunicPlayerBukkit((Player) sender);
-							senderPlayer.sendMessageToPlayer(ChatColor.GOLD + "[RunicCarnival] "
-									+ targetPlayer.getPlayerDisplayName() + ChatColor.GOLD
-									+ "'s new token balance after trophy turn-in: " + ChatColor.GREEN + newBalance);
-							int removedTrophies = targetPlayer.removePlayerInventoryItemData(371, 99);
-
-							Bukkit.getLogger().log(Level.INFO,
-									"RunicCarnival gave " + trophyCount + " credits to " + targetPlayer.getPlayerName()
-
-											+ " and removed " + removedTrophies + " trophies");
-							Bukkit.dispatchCommand(Bukkit.getConsoleSender(),
-									"sc RunicCarnival gave " + ChatColor.GREEN + trophyCount + ChatColor.AQUA
-											+ " credits to " + targetPlayer.getPlayerName() + " and removed "
-											+ ChatColor.DARK_RED + removedTrophies + ChatColor.AQUA + " trophies");
-						}
-					} else {
-						// DB update failed
-						targetPlayer.sendMessageToPlayer(ChatColor.DARK_RED
-								+ "[ERROR] Something went wrong, couldn't update balance. Find Rune or check your command!");
-					}
-
-				} else {
-					targetPlayer.sendMessageToPlayer(ChatColor.GOLD
-							+ "[RunicCarnival] You don't have any trophies! Win some games to get more.");
-				}
+				// TODO: fix taketrophy
+//				RunicPlayerBukkit targetPlayer = new RunicPlayerBukkit(args[1]);
+//
+//				int trophyCount = targetPlayer.checkPlayerInventoryForItemDataCount(371, 99);
+//
+//				if (trophyCount > 0) {
+//
+//					int newBalance = targetPlayer.getPlayerTokenBalance() + trophyCount;
+//					if (newBalance < 0) {
+//						newBalance = 0;
+//					}
+//
+//					// Update their balance
+//					if (targetPlayer.setPlayerTokenBalance(newBalance)) {
+//						// DB update worked
+//						targetPlayer.sendMessageToPlayer(ChatColor.GOLD + "[RunicCarnival] You have turned in "
+//								+ ChatColor.GREEN + trophyCount + ChatColor.GOLD + " carnival trophies!");
+//						targetPlayer.sendMessageToPlayer(ChatColor.GOLD + "[RunicCarnival] Your new token balance: "
+//								+ ChatColor.GREEN + +newBalance + ChatColor.GOLD + " tokens");
+//						if (sender instanceof Player) {
+//
+//							RunicPlayerBukkit senderPlayer = new RunicPlayerBukkit((Player) sender);
+//							senderPlayer.sendMessageToPlayer(ChatColor.GOLD + "[RunicCarnival] "
+//									+ targetPlayer.getPlayerDisplayName() + ChatColor.GOLD
+//									+ "'s new token balance after trophy turn-in: " + ChatColor.GREEN + newBalance);
+//							int removedTrophies = targetPlayer.removePlayerInventoryItemData(371, 99);
+//
+//							Bukkit.getLogger().log(Level.INFO,
+//									"RunicCarnival gave " + trophyCount + " credits to " + targetPlayer.getPlayerName()
+//
+//											+ " and removed " + removedTrophies + " trophies");
+//							Bukkit.dispatchCommand(Bukkit.getConsoleSender(),
+//									"sc RunicCarnival gave " + ChatColor.GREEN + trophyCount + ChatColor.AQUA
+//											+ " credits to " + targetPlayer.getPlayerName() + " and removed "
+//											+ ChatColor.DARK_RED + removedTrophies + ChatColor.AQUA + " trophies");
+//						}
+//					} else {
+//						// DB update failed
+//						targetPlayer.sendMessageToPlayer(ChatColor.DARK_RED
+//								+ "[ERROR] Something went wrong, couldn't update balance. Find Rune or check your command!");
+//					}
+//
+//				} else {
+//					targetPlayer.sendMessageToPlayer(ChatColor.GOLD
+//							+ "[RunicCarnival] You don't have any trophies! Win some games to get more.");
+//				}
 
 				// ////////////
 				// /////////////////////////////////////////////////////
 				// give trophy command; gives specified # trophies to player
 				// /rptokens givetrophy PLAYER COUNT
 			} else if (args.length == 3 && args[0].equals("givetrophy")) {
-				RunicPlayerBukkit targetPlayer = new RunicPlayerBukkit(args[1]);
+				// TODO: fix givetrophy
+//				RunicPlayerBukkit targetPlayer = new RunicPlayerBukkit(args[1]);
+//
+//				if (Integer.parseInt(args[2]) > 0) {
+//					targetPlayer.givePlayerItemData(Integer.parseInt(args[2]), 371, 99, 2,
+//							ChatColor.GOLD + "Runic Carnival Trophy",
+//							ChatColor.GRAY + "Turn these in at the Prize Center",
+//							ChatColor.GRAY + "in Runic Carnival for tokens", "");
+//
+//					targetPlayer.sendMessageToPlayer(ChatColor.GOLD + "[RunicCarnival] You have been awarded "
+//							+ ChatColor.GREEN + args[2] + ChatColor.GOLD + " trophies!");
+//				} else {
+//					Bukkit.getLogger().log(Level.INFO,
+//							"Failed to give trophy to player, bad command usage? Tried /rptokens " + args.toString());
+//					Bukkit.dispatchCommand(Bukkit.getConsoleSender(),
+//							"sc RunicCarnival failed to award trophy. Tried /rptokens " + args.toString());
+//				}
 
-				if (Integer.parseInt(args[2]) > 0) {
-					targetPlayer.givePlayerItemData(Integer.parseInt(args[2]), 371, 99, 2,
-							ChatColor.GOLD + "Runic Carnival Trophy",
-							ChatColor.GRAY + "Turn these in at the Prize Center",
-							ChatColor.GRAY + "in Runic Carnival for tokens", "");
 
-					targetPlayer.sendMessageToPlayer(ChatColor.GOLD + "[RunicCarnival] You have been awarded "
-							+ ChatColor.GREEN + args[2] + ChatColor.GOLD + " trophies!");
-				} else {
-					Bukkit.getLogger().log(Level.INFO,
-							"Failed to give trophy to player, bad command usage? Tried /rptokens " + args.toString());
-					Bukkit.dispatchCommand(Bukkit.getConsoleSender(),
-							"sc RunicCarnival failed to award trophy. Tried /rptokens " + args.toString());
-				}
 				// ////////////
 				// /////////////////////////////////////////////////////
 				// mazewin command, increments the player's running tab of maze
@@ -3882,6 +3808,32 @@ public class Commands implements CommandExecutor {
 
 	}
 
+	void handleRpVersion(CommandSender sender) {
+		try {
+			InputStream input = Commands.class.getResourceAsStream("/git.properties");
+			JSONObject json = new JSONObject(new JSONTokener(input));
+			input.close();
+
+			json.remove("git.build.host");
+			json.remove("git.build.user.email");
+			json.remove("git.build.user.name");
+			json.remove("git.commit.user.email");
+			json.remove("git.commit.user.name");
+			json.remove("git.remote.origin.url");
+
+			StringBuilder message = new StringBuilder(ChatColor.BLUE + "Version information: \n");
+			for (String key : json.keySet()) {
+				Object value = json.get(key);
+				message.append(ChatColor.GREEN).append(key).append(ChatColor.RESET).append(" : ")
+						.append(ChatColor.AQUA).append(value.toString()).append('\n');
+			}
+			sender.sendMessage(message.toString());
+		} catch (Exception e) {
+			e.printStackTrace();
+			sender.sendMessage(e.toString());
+		}
+	}
+
 	static boolean givePlayerExplorationReward(int locID, Player p) {
 		int tokenReward = RunicParadise.explorerRewards.get(locID);
 
@@ -3902,23 +3854,19 @@ public class Commands implements CommandExecutor {
 		Block clay = clayLoc.getBlock();
 		Block glass = glassLoc.getBlock();
 
-		clay.setType(Material.HARD_CLAY);
-		clay.setData((byte) 3);
-		glass.setType(Material.STAINED_GLASS_PANE);
-		glass.setData((byte) 3);
-
+		clay.setType(Material.LIGHT_BLUE_TERRACOTTA);
+		glass.setType(Material.LIGHT_BLUE_STAINED_GLASS_PANE);
 	}
 
 	private static void repairCommand(Player p, ItemStack main, ItemStack off) {
-
 		boolean mainOkToRepair = false;
 		boolean offOkToRepair = false;
 
-		if (main != null && RunicParadise.repairableItemTypes.contains(main.getTypeId())) {
+		if (main != null && RunicParadise.repairableItemTypes.contains(main.getType().getId())) {
 			mainOkToRepair = true;
 		}
 
-		if (off != null && RunicParadise.repairableItemTypes.contains(off.getTypeId())) {
+		if (off != null && RunicParadise.repairableItemTypes.contains(off.getType().getId())) {
 			offOkToRepair = true;
 		}
 
@@ -4015,8 +3963,10 @@ public class Commands implements CommandExecutor {
 		itemInfoCommandAdd(message, "Data: ", RunicUtilities.toStringOr(itemInHand.getData(), "no item data"));
 		itemInfoCommandAdd(message, "Durability: ", String.valueOf(itemInHand.getDurability()));
 		itemInfoCommandAdd(message, "Type: ", itemInHand.getType().toString());
-		itemInfoCommandAdd(message, "Type id: ", String.valueOf(itemInHand.getTypeId()));
-		message.append(ChatColor.GOLD).append(RunicSerialization.serializeItemStackList(new ItemStack[] { itemInHand }).toString());
+		itemInfoCommandAdd(message, "Type id: ", String.valueOf(itemInHand.getType().getId()));
+		itemInfoCommandAdd(message, "Namespace: ", itemInHand.getType().getKey().toString());
+		message.append(ChatColor.GOLD).append(
+				Objects.requireNonNull(RunicSerialization.serializeTry(new ItemStack[]{itemInHand})).replace(ChatColor.COLOR_CHAR, '&'));
 		sender.sendMessage(message.toString());
 	}
 
@@ -4036,7 +3986,7 @@ public class Commands implements CommandExecutor {
 		String result = p.getNearbyEntities(50, 50, 50)
 				.stream()
 				.filter(x -> x instanceof Player)
-				.map(x -> { return (Player) x; })
+				.map(x -> (Player) x)
 				.map(Player::getDisplayName)
 				.collect(Collectors.joining(", "));
 		String formatString = ChatColor.GRAY + "Players near %s" + ChatColor.GRAY + ": %s";

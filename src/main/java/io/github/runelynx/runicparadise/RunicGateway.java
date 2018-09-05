@@ -18,35 +18,35 @@ import org.bukkit.plugin.Plugin;
 public class RunicGateway {
     private Plugin instance = RunicParadise.getInstance();
 
-    public RunicGateway() {}
+    RunicGateway() {}
 
-    public static int checkPlayerInventoryForItemDataCount(Player player, int id, int dataValue) {
-        PlayerInventory inventory = player.getInventory();
-        ItemStack[] items = inventory.getContents();
-        int has = 0;
-        for (ItemStack item : items) {
-            if ((item != null) && (item.getTypeId() == id) && (item.getDurability() == dataValue) && (item.getAmount() > 0)) {
-                has += item.getAmount();
-
-            }
-        }
-        return has;
-    }
-
-    public static int removePlayerInventoryItemData(Player player, int id, int dataValue) {
-        PlayerInventory inventory = player.getInventory();
-        return inventory.clear(id, dataValue);
-    }
-
-    public static void givePlayerItemData(Player player, int count, int id, int dataValue, String displayName, String lore1, String lore2, String lore3) {
-        ItemStack newItem = new ItemStack(id, count, (short) dataValue);
-        ItemMeta meta = newItem.getItemMeta();
-        meta.setDisplayName(displayName);
-        meta.setLore(Arrays.asList(lore1, lore2, lore3));
-        newItem.setItemMeta(meta);
-        PlayerInventory inventory = player.getInventory();
-        inventory.addItem(newItem);
-    }
+//    public static int checkPlayerInventoryForItemDataCount(Player player, int id, int dataValue) {
+//        PlayerInventory inventory = player.getInventory();
+//        ItemStack[] items = inventory.getContents();
+//        int has = 0;
+//        for (ItemStack item : items) {
+//            if ((item != null) && (item.getTypeId() == id) && (item.getDurability() == dataValue) && (item.getAmount() > 0)) {
+//                has += item.getAmount();
+//
+//            }
+//        }
+//        return has;
+//    }
+//
+//    public static int removePlayerInventoryItemData(Player player, int id, int dataValue) {
+//        PlayerInventory inventory = player.getInventory();
+//        return inventory.clear(id, dataValue);
+//    }
+//
+//    public static void givePlayerItemData(Player player, int count, int id, int dataValue, String displayName, String lore1, String lore2, String lore3) {
+//        ItemStack newItem = new ItemStack(id, count, (short) dataValue);
+//        ItemMeta meta = newItem.getItemMeta();
+//        meta.setDisplayName(displayName);
+//        meta.setLore(Arrays.asList(lore1, lore2, lore3));
+//        newItem.setItemMeta(meta);
+//        PlayerInventory inventory = player.getInventory();
+//        inventory.addItem(newItem);
+//    }
 
     public static Entity getLastEntityDamager(Entity entity) {
         EntityDamageEvent event = entity.getLastDamageCause();
@@ -91,7 +91,7 @@ public class RunicGateway {
 
         if (toAllPlayers) {
             for (Player p : Bukkit.getOnlinePlayers()) {
-                p.getWorld().playSound(p.getLocation(), Sound.ENTITY_FIREWORK_LAUNCH, 1, 0);
+                p.getWorld().playSound(p.getLocation(), Sound.ENTITY_FIREWORK_ROCKET_LAUNCH, 1, 0);
             }
         } else {
             Bukkit.getPlayer(playerName).getWorld().playSound(Bukkit.getPlayer(playerName).getLocation(), Sound.BLOCK_PORTAL_TRAVEL, 1, 0);
