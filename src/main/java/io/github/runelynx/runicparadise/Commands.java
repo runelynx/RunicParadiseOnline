@@ -338,7 +338,6 @@ public class Commands implements CommandExecutor {
 		switch (cmd.getName()) {
 		case "getrunestones":
 			Player ppp = (Player) sender;
-			ppp.getInventory().addItem(CustomItems.createRandomDukeRing(ppp));
 			break;
 		case "rpversion":
 			handleRpVersion(sender);

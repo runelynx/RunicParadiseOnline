@@ -518,7 +518,6 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 		getCommand("discord").setExecutor(new Commands());
 		getCommand("rpversion").setExecutor(new Commands());
 		getCommand("getrunestones").setExecutor(new Commands());
-		getCommand("email").setExecutor(new EmailTest());
 		return true;
 	}
 

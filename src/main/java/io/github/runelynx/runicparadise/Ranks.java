@@ -1644,7 +1644,20 @@ public class Ranks {
 
 				p.updateInventory();
 
-				p.getWorld().dropItemNaturally(p.getLocation(), CustomItems.createRandomDukeRing(p));
+				int random = ThreadLocalRandom.current().nextInt(1, 100 + 1);
+				if (random < 25) {
+					Bukkit.getWorld(p.getLocation().getWorld().getUID()).dropItemNaturally(p.getLocation(),
+							Borderlands.specialLootDrops("DukeRing1", p.getUniqueId()));
+				} else if (random < 50) {
+					Bukkit.getWorld(p.getLocation().getWorld().getUID()).dropItemNaturally(p.getLocation(),
+							Borderlands.specialLootDrops("DukeRing2", p.getUniqueId()));
+				} else if (random < 75) {
+					Bukkit.getWorld(p.getLocation().getWorld().getUID()).dropItemNaturally(p.getLocation(),
+							Borderlands.specialLootDrops("DukeRing3", p.getUniqueId()));
+				} else {
+					Bukkit.getWorld(p.getLocation().getWorld().getUID()).dropItemNaturally(p.getLocation(),
+							Borderlands.specialLootDrops("DukeRing4", p.getUniqueId()));
+				}
 
 				return true;
 
@@ -1722,7 +1735,10 @@ public class Ranks {
 	};
 
 	static void applyFeudalBonus(Player p, String toWorld, String fromWorld) {
-		boolean hasDukeRing = Arrays.stream(p.getEnderChest().getContents()).anyMatch(item -> CustomItems.isDukeRingFor(item, p.getUniqueId()));
+		boolean hasDukeRing = p.getEnderChest().contains(Borderlands.specialLootDrops("DukeRing1", p.getUniqueId()))
+				|| p.getEnderChest().contains(Borderlands.specialLootDrops("DukeRing2", p.getUniqueId()))
+				|| p.getEnderChest().contains(Borderlands.specialLootDrops("DukeRing3", p.getUniqueId()))
+				|| p.getEnderChest().contains(Borderlands.specialLootDrops("DukeRing4", p.getUniqueId()));
 		boolean toWorldIsNormal = Arrays.stream(ALLOWED_WORLDS_FOR_DUKE_BARON).anyMatch(toWorld::contains);
 		boolean fromWorldIsNormal = Arrays.stream(ALLOWED_WORLDS_FOR_DUKE_BARON).anyMatch(fromWorld::contains);
 
