@@ -23,10 +23,7 @@ import org.json.JSONObject;
 import org.json.JSONTokener;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.sql.*;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
@@ -287,24 +284,13 @@ public class Commands implements CommandExecutor {
     }
 
     private int checkPlayerInventoryItemstackCount(Inventory i) {
-        ItemStack[] items = i.getContents();
-
-        int playerInvItemCount = 0;
-
-        // Count actual itemstacks in player's inventory
-        for (ItemStack item : items) {
-            if ((item != null) && (item.getType() != Material.AIR)) {
-                playerInvItemCount++;
-            }
-        }
-        return playerInvItemCount;
+		return (int) Arrays.stream(i.getContents()).filter(item -> item != null && item.getType() != Material.AIR).count();
     }
 
     private ItemStack[] casinoWinOrLose(Location loc) {
         Block b = loc.getBlock();
         org.bukkit.block.Chest chest = (org.bukkit.block.Chest) b.getState();
         return chest.getBlockInventory().getContents();
-
     }
 
     private ItemStack giveCasinoToken(String playerName, int count) {
