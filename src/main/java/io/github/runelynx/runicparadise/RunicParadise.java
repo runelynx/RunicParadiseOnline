@@ -1092,64 +1092,67 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onPlayerTeleport(PlayerTeleportEvent event) {
-		if (event.getPlayer().hasPermission("rp.ranks.duke")) {
-			Ranks.applyFeudalBonus(event.getPlayer(), event.getTo().getWorld().getName(),
-					event.getFrom().getWorld().getName());
-		}
 
-		Faith.tryCast_PlayerTeleported(event);
+		if (Bukkit.getOnlinePlayers().contains(event.getPlayer())) {
 
-		if (event.getFrom().getWorld().getName().equals("RunicSky")) {
-			if ((event.getFrom().getX() <= -142 && event.getFrom().getX() >= -192)
-					&& (event.getFrom().getY() <= 200 && event.getFrom().getY() >= 0)
-					&& (event.getFrom().getZ() <= 513 && event.getFrom().getZ() >= 463)) {
-				// A player is leaving the maze!
-				event.getPlayer().sendMessage(
-						ChatColor.DARK_RED + "DungeonMaster CrocodileHax" + ChatColor.GRAY + ": See you next time!");
-				event.getPlayer().setGameMode(GameMode.SURVIVAL);
-
-			} else if ((event.getFrom().getX() <= 1146 && event.getFrom().getX() >= 1047)
-					&& (event.getFrom().getY() <= 160 && event.getFrom().getY() >= 85)
-					&& (event.getFrom().getZ() <= 1152 && event.getFrom().getZ() >= 1053)) {
-				event.getPlayer().sendMessage(
-						ChatColor.DARK_RED + "DungeonMaster CrocodileHax" + ChatColor.GRAY + ": See you next time!");
-				event.getPlayer().setGameMode(GameMode.SURVIVAL);
+			if (event.getPlayer().hasPermission("rp.ranks.duke")) {
+				Ranks.applyFeudalBonus(event.getPlayer(), event.getTo().getWorld().getName(),
+						event.getFrom().getWorld().getName());
 			}
 
-		}
-		if (event.getTo().getWorld().getName().equals("RunicSky")) {
-			if ((event.getTo().getX() <= -142 && event.getTo().getX() >= -192)
-					&& (event.getTo().getY() <= 121 && event.getTo().getY() >= 107)
-					&& (event.getTo().getZ() <= 513 && event.getTo().getZ() >= 463)) {
-				// A player is in the maze!
-				event.getPlayer().sendMessage(ChatColor.DARK_RED + "DungeonMaster CrocodileHax" + ChatColor.GRAY
-						+ ": Teleporting into my maze is cheating. So your teleport has been cancelled. :)");
-				event.setCancelled(true);
+			Faith.tryCast_PlayerTeleported(event);
 
-			} else if ((event.getTo().getX() <= -137.5 && event.getTo().getX() >= -140.5)
-					&& (event.getTo().getY() <= 120.5 && event.getTo().getY() >= 114)
-					&& (event.getTo().getZ() <= 513.59 && event.getTo().getZ() >= 506.5)) {
-				// A player is in the maze!
-				event.getPlayer().sendMessage(ChatColor.DARK_RED + "DungeonMaster CrocodileHax" + ChatColor.GRAY
-						+ ": Teleporting into my maze is cheating. So your teleport has been cancelled. :)");
-				event.setCancelled(true);
+			if (event.getFrom().getWorld().getName().equals("RunicSky")) {
+				if ((event.getFrom().getX() <= -142 && event.getFrom().getX() >= -192)
+						&& (event.getFrom().getY() <= 200 && event.getFrom().getY() >= 0)
+						&& (event.getFrom().getZ() <= 513 && event.getFrom().getZ() >= 463)) {
+					// A player is leaving the maze!
+					event.getPlayer().sendMessage(
+							ChatColor.DARK_RED + "DungeonMaster CrocodileHax" + ChatColor.GRAY + ": See you next time!");
+					event.getPlayer().setGameMode(GameMode.SURVIVAL);
 
-			} else if ((event.getTo().getX() <= 1131 && event.getTo().getX() >= 1060)
-					&& (event.getTo().getY() <= 40 && event.getTo().getY() >= 2)
-					&& (event.getTo().getZ() <= -16 && event.getTo().getZ() >= -93)) {
-				// A player is in the maze!
-				event.getPlayer().sendMessage(ChatColor.DARK_RED + "MachineMaster Tardip" + ChatColor.GRAY
-						+ ": Teleporting into my maze is cheating. So your teleport has been cancelled. :D");
-				event.setCancelled(true);
+				} else if ((event.getFrom().getX() <= 1146 && event.getFrom().getX() >= 1047)
+						&& (event.getFrom().getY() <= 160 && event.getFrom().getY() >= 85)
+						&& (event.getFrom().getZ() <= 1152 && event.getFrom().getZ() >= 1053)) {
+					event.getPlayer().sendMessage(
+							ChatColor.DARK_RED + "DungeonMaster CrocodileHax" + ChatColor.GRAY + ": See you next time!");
+					event.getPlayer().setGameMode(GameMode.SURVIVAL);
+				}
 
-			} else if ((event.getTo().getX() <= 1171 && event.getTo().getX() >= 1047)
-					&& (event.getTo().getY() <= 160 && event.getTo().getY() >= 80)
-					&& (event.getTo().getZ() <= 1152 && event.getTo().getZ() >= 1053)) {
-				// A player is in the maze!
-				event.getPlayer().sendMessage(ChatColor.DARK_RED + "DungeonMaster CrocodileHax" + ChatColor.GRAY
-						+ ": Teleporting into my maze is cheating. So your teleport has been cancelled. :D");
-				event.setCancelled(true);
-			} /*else if ((event.getTo().getX() <= 1055 && event.getTo().getX() >= 1048)
+			}
+			if (event.getTo().getWorld().getName().equals("RunicSky")) {
+				if ((event.getTo().getX() <= -142 && event.getTo().getX() >= -192)
+						&& (event.getTo().getY() <= 121 && event.getTo().getY() >= 107)
+						&& (event.getTo().getZ() <= 513 && event.getTo().getZ() >= 463)) {
+					// A player is in the maze!
+					event.getPlayer().sendMessage(ChatColor.DARK_RED + "DungeonMaster CrocodileHax" + ChatColor.GRAY
+							+ ": Teleporting into my maze is cheating. So your teleport has been cancelled. :)");
+					event.setCancelled(true);
+
+				} else if ((event.getTo().getX() <= -137.5 && event.getTo().getX() >= -140.5)
+						&& (event.getTo().getY() <= 120.5 && event.getTo().getY() >= 114)
+						&& (event.getTo().getZ() <= 513.59 && event.getTo().getZ() >= 506.5)) {
+					// A player is in the maze!
+					event.getPlayer().sendMessage(ChatColor.DARK_RED + "DungeonMaster CrocodileHax" + ChatColor.GRAY
+							+ ": Teleporting into my maze is cheating. So your teleport has been cancelled. :)");
+					event.setCancelled(true);
+
+				} else if ((event.getTo().getX() <= 1131 && event.getTo().getX() >= 1060)
+						&& (event.getTo().getY() <= 40 && event.getTo().getY() >= 2)
+						&& (event.getTo().getZ() <= -16 && event.getTo().getZ() >= -93)) {
+					// A player is in the maze!
+					event.getPlayer().sendMessage(ChatColor.DARK_RED + "MachineMaster Tardip" + ChatColor.GRAY
+							+ ": Teleporting into my maze is cheating. So your teleport has been cancelled. :D");
+					event.setCancelled(true);
+
+				} else if ((event.getTo().getX() <= 1171 && event.getTo().getX() >= 1047)
+						&& (event.getTo().getY() <= 160 && event.getTo().getY() >= 80)
+						&& (event.getTo().getZ() <= 1152 && event.getTo().getZ() >= 1053)) {
+					// A player is in the maze!
+					event.getPlayer().sendMessage(ChatColor.DARK_RED + "DungeonMaster CrocodileHax" + ChatColor.GRAY
+							+ ": Teleporting into my maze is cheating. So your teleport has been cancelled. :D");
+					event.setCancelled(true);
+				} /*else if ((event.getTo().getX() <= 1055 && event.getTo().getX() >= 1048)
 					&& (event.getTo().getY() <= 126 && event.getTo().getY() >= 120)
 					&& (event.getTo().getZ() <= 1157 && event.getTo().getZ() >= 1153)) {
 				// A player is in the maze!
@@ -1158,6 +1161,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 				event.setCancelled(true);
 
 			}*/
+			}
 		}
 	}
 
