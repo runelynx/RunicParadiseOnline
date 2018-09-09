@@ -230,7 +230,6 @@ public class RunicProfile {
 	}
 
 	private String getPlayerName(boolean getRealName) {
-
 		// this will only return the true display name if player is online.
 		// Controlled via setPlayerNames method.
 		if (getRealName) {
@@ -249,7 +248,6 @@ public class RunicProfile {
 	}
 
 	public void grantCurrency(String type, int amount) {
-
 		boolean error = false;
 		String column = "";
 		String plural = "";

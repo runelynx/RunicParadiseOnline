@@ -5,15 +5,19 @@ import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.inventory.CraftingInventory;
 import org.bukkit.inventory.FurnaceRecipe;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ShapelessRecipe;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 class Recipes {
-	public static ItemStack customItemStacks(String key) {
+	static ItemStack customItemStacks(String key) {
 		ItemStack newItem;
 		ItemMeta meta;
 
@@ -66,121 +70,68 @@ class Recipes {
 					newItem.addUnsafeEnchantment(Enchantment.DURABILITY, 999);
 					return newItem;
 			default:
-					return null;
+					throw new RuntimeException("No faith sword found with this key:" + key);
 		}
-
 	}
 
-    public static boolean customFoodRecipes() {
+	private static ItemStack matchCraftingRunestone(List<ItemStack> i) {
+		ItemStack ingredient;
+		Material other;
+
+		if (i.get(0).getType() == Material.QUARTZ) {
+			ingredient = i.get(0);
+			other = i.get(1).getType();
+		} else if (i.get(1).getType() == Material.QUARTZ) {
+			ingredient = i.get(1);
+			other = i.get(0).getType();
+		} else {
+			return null;
+		}
+
+		String quartzKey = CustomItems.getKey(ingredient);
+		if (quartzKey.equals("rp:runestone_regeneration_ingredient")) {
+			return CustomItems.getRegenerationRunestone(other);
+		}
+		if (quartzKey.equals("rp:runestone_haste_ingredient") && other == Material.BREAD) {
+			return CustomItems.RUNESTONE_HASTE_BREAD.getItem(3);
+		}
+		if (quartzKey.equals("rp:runestone_strength_ingredient") && other == Material.PUMPKIN_PIE) {
+			return CustomItems.RUNESTONE_STRENGTH_PIE.getItem(3);
+		}
+		if (quartzKey.equals("rp:runestone_nightvision_ingredient")) {
+			if (other == Material.PORKCHOP) {
+				return CustomItems.RUNESTONE_NIGHTVISION_PORKCHOP.getItem(3);
+			}
+			if (other == Material.BAKED_POTATO) {
+				return CustomItems.RUNESTONE_NIGHTVISION_POTATO.getItem(3);
+			}
+		}
+		if (quartzKey.equals("rp:runestone_speed_cookie_ingredient") && other == Material.COOKIE) {
+			return CustomItems.RUNESTONE_SPEED_COOKIE.getItem(3);
+		}
+		return null;
+	}
+
+	static ItemStack customFoodRecipesNew(CraftingInventory inventory) {
+		List<ItemStack> i = Arrays.stream(inventory.getMatrix()).filter(Objects::nonNull).collect(Collectors.toList());
+		if (i.size() != 2) {
+			return null;
+		}
+
+		ItemStack result = matchCraftingRunestone(i);
+		if (result != null) {
+			return result;
+		}
+
+		return null;
+	}
+
+    static boolean customRecipes() {
 		// ROTTEN FLESH INTO LEATHER
-		FurnaceRecipe fleshLeather = new FurnaceRecipe(new ItemStack(
-				Material.LEATHER), Material.ROTTEN_FLESH);
+		FurnaceRecipe fleshLeather = new FurnaceRecipe(new ItemStack(Material.LEATHER), Material.ROTTEN_FLESH);
 		Bukkit.getServer().addRecipe(fleshLeather);
 
-		// REGENERATION STEAK
-		ItemStack newItem = new ItemStack(Material.COOKED_BEEF, 3, (short) 910);
-		ItemMeta meta = newItem.getItemMeta();
-		meta.setDisplayName(ChatColor.GREEN + "Rib-eye Steak");
-		meta.setLore(Arrays.asList(ChatColor.GRAY + "Medium-rare!",
-				ChatColor.GRAY + "Grants " + ChatColor.BLUE
-						+ "30min health regeneration"));
-		newItem.setItemMeta(meta);
-		ShapelessRecipe newRecipe = new ShapelessRecipe(new NamespacedKey(RunicParadise.getInstance(), "RP_REGEN_STEAK"), newItem);
-		newRecipe.addIngredient(1, Material.QUARTZ, 910);
-		newRecipe.addIngredient(1, Material.COOKED_BEEF);
-		Bukkit.getServer().addRecipe(newRecipe);
-
-		// REGENERATION CHICKEN
-		newItem = new ItemStack(Material.COOKED_CHICKEN, 3, (short) 910);
-		meta = newItem.getItemMeta();
-		meta.setDisplayName(ChatColor.GREEN + "BBQ Chicken");
-		meta.setLore(Arrays.asList(ChatColor.GRAY + "Extra crispy",
-				ChatColor.GRAY + "Grants " + ChatColor.BLUE
-						+ "30min health regeneration"));
-		newItem.setItemMeta(meta);
-		newRecipe = new ShapelessRecipe(new NamespacedKey(RunicParadise.getInstance(), "RP_REGEN_CHICKEN"), newItem);
-		newRecipe.addIngredient(1, Material.QUARTZ, 910);
-		newRecipe.addIngredient(1, Material.COOKED_CHICKEN);
-		Bukkit.getServer().addRecipe(newRecipe);
-
-		// REGENERATION FISH
-		newItem = new ItemStack(Material.COOKED_SALMON, 3, (short) 910);
-		meta = newItem.getItemMeta();
-		meta.setDisplayName(ChatColor.GREEN + "Fish Filet");
-		meta.setLore(Arrays.asList(ChatColor.GRAY + "Fresh from the bay",
-				ChatColor.GRAY + "Grants " + ChatColor.BLUE
-						+ "30min health regeneration"));
-		newItem.setItemMeta(meta);
-		newRecipe = new ShapelessRecipe(new NamespacedKey(RunicParadise.getInstance(), "RP_REGEN_FISH"), newItem);
-		newRecipe.addIngredient(1, Material.QUARTZ, 910);
-		newRecipe.addIngredient(1, Material.COOKED_SALMON);
-		Bukkit.getServer().addRecipe(newRecipe);
-
-		// HASTE BREAD
-		newItem = new ItemStack(Material.BREAD, 3, (short) 903);
-		meta = newItem.getItemMeta();
-		meta.setDisplayName(ChatColor.GREEN + "Wonder Bread");
-		meta.setLore(Arrays.asList(ChatColor.GRAY + "Hot out of the oven",
-				ChatColor.GRAY + "Grants " + ChatColor.BLUE
-						+ "15min mining speed"));
-		newItem.setItemMeta(meta);
-		newRecipe = new ShapelessRecipe(new NamespacedKey(RunicParadise.getInstance(), "RP_HASTE_BREAD"), newItem);
-		newRecipe.addIngredient(1, Material.QUARTZ, 903);
-		newRecipe.addIngredient(1, Material.BREAD);
-		Bukkit.getServer().addRecipe(newRecipe);
-
-		// STRENGTH PIE
-		newItem = new ItemStack(Material.PUMPKIN_PIE, 3, (short) 905);
-		meta = newItem.getItemMeta();
-		meta.setDisplayName(ChatColor.GREEN + "Spiced Pumpkin Pie");
-		meta.setLore(Arrays.asList(ChatColor.GRAY
-				+ "Is it Thanksgiving already?", ChatColor.GRAY + "Grants "
-				+ ChatColor.BLUE + "20min strong attacks"));
-		newItem.setItemMeta(meta);
-		newRecipe = new ShapelessRecipe(new NamespacedKey(RunicParadise.getInstance(), "RP_STRENGTH_PIE"), newItem);
-		newRecipe.addIngredient(1, Material.QUARTZ, 905);
-		newRecipe.addIngredient(1, Material.PUMPKIN_PIE);
-		Bukkit.getServer().addRecipe(newRecipe);
-
-		// NIGHTVISION PORKCHOP
-		newItem = new ItemStack(Material.COOKED_PORKCHOP, 3, (short) 916);
-		meta = newItem.getItemMeta();
-		meta.setDisplayName(ChatColor.GREEN + "Porkchop");
-		meta.setLore(Arrays.asList(ChatColor.GRAY
-				+ "Best served with applesauce", ChatColor.GRAY + "Grants "
-				+ ChatColor.BLUE + "1hr nightvision"));
-		newItem.setItemMeta(meta);
-		newRecipe = new ShapelessRecipe(new NamespacedKey(RunicParadise.getInstance(), "RP_NIGHTVISION_PORK"), newItem);
-		newRecipe.addIngredient(1, Material.QUARTZ, 916);
-		newRecipe.addIngredient(1, Material.COOKED_PORKCHOP);
-		Bukkit.getServer().addRecipe(newRecipe);
-
-		// NIGHTVISION potato
-		newItem = new ItemStack(Material.BAKED_POTATO, 3, (short) 916);
-		meta = newItem.getItemMeta();
-		meta.setDisplayName(ChatColor.GREEN + "Cheesy Baked Potato");
-		meta.setLore(Arrays
-				.asList(ChatColor.GRAY + "Don't forget the butter!",
-						ChatColor.GRAY + "Grants " + ChatColor.BLUE
-								+ "1hr nightvision"));
-		newItem.setItemMeta(meta);
-		newRecipe = new ShapelessRecipe(new NamespacedKey(RunicParadise.getInstance(), "RP_NIGHTVISION_POTATO"), newItem);
-		newRecipe.addIngredient(1, Material.QUARTZ, 916);
-		newRecipe.addIngredient(1, Material.BAKED_POTATO);
-		Bukkit.getServer().addRecipe(newRecipe);
-
-		// SPEED COOKIE
-		newItem = new ItemStack(Material.COOKIE, 3, (short) 901);
-		meta = newItem.getItemMeta();
-		meta.setDisplayName(ChatColor.GREEN + "Sugar Cookie");
-		meta.setLore(Arrays.asList(
-				ChatColor.GRAY + "Now with chocolate chips!", ChatColor.GRAY
-						+ "Grants " + ChatColor.BLUE + "20min speed boost"));
-		newItem.setItemMeta(meta);
-		newRecipe = new ShapelessRecipe(new NamespacedKey(RunicParadise.getInstance(), "RP_SPEED_COOKIE"), newItem);
-		newRecipe.addIngredient(1, Material.QUARTZ, 901);
-		newRecipe.addIngredient(1, Material.COOKIE);
-		Bukkit.getServer().addRecipe(newRecipe);
+		ShapelessRecipe newRecipe;
 
 		// FAITH WEAPON 1
 		newRecipe = new ShapelessRecipe(new NamespacedKey(RunicParadise.getInstance(), "RP_FAITH_SWORD_1"), customItemStacks("FAITH_SWORD_1"));
