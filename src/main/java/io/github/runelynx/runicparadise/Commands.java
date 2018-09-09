@@ -338,6 +338,7 @@ public class Commands implements CommandExecutor {
 		switch (cmd.getName()) {
 		case "getrunestones":
 			Player ppp = (Player) sender;
+			ppp.damage(4);
 			break;
 		case "rpversion":
 			handleRpVersion(sender);

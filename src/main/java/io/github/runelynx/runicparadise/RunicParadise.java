@@ -21,6 +21,7 @@ import org.bukkit.event.entity.*;
 import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.PrepareItemCraftEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -135,7 +136,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 			getLogger().info("[RunicParadise] Defined repairable items using /rpfix");
 		}
 
-		if (Recipes.customFoodRecipes()) {
+		if (Recipes.customRecipes()) {
 			getLogger().info("[RunicParadise] Created custom recipes");
 		}
 
@@ -598,6 +599,14 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 				Borderlands.spawnBLMob(event);
 			}
 
+		}
+	}
+
+	@EventHandler
+	public void onPrepareItemCraftEvent(PrepareItemCraftEvent event) {
+		ItemStack result = Recipes.customFoodRecipesNew(event.getInventory());
+		if (result != null) {
+			event.getInventory().setResult(result);
 		}
 	}
 
@@ -1578,43 +1587,36 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 	}
 
 	@EventHandler
-	public void onPlayerItemConsume(final PlayerItemConsumeEvent pice) {
-
-		if (pice.getItem().getType() == Material.CHORUS_FRUIT
-				&& pice.getPlayer().getWorld().getName().equalsIgnoreCase("RunicSky")) {
-			pice.setCancelled(true);
-			pice.getPlayer().sendMessage(ChatColor.GRAY + "" + ChatColor.ITALIC + "You can't eat that in this world.");
+	public void onPlayerItemConsume(PlayerItemConsumeEvent event) {
+		if (event.getItem().getType() == Material.CHORUS_FRUIT
+				&& event.getPlayer().getWorld().getName().equalsIgnoreCase("RunicSky")) {
+			event.setCancelled(true);
+			event.getPlayer().sendMessage(ChatColor.GRAY + "" + ChatColor.ITALIC + "You can't eat that in this world.");
 		}
 
-		if (pice.getItem() != null && pice.getItem().hasItemMeta()) {
-			if (pice.getItem().getItemMeta().hasLore()) {
-
-				if (pice.getItem().getItemMeta().getLore().toString().contains("Vanilla ice cream between")) {
-					pice.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 3600, 1));
-					pice.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.JUMP, 3600, 1));
+		if (event.getItem() != null && event.getItem().hasItemMeta()) {
+			if (event.getItem().getItemMeta().hasLore()) {
+				if (event.getItem().getItemMeta().getLore().toString().contains("Vanilla ice cream between")) {
+					event.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 3600, 1));
+					event.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.JUMP, 3600, 1));
 				}
 			}
 		}
 
-		switch (pice.getItem().getDurability()) {
-			case 910:
-				pice.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 36000, 2));
-				break;
-			case 901:
-				pice.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 18000, 1));
-				break;
-			case 916:
-				pice.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, 72000, 1));
-				break;
-			case 903:
-				pice.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.FAST_DIGGING, 18000, 1));
-				break;
-			case 905:
-				pice.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.INCREASE_DAMAGE, 24000, 2));
-				break;
-			default:
-				break;
-
+		CustomItems customItem = CustomItems.getCustomItem(event.getItem());
+		if (customItem != null) {
+			Player player = event.getPlayer();
+			if (customItem.isRegenerationRunestone()) {
+				player.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 36000, 2));
+			} else if (customItem.isHasteRunestone()) {
+				event.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.FAST_DIGGING, 18000, 1));
+			} else if (customItem.isSpeedRunestone()) {
+				event.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 18000, 1));
+			} else if (customItem.isStrengthRunestone()) {
+				event.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.INCREASE_DAMAGE, 24000, 2));
+			} else if (customItem.isNightvisionRunestone()) {
+				event.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, 72000, 1));
+			}
 		}
 	}
 
