@@ -2,180 +2,141 @@ package io.github.runelynx.runicparadise;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
-import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
-import java.util.UUID;
-import java.util.concurrent.ThreadLocalRandom;
-
-//enum CustomItem {
-//	DUKE_RING("rp:duke_ring_1")
-//	;
-//
-//	private static ItemStack DUKE_RING_1 = createCustomItem(Material.INK_SAC,
-//			ChatColor.DARK_RED + "Duke Tyler's Demonic Ring",
-//			new ItemFlag[] {ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ENCHANTS},
-//			new String[] {
-//					"",
-//					ChatColor.GRAY + "An amethyst-studded copper ring enchanted",
-//					ChatColor.GRAY + "by the memories of the long-dead Duke Tyler.",
-//					ChatColor.GRAY + "Legends say his health was enhanced after",
-//					ChatColor.GRAY + "summoning a demon from the underworld.",
-//					"",
-//					ChatColor.AQUA + "+2  ❤  when worn in the overworld/nether/end",
-//					ChatColor.GRAY + "(put this in your ender chest to 'wear' it)",
-//			});
-//
-//	private String key;
-//
-//	CustomItem(String key) {
-//		this.key = key;
-//	}
-//
-//	public String getKey() {
-//		return key;
-//	}
-//
-//	private static ItemStack createCustomItem(Material material, String displayName, ItemFlag[] flags, String[] lore) {
-//		ItemStack item = new ItemStack(material);
-//		ItemMeta meta = item.getItemMeta();
-//
-//		meta.setDisplayName(displayName);
-//		Arrays.stream(flags).forEach(meta::addItemFlags);
-//		meta.setLore(Arrays.asList(lore));
-//
-//		item.setItemMeta(meta);
-//
-//		return item;
-//	}
-//}
-
 
 enum CustomItems {
-	DUKE_RING_TYLER,
-	DUKE_RING_THING,
-	DUKE_RING_CROC,
-	DUKE_RING_PENGUIN;
+	RUNESTONE_REGENERATION_STEAK(createCustomItem(Material.COOKED_BEEF, ChatColor.GREEN + "Rib-eye Steak",
+			new String[]{ChatColor.GRAY + "Medium-rare!",
+					ChatColor.GRAY + "Grants " + ChatColor.BLUE + "30min health regeneration"}, "rp:runestone_regeneration")),
+	RUNESTONE_REGENERATION_CHICKEN(createCustomItem(Material.COOKED_CHICKEN, ChatColor.GREEN + "BBQ Chicken",
+			new String[]{ChatColor.GRAY + "Extra crispy",
+					ChatColor.GRAY + "Grants " + ChatColor.BLUE + "30min health regeneration"}, "rp:runestone_regeneration")),
+	RUNESTONE_REGENERATION_SALMON(createCustomItem(Material.COOKED_SALMON, ChatColor.GREEN + "Fish Filet",
+			new String[] {ChatColor.GRAY + "Fresh from the bay",
+					ChatColor.GRAY + "Grants " + ChatColor.BLUE + "30min health regeneration"}, "rp:runestone_regeneration")),
+	RUNESTONE_HASTE_BREAD(createCustomItem(Material.BREAD, ChatColor.GREEN + "Wonder Bread",
+			new String[] {ChatColor.GRAY + "Hot out of the oven",
+					ChatColor.GRAY + "Grants " + ChatColor.BLUE + "15min mining speed"}, "rp:runestone_haste")),
+	RUNESTONE_STRENGTH_PIE(createCustomItem(Material.PUMPKIN_PIE, ChatColor.GREEN + "Spiced Pumpkin Pie",
+			new String[] {ChatColor.GRAY + "Is it Thanksgiving already?",
+					ChatColor.GRAY + "Grants " + ChatColor.BLUE + "20min strong attacks"}, "rp:runestone_strength")),
+	RUNESTONE_NIGHTVISION_PORKCHOP(createCustomItem(Material.COOKED_PORKCHOP, ChatColor.GREEN + "Porkchop",
+			new String[] {ChatColor.GRAY + "Best served with applesauce",
+					ChatColor.GRAY + "Grants " + ChatColor.BLUE + "1hr nightvision"}, "rp:runestone_nightvision")),
+	RUNESTONE_NIGHTVISION_POTATO(createCustomItem(Material.BAKED_POTATO, ChatColor.GREEN + "Cheesy Baked Potato",
+			new String[]{ChatColor.GRAY + "Don't forget the butter!",
+					ChatColor.GRAY + "Grants " + ChatColor.BLUE + "1hr nightvision"}, "rp:runestone_nightvision")),
+	RUNESTONE_SPEED_COOKIE(createCustomItem(Material.COOKIE, ChatColor.GREEN + "Sugar Cookie",
+			new String[]{ChatColor.GRAY + "Now with chocolate chips!",
+					ChatColor.GRAY + "Grants " + ChatColor.BLUE + "20min speed boost"}, "rp:runestone_speed"))
+	;
+	private final ItemStack item;
 
-	boolean IsDukeRing() {
-		return true;
+	CustomItems(ItemStack item) {
+		this.item = item;
 	}
 
-	private static ItemStack DUKE_RING_TYLER_ITEM = createCustomItem(Material.INK_SAC,
-			ChatColor.DARK_RED + "Duke Tyler's Demonic Ring",
-			new ItemFlag[]{ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ENCHANTS},
-			new String[]{
-					"",
-					ChatColor.GRAY + "An amethyst-studded copper ring enchanted",
-					ChatColor.GRAY + "by the memories of the long-dead Duke Tyler.",
-					ChatColor.GRAY + "Legends say his health was enhanced after",
-					ChatColor.GRAY + "summoning a demon from the underworld.",
-					"",
-					ChatColor.AQUA + "+2  ❤  when worn in the overworld/nether/end",
-					ChatColor.GRAY + "(put this in your ender chest to 'wear' it)",
-			});
-
-	private static ItemStack DUKE_RING_THING_ITEM = createCustomItem(Material.INK_SAC,
-			ChatColor.DARK_RED + "Duchess Thing's Angelic Ring",
-			new ItemFlag[]{ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ENCHANTS},
-			new String[]{
-					"",
-					ChatColor.GRAY + "An amethyst-studded copper ring enchanted",
-					ChatColor.GRAY + "by the memories of the long-dead Duchess Thing.",
-					ChatColor.GRAY + "Legends say her health was enhanced by",
-					ChatColor.GRAY + "angels due to her aetheric faith.",
-					"",
-					ChatColor.AQUA + "+2  ❤  when worn in the overworld/nether/end",
-					ChatColor.GRAY + "(put this in your ender chest to 'wear' it)",
-			});
-
-	private static ItemStack DUKE_RING_CROC_ITEM = createCustomItem(Material.INK_SAC,
-			ChatColor.DARK_RED + "Duke Croc's Reptilian Ring",
-			new ItemFlag[]{ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ENCHANTS},
-			new String[]{
-					"",
-					ChatColor.GRAY + "An amethyst-studded copper ring enchanted",
-					ChatColor.GRAY + "by the memories of the long-dead Duke Croc.",
-					ChatColor.GRAY + "Legends say his health was enhanced by",
-					ChatColor.GRAY + "a failed experiment that made his",
-					ChatColor.GRAY + "skin as tough as a crocodile's.",
-					"",
-					ChatColor.AQUA + "+2  ❤  when worn in the overworld/nether/end",
-					ChatColor.GRAY + "(put this in your ender chest to 'wear' it)",
-			});
-
-	private static ItemStack DUKE_RING_PENGUIN_ITEM = createCustomItem(Material.INK_SAC,
-			ChatColor.DARK_RED + "Duchess Penguin's Fairy Ring",
-			new ItemFlag[]{ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ENCHANTS},
-			new String[]{
-					"",
-					ChatColor.GRAY + "An amethyst-studded copper ring enchanted",
-					ChatColor.GRAY + "by the memories of the long-dead",
-					ChatColor.GRAY + "Duchess Penguin. Rumors say her health",
-					ChatColor.GRAY + "was enhanced by fairies who thought",
-					ChatColor.GRAY + "she was as carefree as a frolicking penguin.",
-					"",
-					ChatColor.AQUA + "+2  ❤  when worn in the overworld/nether/end",
-					ChatColor.GRAY + "(put this in your ender chest to 'wear' it)",
-			});
-
-	static final ItemStack[] DUKE_RINGS = new ItemStack[] {
-			DUKE_RING_TYLER_ITEM,
-			DUKE_RING_THING_ITEM,
-			DUKE_RING_CROC_ITEM,
-			DUKE_RING_PENGUIN_ITEM
-	};
-
-	private static final String DUKE_ITEM_KEY = "rp:duke_ring";
-
-	static ItemStack createRandomDukeRing(Player player) {
-		ItemStack item = DUKE_RINGS[ThreadLocalRandom.current().nextInt(DUKE_RINGS.length)].clone();
-		ItemMeta meta = item.getItemMeta();
-		meta.addEnchant(Enchantment.LUCK, 1, true);
-
-		List<String> lore = meta.getLore();
-		lore.add(ChatColor.DARK_GRAY + player.getUniqueId().toString());
-		lore.add(ChatColor.BLACK + DUKE_ITEM_KEY);
-
-		meta.setLore(lore);
-		item.setItemMeta(meta);
-
-		return item;
+	ItemStack getItem() {
+		return item.clone();
 	}
 
-	static boolean isDukeRingFor(ItemStack item, UUID uuid) {
-		if (!item.hasItemMeta()) {
-			return false;
-		}
-		ItemMeta meta = item.getItemMeta();
-		if (!meta.hasLore()) {
-			return false;
-		}
-		List<String> lore = meta.getLore();
-		if (lore.size() < 2) {
-			return false;
-		}
-		String lastButOne = lore.get(lore.size() - 2);
-		String last = lore.get(lore.size() - 1);
-		return last.endsWith(DUKE_ITEM_KEY) && lastButOne.endsWith(uuid.toString());
+	ItemStack getItem(int amount) {
+		ItemStack result = item.clone();
+		result.setAmount(amount);
+		return result;
 	}
 
-	private static ItemStack createCustomItem(Material material, String displayName, ItemFlag[] flags, String[] lore) {
-		ItemStack item = new ItemStack(material);
-		ItemMeta meta = item.getItemMeta();
+	String getKey() {
+		List<String> lore = item.getItemMeta().getLore();
+		return lore.get(lore.size() - 1);
+	}
 
-		meta.addEnchant(Enchantment.LUCK, 1, true);
+	boolean isRunestone() {
+		return getKey().contains("runestone");
+	}
+
+	boolean isRegenerationRunestone() {
+		return this == RUNESTONE_REGENERATION_STEAK
+				|| this == RUNESTONE_REGENERATION_SALMON
+				|| this == RUNESTONE_REGENERATION_CHICKEN;
+	}
+
+	boolean isHasteRunestone() {
+		return this == RUNESTONE_HASTE_BREAD;
+	}
+
+	boolean isSpeedRunestone() {
+		return this == RUNESTONE_SPEED_COOKIE;
+	}
+
+	boolean isStrengthRunestone() {
+		return this == RUNESTONE_STRENGTH_PIE;
+	}
+
+	boolean isNightvisionRunestone() {
+		return this == RUNESTONE_NIGHTVISION_POTATO
+				|| this == RUNESTONE_NIGHTVISION_PORKCHOP;
+	}
+
+	public static String getKey(ItemStack item) {
+		if (item.hasItemMeta()) {
+			ItemMeta meta = item.getItemMeta();
+			if (meta.hasLore()) {
+				List<String> lore = meta.getLore();
+				return lore.get(lore.size() - 1);
+			}
+		}
+		return "";
+	}
+
+	private static CustomItems[] possibleItems = CustomItems.values();
+
+	public static CustomItems getCustomItem(ItemStack item) {
+		return Arrays.stream(possibleItems)
+				.filter(x -> x.getKey().equals(getKey(item)) && x.getItem().getType() == item.getType())
+				.findFirst()
+				.orElse(null);
+	}
+
+	private static ItemStack createCustomItem(Material material, String displayName, String[] lore, String key) {
+		return createCustomItem(material, displayName, Arrays.asList(lore), key);
+	}
+
+	private static ItemStack createCustomItem(Material material, String displayName, String lore, String key) {
+		return createCustomItem(material, displayName, Collections.singletonList(lore), key);
+	}
+
+	private static ItemStack createCustomItem(Material material, String displayName, List<String> lore, String key) {
+		ItemStack result = new ItemStack(material);
+		ItemMeta meta = result.getItemMeta();
 		meta.setDisplayName(displayName);
-		Arrays.stream(flags).forEach(meta::addItemFlags);
-		meta.setLore(Arrays.asList(lore));
+		lore = new ArrayList<>(lore);
+		lore.add(ChatColor.BLACK + key);
+		meta.setLore(lore);
+		result.setItemMeta(meta);
 
-		item.setItemMeta(meta);
+		return result;
+	}
 
-		return item;
+	public static ItemStack getRegenerationRunestone(Material material) {
+		return getRegenerationRunestone(material, 3);
+	}
+
+	public static ItemStack getRegenerationRunestone(Material material, int amount) {
+		switch (material) {
+			case COOKED_BEEF:
+				return RUNESTONE_REGENERATION_STEAK.getItem(amount);
+			case COOKED_CHICKEN:
+				return RUNESTONE_REGENERATION_CHICKEN.getItem(amount);
+			case COOKED_SALMON:
+				return RUNESTONE_REGENERATION_SALMON.getItem(amount);
+		}
+		return null;
 	}
 }

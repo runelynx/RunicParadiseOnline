@@ -1051,7 +1051,7 @@ public class Faith {
 
 	public int trySkillUp(Player p, String faithName, int chance, String type) {
 		// int randomNum = rand.nextInt((max - min) + 1) + min;
-		int randomNum = RunicParadise.randomSeed.nextInt((100 - 0) + 1) + 0;
+		int randomNum = RunicParadise.randomSeed.nextInt(101);
 
 		if (!this.checkEquippedFaithLevel(faithName,
 				Integer.parseInt(RunicParadise.faithSettingsMap.get(faithName)[4]))) {

@@ -135,8 +135,7 @@ public class Borderlands {
 		}
 	}
 
-	public static Boolean spawnBLMob(CreatureSpawnEvent event) {
-
+	static boolean spawnBLMob(CreatureSpawnEvent event) {
 		if (event.getEntityType() == EntityType.ZOMBIE) {
 
 			// nextInt is normally exclusive of the top value,
@@ -210,7 +209,7 @@ public class Borderlands {
 
 		Random rand = new Random();
 		int value = rand.nextInt(1000);
-		Boolean isBL = false;
+		boolean isBL = false;
 		String playerCurrentRank = RunicParadise.perms.getPrimaryGroup(p);
 
 		double percentChanceForSpecialRankDrop = 0;
@@ -1173,7 +1172,7 @@ public class Borderlands {
 
 		switch (key) {
 		case "BaronPendant1":
-			item = new ItemStack(Material.INK_SAC, 1, (short) 12);
+			item = new ItemStack(Material.LIGHT_BLUE_DYE);
 			meta = item.getItemMeta();
 			meta.setDisplayName(ChatColor.DARK_RED + "Baron Alex's Harmonic Pendant");
 			meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ENCHANTS);
@@ -1193,7 +1192,7 @@ public class Borderlands {
 			item.setItemMeta(meta);
 			return item;
 		case "BaronPendant2":
-			item = new ItemStack(Material.INK_SAC, 1, (short) 12);
+			item = new ItemStack(Material.LIGHT_BLUE_DYE);
 			meta = item.getItemMeta();
 			meta.setDisplayName(ChatColor.DARK_RED + "Baroness Runa's Dissonant Pendant");
 			meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ENCHANTS);
@@ -1213,7 +1212,7 @@ public class Borderlands {
 			item.setItemMeta(meta);
 			return item;
 		case "BaronMetal":
-			item = new ItemStack(Material.IRON_NUGGET, 1);
+			item = new ItemStack(Material.IRON_NUGGET);
 			meta = item.getItemMeta();
 			meta.setDisplayName(ChatColor.AQUA + "Shiny Bit of Silver");
 			loreText.add("");
@@ -1226,7 +1225,7 @@ public class Borderlands {
 
 			return item;
 		case "BaronGem":
-			item = new ItemStack(Material.INK_SAC, 1, (short) 12);
+			item = new ItemStack(Material.LIGHT_BLUE_DYE);
 			meta = item.getItemMeta();
 			meta.setDisplayName(ChatColor.AQUA + "Prismatic Jewel of the Nether Baron");
 			loreText.add("");
@@ -1241,7 +1240,7 @@ public class Borderlands {
 
 			return item;
 		case "BaronIngot1":
-			item = new ItemStack(Material.IRON_INGOT, 1);
+			item = new ItemStack(Material.IRON_INGOT);
 			meta = item.getItemMeta();
 			meta.setDisplayName(ChatColor.AQUA + "Empowered Silver Ingot");
 			loreText.add("");
@@ -1256,7 +1255,7 @@ public class Borderlands {
 
 			return item;
 		case "BaronIngot2":
-			item = new ItemStack(Material.IRON_INGOT, 1);
+			item = new ItemStack(Material.IRON_INGOT);
 			meta = item.getItemMeta();
 			meta.setDisplayName(ChatColor.AQUA + "Unstable Silver Ingot");
 			loreText.add("");
@@ -1271,7 +1270,7 @@ public class Borderlands {
 
 			return item;
 		case "DukeGem":
-			item = new ItemStack(Material.INK_SAC, 1, (short) 5);
+			item = new ItemStack(Material.PURPLE_DYE);
 			meta = item.getItemMeta();
 			meta.setDisplayName(ChatColor.AQUA + "Fragment of a Perfect Amethyst");
 			loreText.add("");
@@ -1300,7 +1299,7 @@ public class Borderlands {
 			item.setItemMeta(meta);
 			return item;
 		case "DukeEssence":
-			item = new ItemStack(Material.GUNPOWDER, 1);
+			item = new ItemStack(Material.GUNPOWDER);
 			meta = item.getItemMeta();
 			meta.setDisplayName(ChatColor.AQUA + "Crystallized Memory of Ancient Dukes");
 			loreText.add("");
@@ -1314,7 +1313,7 @@ public class Borderlands {
 			item.setItemMeta(meta);
 			return item;
 		case "DukeRing1":
-			item = new ItemStack(Material.INK_SAC, 1, (short) 5);
+			item = new ItemStack(Material.PURPLE_DYE);
 			meta = item.getItemMeta();
 			meta.setDisplayName(ChatColor.DARK_RED + "Duke Tyler's Demonic Ring");
 			meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ENCHANTS);
@@ -1333,7 +1332,7 @@ public class Borderlands {
 			item.setItemMeta(meta);
 			return item;
 		case "DukeRing2":
-			item = new ItemStack(Material.INK_SAC, 1, (short) 5);
+			item = new ItemStack(Material.PURPLE_DYE);
 			meta = item.getItemMeta();
 			meta.setDisplayName(ChatColor.DARK_RED + "Duchess Thing's Angelic Ring");
 			meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ENCHANTS);
@@ -1352,7 +1351,7 @@ public class Borderlands {
 			item.setItemMeta(meta);
 			return item;
 		case "DukeRing3":
-			item = new ItemStack(Material.INK_SAC, 1, (short) 5);
+			item = new ItemStack(Material.PURPLE_DYE);
 			meta = item.getItemMeta();
 			meta.setDisplayName(ChatColor.DARK_RED + "Duke Croc's Reptilian Ring");
 			meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ENCHANTS);
@@ -1372,7 +1371,7 @@ public class Borderlands {
 			item.setItemMeta(meta);
 			return item;
 		case "DukeRing4":
-			item = new ItemStack(Material.INK_SAC, 1, (short) 5);
+			item = new ItemStack(Material.PURPLE_DYE);
 			meta = item.getItemMeta();
 			meta.setDisplayName(ChatColor.DARK_RED + "Duchess Penguin's Fairy Ring");
 			meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ENCHANTS);
