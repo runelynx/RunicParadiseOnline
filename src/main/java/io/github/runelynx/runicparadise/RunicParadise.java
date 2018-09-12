@@ -823,9 +823,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 
 	@EventHandler
 	public void onPlayerChat(AsyncPlayerChatEvent event) {
-		String sword = "";
-
-		String playerRankColor = "";
+		String playerRankColor;
 
 		if (RunicParadise.playerProfiles.get(event.getPlayer().getUniqueId()).getChatColor() == null) {
 			playerRankColor = ChatColor.GRAY + "";
@@ -858,15 +856,16 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 		String staffPrefix = ChatColor.DARK_GRAY + "" + ChatColor.ITALIC + "SV ";
 		String donatorPrefix = "";
 		String newbiePrefix = "";
+		Player player = event.getPlayer();
 
 		// HANDLE DONATORS
-		if (event.getPlayer().hasPermission("rp.donator.diamond")) {
+		if (player.hasPermission("rp.donator.diamond")) {
 			donatorPrefix = ChatColor.AQUA + "✩";
-		} else if (event.getPlayer().hasPermission("rp.donator.emerald")) {
+		} else if (player.hasPermission("rp.donator.emerald")) {
 			donatorPrefix = ChatColor.GREEN + "✩";
-		} else if (event.getPlayer().hasPermission("rp.donator.iron")) {
+		} else if (player.hasPermission("rp.donator.iron")) {
 			donatorPrefix = ChatColor.GRAY + "✩";
-		} else if (event.getPlayer().hasPermission("rp.donator.gold")) {
+		} else if (player.hasPermission("rp.donator.gold")) {
 			donatorPrefix = ChatColor.GOLD + "✩";
 		}
 
@@ -876,36 +875,37 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 		}
 
 		// //// HANDLE STAFF
-		if (event.getPlayer().hasPermission("rp.staff")) {
-			if ((event.getPlayer().hasPermission("rp.staff.admin"))) {
-				staffPrefix += ChatColor.DARK_RED + "<Admin> ";
-			} else if ((event.getPlayer().hasPermission("rp.staff.mod+"))) {
-				staffPrefix += ChatColor.DARK_RED + "<Mod+> ";
-			} else if ((event.getPlayer().hasPermission("rp.staff.mod"))) {
-				staffPrefix += ChatColor.DARK_RED + "<Mod> ";
-			} else if ((event.getPlayer().hasPermission("rp.staff.director"))) {
-				staffPrefix += ChatColor.DARK_RED + "<Director> ";
-			} else if ((event.getPlayer().hasPermission("rp.staff.architect"))) {
-				staffPrefix += ChatColor.DARK_RED + "<Architect> ";
-			} else if ((event.getPlayer().hasPermission("rp.staff.enforcer"))) {
-				staffPrefix += ChatColor.DARK_RED + "<Enforcer> ";
-			} else if ((event.getPlayer().hasPermission("rp.staff.helper"))) {
-				staffPrefix += ChatColor.DARK_RED + "<Helper> ";
+		if (player.hasPermission("rp.staff")) {
+			staffPrefix += ChatColor.DARK_RED;
+			if (player.hasPermission("rp.staff.admin")) {
+				staffPrefix += "<Admin> ";
+			} else if (player.hasPermission("rp.staff.mod+")) {
+				staffPrefix += "<Mod+> ";
+			} else if (player.hasPermission("rp.staff.mod")) {
+				staffPrefix += "<Mod> ";
+			} else if (player.hasPermission("rp.staff.director")) {
+				staffPrefix += "<Director> ";
+			} else if (player.hasPermission("rp.staff.architect")) {
+				staffPrefix += "<Architect> ";
+			} else if (player.hasPermission("rp.staff.enforcer")) {
+				staffPrefix += "<Enforcer> ";
+			} else if (player.hasPermission("rp.staff.helper")) {
+				staffPrefix += "<Helper> ";
 			}
 
 			// //// HANDLE LEGENDS
-		} else if (event.getPlayer().hasPermission("rp.guardian")) {
+		} else if (player.hasPermission("rp.guardian")) {
 			staffPrefix += ChatColor.BLUE + "<Legend> ";
-		} else if (event.getPlayer().hasPermission("rp.pirate")) {
+		} else if (player.hasPermission("rp.pirate")) {
 			staffPrefix += ChatColor.BLUE + "<Pirate> ";
-		} else if (event.getPlayer().hasPermission("rp.guide")) {
+		} else if (player.hasPermission("rp.guide")) {
 			staffPrefix += ChatColor.DARK_GREEN + "<Guide> ";
 		}
 
 		// //// HANDLE FAITHS FOR ALL BUT GHOSTS
 		String faithPrefix = "";
 
-		if (!event.getPlayer().hasPermission("rp.ghost")) {
+		if (!player.hasPermission("rp.ghost")) {
 			String currentFaith = RunicParadise.faithMap.get(event.getPlayer().getUniqueId()).getPrimaryFaith();
 			if (RunicParadise.faithMap.get(event.getPlayer().getUniqueId()).checkEquippedFaithLevel(currentFaith,
 					Integer.parseInt(RunicParadise.faithSettingsMap.get(currentFaith)[4]))) {
@@ -917,88 +917,70 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 		}
 
 		// //// HANDLE LORDS
-		if (perms.getPrimaryGroup(event.getPlayer()).equals("Lord")) {
-
-			String genderRank = "";
+		if (perms.getPrimaryGroup(player).equals("Lord")) {
+			String genderRank;
 			if (playerProfiles.get(event.getPlayer().getUniqueId()).getGender() == 'M') {
 				genderRank = "Lord";
 			} else {
 				genderRank = "Lady";
 			}
 
-			event.setFormat(staffPrefix + donatorPrefix + playerRankColor + faithPrefix + playerRankColor
-					+ genderRank.toLowerCase() + " "
-
-					+ playerRankColor + event.getPlayer().getDisplayName() + ChatColor.WHITE + ": %2$s");
+			event.setFormat(staffPrefix + donatorPrefix + playerRankColor + faithPrefix + playerRankColor + genderRank.toLowerCase() +
+					" " + playerRankColor + event.getPlayer().getDisplayName() + ChatColor.WHITE + ": %2$s");
 		} else
 		// //// HANDLE COUNTS
 		if (perms.getPrimaryGroup(event.getPlayer()).equals("Count")) {
-
-			String genderRank = "";
+			String genderRank;
 			if (playerProfiles.get(event.getPlayer().getUniqueId()).getGender() == 'M') {
 				genderRank = "Count";
 			} else {
 				genderRank = "Countess";
 			}
 
-			event.setFormat(staffPrefix + donatorPrefix + playerRankColor + faithPrefix + playerRankColor
-					+ genderRank.toLowerCase() + " "
-
-					+ playerRankColor + event.getPlayer().getDisplayName() + ChatColor.WHITE + ": %2$s");
+			event.setFormat(staffPrefix + donatorPrefix + playerRankColor + faithPrefix + playerRankColor + genderRank.toLowerCase() +
+					" " + playerRankColor + event.getPlayer().getDisplayName() + ChatColor.WHITE + ": %2$s");
 		} else
 		// //// HANDLE BARONS
-		if (perms.getPrimaryGroup(event.getPlayer()).equals("Baron")) {
-
-			String genderRank = "";
-			if (playerProfiles.get(event.getPlayer().getUniqueId()).getGender() == 'M') {
+		if (perms.getPrimaryGroup(player).equals("Baron")) {
+			String genderRank;
+			if (playerProfiles.get(player.getUniqueId()).getGender() == 'M') {
 				genderRank = "Baron";
 			} else {
 				genderRank = "Baroness";
 			}
 
-			event.setFormat(staffPrefix + donatorPrefix + playerRankColor + faithPrefix + playerRankColor
-					+ genderRank.toLowerCase() + " "
-
-					+ playerRankColor + event.getPlayer().getDisplayName() + ChatColor.WHITE + ": %2$s");
+			event.setFormat(staffPrefix + donatorPrefix + playerRankColor + faithPrefix + playerRankColor + genderRank.toLowerCase() +
+					" " + playerRankColor + event.getPlayer().getDisplayName() + ChatColor.WHITE + ": %2$s");
 		} else
 		// //// HANDLE DUKES
-		if (perms.getPrimaryGroup(event.getPlayer()).equals("Duke")) {
-
-			String genderRank = "";
-			if (playerProfiles.get(event.getPlayer().getUniqueId()).getGender() == 'M') {
+		if (perms.getPrimaryGroup(player).equals("Duke")) {
+			String genderRank;
+			if (playerProfiles.get(player.getUniqueId()).getGender() == 'M') {
 				genderRank = "Duke";
 			} else {
 				genderRank = "Duchess";
 			}
 
-			event.setFormat(staffPrefix + donatorPrefix + playerRankColor + faithPrefix + playerRankColor
-					+ genderRank.toLowerCase() + " "
-
-					+ playerRankColor + event.getPlayer().getDisplayName() + ChatColor.WHITE + ": %2$s");
+			event.setFormat(staffPrefix + donatorPrefix + playerRankColor + faithPrefix + playerRankColor + genderRank.toLowerCase() +
+					" " + playerRankColor + event.getPlayer().getDisplayName() + ChatColor.WHITE + ": %2$s");
 
 			// //// HANDLE MULTICOLORED SLAYER TITLE
 		} else if (perms.getPrimaryGroup(event.getPlayer()).equals("Slayer")) {
 			event.setFormat(staffPrefix + donatorPrefix + ChatColor.BLUE + faithPrefix
 					+ RunicParadise.rankColors.get(perms.getPrimaryGroup(event.getPlayer()))
 					+ perms.getPrimaryGroup(event.getPlayer()).toLowerCase() + " "
-					// + ChatColor.GRAY + "{jobs}"
-
 					+ ChatColor.BLUE + event.getPlayer().getDisplayName() + ChatColor.WHITE + ": %2$s");
 			// //// HANDLE FAITHS FOR ALL BUT GHOSTS SLAYERS
 		} else if (!event.getPlayer().hasPermission("rp.GHOST")) {
 			event.setFormat(staffPrefix + donatorPrefix + newbiePrefix + playerRankColor + faithPrefix
 					+ perms.getPrimaryGroup(event.getPlayer()).toLowerCase() + ChatColor.GRAY + " "
-					// + "{jobs}"
-
 					+ playerRankColor + event.getPlayer().getDisplayName() + ChatColor.WHITE + ": %2$s");
 		} else {
 			// //// HANDLE GHOSTS
 			event.setFormat(staffPrefix + donatorPrefix + playerRankColor + perms.getPrimaryGroup(event.getPlayer())
 					+ ChatColor.GRAY + " "
-					// + "{jobs}"
 					+ playerRankColor + event.getPlayer().getDisplayName() + ChatColor.WHITE + ": %2$s");
 		}
-
 	}
 
 	@EventHandler(priority = EventPriority.LOWEST)
@@ -1755,13 +1737,13 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 				}
 			} else */
 			if (event.getClickedBlock().getType().equals(Material.SPAWNER)
-					&& event.getPlayer().getItemInHand().getType().getId() == 383) {
+					&& event.getPlayer().getInventory().getItemInMainHand().getType().getId() == 383) {
 				event.setCancelled(true);
 				RunicMessaging.sendMessage(event.getPlayer(), RunicMessaging.RunicFormat.ERROR, "You cannot do that!");
 
 			} else if (event.getClickedBlock().getType().equals(Material.STONE_BRICKS)
 					&& event.getPlayer().hasPermission("rp.admin")
-					&& event.getPlayer().getItemInHand().getType() == Material.BLAZE_ROD) {
+					&& event.getPlayer().getInventory().getItemInMainHand().getType() == Material.BLAZE_ROD) {
 				placeRunicEye(event.getClickedBlock().getLocation(), event.getPlayer());
 
 			} else if (event.getClickedBlock().getType().equals(Material.STONE_BRICKS)
@@ -1822,8 +1804,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 	@EventHandler(priority = EventPriority.NORMAL)
 	public void onPlayerDamage(final EntityDamageEvent ede) {
 
-		boolean daytime;
-		daytime = (Bukkit.getWorld("RunicRealm").getTime() <= 14000 || Bukkit.getWorld("RunicRealm").getTime() >= 23000);
+		boolean daytime = (Bukkit.getWorld("RunicRealm").getTime() <= 14000 || Bukkit.getWorld("RunicRealm").getTime() >= 23000);
 
 		// handle deaths in the dungeon maze
 		if (ede.getEntity() instanceof Player) {
@@ -1863,7 +1844,6 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 						ede.getEntity().teleport(new Location(Bukkit.getWorld("RunicSky"), 326.007, 55.000, 543.292, 64.890015f, -9.449995f));
 
 						((Player) ede.getEntity()).setGameMode(GameMode.SURVIVAL);
-
 					}
 				}
 			}
@@ -1917,9 +1897,8 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 
 	@EventHandler(priority = EventPriority.LOWEST)
 	public void onEntityDamageByEntity(EntityDamageByEntityEvent edbe) {
-
 		if (edbe.getDamager() instanceof Player) {
-			if (((Player) edbe.getDamager()).getItemInHand().getType().equals(Material.NETHER_STAR)) {
+			if (((Player) edbe.getDamager()).getInventory().getItemInMainHand().getType().equals(Material.NETHER_STAR)) {
 				edbe.setCancelled(true);
 				edbe.getDamager().sendMessage("That cannot be used as a weapon anymore.");
 				return;
@@ -1960,7 +1939,6 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 
 	@EventHandler
 	public void onEntityDeath(final EntityDeathEvent ede) {
-
 		Boolean farming = false;
 
 		// check for Monsters... Flying=Ghast... Slime=Slime/Magmacube...
@@ -1998,230 +1976,226 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 				// so nothing recorded!
 
 			} else {
+				// end run()
+				Bukkit.getServer().getScheduler().runTaskAsynchronously(instance, () -> {
+					RunicParadise.playerProfiles.get(monsterEnt.getKiller().getUniqueId())
+							.trackMobKill(ede);
 
-				Bukkit.getServer().getScheduler().runTaskAsynchronously(instance, new Runnable() {
+					String mobType = "";
+					Boolean attemptPowersSkillUp = false;
+					Boolean heldWeaponHasLore = false;
+					int faithStrength = 0;
 
-					public void run() {
+					if (monsterEnt.getKiller().getItemInHand() != null
+							&& monsterEnt.getKiller().getItemInHand().hasItemMeta()) {
+						if (monsterEnt.getKiller().getItemInHand().getItemMeta().hasLore()) {
 
-						RunicParadise.playerProfiles.get(monsterEnt.getKiller().getUniqueId())
-								.trackMobKill(ede);
-
-						String mobType = "";
-						Boolean attemptPowersSkillUp = false;
-						Boolean heldWeaponHasLore = false;
-						int faithStrength = 0;
-
-						if (monsterEnt.getKiller().getItemInHand() != null
-								&& monsterEnt.getKiller().getItemInHand().hasItemMeta()) {
-							if (monsterEnt.getKiller().getItemInHand().getItemMeta().hasLore()) {
-
-								if (monsterEnt.getKiller().getItemInHand().getItemMeta().getLore().toString()
-										.contains("A blessed blade with a faint glow")) {
-									heldWeaponHasLore = true;
-									faithStrength = 1;
-								} else if (monsterEnt.getKiller().getItemInHand().getItemMeta().getLore().toString()
-										.contains("A blessed blade with a pulsing glow")) {
-									heldWeaponHasLore = true;
-									faithStrength = 2;
-								} else if (monsterEnt.getKiller().getItemInHand().getItemMeta().getLore().toString()
-										.contains("A blessed blade with a blinding glow")) {
-									heldWeaponHasLore = true;
-									faithStrength = 3;
-								} else if (monsterEnt.getKiller().getItemInHand().getItemMeta().getLore().toString()
-										.contains("A corrupted axe with a crimson glow")) {
-									heldWeaponHasLore = true;
-									faithStrength = 4;
-								} else {
-									heldWeaponHasLore = false;
-
-								}
+							if (monsterEnt.getKiller().getItemInHand().getItemMeta().getLore().toString()
+									.contains("A blessed blade with a faint glow")) {
+								heldWeaponHasLore = true;
+								faithStrength = 1;
+							} else if (monsterEnt.getKiller().getItemInHand().getItemMeta().getLore().toString()
+									.contains("A blessed blade with a pulsing glow")) {
+								heldWeaponHasLore = true;
+								faithStrength = 2;
+							} else if (monsterEnt.getKiller().getItemInHand().getItemMeta().getLore().toString()
+									.contains("A blessed blade with a blinding glow")) {
+								heldWeaponHasLore = true;
+								faithStrength = 3;
+							} else if (monsterEnt.getKiller().getItemInHand().getItemMeta().getLore().toString()
+									.contains("A corrupted axe with a crimson glow")) {
+								heldWeaponHasLore = true;
+								faithStrength = 4;
 							} else {
 								heldWeaponHasLore = false;
+
 							}
+						} else {
+							heldWeaponHasLore = false;
 						}
+					}
 
-						// 1 in the trackable entities map represents a hostile
-						// mob
-						if (RunicParadise.trackableEntityKillsMap.get(ede.getEntityType()) == 1 && heldWeaponHasLore) {
-							faithMap.get(monsterEnt.getKiller().getUniqueId()).trySkillUp(
-									monsterEnt.getKiller(),
-									faithMap.get(monsterEnt.getKiller().getUniqueId()).getPrimaryFaith(), faithStrength,
-									"FaithWeapon");
-						}
-						/*
-						 * // check for elder guardians if (monsterEnt.getType()
-						 * == EntityType.GUARDIAN) { if (((Guardian)
-						 * monsterEnt).isElder()) { mobType = "ELDER_GUARDIAN";
-						 * } else { mobType = "GUARDIAN"; } } else { mobType =
-						 * monsterEnt.getType().toString(); }
-						 */
-						/*
-						 * switch (mobType) { case "SHULKER":
-						 * RunicPlayerBukkit.incrementPlayerKillCount(monsterEnt
-						 * .getKiller().getUniqueId(), "KillShulker");
-						 * attemptPowersSkillUp = true; break; case "ZOMBIE":
-						 *
-						 * if (((org.bukkit.entity.Zombie)
-						 * monsterEnt).getVillagerProfession() ==
-						 * Profession.HUSK) {
-						 * RunicPlayerBukkit.incrementPlayerKillCount(monsterEnt
-						 * .getKiller().getUniqueId(), "KillHusk");
-						 * attemptPowersSkillUp = true; } else {
-						 * RunicPlayerBukkit.incrementPlayerKillCount(monsterEnt
-						 * .getKiller().getUniqueId(), "KillZombie");
-						 * attemptPowersSkillUp = true; }
-						 *
-						 * break; case "IRON_GOLEM":
-						 * RunicPlayerBukkit.incrementPlayerKillCount(monsterEnt
-						 * .getKiller().getUniqueId(), "KillIronGolem");
-						 * attemptPowersSkillUp = true; break; case "WITHER":
-						 * RunicPlayerBukkit.incrementPlayerKillCount(monsterEnt
-						 * .getKiller().getUniqueId(), "KillWither");
-						 * attemptPowersSkillUp = true; break; case "SKELETON":
-						 *
-						 * if (((org.bukkit.entity.Skeleton)
-						 * monsterEnt).getSkeletonType() == SkeletonType.STRAY)
-						 * {
-						 * RunicPlayerBukkit.incrementPlayerKillCount(monsterEnt
-						 * .getKiller().getUniqueId(), "KillStray");
-						 * attemptPowersSkillUp = true; } else if
-						 * (((org.bukkit.entity.Skeleton) monsterEnt)
-						 * .getSkeletonType() == SkeletonType.WITHER) {
-						 * RunicPlayerBukkit.incrementPlayerKillCount(monsterEnt
-						 * .getKiller().getUniqueId(), "KillWSkeleton");
-						 * attemptPowersSkillUp = true; } else {
-						 * RunicPlayerBukkit.incrementPlayerKillCount(monsterEnt
-						 * .getKiller().getUniqueId(), "KillSkeleton");
-						 * attemptPowersSkillUp = true; }
-						 *
-						 * break; case "SLIME":
-						 * RunicPlayerBukkit.incrementPlayerKillCount(monsterEnt
-						 * .getKiller().getUniqueId(), "KillSlime");
-						 * attemptPowersSkillUp = true; break; case
-						 * "MAGMA_CUBE":
-						 * RunicPlayerBukkit.incrementPlayerKillCount(monsterEnt
-						 * .getKiller().getUniqueId(), "KillMagmaCube");
-						 * attemptPowersSkillUp = true; break; case "WITCH":
-						 * RunicPlayerBukkit.incrementPlayerKillCount(monsterEnt
-						 * .getKiller().getUniqueId(), "KillWitch");
-						 * attemptPowersSkillUp = true; break; case
-						 * "SILVERFISH":
-						 * RunicPlayerBukkit.incrementPlayerKillCount(monsterEnt
-						 * .getKiller().getUniqueId(), "KillSilverfish");
-						 * attemptPowersSkillUp = true; break; case "GIANT":
-						 * RunicPlayerBukkit.incrementPlayerKillCount(monsterEnt
-						 * .getKiller().getUniqueId(), "KillGiant"); break; case
-						 * "BLAZE":
-						 * RunicPlayerBukkit.incrementPlayerKillCount(monsterEnt
-						 * .getKiller().getUniqueId(), "KillBlaze");
-						 * attemptPowersSkillUp = true; break; case "CREEPER":
-						 * RunicPlayerBukkit.incrementPlayerKillCount(monsterEnt
-						 * .getKiller().getUniqueId(), "KillCreeper");
-						 * attemptPowersSkillUp = true; break; case "ENDERMAN":
-						 * RunicPlayerBukkit.incrementPlayerKillCount(monsterEnt
-						 * .getKiller().getUniqueId(), "KillEnderman");
-						 * attemptPowersSkillUp = true; break; case "SPIDER":
-						 * RunicPlayerBukkit.incrementPlayerKillCount(monsterEnt
-						 * .getKiller().getUniqueId(), "KillSpider");
-						 * attemptPowersSkillUp = true; break; case
-						 * "CAVE_SPIDER":
-						 * RunicPlayerBukkit.incrementPlayerKillCount(monsterEnt
-						 * .getKiller().getUniqueId(), "KillCaveSpider");
-						 * attemptPowersSkillUp = true; break; case "SQUID":
-						 * RunicPlayerBukkit.incrementPlayerKillCount(monsterEnt
-						 * .getKiller().getUniqueId(), "KillSquid");
-						 * attemptPowersSkillUp = true; break; case
-						 * "ENDER_DRAGON":
-						 * RunicPlayerBukkit.incrementPlayerKillCount(monsterEnt
-						 * .getKiller().getUniqueId(), "KillEnderDragon");
-						 * attemptPowersSkillUp = true; break; case
-						 * "PIG_ZOMBIE":
-						 * RunicPlayerBukkit.incrementPlayerKillCount(monsterEnt
-						 * .getKiller().getUniqueId(), "KillPigZombie");
-						 * attemptPowersSkillUp = true; break; case "GHAST":
-						 * RunicPlayerBukkit.incrementPlayerKillCount(monsterEnt
-						 * .getKiller().getUniqueId(), "KillGhast");
-						 * attemptPowersSkillUp = true; break; case "CHICKEN":
-						 * RunicPlayerBukkit.incrementPlayerKillCount(monsterEnt
-						 * .getKiller().getUniqueId(), "KillChicken"); break;
-						 * case "COW":
-						 * RunicPlayerBukkit.incrementPlayerKillCount(monsterEnt
-						 * .getKiller().getUniqueId(), "KillCow"); break; case
-						 * "SHEEP":
-						 * RunicPlayerBukkit.incrementPlayerKillCount(monsterEnt
-						 * .getKiller().getUniqueId(), "KillSheep"); break; case
-						 * "PIG":
-						 * RunicPlayerBukkit.incrementPlayerKillCount(monsterEnt
-						 * .getKiller().getUniqueId(), "KillPig"); break; case
-						 * "OCELOT":
-						 * RunicPlayerBukkit.incrementPlayerKillCount(monsterEnt
-						 * .getKiller().getUniqueId(), "KillOcelot"); break;
-						 * case "BAT":
-						 * RunicPlayerBukkit.incrementPlayerKillCount(monsterEnt
-						 * .getKiller().getUniqueId(), "KillBat");
-						 * attemptPowersSkillUp = true; break; case
-						 * "MUSHROOM_COW":
-						 * RunicPlayerBukkit.incrementPlayerKillCount(monsterEnt
-						 * .getKiller().getUniqueId(), "KillMooshroom"); break;
-						 * case "RABBIT":
-						 * RunicPlayerBukkit.incrementPlayerKillCount(monsterEnt
-						 * .getKiller().getUniqueId(), "KillRabbit"); break;
-						 * case "POLAR_BEAR":
-						 * RunicPlayerBukkit.incrementPlayerKillCount(monsterEnt
-						 * .getKiller().getUniqueId(), "KillPolarBear"); break;
-						 * case "WOLF":
-						 * RunicPlayerBukkit.incrementPlayerKillCount(monsterEnt
-						 * .getKiller().getUniqueId(), "KillWolf");
-						 * attemptPowersSkillUp = true; break; case "ENDERMITE":
-						 * RunicPlayerBukkit.incrementPlayerKillCount(monsterEnt
-						 * .getKiller().getUniqueId(), "KillEndermite");
-						 * attemptPowersSkillUp = true; break; case "GUARDIAN":
-						 * RunicPlayerBukkit.incrementPlayerKillCount(monsterEnt
-						 * .getKiller().getUniqueId(), "KillGuardian");
-						 * attemptPowersSkillUp = true; break; case
-						 * "ELDER_GUARDIAN":
-						 * RunicPlayerBukkit.incrementPlayerKillCount(monsterEnt
-						 * .getKiller().getUniqueId(), "KillElderGuardian");
-						 * attemptPowersSkillUp = true; break; case "SNOWMAN":
-						 * RunicPlayerBukkit.incrementPlayerKillCount(monsterEnt
-						 * .getKiller().getUniqueId(), "KillSnowGolem"); break;
-						 * case "VILLAGER":
-						 * RunicPlayerBukkit.incrementPlayerKillCount(monsterEnt
-						 * .getKiller().getUniqueId(), "KillVillager"); break;
-						 * default: break; }
-						 */
+					// 1 in the trackable entities map represents a hostile
+					// mob
+					if (RunicParadise.trackableEntityKillsMap.get(ede.getEntityType()) == 1 && heldWeaponHasLore) {
+						faithMap.get(monsterEnt.getKiller().getUniqueId()).trySkillUp(
+								monsterEnt.getKiller(),
+								faithMap.get(monsterEnt.getKiller().getUniqueId()).getPrimaryFaith(), faithStrength,
+								"FaithWeapon");
+					}
+					/*
+					 * // check for elder guardians if (monsterEnt.getType()
+					 * == EntityType.GUARDIAN) { if (((Guardian)
+					 * monsterEnt).isElder()) { mobType = "ELDER_GUARDIAN";
+					 * } else { mobType = "GUARDIAN"; } } else { mobType =
+					 * monsterEnt.getType().toString(); }
+					 */
+					/*
+					 * switch (mobType) { case "SHULKER":
+					 * RunicPlayerBukkit.incrementPlayerKillCount(monsterEnt
+					 * .getKiller().getUniqueId(), "KillShulker");
+					 * attemptPowersSkillUp = true; break; case "ZOMBIE":
+					 *
+					 * if (((org.bukkit.entity.Zombie)
+					 * monsterEnt).getVillagerProfession() ==
+					 * Profession.HUSK) {
+					 * RunicPlayerBukkit.incrementPlayerKillCount(monsterEnt
+					 * .getKiller().getUniqueId(), "KillHusk");
+					 * attemptPowersSkillUp = true; } else {
+					 * RunicPlayerBukkit.incrementPlayerKillCount(monsterEnt
+					 * .getKiller().getUniqueId(), "KillZombie");
+					 * attemptPowersSkillUp = true; }
+					 *
+					 * break; case "IRON_GOLEM":
+					 * RunicPlayerBukkit.incrementPlayerKillCount(monsterEnt
+					 * .getKiller().getUniqueId(), "KillIronGolem");
+					 * attemptPowersSkillUp = true; break; case "WITHER":
+					 * RunicPlayerBukkit.incrementPlayerKillCount(monsterEnt
+					 * .getKiller().getUniqueId(), "KillWither");
+					 * attemptPowersSkillUp = true; break; case "SKELETON":
+					 *
+					 * if (((org.bukkit.entity.Skeleton)
+					 * monsterEnt).getSkeletonType() == SkeletonType.STRAY)
+					 * {
+					 * RunicPlayerBukkit.incrementPlayerKillCount(monsterEnt
+					 * .getKiller().getUniqueId(), "KillStray");
+					 * attemptPowersSkillUp = true; } else if
+					 * (((org.bukkit.entity.Skeleton) monsterEnt)
+					 * .getSkeletonType() == SkeletonType.WITHER) {
+					 * RunicPlayerBukkit.incrementPlayerKillCount(monsterEnt
+					 * .getKiller().getUniqueId(), "KillWSkeleton");
+					 * attemptPowersSkillUp = true; } else {
+					 * RunicPlayerBukkit.incrementPlayerKillCount(monsterEnt
+					 * .getKiller().getUniqueId(), "KillSkeleton");
+					 * attemptPowersSkillUp = true; }
+					 *
+					 * break; case "SLIME":
+					 * RunicPlayerBukkit.incrementPlayerKillCount(monsterEnt
+					 * .getKiller().getUniqueId(), "KillSlime");
+					 * attemptPowersSkillUp = true; break; case
+					 * "MAGMA_CUBE":
+					 * RunicPlayerBukkit.incrementPlayerKillCount(monsterEnt
+					 * .getKiller().getUniqueId(), "KillMagmaCube");
+					 * attemptPowersSkillUp = true; break; case "WITCH":
+					 * RunicPlayerBukkit.incrementPlayerKillCount(monsterEnt
+					 * .getKiller().getUniqueId(), "KillWitch");
+					 * attemptPowersSkillUp = true; break; case
+					 * "SILVERFISH":
+					 * RunicPlayerBukkit.incrementPlayerKillCount(monsterEnt
+					 * .getKiller().getUniqueId(), "KillSilverfish");
+					 * attemptPowersSkillUp = true; break; case "GIANT":
+					 * RunicPlayerBukkit.incrementPlayerKillCount(monsterEnt
+					 * .getKiller().getUniqueId(), "KillGiant"); break; case
+					 * "BLAZE":
+					 * RunicPlayerBukkit.incrementPlayerKillCount(monsterEnt
+					 * .getKiller().getUniqueId(), "KillBlaze");
+					 * attemptPowersSkillUp = true; break; case "CREEPER":
+					 * RunicPlayerBukkit.incrementPlayerKillCount(monsterEnt
+					 * .getKiller().getUniqueId(), "KillCreeper");
+					 * attemptPowersSkillUp = true; break; case "ENDERMAN":
+					 * RunicPlayerBukkit.incrementPlayerKillCount(monsterEnt
+					 * .getKiller().getUniqueId(), "KillEnderman");
+					 * attemptPowersSkillUp = true; break; case "SPIDER":
+					 * RunicPlayerBukkit.incrementPlayerKillCount(monsterEnt
+					 * .getKiller().getUniqueId(), "KillSpider");
+					 * attemptPowersSkillUp = true; break; case
+					 * "CAVE_SPIDER":
+					 * RunicPlayerBukkit.incrementPlayerKillCount(monsterEnt
+					 * .getKiller().getUniqueId(), "KillCaveSpider");
+					 * attemptPowersSkillUp = true; break; case "SQUID":
+					 * RunicPlayerBukkit.incrementPlayerKillCount(monsterEnt
+					 * .getKiller().getUniqueId(), "KillSquid");
+					 * attemptPowersSkillUp = true; break; case
+					 * "ENDER_DRAGON":
+					 * RunicPlayerBukkit.incrementPlayerKillCount(monsterEnt
+					 * .getKiller().getUniqueId(), "KillEnderDragon");
+					 * attemptPowersSkillUp = true; break; case
+					 * "PIG_ZOMBIE":
+					 * RunicPlayerBukkit.incrementPlayerKillCount(monsterEnt
+					 * .getKiller().getUniqueId(), "KillPigZombie");
+					 * attemptPowersSkillUp = true; break; case "GHAST":
+					 * RunicPlayerBukkit.incrementPlayerKillCount(monsterEnt
+					 * .getKiller().getUniqueId(), "KillGhast");
+					 * attemptPowersSkillUp = true; break; case "CHICKEN":
+					 * RunicPlayerBukkit.incrementPlayerKillCount(monsterEnt
+					 * .getKiller().getUniqueId(), "KillChicken"); break;
+					 * case "COW":
+					 * RunicPlayerBukkit.incrementPlayerKillCount(monsterEnt
+					 * .getKiller().getUniqueId(), "KillCow"); break; case
+					 * "SHEEP":
+					 * RunicPlayerBukkit.incrementPlayerKillCount(monsterEnt
+					 * .getKiller().getUniqueId(), "KillSheep"); break; case
+					 * "PIG":
+					 * RunicPlayerBukkit.incrementPlayerKillCount(monsterEnt
+					 * .getKiller().getUniqueId(), "KillPig"); break; case
+					 * "OCELOT":
+					 * RunicPlayerBukkit.incrementPlayerKillCount(monsterEnt
+					 * .getKiller().getUniqueId(), "KillOcelot"); break;
+					 * case "BAT":
+					 * RunicPlayerBukkit.incrementPlayerKillCount(monsterEnt
+					 * .getKiller().getUniqueId(), "KillBat");
+					 * attemptPowersSkillUp = true; break; case
+					 * "MUSHROOM_COW":
+					 * RunicPlayerBukkit.incrementPlayerKillCount(monsterEnt
+					 * .getKiller().getUniqueId(), "KillMooshroom"); break;
+					 * case "RABBIT":
+					 * RunicPlayerBukkit.incrementPlayerKillCount(monsterEnt
+					 * .getKiller().getUniqueId(), "KillRabbit"); break;
+					 * case "POLAR_BEAR":
+					 * RunicPlayerBukkit.incrementPlayerKillCount(monsterEnt
+					 * .getKiller().getUniqueId(), "KillPolarBear"); break;
+					 * case "WOLF":
+					 * RunicPlayerBukkit.incrementPlayerKillCount(monsterEnt
+					 * .getKiller().getUniqueId(), "KillWolf");
+					 * attemptPowersSkillUp = true; break; case "ENDERMITE":
+					 * RunicPlayerBukkit.incrementPlayerKillCount(monsterEnt
+					 * .getKiller().getUniqueId(), "KillEndermite");
+					 * attemptPowersSkillUp = true; break; case "GUARDIAN":
+					 * RunicPlayerBukkit.incrementPlayerKillCount(monsterEnt
+					 * .getKiller().getUniqueId(), "KillGuardian");
+					 * attemptPowersSkillUp = true; break; case
+					 * "ELDER_GUARDIAN":
+					 * RunicPlayerBukkit.incrementPlayerKillCount(monsterEnt
+					 * .getKiller().getUniqueId(), "KillElderGuardian");
+					 * attemptPowersSkillUp = true; break; case "SNOWMAN":
+					 * RunicPlayerBukkit.incrementPlayerKillCount(monsterEnt
+					 * .getKiller().getUniqueId(), "KillSnowGolem"); break;
+					 * case "VILLAGER":
+					 * RunicPlayerBukkit.incrementPlayerKillCount(monsterEnt
+					 * .getKiller().getUniqueId(), "KillVillager"); break;
+					 * default: break; }
+					 */
 
-						/*
-						 * if (attemptPowersSkillUp && heldWeaponHasLore) { //
-						 * new // Powers(monsterEnt.getKiller().getUniqueId())
-						 * // .trySkillUp(UUID, skill);
-						 *
-						 * if (monsterEnt.getKiller().getItemInHand()
-						 * .getItemMeta().getLore().toString()
-						 * .contains("Empowered Spirit")) {
-						 *
-						 * String weaponName = monsterEnt
-						 * .getKiller().getItemInHand()
-						 * .getItemMeta().getDisplayName();
-						 *
-						 * if (weaponName.contains("Beastfang")) { if
-						 * (weaponName.length() == 13) { // 1 star
-						 * Powers.trySkillUp(monsterEnt .getKiller()
-						 * .getUniqueId(), "Skill_Beasts", 1);
-						 *
-						 * } else if (weaponName.length() == 14) { // 2 stars
-						 * Powers.trySkillUp(monsterEnt .getKiller()
-						 * .getUniqueId(), "Skill_Beasts", 2); } else {
-						 * getLogger() .log(Level.SEVERE,
-						 * "DEBUG: Invalid weapon name length: " + weaponName
-						 * .length()); } } else { getLogger() .log(Level.SEVERE,
-						 * "DEBUG: Invalid weapon name. Skill up attempt aborted."
-						 * ); }
-						 *
-						 * } // end if - skillUp }// end if checking for
-						 * specific lore
-						 */
-					} // end run()
+					/*
+					 * if (attemptPowersSkillUp && heldWeaponHasLore) { //
+					 * new // Powers(monsterEnt.getKiller().getUniqueId())
+					 * // .trySkillUp(UUID, skill);
+					 *
+					 * if (monsterEnt.getKiller().getItemInHand()
+					 * .getItemMeta().getLore().toString()
+					 * .contains("Empowered Spirit")) {
+					 *
+					 * String weaponName = monsterEnt
+					 * .getKiller().getItemInHand()
+					 * .getItemMeta().getDisplayName();
+					 *
+					 * if (weaponName.contains("Beastfang")) { if
+					 * (weaponName.length() == 13) { // 1 star
+					 * Powers.trySkillUp(monsterEnt .getKiller()
+					 * .getUniqueId(), "Skill_Beasts", 1);
+					 *
+					 * } else if (weaponName.length() == 14) { // 2 stars
+					 * Powers.trySkillUp(monsterEnt .getKiller()
+					 * .getUniqueId(), "Skill_Beasts", 2); } else {
+					 * getLogger() .log(Level.SEVERE,
+					 * "DEBUG: Invalid weapon name length: " + weaponName
+					 * .length()); } } else { getLogger() .log(Level.SEVERE,
+					 * "DEBUG: Invalid weapon name. Skill up attempt aborted."
+					 * ); }
+					 *
+					 * } // end if - skillUp }// end if checking for
+					 * specific lore
+					 */
 				}); // delay // end task method
 			} // end else
 		} // end LivingEntity check (if)
@@ -2317,10 +2291,10 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 	 */
 	// Maintain table of player info
 	@SuppressWarnings("deprecation")
-	public void updatePlayerInfoOnJoin(String name, UUID pUUID) {
-		final Date now = new Date();
-		final String playerName = name;
-		final UUID playerUUID = pUUID;
+	private void updatePlayerInfoOnJoin(String name, UUID pUUID) {
+		Date now = new Date();
+		String playerName = name;
+		UUID playerUUID = pUUID;
 
 		MySQL MySQL = new MySQL(instance, instance.getConfig().getString("dbHost"),
 				instance.getConfig().getString("dbPort"), instance.getConfig().getString("dbDatabase"),
@@ -2390,8 +2364,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 																							// anything
 							// msgout
 							msgout.writeShort(123);
-						} catch (IOException e) {
-						}
+						} catch (IOException ignored) {}
 
 						out.writeShort(msgbytes.toByteArray().length);
 						out.write(msgbytes.toByteArray());
@@ -2486,7 +2459,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 	}
 
 	// Add Runic Eye
-	public void placeRunicEye(Location loc, Player p) {
+	private void placeRunicEye(Location loc, Player p) {
 		String locString = loc.getWorld().getName() + "." + loc.getBlockX() + "." + loc.getBlockY() + "."
 				+ loc.getBlockZ();
 
@@ -2513,7 +2486,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 	}
 
 	// Add Prayer Book
-	public void placePrayerBook(Location loc, Player p) {
+	private void placePrayerBook(Location loc, Player p) {
 		String locString = loc.getWorld().getName() + "." + loc.getBlockX() + "." + loc.getBlockY() + "."
 				+ loc.getBlockZ();
 
@@ -2540,7 +2513,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 	}
 
 	// Add Runic Eye
-	public static void loadPrayerBooks() {
+	static void loadPrayerBooks() {
 		prayerBooks.clear();
 
 		// remove the eyes before we add them again
@@ -2625,8 +2598,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 	}
 
 	// Add Runic Eye
-	public static void loadRunicEyes() {
-
+	static void loadRunicEyes() {
 		runicEyes.clear();
 
 		// remove the eyes before we add them again
@@ -2686,7 +2658,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 	}
 
 	// Maintain table of player info
-	public void updatePlayerInfoOnQuit(String name, UUID pUUID) {
+	private void updatePlayerInfoOnQuit(String name, UUID pUUID) {
 		final Date now = new Date();
 		final String playerName = name;
 		final UUID playerUUID = pUUID;
@@ -2736,50 +2708,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 		return (economy != null);
 	}
 
-	public static BlockFace getPlayerFacing(Player player) {
-		float y = player.getLocation().getYaw();
-		if (y < 0)
-			y += 360;
-		y %= 360;
-		int i = (int) ((y + 8) / 22.5);
-
-		if (i == 0)
-			return BlockFace.WEST;
-		else if (i == 1)
-			return BlockFace.NORTH_WEST;
-		else if (i == 2)
-			return BlockFace.NORTH_WEST;
-		else if (i == 3)
-			return BlockFace.NORTH_WEST;
-		else if (i == 4)
-			return BlockFace.NORTH;
-		else if (i == 5)
-			return BlockFace.NORTH_EAST;
-		else if (i == 6)
-			return BlockFace.NORTH_EAST;
-		else if (i == 7)
-			return BlockFace.NORTH_EAST;
-		else if (i == 8)
-			return BlockFace.EAST;
-		else if (i == 9)
-			return BlockFace.SOUTH_EAST;
-		else if (i == 10)
-			return BlockFace.SOUTH_EAST;
-		else if (i == 11)
-			return BlockFace.SOUTH_EAST;
-		else if (i == 12)
-			return BlockFace.SOUTH;
-		else if (i == 13)
-			return BlockFace.SOUTH_WEST;
-		else if (i == 14)
-			return BlockFace.SOUTH_WEST;
-		else if (i == 15)
-			return BlockFace.SOUTH_WEST;
-
-		return BlockFace.WEST;
-	}
-
-	public static void showRunicCarnivalMenu(Player p) {
+	static void showRunicCarnivalMenu(Player p) {
 		Inventory carnivalMenu = Bukkit.createInventory(null, 45,
 				ChatColor.DARK_RED + "" + ChatColor.BOLD + "Runic Carnival Menu");
 
@@ -2949,13 +2878,12 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 		}
 	}
 
-	public static void showRunicCarnivalMenu_Explorers(Player p, int page) {
-
+	private static void showRunicCarnivalMenu_Explorers(Player p, int page) {
 		Inventory exploreMenu = Bukkit.createInventory(null, 54,
 				ChatColor.BOLD + "" + ChatColor.GOLD + "Explorer's League");
 
 		ItemMeta meta;
-		ArrayList<String> mainLore = new ArrayList<>();
+		List<String> mainLore = new ArrayList<>();
 		mainLore.add(ChatColor.YELLOW + "x");
 		mainLore.add(ChatColor.YELLOW + "x");
 		mainLore.add(ChatColor.YELLOW + "x");
@@ -2965,7 +2893,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 		int slotTracker = 18;
 		ChatColor textColor;
 		short iconColor;
-		ArrayList<String> iconLore = new ArrayList<>();
+		List<String> iconLore = new ArrayList<>();
 		// get all active explore locs and loop through them to build the
 		// inventory
 		for (int i : RunicParadise.explorerLocationsReversed.values()) {
@@ -3069,7 +2997,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 		p.openInventory(exploreMenu);
 	}
 
-	public static void showRunicCarnivalMenu_BattleTower(Player p) {
+	private static void showRunicCarnivalMenu_BattleTower(Player p) {
 		Inventory carnivalMenu = Bukkit.createInventory(null, 45,
 				ChatColor.DARK_RED + "" + ChatColor.BOLD + "Runic Carnival - Arenas");
 
@@ -3145,7 +3073,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 		p.openInventory(carnivalMenu);
 	}
 
-	public static long getPlayerMazeLastCompletion(Player p, int puzzleID) {
+	private static long getPlayerMazeLastCompletion(Player p, int puzzleID) {
 		long lastCom = 0;
 
 		try {
@@ -3182,14 +3110,12 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 		return lastCom;
 	}
 
-	public static int getPlayerMazeCompletionCount(Player p, int puzzleID) {
+	static int getPlayerMazeCompletionCount(Player p, int puzzleID) {
 		int completionCount = 0;
 
 		try {
-			MySQL MySQL = new MySQL(instance, instance.getConfig().getString("dbHost"),
-					instance.getConfig().getString("dbPort"), instance.getConfig().getString("dbDatabase"),
-					instance.getConfig().getString("dbUser"), instance.getConfig().getString("dbPassword"));
-			final Connection dbCon = MySQL.openConnection();
+			MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
+			Connection dbCon = MySQL.openConnection();
 			Statement dbStmt = dbCon.createStatement();
 			ResultSet mcResult = dbStmt.executeQuery("SELECT * FROM rp_RunicGameCompletions WHERE UUID='"
 					+ p.getUniqueId() + "' AND GameID=" + puzzleID + ";");
@@ -3219,7 +3145,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 		return completionCount;
 	}
 
-	public static int getPlayerDistinctMazeCompletionCount(Player p) {
+	static int getPlayerDistinctMazeCompletionCount(Player p) {
 		int completionCount = 0;
 
 		try {
@@ -3342,8 +3268,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 
 	}
 
-	public static void showSpawnSkynetMenu(Player p) {
-
+	private static void showSpawnSkynetMenu(Player p) {
 		Inventory skynetMenu = Bukkit.createInventory(null, 45,
 				ChatColor.DARK_PURPLE + "" + ChatColor.BOLD + "SkyNet Warp Orb");
 
@@ -3492,21 +3417,19 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 
 	}
 
-	public static ItemStack createHead(String name, String data) {
+	static ItemStack createHead(String name, String data) {
 		ItemStack item = new ItemStack(Material.PLAYER_HEAD);
 		item.setDurability((short) 3);
 		SkullMeta headMeta = (SkullMeta) item.getItemMeta();
 		headMeta.setDisplayName(name);
 		GameProfile profile = new GameProfile(UUID.randomUUID(), null);
 		profile.getProperties().put("textures", new Property("textures", data, "signed"));
-		Field profileField = null;
 		try {
-			profileField = headMeta.getClass().getDeclaredField("profile");
+			Field profileField = headMeta.getClass().getDeclaredField("profile");
 			profileField.setAccessible(true);
 			profileField.set(headMeta, profile);
 		} catch (NoSuchFieldException | IllegalAccessException | IllegalArgumentException ignored) {}
 		item.setItemMeta(headMeta);
 		return item;
 	}
-
 }

@@ -1,11 +1,5 @@
 package io.github.runelynx.runicparadise;
 
-import java.io.File;
-import java.io.IOException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.*;
-
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -14,6 +8,14 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 
 public class RunicUtilities {
 	public static Boolean isInteger(String x) {
@@ -281,5 +283,12 @@ public class RunicUtilities {
 			return result.get();
 		}
 		throw new RuntimeException("No material with that id");
+	}
+
+	static MySQL getMysqlFromPlugin(Plugin instance) {
+		FileConfiguration config = instance.getConfig();
+		return new MySQL(instance, config.getString("dbHost"),
+				config.getString("dbPort"), config.getString("dbDatabase"),
+				config.getString("dbUser"), config.getString("dbPassword"));
 	}
 }

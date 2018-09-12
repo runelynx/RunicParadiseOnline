@@ -1124,8 +1124,7 @@ public class RunicProfile {
 		return false;
 	}
 
-	public Boolean completePlayerExploration(int locID) {
-
+	boolean completePlayerExploration(int locID) {
 		Player p = Bukkit.getPlayer(this.getPlayerID());
 
 		if (locID <= 0) {

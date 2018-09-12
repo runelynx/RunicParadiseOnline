@@ -16,6 +16,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.plugin.Plugin;
@@ -37,11 +38,9 @@ public class Commands implements CommandExecutor {
 
 	Ranks rank = new Ranks();
 
-	// pointer to your main class, not required if you don't need methods fromfg
-	// the main class
 	private Plugin instance = RunicParadise.getInstance();
 
-	public static ArrayList<Integer> PARTICLE_TASK_IDS = new ArrayList<Integer>();
+	public static ArrayList<Integer> PARTICLE_TASK_IDS = new ArrayList<>();
 
     private static boolean searchExplorerLocation(Location loc, Player p) {
         int targetID = 0;
@@ -231,12 +230,9 @@ public class Commands implements CommandExecutor {
     }
 
     private boolean addAttemptedPromotion(String newGuyName, String promoterName) {
+        MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
 
-        MySQL MySQL = new MySQL(instance, instance.getConfig().getString("dbHost"),
-                instance.getConfig().getString("dbPort"), instance.getConfig().getString("dbDatabase"),
-                instance.getConfig().getString("dbUser"), instance.getConfig().getString("dbPassword"));
-
-        try {
+	    try {
             final Connection dbCon = MySQL.openConnection();
 
             String simpleProc = "{ call Add_Attempted_Promotion_Record(?, ?) }";
@@ -3551,56 +3547,7 @@ public class Commands implements CommandExecutor {
 			break;
 		case "headofplayer":
 		case "face":
-			if (args.length == 1) {
-				try {
-					final Connection d = MySQL.openConnection();
-					Statement dStmt = d.createStatement();
-					ResultSet playerData = dStmt.executeQuery("SELECT * FROM `rp_HeadCreations` WHERE `PlayerName` = '"
-							+ sender.getName() + "' AND `Timestamp` >= " + (new Date().getTime() - 21600000)
-							+ " ORDER BY `ID` DESC LIMIT 1;");
-
-					if (playerData.isBeforeFirst()) {
-						playerData.next();
-						Long currentTime = new Date().getTime();
-						Long loggedTime = playerData.getLong("Timestamp");
-						Double diffHours = (currentTime - loggedTime) / (60.0 * 60 * 1000);
-						sender.sendMessage(
-								ChatColor.RED + "You can only use this command once every 6 hours. You last used it "
-										+ diffHours + " hours ago.");
-
-					} else {
-						// No record found, proceed!
-						String command = String.format("give %s minecraft:player_head{SkullOwner:{Name:\"%s\"}} 1", sender.getName(), args[0]);
-						Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command);
-//						Bukkit.dispatchCommand(Bukkit.getConsoleSender(),
-//								"give " + sender.getName() + " 397 1 3 {SkullOwner: " + args[0] + "}");
-						try {
-
-							PreparedStatement insertStmt = d.prepareStatement(
-									"INSERT INTO rp_HeadCreations (PlayerName, UUID, Timestamp, HeadRequested) VALUES "
-											+ "('" + sender.getName() + "', '"
-											+ ((Player) sender).getUniqueId().toString() + "', "
-											+ (new Date().getTime()) + ", '" + args[0] + "');");
-							insertStmt.executeUpdate();
-							d.close();
-							dStmt.close();
-
-						} catch (SQLException e) {
-							Bukkit.getLogger().log(Level.SEVERE, "Failed face record creation " + e.getMessage());
-						}
-					}
-
-					d.close();
-				} catch (SQLException e) {
-					Bukkit.getLogger().log(Level.SEVERE, "Failed /face check" + e.getMessage());
-				}
-			} // end if checking arg length
-			else {
-				sender.sendMessage(ChatColor.DARK_RED + "Usage: " + ChatColor.AQUA + "/face <playername>"
-						+ ChatColor.DARK_RED
-						+ " Watch your spelling, you only get ONE chance every 6 hours!! Always enter FULL player names, NOT nicks!");
-			}
-
+			faceCommand(sender, args);
 			break;
 		case "rpgames":
 		case "games":
@@ -3794,7 +3741,60 @@ public class Commands implements CommandExecutor {
 
 	}
 
-	void handleRpVersion(CommandSender sender) {
+	private void faceCommand(CommandSender sender, String[] args) {
+    	if (!(sender instanceof Player)) {
+    		sender.sendMessage("Only in-game players can use this");
+    		return;
+	    }
+	    Player player = (Player) sender;
+
+		MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
+
+		if (args.length != 1) {
+			sender.sendMessage(ChatColor.DARK_RED + "Usage: " + ChatColor.AQUA + "/face <playername>"
+					+ ChatColor.DARK_RED
+					+ " Watch your spelling, you only get ONE chance every 6 hours!! Always enter FULL player names, NOT nicks!");
+			return;
+		}
+		try {
+			final Connection d = MySQL.openConnection();
+			Statement dStmt = d.createStatement();
+			ResultSet playerData = dStmt.executeQuery("SELECT * FROM `rp_HeadCreations` WHERE `PlayerName` = '"
+					+ sender.getName() + "' AND `Timestamp` >= " + (new Date().getTime() - 21600000)
+					+ " ORDER BY `ID` DESC LIMIT 1;");
+
+			if (playerData.isBeforeFirst()) {
+				playerData.next();
+				Long currentTime = new Date().getTime();
+				Long loggedTime = playerData.getLong("Timestamp");
+				Double diffHours = (currentTime - loggedTime) / (60.0 * 60 * 1000);
+				sender.sendMessage(ChatColor.RED + "You can only use this command once every 6 hours. You last used it "
+								+ diffHours + " hours ago.");
+
+			} else {
+				// No record found, proceed!
+				String command = String.format("give %s minecraft:player_head{SkullOwner:{Name:\"%s\"}} 1", sender.getName(), args[0]);
+				Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command);
+				try {
+					PreparedStatement insertStmt = d.prepareStatement(
+							"INSERT INTO rp_HeadCreations (PlayerName, UUID, Timestamp, HeadRequested) VALUES "
+									+ "('" + sender.getName() + "', '"
+									+ player.getUniqueId().toString() + "', "
+									+ (new Date().getTime()) + ", '" + args[0] + "');");
+					insertStmt.executeUpdate();
+					d.close();
+					dStmt.close();
+				} catch (SQLException e) {
+					Bukkit.getLogger().log(Level.SEVERE, "Failed face record creation " + e.getMessage());
+				}
+			}
+			d.close();
+		} catch (SQLException e) {
+			Bukkit.getLogger().log(Level.SEVERE, "Failed /face check" + e.getMessage());
+		}
+	}
+
+	private void handleRpVersion(CommandSender sender) {
 		try {
 			InputStream input = Commands.class.getResourceAsStream("/git.properties");
 			JSONObject json = new JSONObject(new JSONTokener(input));
@@ -3820,7 +3820,7 @@ public class Commands implements CommandExecutor {
 		}
 	}
 
-	static boolean givePlayerExplorationReward(int locID, Player p) {
+	static void givePlayerExplorationReward(int locID, Player p) {
 		int tokenReward = RunicParadise.explorerRewards.get(locID);
 
 		RunicPlayerBukkit targetPlayer = new RunicPlayerBukkit(p.getUniqueId());
@@ -3829,8 +3829,6 @@ public class Commands implements CommandExecutor {
 
 		RunicMessaging.sendMessage(p, RunicMessaging.RunicFormat.EXPLORER,
 				"Congratulations! You found " + RunicParadise.explorerIDs.get(locID));
-
-		return false;
 	}
 
 	private static void spawnTransportBeacon(Location loc, Player p) {
@@ -3844,17 +3842,17 @@ public class Commands implements CommandExecutor {
 		glass.setType(Material.LIGHT_BLUE_STAINED_GLASS_PANE);
 	}
 
+	private static ItemStack getRepairedItem(ItemStack item) {
+    	ItemMeta meta = item.getItemMeta();
+		Damageable damageable = (Damageable) meta;
+		damageable.setDamage(0);
+		item.setItemMeta(meta);
+    	return item;
+	}
+
 	private static void repairCommand(Player p, ItemStack main, ItemStack off) {
-		boolean mainOkToRepair = false;
-		boolean offOkToRepair = false;
-
-		if (main != null && RunicParadise.repairableItemTypes.contains(main.getType().getId())) {
-			mainOkToRepair = true;
-		}
-
-		if (off != null && RunicParadise.repairableItemTypes.contains(off.getType().getId())) {
-			offOkToRepair = true;
-		}
+		boolean mainOkToRepair = RunicParadise.repairableItemTypes.contains(main.getType().getId());
+		boolean offOkToRepair = RunicParadise.repairableItemTypes.contains(off.getType().getId());
 
 		int cooldown = 360;
 
@@ -3868,11 +3866,9 @@ public class Commands implements CommandExecutor {
 
 		if (mainOkToRepair || offOkToRepair) {
 			try {
-				final Plugin instance = RunicParadise.getInstance();
-				MySQL MySQL = new MySQL(instance, instance.getConfig().getString("dbHost"),
-						instance.getConfig().getString("dbPort"), instance.getConfig().getString("dbDatabase"),
-						instance.getConfig().getString("dbUser"), instance.getConfig().getString("dbPassword"));
-				final Connection d = MySQL.openConnection();
+				Plugin instance = RunicParadise.getInstance();
+				MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
+				Connection d = MySQL.openConnection();
 
 				Statement dStmt = d.createStatement();
 				ResultSet playerData = dStmt.executeQuery("SELECT * FROM `rp_RepairCommand` WHERE `UUID` = '"
@@ -3913,7 +3909,6 @@ public class Commands implements CommandExecutor {
 					}
 
 					try {
-
 						PreparedStatement insertStmt = d
 								.prepareStatement("INSERT INTO rp_RepairCommand (PlayerName, UUID, Timestamp) VALUES "
 										+ "('" + p.getName() + "', '" + p.getUniqueId().toString() + "', "
@@ -3947,9 +3942,7 @@ public class Commands implements CommandExecutor {
     	StringBuilder message = new StringBuilder();
 		itemInfoCommandAdd(message, "Meta: ", RunicUtilities.toStringOr(itemInHand.getItemMeta(), "no item meta"));
 		itemInfoCommandAdd(message, "Data: ", RunicUtilities.toStringOr(itemInHand.getData(), "no item data"));
-		itemInfoCommandAdd(message, "Durability: ", String.valueOf(itemInHand.getDurability()));
 		itemInfoCommandAdd(message, "Type: ", itemInHand.getType().toString());
-		itemInfoCommandAdd(message, "Type id: ", String.valueOf(itemInHand.getType().getId()));
 		itemInfoCommandAdd(message, "Namespace: ", itemInHand.getType().getKey().toString());
 		message.append(ChatColor.GOLD).append(
 				Objects.requireNonNull(RunicSerialization.serializeTry(new ItemStack[]{itemInHand})).replace(ChatColor.COLOR_CHAR, '&'));
