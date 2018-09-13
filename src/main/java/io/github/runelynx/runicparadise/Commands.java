@@ -253,9 +253,7 @@ public class Commands implements CommandExecutor {
 
     private int checkAttemptedPromotion(String newGuyName, String promoterName) {
 
-        MySQL MySQL = new MySQL(instance, instance.getConfig().getString("dbHost"),
-                instance.getConfig().getString("dbPort"), instance.getConfig().getString("dbDatabase"),
-                instance.getConfig().getString("dbUser"), instance.getConfig().getString("dbPassword"));
+        MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
         try {
             final Connection dbCon = MySQL.openConnection();
 
@@ -325,9 +323,7 @@ public class Commands implements CommandExecutor {
 	public boolean onCommand(final CommandSender sender, Command cmd, String label, String[] args) {
 		// comment
 
-		MySQL MySQL = new MySQL(instance, instance.getConfig().getString("dbHost"),
-				instance.getConfig().getString("dbPort"), instance.getConfig().getString("dbDatabase"),
-				instance.getConfig().getString("dbUser"), instance.getConfig().getString("dbPassword"));
+		MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
 
 		// general approach is that errors will return immediately;
 		// successful runs will return after the switch completes
@@ -3350,10 +3346,7 @@ public class Commands implements CommandExecutor {
 				Player s = (Player) sender;
 				s.sendMessage(ChatColor.RED + "Players cannot use /hmsay");
 			} else {
-				String message = "";
-				for (String b : args) {
-					message += b + " ";
-				}
+				String message = String.join(" ", args);
 				List<Player> mansionPlayers = Bukkit.getWorld("Mansion").getPlayers();
 				for (Player p : mansionPlayers) {
 					p.sendMessage(message);
@@ -3552,35 +3545,32 @@ public class Commands implements CommandExecutor {
 			break;
 		case "staffchat":
 		case "sc":
-			String senderName1;
-			if (sender instanceof Player) {
-				senderName1 = sender.getName();
-			} else {
-				senderName1 = "Console";
-
-			}
-
-			String buffer1 = Arrays.stream(args).map(arg -> ' ' + arg).collect(Collectors.joining());
-
-			for (Player p : Bukkit.getOnlinePlayers()) {
-				if (p.hasPermission("rp.staff")) {
-					if (args.length == 0) {
-						Player player = (Player) sender;
-						player.sendMessage(ChatColor.DARK_GRAY + "Staff chat. Usage: /sc [message]");
-						return true;
-					} else {
-						p.sendMessage(ChatColor.DARK_GRAY + "[" + ChatColor.DARK_AQUA + "Staff" + ChatColor.AQUA
-								+ "Chat" + ChatColor.DARK_GRAY + "] " + ChatColor.WHITE + senderName1 + ":"
-								+ ChatColor.AQUA + buffer1);
-					}
-				}
-			}
-			Bukkit.getLogger().log(Level.INFO, "[StaffChat] " + senderName1 + ": " + buffer1);
+			staffChatCommand(sender, args);
 			break;
 		default:
 			break;
 		}
 		return true;
+	}
+
+	private static void staffChatCommand(CommandSender sender, String[] args) {
+		if (args.length == 0) {
+			sender.sendMessage(ChatColor.DARK_GRAY + "Staff chat. Usage: /sc [message]");
+			return;
+		}
+
+		String name = sender.getName();
+
+		String playerText = String.join(" ", args);
+		String message = ChatColor.DARK_GRAY + "[" + ChatColor.DARK_AQUA + "Staff" + ChatColor.AQUA
+				+ "Chat" + ChatColor.DARK_GRAY + "] " + ChatColor.WHITE + name + ":"
+				+ ChatColor.AQUA + playerText;
+
+		Bukkit.getOnlinePlayers().stream()
+				.filter(player -> player.hasPermission("rp.staff"))
+				.forEach(player -> player.sendMessage(message));
+
+		Bukkit.getLogger().log(Level.INFO, "[StaffChat] " + name + ": " + playerText);
 	}
 
 	private void faceCommand(CommandSender sender, String[] args) {

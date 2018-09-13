@@ -42,12 +42,8 @@ public class Gift {
 					ChatColor.DARK_RED + "" + ChatColor.ITALIC
 							+ "That item can't be sent as a gift. Maybe you've customized the name somehow or it's a complicated book? Please try another item.");
 		} else {
-			MySQL MySQL = new MySQL(instance, instance.getConfig().getString(
-					"dbHost"), instance.getConfig().getString("dbPort"), instance
-					.getConfig().getString("dbDatabase"), instance.getConfig()
-					.getString("dbUser"), instance.getConfig().getString(
-					"dbPassword"));
-			final Connection e = MySQL.openConnection();
+			MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
+			Connection e = MySQL.openConnection();
 
 			// /////////////
 			try {
@@ -90,33 +86,27 @@ public class Gift {
 
 	}
 
-	public Gift(Player recipient) {
-
-		MySQL MySQL = new MySQL(instance, instance.getConfig().getString(
-				"dbHost"), instance.getConfig().getString("dbPort"), instance
-				.getConfig().getString("dbDatabase"), instance.getConfig()
-				.getString("dbUser"), instance.getConfig().getString(
-				"dbPassword"));
-		final Connection e = MySQL.openConnection();
+	Gift(Player recipient) {
+		Connection connection = RunicUtilities.getMysqlFromPlugin(instance).openConnection();
 
 		// /////////////
 		try {
 			// Statement eStmt = e.createStatement();
 
-			PreparedStatement eStmt = e
+			PreparedStatement statement = connection
 					.prepareStatement("SELECT * FROM rp_RunicGifts WHERE Recipient = '"
 							+ recipient.getUniqueId().toString()
 							+ "' AND Status = 'Waiting' LIMIT 1;");
 
-			ResultSet result = eStmt.executeQuery();
+			ResultSet result = statement.executeQuery();
 
 			if (!result.isBeforeFirst()) {
 				// no result found
 				recipient.sendMessage(ChatColor.DARK_GREEN + ""
 						+ ChatColor.ITALIC
 						+ "There are no gifts waiting for you.");
-				eStmt.close();
-				e.close();
+				statement.close();
+				connection.close();
 			} else {
 				// Location does exist in the DB and data retrieved!!
 
@@ -147,8 +137,8 @@ public class Gift {
 
 				recipient.openInventory(giftInventory);
 
-				eStmt.close();
-				e.close();
+				statement.close();
+				connection.close();
 
 			}
 
@@ -166,7 +156,7 @@ public class Gift {
 		return this.ID;
 	}
 
-	public static void removeGift(Player p, int ID) {
+	static void removeGift(Player p, int ID) {
 		MySQL MySQL = new MySQL(instance, instance.getConfig().getString(
 				"dbHost"), instance.getConfig().getString("dbPort"), instance
 				.getConfig().getString("dbDatabase"), instance.getConfig()
@@ -178,13 +168,13 @@ public class Gift {
 		try {
 			// Statement eStmt = e.createStatement();
 
-			PreparedStatement eStmt = e
+			PreparedStatement statement = e
 					.prepareStatement("UPDATE rp_RunicGifts SET `Status` = 'Taken' WHERE `GiftID` = "
 							+ ID + ";");
 
-			eStmt.executeUpdate();
+			statement.executeUpdate();
 
-			eStmt.close();
+			statement.close();
 			e.close();
 		} catch (SQLException err) {
 			Bukkit.getLogger().log(Level.SEVERE,
@@ -192,7 +182,6 @@ public class Gift {
 		}
 
 		RunicParadise.giftIDTracker.remove(p.getUniqueId());
-
 	}
 	
 	public boolean isJSONValid(String test) {
