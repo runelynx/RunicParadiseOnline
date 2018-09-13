@@ -3355,51 +3355,7 @@ public class Commands implements CommandExecutor {
 			}
 			break;
 		case "say":
-			// TODO: needs fixing
-			if (sender instanceof ConsoleCommandSender) {
-				StringBuilder message = new StringBuilder();
-				for (String b : args) {
-					message.append(b).append(" ");
-				}
-
-				for (Player p : Bukkit.getServer().getOnlinePlayers()) {
-					p.sendMessage(message.toString());
-				}
-			} else {
-				BlockCommandSender senderCmd = (BlockCommandSender) sender;
-				Block senderBlock = senderCmd.getBlock();
-
-				if (senderBlock.getWorld().getName().equals("Mansion")) {
-					StringBuilder message = new StringBuilder();
-					for (String b : args) {
-						message.append(b).append(" ");
-					}
-					List<Player> mansionPlayers = Bukkit.getWorld("Mansion").getPlayers();
-					for (Player p : mansionPlayers) {
-						p.sendMessage(message.toString());
-					}
-				} else if (senderBlock.getWorld().getName().equals("Razul")) {
-					StringBuilder message = new StringBuilder();
-					for (String b : args) {
-						message.append(b).append(" ");
-					}
-					List<Player> mansionPlayers = Bukkit.getWorld("Razul").getPlayers();
-					for (Player p : mansionPlayers) {
-						p.sendMessage(message.toString());
-					}
-				} else {
-					// command block sender in a world not specified above
-					String message = "";
-					for (String b : args) {
-						message += b + " ";
-					}
-
-					for (Player p : Bukkit.getServer().getOnlinePlayers()) {
-						p.sendMessage(message);
-					}
-				}
-
-			}
+			sayCommand(sender, args);
 			break;
 		case "headofplayer":
 		case "face":
@@ -3407,141 +3363,11 @@ public class Commands implements CommandExecutor {
 			break;
 		case "rpgames":
 		case "games":
-			if (sender instanceof Player) {
-				Player player = (Player) sender;
-				int tokenBal = 0;
-				try {
-					final Connection d = MySQL.openConnection();
-					Statement dStmt = d.createStatement();
-					ResultSet playerData = dStmt.executeQuery("SELECT * FROM `rp_PlayerInfo` WHERE `PlayerName` = '"
-							+ sender.getName() + "' ORDER BY `id` ASC LIMIT 1;");
-
-					d.close();
-				} catch (SQLException e) {
-					Bukkit.getLogger().log(Level.SEVERE,
-							"Failed token count DB check [games] because: " + e.getMessage());
-				}
-
-				if (args.length == 0 || args.length > 1) {
-
-					RunicParadise.showRunicCarnivalMenu(player);
-
-					/*
-					 * player.sendMessage(ChatColor.YELLOW + "  ✸ " +
-					 * ChatColor.GOLD + "✹ " + ChatColor.RED + "✺ " +
-					 * ChatColor.RED + "Runic Carnival" + ChatColor.RED + " ✺ "
-					 * + ChatColor.GOLD + "✹ " + ChatColor.YELLOW + "✸");
-					 * player.sendMessage(ChatColor.GREEN + "      ♪ " +
-					 * ChatColor.DARK_AQUA + "♫ " + ChatColor.AQUA + "☾ " +
-					 * ChatColor.BLUE + "Tokens: " + tokenBal + ChatColor.AQUA +
-					 * " ☽ " + ChatColor.DARK_AQUA + "♫ " + ChatColor.GREEN +
-					 * "♪");
-                     *
-					 * // player.sendMessage(ChatColor.WHITE + "" + //
-					 * ChatColor.ITALIC // + "Format: /games [option]");
-					 * player.sendMessage(ChatColor.DARK_RED + "[1] " +
-					 * ChatColor.GRAY + "Information Center");
-					 * player.sendMessage(ChatColor.RED + "[2] " +
-					 * ChatColor.GRAY + "Prize Cabin");
-					 * player.sendMessage(ChatColor.GOLD + "[3] " +
-					 * ChatColor.GRAY + "Puzzle Kiosk");
-					 * player.sendMessage(ChatColor.YELLOW + "[4] " +
-					 * ChatColor.GRAY + "High Roller Casino" +
-					 * ChatColor.DARK_GRAY + " (Coming Soon!)");
-					 * player.sendMessage(ChatColor.GREEN + "[5] " +
-					 * ChatColor.GRAY + "Game Corner");
-					 * player.sendMessage(ChatColor.DARK_AQUA + "[6] " +
-					 * ChatColor.GRAY + "Quest Castle" + ChatColor.DARK_GRAY +
-					 * " (Adventure Maps)"); player.sendMessage(ChatColor.BLUE +
-					 * "[7] " + ChatColor.GRAY + "Battle Tower" +
-					 * ChatColor.DARK_GRAY + " (Mob & PVP Arenas)");
-					 * player.sendMessage(ChatColor.LIGHT_PURPLE + "[8] " +
-					 * ChatColor.GRAY + "Creation Zone" + ChatColor.DARK_GRAY +
-					 * " (Build Contests)");
-					 */
-				} else {
-					try {
-						Integer.parseInt(args[0]);
-					} catch (Exception e) {
-						player.sendMessage(ChatColor.GRAY + "[ERROR] Invalid entry. Please check options via /games");
-						return true;
-					}
-					switch (Integer.parseInt(args[0])) {
-					case 1:
-						player.teleport(new Location(Bukkit.getWorld("RunicSky"), 342, 58, 548, 0, (float) 1));
-						break;
-					case 2:
-						player.teleport(
-								new Location(Bukkit.getWorld("RunicSky"), 320, 58, 522, (float) 92.50, (float) -16.05));
-						break;
-					case 3:
-						player.teleport(
-								new Location(Bukkit.getWorld("RunicSky"), 328, 58, 543, (float) 72.99, (float) -26.40));
-						break;
-					case 4:
-						player.teleport(new Location(Bukkit.getWorld("RunicSky"), 328, 58, 507, (float) 135.499,
-								(float) -23.99));
-						break;
-					case 5:
-						player.teleport(new Location(Bukkit.getWorld("RunicSky"), 342, 58, 507, (float) 180.35,
-								(float) -28.95));
-						break;
-					case 6:
-						player.teleport(new Location(Bukkit.getWorld("RunicSky"), 358, 58, 508, (float) -131.25,
-								(float) -27.600));
-						break;
-					case 7:
-						player.teleport(new Location(Bukkit.getWorld("RunicSky"), 359, 58, 522, (float) -90.300,
-								(float) -42.4499));
-						break;
-					case 8:
-						player.teleport(new Location(Bukkit.getWorld("RunicSky"), 357, 58, 538, (float) -42.150,
-								(float) -27.85));
-						break;
-					case 9:
-						player.sendMessage("your yaw " + player.getLocation().getYaw());
-						player.sendMessage("your pitch " + player.getLocation().getPitch());
-						RunicParadise.showRunicCarnivalMenu(player);
-						break;
-					default:
-						player.sendMessage(ChatColor.GRAY + "[ERROR] Invalid entry. Please check options via /games");
-						break;
-					}
-					return true;
-				}
-
-			} else {
-				sender.sendMessage("[RP] Command must be used by a player");
-				return true;
-			}
+			gamesCommand(sender, args);
 			break;
 		case "testerchat":
 		case "tc":
-			// Not existent in plugin.yml
-			String senderName;
-			if (sender instanceof Player) {
-				senderName = sender.getName();
-			} else {
-				senderName = "Console";
-			}
-
-			String buffer = Arrays.stream(args).map(arg -> ' ' + arg).collect(Collectors.joining());
-
-			for (Player p : Bukkit.getOnlinePlayers()) {
-				if (p.hasPermission("rp.testers")) {
-					if (args.length == 0) {
-						Player player = (Player) sender;
-						player.sendMessage(ChatColor.DARK_GRAY + "Tester chat. Usage: /tc [message]");
-						return true;
-					} else {
-						p.sendMessage(ChatColor.DARK_GRAY + "[" + ChatColor.DARK_PURPLE + "Tester"
-								+ ChatColor.LIGHT_PURPLE + "Chat" + ChatColor.DARK_GRAY + "] " + ChatColor.WHITE
-								+ senderName + ":" + ChatColor.LIGHT_PURPLE + buffer);
-
-					}
-				}
-			}
-			Bukkit.getLogger().log(Level.INFO, "[TesterChat] " + senderName + ": " + buffer);
+			testerChatCommand(sender, args);
 			break;
 		case "staffchat":
 		case "sc":
@@ -3551,6 +3377,180 @@ public class Commands implements CommandExecutor {
 			break;
 		}
 		return true;
+	}
+
+	private static void sayCommand(CommandSender sender, String[] args) {
+		// TODO: needs fixing
+		if (sender instanceof ConsoleCommandSender) {
+			StringBuilder message = new StringBuilder();
+			for (String b : args) {
+				message.append(b).append(" ");
+			}
+
+			for (Player p : Bukkit.getServer().getOnlinePlayers()) {
+				p.sendMessage(message.toString());
+			}
+		} else {
+			BlockCommandSender senderCmd = (BlockCommandSender) sender;
+			Block senderBlock = senderCmd.getBlock();
+
+			switch (senderBlock.getWorld().getName()) {
+				case "Mansion": {
+					StringBuilder message = new StringBuilder();
+					for (String b : args) {
+						message.append(b).append(" ");
+					}
+					List<Player> mansionPlayers = Bukkit.getWorld("Mansion").getPlayers();
+					for (Player p : mansionPlayers) {
+						p.sendMessage(message.toString());
+					}
+					break;
+				}
+				case "Razul": {
+					StringBuilder message = new StringBuilder();
+					for (String b : args) {
+						message.append(b).append(" ");
+					}
+					List<Player> mansionPlayers = Bukkit.getWorld("Razul").getPlayers();
+					for (Player p : mansionPlayers) {
+						p.sendMessage(message.toString());
+					}
+					break;
+				}
+				default: {
+					// command block sender in a world not specified above
+					String message = Arrays.stream(args).map(b -> b + " ").collect(Collectors.joining());
+
+					for (Player p : Bukkit.getServer().getOnlinePlayers()) {
+						p.sendMessage(message);
+					}
+					break;
+				}
+			}
+
+		}
+	}
+
+	private void gamesCommand(CommandSender sender, String[] args) {
+    	if (!(sender instanceof Player)) {
+		    sender.sendMessage("[RP] Command must be used by a player");
+		    return;
+	    }
+
+		Player player = (Player) sender;
+		int tokenBal = 0;
+		try {
+			Connection d = RunicUtilities.getMysqlFromPlugin(instance).openConnection();
+			Statement dStmt = d.createStatement();
+			ResultSet playerData = dStmt.executeQuery("SELECT * FROM `rp_PlayerInfo` WHERE `PlayerName` = '"
+					+ sender.getName() + "' ORDER BY `id` ASC LIMIT 1;");
+
+			d.close();
+		} catch (SQLException e) {
+			Bukkit.getLogger().log(Level.SEVERE,
+					"Failed token count DB check [games] because: " + e.getMessage());
+		}
+
+		if (args.length == 0 || args.length > 1) {
+			RunicParadise.showRunicCarnivalMenu(player);
+
+			/*
+			 * player.sendMessage(ChatColor.YELLOW + "  ✸ " +
+			 * ChatColor.GOLD + "✹ " + ChatColor.RED + "✺ " +
+			 * ChatColor.RED + "Runic Carnival" + ChatColor.RED + " ✺ "
+			 * + ChatColor.GOLD + "✹ " + ChatColor.YELLOW + "✸");
+			 * player.sendMessage(ChatColor.GREEN + "      ♪ " +
+			 * ChatColor.DARK_AQUA + "♫ " + ChatColor.AQUA + "☾ " +
+			 * ChatColor.BLUE + "Tokens: " + tokenBal + ChatColor.AQUA +
+			 * " ☽ " + ChatColor.DARK_AQUA + "♫ " + ChatColor.GREEN +
+			 * "♪");
+			 *
+			 * // player.sendMessage(ChatColor.WHITE + "" + //
+			 * ChatColor.ITALIC // + "Format: /games [option]");
+			 * player.sendMessage(ChatColor.DARK_RED + "[1] " +
+			 * ChatColor.GRAY + "Information Center");
+			 * player.sendMessage(ChatColor.RED + "[2] " +
+			 * ChatColor.GRAY + "Prize Cabin");
+			 * player.sendMessage(ChatColor.GOLD + "[3] " +
+			 * ChatColor.GRAY + "Puzzle Kiosk");
+			 * player.sendMessage(ChatColor.YELLOW + "[4] " +
+			 * ChatColor.GRAY + "High Roller Casino" +
+			 * ChatColor.DARK_GRAY + " (Coming Soon!)");
+			 * player.sendMessage(ChatColor.GREEN + "[5] " +
+			 * ChatColor.GRAY + "Game Corner");
+			 * player.sendMessage(ChatColor.DARK_AQUA + "[6] " +
+			 * ChatColor.GRAY + "Quest Castle" + ChatColor.DARK_GRAY +
+			 * " (Adventure Maps)"); player.sendMessage(ChatColor.BLUE +
+			 * "[7] " + ChatColor.GRAY + "Battle Tower" +
+			 * ChatColor.DARK_GRAY + " (Mob & PVP Arenas)");
+			 * player.sendMessage(ChatColor.LIGHT_PURPLE + "[8] " +
+			 * ChatColor.GRAY + "Creation Zone" + ChatColor.DARK_GRAY +
+			 * " (Build Contests)");
+			 */
+		} else {
+			try {
+				Integer.parseInt(args[0]);
+			} catch (Exception e) {
+				player.sendMessage(ChatColor.GRAY + "[ERROR] Invalid entry. Please check options via /games");
+				return;
+			}
+			World runicSky = Bukkit.getWorld("RunicSky");
+			switch (Integer.parseInt(args[0])) {
+				case 1:
+					player.teleport(new Location(runicSky, 342, 58, 548, 0, (float) 1));
+					break;
+				case 2:
+					player.teleport(new Location(runicSky, 320, 58, 522, (float) 92.50, (float) -16.05));
+					break;
+				case 3:
+					player.teleport(new Location(runicSky, 328, 58, 543, (float) 72.99, (float) -26.40));
+					break;
+				case 4:
+					player.teleport(new Location(runicSky, 328, 58, 507, (float) 135.499, (float) -23.99));
+					break;
+				case 5:
+					player.teleport(new Location(runicSky, 342, 58, 507, (float) 180.35, (float) -28.95));
+					break;
+				case 6:
+					player.teleport(new Location(runicSky, 358, 58, 508, (float) -131.25, (float) -27.600));
+					break;
+				case 7:
+					player.teleport(new Location(runicSky, 359, 58, 522, (float) -90.300, (float) -42.4499));
+					break;
+				case 8:
+					player.teleport(new Location(runicSky, 357, 58, 538, (float) -42.150, (float) -27.85));
+					break;
+				case 9:
+					player.sendMessage("your yaw " + player.getLocation().getYaw());
+					player.sendMessage("your pitch " + player.getLocation().getPitch());
+					RunicParadise.showRunicCarnivalMenu(player);
+					break;
+				default:
+					player.sendMessage(ChatColor.GRAY + "[ERROR] Invalid entry. Please check options via /games");
+					break;
+			}
+		}
+	}
+
+	private static void testerChatCommand(CommandSender sender, String[] args) {
+		// Not existent in plugin.yml
+
+		if (args.length == 0) {
+			sender.sendMessage(ChatColor.DARK_GRAY + "Staff chat. Usage: /sc [message]");
+			return;
+		}
+		String name = sender.getName();
+
+		String playerText = String.join(" ", args);
+		String message = ChatColor.DARK_GRAY + "[" + ChatColor.DARK_PURPLE + "Tester"
+				+ ChatColor.LIGHT_PURPLE + "Chat" + ChatColor.DARK_GRAY + "] " + ChatColor.WHITE
+				+ name + ": " + ChatColor.LIGHT_PURPLE + playerText;
+
+		Bukkit.getOnlinePlayers().stream()
+				.filter(player -> player.hasPermission("rp.testers"))
+				.forEach(player -> player.sendMessage(message));
+
+		Bukkit.getLogger().log(Level.INFO, "[TesterChat] " + name + ": " + playerText);
 	}
 
 	private static void staffChatCommand(CommandSender sender, String[] args) {
@@ -3563,7 +3563,7 @@ public class Commands implements CommandExecutor {
 
 		String playerText = String.join(" ", args);
 		String message = ChatColor.DARK_GRAY + "[" + ChatColor.DARK_AQUA + "Staff" + ChatColor.AQUA
-				+ "Chat" + ChatColor.DARK_GRAY + "] " + ChatColor.WHITE + name + ":"
+				+ "Chat" + ChatColor.DARK_GRAY + "] " + ChatColor.WHITE + name + ": "
 				+ ChatColor.AQUA + playerText;
 
 		Bukkit.getOnlinePlayers().stream()
