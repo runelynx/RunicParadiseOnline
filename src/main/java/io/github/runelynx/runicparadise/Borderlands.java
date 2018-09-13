@@ -338,9 +338,7 @@ public class Borderlands {
 	}
 
 	public static void processSkeletonArrows(EntityShootBowEvent event) {
-
 		if (event.getEntity().getCustomName() != null && event.getEntity().getCustomName().contains("Toxic Skeleton")) {
-
 			event.setCancelled(true);
 
 			Location start = event.getProjectile().getLocation();
@@ -888,7 +886,6 @@ public class Borderlands {
 	}
 
 	private static void buildBLMob_Skeleton(Skeleton monster, Mobs mob) {
-
 		monster.setCustomName(mob.customName);
 		monster.setCustomNameVisible(true);
 		monster.setRemoveWhenFarAway(true);
@@ -943,13 +940,11 @@ public class Borderlands {
 	}
 
 	private static ItemStack mobArmory(String key) {
-
 		ItemStack item;
 		ItemMeta meta;
 		LeatherArmorMeta leathermeta;
 
 		switch (key) {
-
 		case "Marauder ZombieHelm":
 			item = new ItemStack(Material.LEATHER_HELMET);
 			leathermeta = (LeatherArmorMeta) item.getItemMeta();
@@ -1391,7 +1386,7 @@ public class Borderlands {
 			item.setItemMeta(meta);
 			return item;
 		default:
-			return null;
+			throw new RuntimeException("Can't find key" + key);
 		}
 	}
 }

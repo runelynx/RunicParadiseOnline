@@ -1,13 +1,5 @@
 package io.github.runelynx.runicparadise;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.Date;
-import java.util.UUID;
-import java.util.logging.Level;
-
 import io.github.runelynx.runicparadise.tempserialization.InventorySerialization;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -20,6 +12,14 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.Date;
+import java.util.UUID;
+import java.util.logging.Level;
+
 public class Gift {
 
 	private static Plugin instance = RunicParadise.getInstance();
@@ -30,7 +30,7 @@ public class Gift {
 		Inventory giftInventory = Bukkit.createInventory(sender, 9,
 				"Temp inventory");
 		giftInventory.addItem(Bukkit.getPlayer(sender.getUniqueId())
-				.getItemInHand());
+				.getInventory().getItemInMainHand());
 		
 
 		String giftString = InventorySerialization
