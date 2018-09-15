@@ -1446,7 +1446,7 @@ public class Faith {
 						Location location = p.getLocation();
 						int diamonds = 0;
 						int emeralds = 0;
-						Block center = location.getBlock().getRelative(RunicParadise.getPlayerFacing(p), radius);
+						Block center = location.getBlock().getRelative(p.getFacing(), radius);
 						for (int x = -radius; x < radius; x++) {
 							for (int y = -radius; y < radius; y++) {
 								for (int z = -radius; z < radius; z++) {

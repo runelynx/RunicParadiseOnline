@@ -1,19 +1,17 @@
 package io.github.runelynx.runicparadise;
 
-import java.util.Arrays;
-import java.util.logging.Level;
 import org.bukkit.Bukkit;
-import static org.bukkit.Bukkit.getLogger;
 import org.bukkit.Sound;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.PlayerInventory;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.Plugin;
+
+import java.util.logging.Level;
+
+import static org.bukkit.Bukkit.getLogger;
 
 public class RunicGateway {
     private Plugin instance = RunicParadise.getInstance();
@@ -48,7 +46,7 @@ public class RunicGateway {
 //        inventory.addItem(newItem);
 //    }
 
-    public static Entity getLastEntityDamager(Entity entity) {
+    static Entity getLastEntityDamager(Entity entity) {
         EntityDamageEvent event = entity.getLastDamageCause();
         if (event != null && !event.isCancelled() && (event instanceof EntityDamageByEntityEvent)) {
             Entity damager = ((EntityDamageByEntityEvent) event).getDamager();
@@ -87,8 +85,7 @@ public class RunicGateway {
 
     //play sound to players
     //playerName is not used if toAllPlayers= true
-    public void playPortalTravelSound(boolean toAllPlayers, String playerName) {
-
+    void playPortalTravelSound(boolean toAllPlayers, String playerName) {
         if (toAllPlayers) {
             for (Player p : Bukkit.getOnlinePlayers()) {
                 p.getWorld().playSound(p.getLocation(), Sound.ENTITY_FIREWORK_ROCKET_LAUNCH, 1, 0);

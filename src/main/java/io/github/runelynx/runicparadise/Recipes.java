@@ -137,7 +137,7 @@ class Recipes {
 		newRecipe = new ShapelessRecipe(new NamespacedKey(RunicParadise.getInstance(), "RP_FAITH_SWORD_1"), customItemStacks("FAITH_SWORD_1"));
 		newRecipe.addIngredient(1, Material.GOLD_NUGGET);
 		newRecipe.addIngredient(1, Material.REDSTONE);
-		newRecipe.addIngredient(1, Material.INK_SAC, 4);
+		newRecipe.addIngredient(1, Material.LAPIS_LAZULI);
 		newRecipe.addIngredient(1, Material.GOLDEN_SWORD);
 		Bukkit.getServer().addRecipe(newRecipe);
 
@@ -145,7 +145,7 @@ class Recipes {
 		newRecipe = new ShapelessRecipe(new NamespacedKey(RunicParadise.getInstance(), "RP_FAITH_SWORD_2"), customItemStacks("FAITH_SWORD_2"));
 		newRecipe.addIngredient(1, Material.GOLD_NUGGET);
 		newRecipe.addIngredient(1, Material.REDSTONE);
-		newRecipe.addIngredient(1, Material.INK_SAC, 4);
+		newRecipe.addIngredient(1, Material.LAPIS_LAZULI);
 		newRecipe.addIngredient(1, Material.DIAMOND);
 		newRecipe.addIngredient(1, Material.GOLDEN_SWORD);
 		Bukkit.getServer().addRecipe(newRecipe);
@@ -154,7 +154,7 @@ class Recipes {
 		newRecipe = new ShapelessRecipe(new NamespacedKey(RunicParadise.getInstance(), "RP_FAITH_SWORD_3"), customItemStacks("FAITH_SWORD_3"));
 		newRecipe.addIngredient(1, Material.GOLD_NUGGET);
 		newRecipe.addIngredient(1, Material.REDSTONE);
-		newRecipe.addIngredient(1, Material.INK_SAC, 4);
+		newRecipe.addIngredient(1, Material.LAPIS_LAZULI);
 		newRecipe.addIngredient(1, Material.EMERALD);
 		newRecipe.addIngredient(1, Material.GOLDEN_SWORD);
 		newRecipe.addIngredient(1, Material.DIAMOND);

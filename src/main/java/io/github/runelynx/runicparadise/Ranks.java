@@ -34,8 +34,7 @@ import me.mrCookieSlime.Slimefun.Objects.SlimefunItem.SlimefunItem;
 
 */
 
-public class Ranks {
-
+class Ranks {
 	private Plugin instance = RunicParadise.getInstance();
 	private RunicGateway RG = new RunicGateway();
 
@@ -82,12 +81,9 @@ public class Ranks {
 	final int BARON_RUNICS = 300000;
 	final int BARON_MASTER_JOBS = 12;
 
-	public Ranks() {
+	Ranks() { }
 
-	}
-
-	public void congratsPromotion(String promoted, String newRank) {
-
+	private void congratsPromotion(String promoted, String newRank) {
 		// RG.sendMessage(true, promoted, ChatColor.GOLD
 		// + "[RunicRanks] Congratulations, " + promoted
 		// + ", on promoting to " + newRank + "!");
@@ -149,12 +145,10 @@ public class Ranks {
 	 * Level.SEVERE, "Failed DB close for playerStats because: " +
 	 * e.getMessage()); } }
 	 */
-	public void playerStats(Player user) {
+	void playerStats(Player user) {
 		Date now = new Date();
 
-		MySQL MySQL = new MySQL(instance, instance.getConfig().getString("dbHost"),
-				instance.getConfig().getString("dbPort"), instance.getConfig().getString("dbDatabase"),
-				instance.getConfig().getString("dbUser"), instance.getConfig().getString("dbPassword"));
+		MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
 		final Connection d = MySQL.openConnection();
 		double daysPlayed = 0;
 		int balance = 0;
@@ -192,13 +186,11 @@ public class Ranks {
 		}
 	}
 
-	public void showRequirements(Player user) {
+	void showRequirements(Player user) {
 		int nomRedux;
 
-		MySQL MySQL = new MySQL(instance, instance.getConfig().getString("dbHost"),
-				instance.getConfig().getString("dbPort"), instance.getConfig().getString("dbDatabase"),
-				instance.getConfig().getString("dbUser"), instance.getConfig().getString("dbPassword"));
-		final Connection d = MySQL.openConnection();
+		MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
+		Connection d = MySQL.openConnection();
 		int nominations = 0;
 
 		try {
@@ -259,7 +251,7 @@ public class Ranks {
 	}
 
 	@SuppressWarnings("deprecation")
-	public void convertRanks(final Player user) {
+	void convertRanks(final Player user) {
 		String rank = perms.getPrimaryGroup(user);
 		boolean converted = false;
 		String command = "";
@@ -268,9 +260,7 @@ public class Ranks {
 
 		switch (rank) {
 		case "Ghosts":
-
 			promotePlayer(user, "Ghost");
-
 			converted = true;
 			break;
 		case "Engineers":
@@ -318,17 +308,12 @@ public class Ranks {
 					Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "faith enable " + user.getName() + " Sun");
 				}
 			}, 60);
-
 		}
-
 	}
 
-	public void nominatePlayer(Player sender, String nominee) {
-
-		MySQL MySQL = new MySQL(instance, instance.getConfig().getString("dbHost"),
-				instance.getConfig().getString("dbPort"), instance.getConfig().getString("dbDatabase"),
-				instance.getConfig().getString("dbUser"), instance.getConfig().getString("dbPassword"));
-		final Connection d = MySQL.openConnection();
+	void nominatePlayer(Player sender, String nominee) {
+		MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
+		Connection d = MySQL.openConnection();
 		int nominations = 0;
 		boolean playerFound = false;
 		try {
@@ -369,10 +354,9 @@ public class Ranks {
 				getLogger().log(Level.SEVERE, "Failed DB update for nominatePlayer because: " + e.getMessage());
 			}
 		}
-
 	}
 
-	public void checkPromotion(Player user, boolean execute) {
+	void checkPromotion(Player user, boolean execute) {
 		Date now = new Date();
 
 		MySQL MySQL = new MySQL(instance, instance.getConfig().getString("dbHost"),
@@ -1569,10 +1553,9 @@ public class Ranks {
 		} catch (SQLException e) {
 			getLogger().log(Level.SEVERE, "Cant close mysql conn after checkpromotion: " + e.getMessage());
 		}
-
 	}
 
-	public static void logPromotion(String playerName, String newRank, Long timestamp) {
+	private static void logPromotion(String playerName, String newRank, Long timestamp) {
 		final Plugin instance = RunicParadise.getInstance();
 		MySQL MySQL = new MySQL(instance, instance.getConfig().getString("dbHost"),
 				instance.getConfig().getString("dbPort"), instance.getConfig().getString("dbDatabase"),
@@ -1585,18 +1568,16 @@ public class Ranks {
 					.executeUpdate("INSERT INTO rp_PlayerPromotions (`PlayerName`, `NewRank`, `TimeStamp`) VALUES "
 							+ "('" + playerName + "', '" + newRank + "', " + timestamp + ");");
 			d.close();
-
 		} catch (SQLException z) {
 			getLogger().log(Level.SEVERE, "Failed DB check for restore grave cuz " + z.getMessage());
 		}
 	}
 
-	public static void promotePlayer(Player p, String newRank) {
-
+	private static void promotePlayer(Player p, String newRank) {
 		RunicParadise.perms.playerAddGroup(null, Bukkit.getOfflinePlayer(p.getUniqueId()), newRank);
 	}
 
-	public static boolean craftFeudalJewelry(Player p, String rank) {
+	static boolean craftFeudalJewelry(Player p, String rank) {
 		boolean checkGem = false;
 		boolean checkMetal = false;
 		boolean checkEssence = false;
@@ -1716,9 +1697,7 @@ public class Ranks {
 					Bukkit.getWorld(p.getLocation().getWorld().getUID()).dropItemNaturally(p.getLocation(),
 							Borderlands.specialLootDrops("BaronPendant2", p.getUniqueId()));
 				}
-
 				return true;
-
 			} else {
 				return false;
 			}
