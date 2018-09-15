@@ -346,15 +346,6 @@ public class Commands implements CommandExecutor {
 		case "runicspawntravel":
 				spawnTransportBeacon(((Player) sender).getLocation(), ((Player) sender));
 			break;
-		case "sendentity":
-			Player q = ((Player) sender);
-
-			for (Entity e : q.getNearbyEntities(2, 2, 2)) {
-				if (e instanceof LivingEntity) {
-					e.teleport(Bukkit.getPlayer(args[0]));
-				}
-			}
-			break;
 		case "raffle":
 			Player rafflePlayer = ((Player) sender);
 
@@ -650,10 +641,6 @@ public class Commands implements CommandExecutor {
                 sender.sendMessage(ChatColor.DARK_GRAY + " /el reload");
 
 			}
-
-			break;
-		case "carnivalaxe":
-			((Player) sender).getInventory().addItem(Recipes.customItemStacks("FAITH_AXE_1"));
 			break;
 		case "faithweapons":
 			((Player) sender).getInventory().addItem(Recipes.customItemStacks("FAITH_AXE_1"));
@@ -673,8 +660,6 @@ public class Commands implements CommandExecutor {
 				 Bukkit.getPlayer(args[1]).getInventory().addItem(Recipes.customItemStacks("FAITH_AXE_1"));
 			 }
 		 }
-			break;
-		case "casinotoken":
 			break;
 		case "casino":
 			// casino buytokens PLAYER RUNICS TOKENS
@@ -879,67 +864,6 @@ public class Commands implements CommandExecutor {
 				p.sendMessage(ChatColor.GRAY + "" + ChatColor.ITALIC
 						+ "Mining world resets every day! Don't leave anything here; items or graves!");
 			}
-			break;
-		case "gift":
-			if (args.length == 0) {
-				sender.sendMessage(ChatColor.GREEN + "" + ChatColor.BOLD + "Welcome to the Christmas Gift Exchange!");
-				sender.sendMessage(
-						ChatColor.GRAY + "*DISABLED* To send a gift, put an item in your hand and /gift send <name>");
-				sender.sendMessage(ChatColor.GRAY + "Be sure to type full player names, use tab complete if possible!");
-				sender.sendMessage(ChatColor.GRAY + "To claim a gift, type /gift check");
-
-			} else if (args.length == 1 && args[0].equalsIgnoreCase("check")) {
-
-				new Gift((Player) sender);
-
-			} else if (args.length == 2 && args[0].equalsIgnoreCase("send")) {
-
-				sender.sendMessage(ChatColor.DARK_RED + "" + ChatColor.ITALIC + "Sending gifts has been disabled.");
-				return true;
-				/*
-				 * if (((Player) sender).getItemInHand().equals(null) ||
-				 * ((Player) sender).getItemInHand().getTypeId() == 0) {
-				 * sender.sendMessage(ChatColor.DARK_RED + "" + ChatColor.ITALIC
-				 * +
-				 * "You must have the gift in your hand to use that command.");
-				 * return true; }
-                 *
-				 * final Connection e = MySQL.openConnection();
-                 *
-				 * // ///////////// try { // Statement eStmt =
-				 * e.createStatement();
-                 *
-				 * PreparedStatement eStmt = e .prepareStatement(
-				 * "SELECT UUID FROM rp_PlayerInfo WHERE PlayerName = '" +
-				 * args[1] + "' LIMIT 1;");
-                 *
-				 * ResultSet result = eStmt.executeQuery();
-                 *
-				 * if (!result.isBeforeFirst()) { // no result found
-				 * sender.sendMessage(ChatColor.ITALIC + "" + ChatColor.DARK_RED
-				 * + "No player found with that name. Please use full names.");
-				 * } else { // Location does exist in the DB and data
-				 * retrieved!!
-                 *
-				 * result.next();
-                 *
-				 * new Gift((Player) sender, UUID.fromString(result
-				 * .getString("UUID")));
-                 *
-				 * Bukkit.getServer().dispatchCommand(
-				 * Bukkit.getServer().getConsoleSender(), "mail send " + args[1]
-				 * + " You received a gift from " + sender.getName() +
-				 * ". Use /gift to claim it!"); }
-                 *
-				 * } catch (SQLException err) { Bukkit.Bukkit.getLogger()
-				 * .log(Level.SEVERE, "Cant check gift Gift because: " +
-				 * err.getMessage()); }
-				 */
-			} else {
-				sender.sendMessage(ChatColor.DARK_RED + "" + ChatColor.ITALIC
-						+ "Hmm that didn't work. Try /gift send <player> or /gift check.");
-			}
-
 			break;
 		case "machinemaze":
 			boolean problemMachine = false;
@@ -1341,50 +1265,6 @@ public class Commands implements CommandExecutor {
 				Bukkit.getLogger().log(Level.SEVERE, "Failed ItemTransfers Lookup because " + e.getMessage());
 			}
 
-			break;
-		case "oldrankperks":
-			if (args.length != 1) {
-				sender.sendMessage(ChatColor.DARK_RED
-						+ "Use this command to restore the perks you had from your old highest rank. So if you used to be guardian, type /oldrankperks Guardian. If you used to be Architect, type /oldrankperks Architect. You will not go back to those rank names in chat- but you will regain the perks!");
-				return true;
-			}
-
-			try {
-				Connection dbCon = MySQL.openConnection();
-				Statement dbStmt = dbCon.createStatement();
-				ResultSet powerResult = dbStmt.executeQuery("SELECT * FROM rp_PlayerPromotions WHERE PlayerName='"
-                        + sender.getName() + "' AND NewRank='" + args[0] + "' LIMIT 1;");
-				if (!powerResult.isBeforeFirst()) {
-					// No results
-					// do nothing
-					sender.sendMessage(ChatColor.DARK_RED
-							+ "Sorry, couldn't find any record of you having that rank. Be sure you type it EXACTLY right!! "
-							+ ChatColor.RED + "Settler, Explorer, Builder, Architect, Warden, Protector, Guardian");
-					Bukkit.getLogger().log(Level.INFO,
-							"Player " + sender.getName() + " tried to get the perks of " + args[0] + " and failed.");
-					dbCon.close();
-				} else {
-					// results found!
-					while (powerResult.next()) {
-						// Found powers for a faith that player has
-						// equipped!
-						Bukkit.dispatchCommand(Bukkit.getConsoleSender(),
-								"manuaddsub " + sender.getName() + " " + args[0]);
-						sender.sendMessage(ChatColor.GREEN + "You now have the same perks as the " + ChatColor.AQUA
-								+ " " + args[0] + ChatColor.GREEN
-								+ " rank. Just the perks! You're still on the new rank system. :)");
-						Bukkit.getLogger().log(Level.INFO, "Gave " + sender.getName() + " the perks of " + args[0]);
-					}
-					dbStmt.close();
-					dbCon.close();
-				}
-
-			} catch (SQLException z) {
-				Bukkit.getLogger().log(Level.SEVERE,
-						"Failed Faith.listPowers when trying to get powers for a faith: " + z.getMessage());
-				sender.sendMessage("Database failure.");
-				return true;
-			}
 			break;
 		case "cactifever":
 			// TODO: needs fixing
@@ -2091,218 +1971,6 @@ public class Commands implements CommandExecutor {
 
 			}
 			break;
-		case "rptransfer":
-			final int MAX_UFOTRANSFER_ITEMS = 10;
-			Bukkit.getLogger().log(Level.INFO, "[RPTransfer] Command received.");
-			if (args.length == 3 && args[0].equals("ufotransfer1.8")) {
-				// command is trying to CHECK STATUS of a player for the 1.8
-				// world transfer
-				Bukkit.getLogger().log(Level.INFO, "[RPTransfer] Valid syntax for status.");
-				// First count items in player inventory
-				RunicPlayerBukkit targetPlayer = new RunicPlayerBukkit(args[2]);
-				int invCount = targetPlayer.checkPlayerInventoryItemstackCount();
-				boolean wearingArmor = targetPlayer.checkPlayerWearingArmor();
-				int usedSlots = 0;
-				int activeSlots = 0;
-				boolean active = false;
-				String storedItemsString = "";
-
-				// try to lookup player data in DB
-				try {
-					final Connection d = MySQL.openConnection();
-					Statement dStmt = d.createStatement();
-					ResultSet playerData = dStmt.executeQuery(
-							"SELECT * FROM `rp_ItemTransfers` WHERE UUID = '" + targetPlayer.getPlayerUUID()
-									+ "' AND TransferType = 'ufotransfer1.8' ORDER BY ID ASC LIMIT 1;");
-					if (!playerData.isBeforeFirst()) {
-						// Player doesn't exist in the DB for this transfer
-						// type. Create entry.
-						PreparedStatement insertStmt = d.prepareStatement(
-								"INSERT INTO rp_ItemTransfers (TransferType, PlayerName, UUID, StoredItems) VALUES "
-										+ "('ufotransfer1.8', '" + targetPlayer.getPlayerName() + "', '"
-										+ targetPlayer.getPlayerUUID() + "', ' ');");
-
-						insertStmt.executeUpdate();
-
-					} else {
-						// Player does exist in the DB and data retrieved!!
-						playerData.next();
-						usedSlots = playerData.getInt("UsedSlots");
-						activeSlots = playerData.getInt("ActiveSlots");
-						storedItemsString = playerData.getString("StoredItems");
-						if (activeSlots > 0) {
-							active = true;
-						}
-					}
-				} catch (SQLException e) {
-					Bukkit.getLogger().log(Level.SEVERE, "Failed ItemTransfers Lookup because " + e.getMessage());
-				}
-
-				switch (args[1]) {
-					case "start":
-						// proximity trigger upon entering 1.8 world area for first
-						// time
-						if (!targetPlayer.checkPlayerPermission("rp.runicrealm")) {
-							Player player = Bukkit.getPlayer(args[2]);
-							player.teleport(new Location(Bukkit.getWorld("Runic Paradise"), 5644.5, 147.0, -4.5,
-									(float) -179.74, (float) 5.70));
-						}
-						break;
-					case "ufo":
-						// proximity trigger upon entering 1.8 world area for first
-						// time
-
-						Player player = Bukkit.getPlayer(args[2]);
-						player.teleport(new Location(Bukkit.getWorld("Runic Paradise"), 5644.5, 147.0, -4.5,
-								(float) -179.74, (float) 5.70));
-
-						break;
-					case "status":
-						// debugging for armor worn!
-						if (wearingArmor) {
-							Bukkit.getLogger().log(Level.INFO,
-									"[RPTransfer] " + targetPlayer.getPlayerName() + " is wearing armor.");
-							return true;
-						} else {
-							Bukkit.getLogger().log(Level.INFO,
-									"[RPTransfer] " + targetPlayer.getPlayerName() + " is NOT wearing armor.");
-						}
-
-						Bukkit.getLogger().log(Level.INFO,
-								"[RPTransfer] " + targetPlayer.getPlayerName() + " is has used " + usedSlots + " slots.");
-
-						if (active) {
-							Bukkit.getLogger().log(Level.INFO,
-									"[RPTransfer] " + targetPlayer.getPlayerName() + " has items stored right now.");
-						} else {
-							Bukkit.getLogger().log(Level.INFO, "[RPTransfer] " + targetPlayer.getPlayerName()
-									+ " does NOT have items stored right now.");
-						}
-						break;
-					case "save":
-						// STOP if player wearing armor!!
-						if (wearingArmor) {
-							targetPlayer.sendMessageToPlayer(ChatColor.GRAY + "" + ChatColor.ITALIC
-									+ "You can't wear armor if you want to sneak items through!");
-							return true;
-						}
-						// STOP if player already used 9 slots!!
-						else if (usedSlots >= MAX_UFOTRANSFER_ITEMS) {
-							targetPlayer.sendMessageToPlayer(
-									ChatColor.GRAY + "" + ChatColor.ITALIC + "You can't sneak any more items through!");
-							return true;
-						}
-						// STOP if player has active slots
-						else if (active) {
-							targetPlayer
-									.sendMessageToPlayer(ChatColor.GRAY + "" + ChatColor.ITALIC + "You must retrieve the "
-											+ activeSlots + " items you've tucked away before sneaking more through.");
-							return true;
-						} // STOP if player has more items on them than they can
-						// store
-						else if (invCount > (MAX_UFOTRANSFER_ITEMS - usedSlots)) {
-							targetPlayer.sendMessageToPlayer(ChatColor.GRAY + "" + ChatColor.ITALIC
-									+ "You have more items on you than you can sneak through! You can only take "
-									+ (MAX_UFOTRANSFER_ITEMS - usedSlots) + " more item slots!");
-							return true;
-						}
-
-						// All is ok... so now store some items!!
-						String invString = InventorySerialization.serializeInventoryAsString(
-								Bukkit.getPlayer(targetPlayer.getPlayerName()).getInventory().getContents());
-						int newUsedSlots = usedSlots + invCount;
-
-						try {
-							// Statement eStmt = e.createStatement();
-							final Connection e = MySQL.openConnection();
-							Statement eStmt = e.createStatement();
-							PreparedStatement updateStmt = e.prepareStatement("UPDATE rp_ItemTransfers SET ActiveSlots="
-									+ invCount + ", UsedSlots=" + newUsedSlots + ", StoredItems=? " + "WHERE UUID='"
-									+ targetPlayer.getPlayerUUID() + "' AND TransferType='ufotransfer1.8';");
-							updateStmt.setString(1, invString);
-
-							updateStmt.executeUpdate();
-							// CLEAR THE INVENTORY!!!!
-							Bukkit.getPlayer(targetPlayer.getPlayerName()).getInventory().clear();
-							targetPlayer.sendMessageToPlayer(ChatColor.GREEN + "You have successfully hidden " + invCount
-									+ " items to take to the 1.8 world!");
-						} catch (SQLException err) {
-							Bukkit.getLogger().log(Level.SEVERE,
-									"Cant update/save for itemtransfers because: " + err.getMessage());
-						}
-
-						break;
-					case "load":
-						// See if player has any stored items
-						if (!active) {
-							targetPlayer.sendMessageToPlayer(ChatColor.GRAY + "" + ChatColor.ITALIC
-									+ "You haven't stored any items so there is nothing to unpack.");
-							return true;
-						}
-
-						// check to make sure player has enough room to claim the
-						// stored items
-						if ((36 - invCount) < activeSlots) {
-							// player does NOT have enough room
-							targetPlayer.sendMessageToPlayer(ChatColor.GRAY + "" + ChatColor.ITALIC
-									+ "You don't have enough slots open to unpack your hidden items. You need "
-									+ activeSlots + " free slots.");
-							return true;
-						} else {
-							// player has enough room!
-							try {
-								// Statement eStmt = e.createStatement();
-								final Connection e = MySQL.openConnection();
-								Statement eStmt = e.createStatement();
-								PreparedStatement updateStmt = e.prepareStatement(
-										"UPDATE rp_ItemTransfers SET StoredItems=' ', ActiveSlots=0 WHERE UUID='"
-												+ targetPlayer.getPlayerUUID() + "' AND TransferType='ufotransfer1.8';");
-
-								updateStmt.executeUpdate();
-
-								ItemStack[] items = InventorySerialization.getInventory(storedItemsString, 100);
-								targetPlayer.givePlayerItemStack(items);
-								targetPlayer.sendMessageToPlayer(
-										ChatColor.GREEN + "You have successfully unpacked " + activeSlots + " items!");
-								if (usedSlots >= MAX_UFOTRANSFER_ITEMS) {
-									targetPlayer.sendMessageToPlayer(ChatColor.GRAY + "" + ChatColor.ITALIC
-											+ "You can not sneak any more items into the 1.8 world.");
-								} else if (usedSlots < MAX_UFOTRANSFER_ITEMS) {
-									targetPlayer.sendMessageToPlayer(ChatColor.GRAY + "" + ChatColor.ITALIC
-											+ "You can still sneak " + (MAX_UFOTRANSFER_ITEMS - usedSlots)
-											+ " more items into the 1.8 world.");
-								}
-							} catch (SQLException err) {
-								Bukkit.getLogger().log(Level.SEVERE,
-										"Cant update/save for itemtransfers because: " + err.getMessage());
-							}
-
-						}
-						break;
-					case "reset":
-						try {
-							// Statement eStmt = e.createStatement();
-							final Connection e = MySQL.openConnection();
-							Statement eStmt = e.createStatement();
-							PreparedStatement updateStmt = e.prepareStatement(
-									"UPDATE rp_ItemTransfers SET StoredItems=' ', ActiveSlots=0, UsedSlots=0 WHERE UUID='"
-											+ targetPlayer.getPlayerUUID() + "' AND TransferType='ufotransfer1.8';");
-
-							updateStmt.executeUpdate();
-
-							targetPlayer.sendMessageToPlayer(
-									ChatColor.GREEN + "" + "Your data has been reset for UFOTransfer1.8. You can now take "
-											+ MAX_UFOTRANSFER_ITEMS + " items through.");
-
-						} catch (SQLException err) {
-							Bukkit.getLogger().log(Level.SEVERE,
-									"Cant update/save for itemtransfers because: " + err.getMessage());
-						}
-
-						break;
-				}
-			}
-			break;
 		case "graves":
 		case "grave":
 			boolean showHelp = false;
@@ -2818,10 +2486,6 @@ public class Commands implements CommandExecutor {
 			}
 
 			break;
-
-		case "rpmail":
-			// Not used.
-			break;
 		case "consoleseeker":
 			if (Bukkit.getPlayer(args[0]).hasPermission("rp.ready")) {
 				RunicParadise.perms.playerAddGroup(Bukkit.getPlayer(args[0]), "Seeker");
@@ -2911,67 +2575,6 @@ public class Commands implements CommandExecutor {
 
 			}
 
-			/*
-			 * OLD /READY LOGIC REQUIRING PLAYER PROMOTION if (sender instanceof
-			 * Player) { boolean promoterFound = false; final String
-			 * newPlayerName = ((Player) sender).getName();
-             *
-			 * if (!RunicParadise.newReadyPlayer.containsKey(newPlayerName)) {
-			 * RunicParadise.newReadyPlayer.put( ((Player) sender).getName(),
-			 * "unused"); Bukkit.getServer().getScheduler()
-			 * .scheduleAsyncDelayedTask(instance, new Runnable() { public void
-			 * run() { RunicParadise.newReadyPlayer .remove(newPlayerName); } },
-			 * 6000); }
-             *
-			 * for (Player p : Bukkit.getOnlinePlayers()) { if
-			 * (p.hasPermission("rp.settlerpromotions")) { promoterFound = true;
-			 * p.sendMessage(ChatColor.GOLD + "[RunicRanks] " +
-			 * ChatColor.LIGHT_PURPLE + sender.getName() +
-			 * " has completed the tutorial.");
-			 * p.sendMessage(ChatColor.LIGHT_PURPLE + "Please use " +
-			 * ChatColor.AQUA + "/seeker " + sender.getName() +
-			 * ChatColor.LIGHT_PURPLE + " to promote them.");
-			 * RunicParadise.perms.playerAdd(((Player) sender), "rp.ready");
-             *
-			 * } }
-             *
-			 * // tell the other server this one is reconnected to the universe
-			 * ByteArrayDataOutput out = ByteStreams.newDataOutput();
-			 * out.writeUTF("Forward"); // So BungeeCord knows to forward it
-			 * out.writeUTF("ONLINE"); out.writeUTF("PlayerReady"); // The
-			 * channel name to check if // this // your data
-             *
-			 * ByteArrayOutputStream msgbytes = new ByteArrayOutputStream();
-			 * DataOutputStream msgout = new DataOutputStream(msgbytes);
-             *
-			 * try { msgout.writeUTF(((Player) sender).getDisplayName()); // You
-			 * // can // do // anything // msgout msgout.writeShort(123); }
-			 * catch (IOException e) { }
-             *
-			 * out.writeShort(msgbytes.toByteArray().length);
-			 * out.write(msgbytes.toByteArray());
-             *
-			 * // If you don't care about the player // Player player =
-			 * Iterables.getFirst(Bukkit.getOnlinePlayers(), // null); // Else,
-			 * specify them
-             *
-			 * ((Player) sender).sendPluginMessage(instance, "BungeeCord",
-			 * out.toByteArray());
-             *
-			 * if (promoterFound) { sender.sendMessage(ChatColor.GOLD +
-			 * "[RunicRanks] " + ChatColor.LIGHT_PURPLE +
-			 * "Staff is online and has been notified that you need a promotion."
-			 * ); sender.sendMessage(ChatColor.LIGHT_PURPLE +
-			 * "If you don't hear from them soon, they may be AFK. You can try /ready again later."
-			 * ); } else { sender.sendMessage(ChatColor.GOLD + "[RunicRanks] " +
-			 * ChatColor.LIGHT_PURPLE + "There is no staff online right now.");
-			 * sender.sendMessage(ChatColor.LIGHT_PURPLE +
-			 * "Post an introduction on our forums and we'll promote you very soon :)"
-			 * ); sender.sendMessage(ChatColor.LIGHT_PURPLE +
-			 * "Website: http://www.runic-paradise.com"); }
-             *
-			 * }
-			 */
 			break;
 		case "radio":
 		case "music":
@@ -2991,50 +2594,6 @@ public class Commands implements CommandExecutor {
 			} else if (args.length == 1) {
 
 				sender.sendMessage("This command is not working right now. :(");
-			/*	new FancyMessage(args[0]).color(DARK_RED).then(": ").color(WHITE)
-						//
-						.then("Info").color(GREEN).style(UNDERLINE).suggest("/bminfo " + args[0])
-						.tooltip("Retrieves history of player on RP").then(" ")
-						//
-						.then("Warn").suggest("/warn " + args[0] + " ")
-						.tooltip("Prepares command to issue a warning. Always add a reason!").color(AQUA)
-						.style(UNDERLINE).then(" ")
-						//
-						.then("Kick").suggest("/kick " + args[0] + " ")
-						.tooltip("Prepares command to kick. Always add a reason!").color(DARK_AQUA).style(UNDERLINE)
-						.then(" ")
-						//
-						.then("Mute").color(GRAY).then(" ")
-						//
-						.then("1m").suggest("/tempmute " + args[0] + " 1m ")
-						.tooltip("Prepares command to issue a 1 minute mute. Always add a reason!").color(YELLOW)
-						.style(UNDERLINE).then(" ")
-						//
-						.then("5m").suggest("/tempmute " + args[0] + " 5m ")
-						.tooltip("Prepares command to issue a 5 minute mute. Always add a reason!").color(GOLD)
-						.style(UNDERLINE).then(" ")
-						//
-						.then("10m").suggest("/tempmute " + args[0] + " 10m ")
-						.tooltip("Prepares command to issue a 10 minute mute. Always add a reason!").color(RED)
-						.style(UNDERLINE).then(" ").send(Bukkit.getPlayer(sender.getName()));
-				//
-				new FancyMessage("Ban").color(GRAY).then(" ")
-						//
-						.then("12h").suggest("/tempban " + args[0] + " 12h ")
-						.tooltip("Prepares command to issue a 12 hour tempban. Always add a reason!").color(YELLOW)
-						.style(UNDERLINE).then(" ")
-						//
-						.then("36h").suggest("/tempban " + args[0] + " 36h ")
-						.tooltip("Prepares command to issue a 36 hour tempban. Always add a reason!").color(GOLD)
-						.style(UNDERLINE).then(" ")
-						//
-						.then("5d").suggest("/tempban " + args[0] + " 5d ")
-						.tooltip("Prepares command to issue a 5 day tempban. Always add a reason!").color(RED)
-						.style(UNDERLINE).then(" ")
-						//
-						.then("Perm").suggest("/ban " + args[0] + " ")
-						.tooltip("Prepares command to issue a 5 day tempban. Always add a reason!").color(DARK_RED)
-						.style(UNDERLINE).send(Bukkit.getPlayer(sender.getName()));*/
 			}
 			break;
 		case "staff":
@@ -3235,82 +2794,6 @@ public class Commands implements CommandExecutor {
 						+ sdf.format(targetPlayer.getJoinDate().getTime()) + ChatColor.GRAY + ", Days since joining: "
 						+ ChatColor.GOLD + daysSinceJoin);
 
-				/*
-				 * commandPlayer.sendMessageToPlayer(ChatColor.DARK_AQUA +
-				 * "✦Status with Runic Security & Runic Farms");
-				 * commandPlayer.sendMessageToPlayer(ChatColor.DARK_AQUA +
-				 * " Monster Kills"); commandPlayer.sendMessageToPlayer(
-				 * ChatColor.GRAY + "  Wither: " + ChatColor.GOLD +
-				 * killCounts.get("KillWither") + ChatColor.GRAY + ", Zombie: "
-				 * + ChatColor.GOLD + killCounts.get("KillZombie") +
-				 * ChatColor.GRAY + ", Witch: " + ChatColor.GOLD +
-				 * killCounts.get("KillWitch") + ChatColor.GRAY +
-				 * ", Skeletons: " + ChatColor.GOLD +
-				 * killCounts.get("KillSkeleton")); commandPlayer
-				 * .sendMessageToPlayer(ChatColor.GRAY + "  Slime: " +
-				 * ChatColor.GOLD + killCounts.get("KillSlime") + ChatColor.GRAY
-				 * + ", MagmaCube: " + ChatColor.GOLD +
-				 * killCounts.get("KillMagmaCube") + ChatColor.GRAY +
-				 * ", Silverfish: " + ChatColor.GOLD +
-				 * killCounts.get("KillSilverfish") + ChatColor.GRAY +
-				 * ", Giant: " + ChatColor.GOLD + killCounts.get("KillGiant"));
-				 * commandPlayer .sendMessageToPlayer(ChatColor.GRAY +
-				 * "  Blaze: " + ChatColor.GOLD + killCounts.get("KillBlaze") +
-				 * ChatColor.GRAY + ", Creeper: " + ChatColor.GOLD +
-				 * killCounts.get("KillCreeper") + ChatColor.GRAY +
-				 * ", Enderman: " + ChatColor.GOLD +
-				 * killCounts.get("KillEnderman") + ChatColor.GRAY +
-				 * ", Spider: " + ChatColor.GOLD +
-				 * killCounts.get("KillSpider"));
-				 * commandPlayer.sendMessageToPlayer(ChatColor.GRAY +
-				 * "  CaveSpider: " + ChatColor.GOLD +
-				 * killCounts.get("KillCaveSpider") + ChatColor.GRAY +
-				 * ", Squid: " + ChatColor.GOLD + killCounts.get("KillSquid") +
-				 * ChatColor.GRAY + ", EnderDragon: " + ChatColor.GOLD +
-				 * killCounts.get("KillEnderDragon") + ChatColor.GRAY +
-				 * ", PigZombie: " + ChatColor.GOLD +
-				 * killCounts.get("KillPigZombie")); commandPlayer
-				 * .sendMessageToPlayer(ChatColor.GRAY + "  Ghast: " +
-				 * ChatColor.GOLD + killCounts.get("KillGhast") + ChatColor.GRAY
-				 * + ", Bat: " + ChatColor.GOLD + killCounts.get("KillBat") +
-				 * ChatColor.GRAY + ", Wolf: " + ChatColor.GOLD +
-				 * killCounts.get("KillWolf") + ChatColor.GRAY + ", Endermite: "
-				 * + ChatColor.GOLD + killCounts.get("KillEndermite") +
-				 * ChatColor.GRAY + ", Guardian: " + ChatColor.GOLD +
-				 * killCounts.get("KillGuardian"));
-				 * commandPlayer.sendMessageToPlayer( ChatColor.GRAY +
-				 * "  E.Guardian: " + ChatColor.GOLD +
-				 * killCounts.get("KillElderGuardian") + ChatColor.GRAY +
-				 * ", SnowGolem " + ChatColor.GOLD +
-				 * killCounts.get("KillSnowGolem") + ChatColor.GRAY +
-				 * ", IronGolem: " + ChatColor.GOLD +
-				 * killCounts.get("KillIronGolem") + ChatColor.GRAY +
-				 * ", Shulker: " + ChatColor.GOLD +
-				 * killCounts.get("KillShulker"));
-				 * commandPlayer.sendMessageToPlayer( ChatColor.GRAY +
-				 * "  W.Skeleton: " + ChatColor.GOLD +
-				 * killCounts.get("KillWSkeleton") + ChatColor.GRAY + ", Husk "
-				 * + ChatColor.GOLD + killCounts.get("KillHusk") +
-				 * ChatColor.GRAY + ", Stray: " + ChatColor.GOLD +
-				 * killCounts.get("KillStray"));
-				 * commandPlayer.sendMessageToPlayer(ChatColor.DARK_AQUA +
-				 * " Animal & People Kills"); commandPlayer.sendMessageToPlayer(
-				 * ChatColor.GRAY + "  Chicken: " + ChatColor.GOLD +
-				 * killCounts.get("KillChicken") + ChatColor.GRAY + ", Cow: " +
-				 * ChatColor.GOLD + killCounts.get("KillCow") + ChatColor.GRAY +
-				 * ", Sheep: " + ChatColor.GOLD + killCounts.get("KillSheep") +
-				 * ChatColor.GRAY + ", Pig: " + ChatColor.GOLD +
-				 * killCounts.get("KillPig") + ChatColor.GRAY + ", Villager: " +
-				 * ChatColor.GOLD + killCounts.get("KillVillager"));
-				 * commandPlayer.sendMessageToPlayer( ChatColor.GRAY +
-				 * "  Ocelot: " + ChatColor.GOLD + killCounts.get("KillOcelot")
-				 * + ChatColor.GRAY + ", Rabbit: " + ChatColor.GOLD +
-				 * killCounts.get("KillRabbit") + ChatColor.GRAY +
-				 * ", Mooshroom: " + ChatColor.GOLD +
-				 * killCounts.get("KillMooshroom") + ChatColor.GRAY +
-				 * ", PolarBear: " + ChatColor.GOLD +
-				 * killCounts.get("KillPolarBear"));
-				 */
 				commandPlayer.sendMessageToPlayer(ChatColor.DARK_AQUA + "✦Faith & the afterlife");
 				commandPlayer.sendMessageToPlayer(
 						ChatColor.GRAY + "  Karma available: " + ChatColor.GOLD + targetPlayer.getKarma());
@@ -3340,19 +2823,6 @@ public class Commands implements CommandExecutor {
 			}
 
 			System.out.println("[RP] Runic Paradise plugin reloaded.");
-			break;
-		case "hmsay":
-			if (sender instanceof Player) {
-				Player s = (Player) sender;
-				s.sendMessage(ChatColor.RED + "Players cannot use /hmsay");
-			} else {
-				String message = String.join(" ", args);
-				List<Player> mansionPlayers = Bukkit.getWorld("Mansion").getPlayers();
-				for (Player p : mansionPlayers) {
-					p.sendMessage(message);
-				}
-
-			}
 			break;
 		case "say":
 			sayCommand(sender, args);

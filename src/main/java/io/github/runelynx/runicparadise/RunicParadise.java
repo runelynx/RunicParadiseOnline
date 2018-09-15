@@ -1116,20 +1116,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 
 	@EventHandler
 	public void onInventoryClick(InventoryClickEvent event) {
-		// handle gift inventory
-		if (event.getSlot() == 4 && event.getInventory().getTitle().contains("Gift from")) {
 
-			Gift.removeGift((Player) event.getWhoClicked(),
-					RunicParadise.giftIDTracker.get(event.getWhoClicked().getUniqueId()));
-
-			event.getWhoClicked().getWorld()
-					.dropItemNaturally(event.getWhoClicked().getLocation(), event.getCurrentItem());
-			event.getInventory().setItem(4, new ItemStack(Material.AIR, 1));
-
-			event.getWhoClicked().sendMessage(
-					ChatColor.DARK_GREEN + "" + ChatColor.ITALIC + "The gift has been dropped at your location!");
-
-		} else
 		// Runic Profile - Main Menu
 		if (event.getInventory().getTitle().contains("Profile :: Main Menu")) {
 			if (event.getSlot() == 10) {

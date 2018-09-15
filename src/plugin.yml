@@ -73,21 +73,11 @@ commands:
       usage: /<command>
       permission: rp.explorersleague
       permission-message: "You don't have permission: rp.explorersleague"
-   sendentity:
-      description: "Sends a living entity to a player"
-      usage: /<command> [player]
-      permission: rp.staff.sendentity
-      permission-message: "You don't have permission: rp.staff.sendentity"
    el:
       description: "Staff commands for explorer's league"
       usage: /<command>
       permission: rp.staff.explorersleague
       permission-message: "You don't have permission: rp.staff.explorersleague"
-   carnivalaxe:
-      description: "Create a carnival axe"
-      usage: /<command>
-      permission: rp.staff.carnivalaxe
-      permission-message: "You don't have permission: rp.freezemob."
    casino:
       description: "Manage casino"
       usage: /<command>
@@ -154,11 +144,6 @@ commands:
       usage: /<command>
       permission: rp.iteminfo
       permission-message: "Staff only."
-   gift:
-      description: "Used to send and receive gifts."
-      usage: /<command>
-      permission: rp.gift
-      permission-message: "Sorry this command is not available right now."
    crocomaze:
       description: "Used by Rune (only) in the CrocoMaze"
       usage: /<command>
@@ -183,9 +168,6 @@ commands:
       description: "Command blocks in the jungle maze. Not for use by players."
       permission: rp.admin
       permission-message: "You don't have permission: <permission>"
-   oldrankperks:
-      description: "Restore perks from your old rank"
-      usage: /<command> [oldrankname]
    say:
       description: "Runic Paradise /say override command"
       usage: /<command> [player]
@@ -245,15 +227,6 @@ commands:
       usage: /<command>
       permission: rp.NoPlayersAllowed
       permission-message: "You don't have permission: <permission>"
-   rptransfer:
-      description: "Used by command blocks to save/load inventory for special events"
-      usage: /<command>
-      permission: rp.staff
-      permission-message: "You don't have permission: <permission>"
-   rpmail:
-      description: "A test command for the email system"
-      usage: /<command>
-      permission: rp.test
    rptokens:
       description: "Used by staff for Runic Carnival"
       usage: /<command>
@@ -306,9 +279,6 @@ commands:
    events:
       description: "Runic Paradise events tool."
       usage: /<command> [option]
-   hmsay:
-      description: "Herobrines Mansion message command."
-      usage: /<command> [option]    
    email:
       usage: /<command>
       permission: rp.admin
