@@ -5,7 +5,6 @@ import com.xxmicloxx.NoteBlockAPI.NBSDecoder;
 import com.xxmicloxx.NoteBlockAPI.RadioSongPlayer;
 import com.xxmicloxx.NoteBlockAPI.Song;
 import com.xxmicloxx.NoteBlockAPI.SongPlayer;
-import io.github.runelynx.runicparadise.tempserialization.InventorySerialization;
 import io.github.runelynx.runicuniverse.RunicMessaging;
 import io.github.runelynx.runicuniverse.RunicMessaging.RunicFormat;
 import org.bukkit.*;
@@ -16,6 +15,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
@@ -331,26 +331,26 @@ public class Commands implements CommandExecutor {
 			RunicUtilities.fixGroupManager();
 			break;
 		case "rpfix":
-			rpFixCommand(sender, args);
+			rpFixCommand(sender);
 			break;
 		case "runicspawntravel":
-			runicSpawnTravelCommand(sender, args);
+			runicSpawnTravelCommand(sender);
 			break;
 		case "raffle":
 			raffleCommand(sender, args);
 			break;
 		case "search":
 		case "explore":
-			exploreCommand(sender, args);
+			exploreCommand(sender);
 			break;
 		case "el":
 			elCommand(sender, args);
 			break;
 		case "faithweapons":
-			faithWeaponsCommand(sender, args);
+			faithWeaponsCommand(sender);
 			break;
 		case "faithweapon":
-			faithWeaponCommand(sender, args);
+			faithWeaponCommand(args);
 			break;
 		case "casino":
 			casinoCommand(sender, args);
@@ -362,11 +362,11 @@ public class Commands implements CommandExecutor {
 			freezeMob((Player) sender, false);
 			break;
 		case "wild":
-			wildCommand(sender, args);
+			wildCommand(sender);
 			break;
 		case "miningworld":
 		case "mw":
-			miningWorldCommand(sender, args);
+			miningWorldCommand(sender);
 			break;
 		case "iteminfo":
 			itemInfoCommand((Player) sender);
@@ -375,7 +375,7 @@ public class Commands implements CommandExecutor {
 			miningResetCommand(sender, args);
 			break;
 		case "miningworldreminder":
-			miningWorldReminderCommand(sender, args);
+			miningWorldReminderCommand();
 			break;
 		case "machinemaze":
 			machineMazeCommand(sender, args);
@@ -391,13 +391,13 @@ public class Commands implements CommandExecutor {
 			break;
 		case "voice":
 		case "discord":
-			discordCommand(sender, args);
+			discordCommand(sender);
 			break;
 		case "dailykarma":
 			dailyKarmaCommand(sender, args);
 			break;
 		case "cactifever":
-			cactiFeverCommand(sender, args);
+			cactiFeverCommand(sender);
 			break;
 		case "runiceye":
 			RunicParadise.loadRunicEyes();
@@ -486,98 +486,95 @@ public class Commands implements CommandExecutor {
 		return true;
 	}
 
-	private static void exploreCommand(CommandSender sender, String[] args) {
+	private static void exploreCommand(CommandSender sender) {
 		Player explorePlayer = ((Player) sender);
 		searchExplorerLocation(explorePlayer.getLocation(), explorePlayer);
 	}
 
-	private static void runicSpawnTravelCommand(CommandSender sender, String[] args) {
-		spawnTransportBeacon(((Player) sender).getLocation(), ((Player) sender));
+	private static void runicSpawnTravelCommand(CommandSender sender) {
+    	Player player = (Player) sender;
+		spawnTransportBeacon(player.getLocation(), player);
 	}
 
-	private static void rpFixCommand(CommandSender sender, String[] args) {
-		Player playerA = ((Player) sender);
-		repairCommand(playerA, playerA.getInventory().getItemInMainHand(),
-				playerA.getInventory().getItemInOffHand());
+	private static void rpFixCommand(CommandSender sender) {
+		Player player = ((Player) sender);
+		PlayerInventory inventory = player.getInventory();
+		repairCommand(player, inventory.getItemInMainHand(), inventory.getItemInOffHand());
 	}
 
-	private static void faithWeaponsCommand(CommandSender sender, String[] args) {
-		((Player) sender).getInventory().addItem(Recipes.customItemStacks("FAITH_AXE_1"));
-		((Player) sender).getInventory().addItem(Recipes.customItemStacks("FAITH_SWORD_1"));
-		((Player) sender).getInventory().addItem(Recipes.customItemStacks("FAITH_SWORD_2"));
-		((Player) sender).getInventory().addItem(Recipes.customItemStacks("FAITH_SWORD_3"));
+	private static void faithWeaponsCommand(CommandSender sender) {
+    	Inventory inventory = ((Player) sender).getInventory();
+		inventory.addItem(Recipes.customItemStacks("FAITH_AXE_1"));
+		inventory.addItem(Recipes.customItemStacks("FAITH_SWORD_1"));
+		inventory.addItem(Recipes.customItemStacks("FAITH_SWORD_2"));
+		inventory.addItem(Recipes.customItemStacks("FAITH_SWORD_3"));
 	}
 
-	private static void faithWeaponCommand(CommandSender sender, String[] args) {
-		if (args != null && args.length == 2) {
-			if (args[0].equalsIgnoreCase("sword1")) {
-				Bukkit.getPlayer(args[1]).getInventory().addItem(Recipes.customItemStacks("FAITH_SWORD_1"));
-			} else if (args[0].equalsIgnoreCase("sword2")) {
-				Bukkit.getPlayer(args[1]).getInventory().addItem(Recipes.customItemStacks("FAITH_SWORD_2"));
-			} else if (args[0].equalsIgnoreCase("sword3")) {
-				Bukkit.getPlayer(args[1]).getInventory().addItem(Recipes.customItemStacks("FAITH_SWORD_3"));
-			} else if (args[0].equalsIgnoreCase("axe1")) {
-				Bukkit.getPlayer(args[1]).getInventory().addItem(Recipes.customItemStacks("FAITH_AXE_1"));
-			}
+	private static void faithWeaponCommand(String[] args) {
+		if (args == null || args.length != 2) {
+			return;
+		}
+		Inventory inventory = Bukkit.getPlayer(args[1]).getInventory();
+		if (args[0].equalsIgnoreCase("sword1")) {
+			inventory.addItem(Recipes.customItemStacks("FAITH_SWORD_1"));
+		} else if (args[0].equalsIgnoreCase("sword2")) {
+			inventory.addItem(Recipes.customItemStacks("FAITH_SWORD_2"));
+		} else if (args[0].equalsIgnoreCase("sword3")) {
+			inventory.addItem(Recipes.customItemStacks("FAITH_SWORD_3"));
+		} else if (args[0].equalsIgnoreCase("axe1")) {
+			inventory.addItem(Recipes.customItemStacks("FAITH_AXE_1"));
 		}
 	}
 
-	private static void wildCommand(CommandSender sender, String[] args) {
+	private static void wildCommand(CommandSender sender) {
 		((Player) sender).teleport(
 				new Location(Bukkit.getWorld("RunicSky"), -493.195, 64.50, 302.930, 212.86743F, -1.3499908F));
-		sender.sendMessage(ChatColor.YELLOW
-				+ "There are portals to different areas of the wilderness here - look for a biome you like and head into the portal.");
-		sender.sendMessage(ChatColor.DARK_RED + "" + ChatColor.BOLD + "Borderlands" + ChatColor.RESET + ""
-				+ ChatColor.YELLOW + " areas have VERY tough monsters!");
+		sender.sendMessage(ChatColor.YELLOW + "There are portals to different areas of the wilderness here - look for a biome you like and head into the portal.\n"
+				+ ChatColor.DARK_RED + ChatColor.BOLD + "Borderlands" + ChatColor.RESET + ChatColor.YELLOW + " areas have VERY tough monsters!");
 	}
 
-	private static void miningWorldCommand(CommandSender sender, String[] args) {
+	private static void miningWorldCommand(CommandSender sender) {
 		((Player) sender).teleport(
 				new Location(Bukkit.getWorld("RunicSky"), -639.232, 64.0, 326.465, 93.31604F, -4.499901F));
-		sender.sendMessage(ChatColor.YELLOW
-				+ "The mining world portal is ahead of you. That world resets sometimes so do not build or leave any items or graves there or you risk losing them!");
-		sender.sendMessage(ChatColor.YELLOW + "Explosions break blocks in the mining world.");
+		sender.sendMessage(
+				ChatColor.YELLOW + "The mining world portal is ahead of you. That world resets sometimes so do not build or leave any items or graves there or you risk losing them!\n"
+				+ ChatColor.YELLOW + "Explosions break blocks in the mining world.");
 	}
 
-	private static void miningWorldReminderCommand(CommandSender sender, String[] args) {
-		for (Player p : Bukkit.getWorld("Mining").getPlayers()) {
-			p.sendMessage(ChatColor.GRAY + "" + ChatColor.ITALIC
-					+ "Mining world resets every day! Don't leave anything here; items or graves!");
-		}
+	private static void miningWorldReminderCommand() {
+    	String message = ChatColor.GRAY.toString() + ChatColor.ITALIC + "Mining world resets every day! Don't leave anything here; items or graves!";
+		Bukkit.getWorld("Mining").getPlayers().forEach(player -> player.sendMessage(message));
 	}
 
 	private static void adventureParkourPrizeCommand(CommandSender sender, String[] args) {
 		RunicParadise.playerProfiles.get(Bukkit.getPlayer(args[0]).getUniqueId()).addMazeCompletion(7);
 	}
 
-	private static void discordCommand(CommandSender sender, String[] args) {
-		sender.sendMessage(ChatColor.LIGHT_PURPLE + "We use Discord as our voice chat system. ");
-		sender.sendMessage(ChatColor.LIGHT_PURPLE
-				+ "Remember our server rules still apply there! Be respectful to others and keep it clean!");
-		sender.sendMessage(ChatColor.DARK_RED + "Click here to learn how to use Discord: " + ChatColor.GRAY
-				+ "http://goo.gl/X1dg8W");
-		sender.sendMessage(ChatColor.DARK_RED + "Click here to join Discord: " + ChatColor.GRAY
-				+ "http://www.runic-paradise.com/discord.php");
+	private static void discordCommand(CommandSender sender) {
+		sender.sendMessage(ChatColor.LIGHT_PURPLE + "We use Discord as our voice chat system.\n"
+				+ ChatColor.LIGHT_PURPLE + "Remember our server rules still apply there! Be respectful to others and keep it clean!\n"
+				+ ChatColor.DARK_RED + "Click here to learn how to use Discord: " + ChatColor.GRAY + "http://goo.gl/X1dg8W\n"
+				+ ChatColor.DARK_RED + "Click here to join Discord: " + ChatColor.GRAY + "http://www.runic-paradise.com/discord.php");
 	}
 
-	private static void cactiFeverCommand(CommandSender sender, String[] args) {
+	private static void cactiFeverCommand(CommandSender sender) {
 		// TODO: needs fixing
 		ItemStack skull = new ItemStack(Material.PLAYER_HEAD, 1, (short) 3);
 		SkullMeta meta1 = (SkullMeta) skull.getItemMeta();
 
 		meta1.setOwner("The_King_Cacti");
-		meta1.setDisplayName(ChatColor.AQUA + "" + "The_King_Cacti");
+		meta1.setDisplayName(ChatColor.AQUA + "The_King_Cacti");
 		skull.setItemMeta(meta1);
-		((Player) sender).getWorld().dropItemNaturally(((Player) sender).getLocation(), skull);
-		sender.sendMessage(ChatColor.YELLOW + "" + ChatColor.BOLD + "You've been infected with CactiFever!");
+
+		Player player = (Player) sender;
+		player.getWorld().dropItemNaturally(player.getLocation(), skull);
+		sender.sendMessage(ChatColor.YELLOW.toString() + ChatColor.BOLD + "You've been infected with CactiFever!");
 
 	}
 
 	private static void rpVoteCommand(CommandSender sender, String[] args) {
 		if (args[0].equals("reward") && args.length == 2) {
-
 			int votecount = 1;
-
 			if (Bukkit.getPlayer(args[1]).hasPermission("rp.xmas")) {
 				votecount = 2;
 			}
@@ -1064,33 +1061,26 @@ public class Commands implements CommandExecutor {
 				RunicPlayerBukkit senderPlayer = new RunicPlayerBukkit((Player) sender);
 				senderPlayer.sendMessageToPlayer(ChatColor.GOLD + "[RunicCarnival] How to form rptokens commands:");
 				senderPlayer.sendMessageToPlayer(ChatColor.GRAY + "Take tokens and execute command as reward:");
-				senderPlayer
-						.sendMessageToPlayer(ChatColor.DARK_GRAY + "/rptokens take PLAYERNAME TOKENCOUNT COMMAND");
+				senderPlayer.sendMessageToPlayer(ChatColor.DARK_GRAY + "/rptokens take PLAYERNAME TOKENCOUNT COMMAND");
 				senderPlayer.sendMessageToPlayer(ChatColor.GRAY + "Reward karma:");
-				senderPlayer.sendMessageToPlayer(
-						ChatColor.DARK_GRAY + "/rptokens givekarma PLAYERNAME TOKENCOUNT KARMACOUNT");
+				senderPlayer.sendMessageToPlayer(ChatColor.DARK_GRAY + "/rptokens givekarma PLAYERNAME TOKENCOUNT KARMACOUNT");
 				senderPlayer.sendMessageToPlayer(ChatColor.GRAY + "Take tokens and give a chest-inv reward:");
-				senderPlayer.sendMessageToPlayer(
-						ChatColor.DARK_GRAY + "/rptokens chestreward PLAYERNAME TOKENCOUNT X Y Z");
+				senderPlayer.sendMessageToPlayer(ChatColor.DARK_GRAY + "/rptokens chestreward PLAYERNAME TOKENCOUNT X Y Z");
 				senderPlayer.sendMessageToPlayer(ChatColor.GRAY + "Give or take tokens:");
 				senderPlayer.sendMessageToPlayer(ChatColor.DARK_GRAY + "/rptokens give/take PLAYERNAME TOKENCOUNT");
 				senderPlayer.sendMessageToPlayer(ChatColor.GRAY + "Give trophies:");
-				senderPlayer
-						.sendMessageToPlayer(ChatColor.DARK_GRAY + "/rptokens givetrophy PLAYERNAME TROPHYCOUNT");
+				senderPlayer.sendMessageToPlayer(ChatColor.DARK_GRAY + "/rptokens givetrophy PLAYERNAME TROPHYCOUNT");
 				senderPlayer.sendMessageToPlayer(ChatColor.GRAY + "Take all trophies and give tokens:");
 				senderPlayer.sendMessageToPlayer(ChatColor.DARK_GRAY + "/rptokens taketrophy PLAYERNAME");
 				senderPlayer.sendMessageToPlayer(ChatColor.GRAY + "Add maze win to player total:");
 				senderPlayer.sendMessageToPlayer(ChatColor.DARK_GRAY + "/rptokens mazewin PLAYERNAME MazeID");
 			}
-
 		} else if (args.length == 2 && args[0].equals("checkbalance")) {
-
 			RunicPlayerBukkit targetPlayer = new RunicPlayerBukkit(args[1]);
 
 			TitleAPI.sendTitle(Bukkit.getPlayer(args[1]), 2, 3, 2,
 					RunicMessaging.getRandomColor() + "" + ChatColor.BOLD + targetPlayer.getPlayerTokenBalance(),
 					RunicMessaging.getRandomColor() + "Your current token balance. Get more in /games");
-
 		} else if (args.length == 4 && Integer.parseInt(args[2]) > -1 && Integer.parseInt(args[3]) > 0
 				&& args[0].equals("givekarma")) {
 
@@ -1444,38 +1434,39 @@ public class Commands implements CommandExecutor {
 	}
 
 	private static void rpCratesCommand(CommandSender sender, String[] args) {
-		if (args.length == 2) {
-			switch (args[0]) {
-				case "1":
-					RunicParadise.playerProfiles.get(Bukkit.getOfflinePlayer(args[1]).getUniqueId())
-							.grantCurrency("Souls", 1);
-					Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "eco give " + args[1] + " 400");
-					break;
-				case "2":
-					RunicParadise.playerProfiles.get(Bukkit.getOfflinePlayer(args[1]).getUniqueId())
-							.grantCurrency("Souls", 2);
-					Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "eco give " + args[1] + " 600");
-					break;
-				case "3":
-					RunicParadise.playerProfiles.get(Bukkit.getOfflinePlayer(args[1]).getUniqueId())
-							.grantCurrency("Souls", 1);
-					RunicParadise.playerProfiles.get(Bukkit.getOfflinePlayer(args[1]).getUniqueId())
-							.grantCurrency("Karma", 2);
-					Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "eco give " + args[1] + " 100");
-					break;
-				case "4":
-					RunicParadise.playerProfiles.get(Bukkit.getOfflinePlayer(args[1]).getUniqueId())
-							.grantCurrency("Souls", 1);
-					RunicParadise.playerProfiles.get(Bukkit.getOfflinePlayer(args[1]).getUniqueId())
-							.grantCurrency("Karma", 3);
-					Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "eco give " + args[1] + " 250");
-					break;
-				case "5":
-					RunicParadise.playerProfiles.get(Bukkit.getOfflinePlayer(args[1]).getUniqueId())
-							.grantCurrency("Souls", 1);
-					Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "eco give " + args[1] + " 900");
-					break;
-			}
+		if (args.length != 2) {
+			return;
+		}
+		switch (args[0]) {
+			case "1":
+				RunicParadise.playerProfiles.get(Bukkit.getOfflinePlayer(args[1]).getUniqueId())
+						.grantCurrency("Souls", 1);
+				Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "eco give " + args[1] + " 400");
+				break;
+			case "2":
+				RunicParadise.playerProfiles.get(Bukkit.getOfflinePlayer(args[1]).getUniqueId())
+						.grantCurrency("Souls", 2);
+				Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "eco give " + args[1] + " 600");
+				break;
+			case "3":
+				RunicParadise.playerProfiles.get(Bukkit.getOfflinePlayer(args[1]).getUniqueId())
+						.grantCurrency("Souls", 1);
+				RunicParadise.playerProfiles.get(Bukkit.getOfflinePlayer(args[1]).getUniqueId())
+						.grantCurrency("Karma", 2);
+				Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "eco give " + args[1] + " 100");
+				break;
+			case "4":
+				RunicParadise.playerProfiles.get(Bukkit.getOfflinePlayer(args[1]).getUniqueId())
+						.grantCurrency("Souls", 1);
+				RunicParadise.playerProfiles.get(Bukkit.getOfflinePlayer(args[1]).getUniqueId())
+						.grantCurrency("Karma", 3);
+				Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "eco give " + args[1] + " 250");
+				break;
+			case "5":
+				RunicParadise.playerProfiles.get(Bukkit.getOfflinePlayer(args[1]).getUniqueId())
+						.grantCurrency("Souls", 1);
+				Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "eco give " + args[1] + " 900");
+				break;
 		}
 	}
 
@@ -2688,14 +2679,12 @@ public class Commands implements CommandExecutor {
 						+ ", Tokens: " + args[2] + ", Proximity: " + args[3] + ", Creator: " + sender.getName());
 
 				String locationName = args[1].replace('_', ' ').replace("'", "");
-				String locString = ((Player) sender).getWorld().getName() + "."
-						+ (int) ((Player) sender).getLocation().getX() + "."
-						+ (int) ((Player) sender).getLocation().getY() + "."
-						+ (int) ((Player) sender).getLocation().getZ();
+				Location location = ((Player) sender).getLocation();
+				String locString = String.format("%s.%d.%d.%d", location.getWorld().getName(), location.getBlockX(), location.getBlockY(), location.getBlockZ());
 				int tokenReward = Integer.parseInt(args[2]);
 				int difficultyRadius = Integer.parseInt(args[3]);
 
-				final Connection d = MySQL.openConnection();
+				Connection d = MySQL.openConnection();
 				Statement dStmt = d.createStatement();
 				PreparedStatement insertStmt = d.prepareStatement(
 						"INSERT INTO rpgame.rp_ExplorerLocations (LocationName, Location, TokenReward, DifficultyRadius, Creator) VALUES "

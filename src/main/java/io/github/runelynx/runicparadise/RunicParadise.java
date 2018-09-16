@@ -438,12 +438,9 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 		getCommand("rptest").setExecutor(new Commands());
 		getCommand("rankitem").setExecutor(new Commands());
 		getCommand("consoleseeker").setExecutor(new Commands());
-		getCommand("sendentity").setExecutor(new Commands());
 		getCommand("miningreset").setExecutor(new Commands());
 		getCommand("miningworldreminder").setExecutor(new Commands());
 		getCommand("rpreload").setExecutor(new Commands());
-		getCommand("oldrankperks").setExecutor(new Commands());
-		getCommand("carnivalaxe").setExecutor(new Commands());
 		getCommand("faithweapons").setExecutor(new Commands());
 		getCommand("faithweapon").setExecutor(new Commands());
 		getCommand("headofplayer").setExecutor(new Commands());
@@ -453,10 +450,8 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 		getCommand("miningworld").setExecutor(new Commands());
 		getCommand("mw").setExecutor(new Commands());
 		getCommand("wild").setExecutor(new Commands());
-		getCommand("gift").setExecutor(new Commands());
 		getCommand("rpgames").setExecutor(new Commands());
 		getCommand("games").setExecutor(new Commands());
-		getCommand("hmsay").setExecutor(new Commands());
 		getCommand("adventureparkourprize").setExecutor(new Commands());
 		getCommand("promote").setExecutor(new Commands());
 		getCommand("rankup").setExecutor(new Commands());
@@ -470,11 +465,9 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 		getCommand("music").setExecutor(new Commands());
 		getCommand("radio").setExecutor(new Commands());
 		getCommand("ready").setExecutor(new Commands());
-		getCommand("rpmail").setExecutor(new Commands());
 		getCommand("rptokens").setExecutor(new Commands());
 		getCommand("dailykarma").setExecutor(new Commands());
 		getCommand("say").setExecutor(new Commands());
-		getCommand("rptransfer").setExecutor(new Commands());
 		getCommand("rpvote").setExecutor(new Commands());
 		getCommand("rpjobs").setExecutor(new Commands());
 		getCommand("rpeffects").setExecutor(new Commands());

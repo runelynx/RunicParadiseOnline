@@ -63,9 +63,8 @@ public class RunicProfile {
 
 	private static Plugin instance = RunicParadise.getInstance();
 
-	public RunicProfile(UUID playerID) {
+	RunicProfile(UUID playerID) {
 		loadProfile(playerID);
-
 	}
 
 	private void setPlayerID(UUID playerid) {
@@ -76,9 +75,8 @@ public class RunicProfile {
 		return this.playerUUID;
 	}
 
-	public void setChatColor(String newSetting, Boolean updateDB) {
-
-		Boolean error = false;
+	void setChatColor(String newSetting, boolean updateDB) {
+		boolean error = false;
 
 		switch (newSetting) {
 		case "WHITE":
@@ -134,27 +132,20 @@ public class RunicProfile {
 		}
 
 		if (updateDB && !error) {
-
-			MySQL MySQL = new MySQL(instance, instance.getConfig().getString("dbHost"),
-					instance.getConfig().getString("dbPort"), instance.getConfig().getString("dbDatabase"),
-					instance.getConfig().getString("dbUser"), instance.getConfig().getString("dbPassword"));
+			MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
 
 			try {
-				final Connection d = MySQL.openConnection();
+				Connection connection = MySQL.openConnection();
 
-				PreparedStatement dStmt2 = d
-						.prepareStatement("UPDATE rp_PlayerInfo SET ChatColor ='" + newSetting + "' WHERE UUID = ?");
+				PreparedStatement dStmt2 = connection.prepareStatement("UPDATE rp_PlayerInfo SET ChatColor ='" + newSetting + "' WHERE UUID = ?");
 				dStmt2.setString(1, this.getPlayerID().toString());
 				dStmt2.executeUpdate();
 
-				d.close();
-
+				connection.close();
 			} catch (SQLException e) {
 				getLogger().log(Level.SEVERE, "Failed setChatColor because: " + e.getMessage());
-
 			}
 		}
-
 	}
 
 	public String getChatColor() {
