@@ -15,10 +15,8 @@ import org.bukkit.plugin.Plugin;
 import java.sql.*;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.UUID;
 import java.util.logging.Level;
 
 import static org.bukkit.Bukkit.getLogger;
@@ -63,9 +61,8 @@ public class RunicProfile {
 
 	private static Plugin instance = RunicParadise.getInstance();
 
-	public RunicProfile(UUID playerID) {
+	RunicProfile(UUID playerID) {
 		loadProfile(playerID);
-
 	}
 
 	private void setPlayerID(UUID playerid) {
@@ -76,94 +73,45 @@ public class RunicProfile {
 		return this.playerUUID;
 	}
 
-	public void setChatColor(String newSetting, Boolean updateDB) {
-
-		Boolean error = false;
-
-		switch (newSetting) {
-		case "WHITE":
-			this.chatColor = ChatColor.WHITE + "";
-			break;
-		case "GREEN":
-		case "Seeker":
-			this.chatColor = ChatColor.GREEN + "";
-			break;
-		case "DARK_GREEN":
-		case "Runner":
-			this.chatColor = ChatColor.DARK_GREEN + "";
-			break;
-		case "YELLOW":
-		case "Singer":
-			this.chatColor = ChatColor.YELLOW + "";
-			break;
-		case "GOLD":
-		case "Brawler":
-			this.chatColor = ChatColor.GOLD + "";
-			break;
-		case "AQUA":
-		case "Keeper":
-			this.chatColor = ChatColor.AQUA + "";
-			break;
-		case "DARK_AQUA":
-		case "Guard":
-			this.chatColor = ChatColor.DARK_AQUA + "";
-			break;
-		case "BLUE":
-		case "Hunter":
-			this.chatColor = ChatColor.BLUE + "";
-			break;
-		case "LIGHT_PURPLE":
-		case "Warder":
-			this.chatColor = ChatColor.LIGHT_PURPLE + "";
-			break;
-		case "DARK_PURPLE":
-		case "Champion":
-			this.chatColor = ChatColor.DARK_PURPLE + "";
-			break;
-		case "RED":
-		case "Master":
-			this.chatColor = ChatColor.RED + "";
-			break;
-		case "GRAY":
-		case "Ghost":
-			this.chatColor = ChatColor.GRAY + "";
-			break;
-		default:
-			error = true;
-			break;
-		}
-
-		if (updateDB && !error) {
-
-			MySQL MySQL = new MySQL(instance, instance.getConfig().getString("dbHost"),
-					instance.getConfig().getString("dbPort"), instance.getConfig().getString("dbDatabase"),
-					instance.getConfig().getString("dbUser"), instance.getConfig().getString("dbPassword"));
+	void setChatColor(ChatColor newSetting, boolean updateDB) {
+		this.chatColor = newSetting.toString();
+		if (updateDB) {
+			MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
 
 			try {
-				final Connection d = MySQL.openConnection();
+				Connection connection = MySQL.openConnection();
 
-				PreparedStatement dStmt2 = d
-						.prepareStatement("UPDATE rp_PlayerInfo SET ChatColor ='" + newSetting + "' WHERE UUID = ?");
-				dStmt2.setString(1, this.getPlayerID().toString());
-				dStmt2.executeUpdate();
+				PreparedStatement statement = connection.prepareStatement("UPDATE rp_PlayerInfo SET ChatColor ='" + newSetting.toString() + "' WHERE UUID = ?");
+				statement.setString(1, this.getPlayerID().toString());
+				statement.executeUpdate();
 
-				d.close();
-
+				connection.close();
 			} catch (SQLException e) {
 				getLogger().log(Level.SEVERE, "Failed setChatColor because: " + e.getMessage());
-
 			}
 		}
+	}
 
+	void setChatColor(String newSetting, boolean updateDB) {
+		ChatColor color;
+		try {
+			color = ChatColor.valueOf(newSetting);
+		} catch (IllegalArgumentException e) {
+			Optional<Map.Entry<String, ChatColor>> result  = RunicParadise.rankColors.entrySet().stream().filter(x -> x.getKey().equalsIgnoreCase(newSetting)).findFirst();
+			if (result.isPresent()) {
+				color = result.get().getValue();
+			} else {
+				return;
+			}
+		}
+		setChatColor(color, updateDB);
 	}
 
 	public String getChatColor() {
 		return this.chatColor;
-
 	}
 
-	public void changeGender(String T_toggle_M_male_F_female, Boolean updateDB) {
-
+	public void changeGender(String T_toggle_M_male_F_female, boolean updateDB) {
 		char newGender = 'M';
 
 		char entry = T_toggle_M_male_F_female.charAt(0);
@@ -182,26 +130,20 @@ public class RunicProfile {
 
 		if (updateDB) {
 
-			MySQL MySQL = new MySQL(instance, instance.getConfig().getString("dbHost"),
-					instance.getConfig().getString("dbPort"), instance.getConfig().getString("dbDatabase"),
-					instance.getConfig().getString("dbUser"), instance.getConfig().getString("dbPassword"));
+			MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
 
 			try {
-				final Connection d = MySQL.openConnection();
+				Connection connection = MySQL.openConnection();
 
-				PreparedStatement dStmt2 = d
-						.prepareStatement("UPDATE rp_PlayerInfo SET Gender ='" + newGender + "' WHERE UUID = ?");
-				dStmt2.setString(1, this.getPlayerID().toString());
-				dStmt2.executeUpdate();
+				PreparedStatement statement = connection.prepareStatement("UPDATE rp_PlayerInfo SET Gender ='" + newGender + "' WHERE UUID = ?");
+				statement.setString(1, this.getPlayerID().toString());
+				statement.executeUpdate();
 
-				d.close();
-
+				connection.close();
 			} catch (SQLException e) {
 				getLogger().log(Level.SEVERE, "Failed setGender because: " + e.getMessage());
-
 			}
 		}
-
 	}
 
 	public char getGender() {
@@ -288,23 +230,20 @@ public class RunicProfile {
 			break;
 		}
 
-		MySQL MySQL = new MySQL(instance, instance.getConfig().getString("dbHost"),
-				instance.getConfig().getString("dbPort"), instance.getConfig().getString("dbDatabase"),
-				instance.getConfig().getString("dbUser"), instance.getConfig().getString("dbPassword"));
+		MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
 
 		try {
-			//
-			final Connection d = MySQL.openConnection();
-			Statement dStmt = d.createStatement();
-			dStmt.executeUpdate("UPDATE `rp_PlayerInfo` SET " + column + " = " + column + " + " + amount
+			Connection connection = MySQL.openConnection();
+			Statement statement = connection.createStatement();
+			statement.executeUpdate("UPDATE `rp_PlayerInfo` SET " + column + " = " + column + " + " + amount
 					+ " WHERE UUID= '" + this.getPlayerID() + "';");
 
 			if (column.equals("Tokens")) {
-				dStmt.executeUpdate("UPDATE `rp_PlayerInfo` SET LifetimeTokens = LifetimeTokens + " + amount
+				statement.executeUpdate("UPDATE `rp_PlayerInfo` SET LifetimeTokens = LifetimeTokens + " + amount
 						+ " WHERE UUID= '" + this.getPlayerID() + "';");
 			}
 
-			d.close();
+			connection.close();
 
 		} catch (SQLException e) {
 			getLogger().log(Level.SEVERE,
@@ -313,7 +252,6 @@ public class RunicProfile {
 
 		// Sync up old profile method ... for now ...
 		new RunicPlayerBukkit(this.getPlayerID()).refreshPlayerObject(Bukkit.getOfflinePlayer(this.getPlayerID()));
-
 	}
 
 	private void setKarmaBalance(int newKarma) {
@@ -417,24 +355,17 @@ public class RunicProfile {
 	}
 
 	public void logSpecialRankDrop(String item, String source) {
-
-		MySQL MySQL = new MySQL(instance, instance.getConfig().getString("dbHost"),
-				instance.getConfig().getString("dbPort"), instance.getConfig().getString("dbDatabase"),
-				instance.getConfig().getString("dbUser"), instance.getConfig().getString("dbPassword"));
+		MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
 
 		try {
+			Connection connection = MySQL.openConnection();
 
-			final Connection d = MySQL.openConnection();
-			Statement dStmt = d.createStatement();
-
-			PreparedStatement insertStmt = d.prepareStatement(
+			PreparedStatement statement = connection.prepareStatement(
 					"INSERT INTO rp_SpecialDrops (PlayerName, UUID, Timestamp, DropType, Source) VALUES " + "('"
 							+ this.getPlayerName(true) + "', '" + this.getPlayerID().toString() + "', "
 							+ (new Date().getTime()) + ", '" + item + "', '" + source + "');");
-			insertStmt.executeUpdate();
-			d.close();
-			dStmt.close();
-
+			statement.executeUpdate();
+			connection.close();
 		} catch (SQLException e) {
 			Bukkit.getLogger().log(Level.SEVERE, "Failed logSpecialRankDrop " + e.getMessage());
 		}
@@ -449,10 +380,7 @@ public class RunicProfile {
 	}
 
 	public int getCountGraves(String query) {
-
-		MySQL MySQL = new MySQL(instance, instance.getConfig().getString("dbHost"),
-				instance.getConfig().getString("dbPort"), instance.getConfig().getString("dbDatabase"),
-				instance.getConfig().getString("dbUser"), instance.getConfig().getString("dbPassword"));
+		MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
 
 		String sqlQuery = "";
 
@@ -486,19 +414,19 @@ public class RunicProfile {
 		}
 
 		try {
-			final Connection d = MySQL.openConnection();
+			Connection connection = MySQL.openConnection();
 
-			PreparedStatement dStmt2 = d.prepareStatement(sqlQuery);
-			ResultSet data = dStmt2.executeQuery();
+			PreparedStatement statement = connection.prepareStatement(sqlQuery);
+			ResultSet data = statement.executeQuery();
 
 			if (data.isBeforeFirst()) {
 				// result found
 				data.next();
 				int temp = data.getInt("COUNT(*)");
-				d.close();
+				connection.close();
 				return temp;
 			} else {
-				d.close();
+				connection.close();
 				return 0;
 			}
 
@@ -571,14 +499,12 @@ public class RunicProfile {
 	}
 
 	private void retrieveJobsData() {
-		MySQL MySQL = new MySQL(instance, instance.getConfig().getString("dbHost"),
-				instance.getConfig().getString("dbPort"), instance.getConfig().getString("dbDatabase"),
-				instance.getConfig().getString("dbUser"), instance.getConfig().getString("dbPassword"));
+		MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
 
 		try {
 			// TODO: Get data from DB based on UUID to protect vs name changes
-			final Connection d = MySQL.openConnection();
-			Statement dStmt = d.createStatement();
+			Connection connection = MySQL.openConnection();
+			Statement dStmt = connection.createStatement();
 
 			int jobsID = 0;
 			ResultSet jobPlayerIDResult = dStmt.executeQuery("SELECT ID FROM `Jobs_users` WHERE `player_uuid` = '"
@@ -588,7 +514,7 @@ public class RunicProfile {
 				jobsID = jobPlayerIDResult.getInt("id");
 			}
 
-			PreparedStatement dStmt2 = d
+			PreparedStatement dStmt2 = connection
 					.prepareStatement("SELECT job,level FROM Jobs_jobs WHERE userid = " + jobsID + " LIMIT 1;");
 
 			ResultSet jobData = dStmt2.executeQuery();
@@ -610,19 +536,17 @@ public class RunicProfile {
 	}
 
 	private void retrieveBasicData() {
-		MySQL MySQL = new MySQL(instance, instance.getConfig().getString("dbHost"),
-				instance.getConfig().getString("dbPort"), instance.getConfig().getString("dbDatabase"),
-				instance.getConfig().getString("dbUser"), instance.getConfig().getString("dbPassword"));
+		MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
 
 		try {
 			// TODO: Get data from DB based on UUID to protect vs name changes
-			final Connection d = MySQL.openConnection();
-			Statement dStmt = d.createStatement();
+			Connection connection = MySQL.openConnection();
+			Statement statement = connection.createStatement();
 
-			ResultSet playerData = dStmt.executeQuery("SELECT * FROM `rp_PlayerInfo` WHERE `UUID` = '"
+			ResultSet playerData = statement.executeQuery("SELECT * FROM `rp_PlayerInfo` WHERE `UUID` = '"
 					+ this.getPlayerID().toString() + "' ORDER BY `id` ASC LIMIT 1;");
 
-			PreparedStatement dStmt3 = d
+			PreparedStatement dStmt3 = connection
 					.prepareStatement("SELECT SUM(Level) AS FPL FROM rp_PlayerFaiths WHERE UUID = ?;");
 			dStmt3.setString(1, this.getPlayerID().toString());
 
@@ -667,7 +591,7 @@ public class RunicProfile {
 					this.setChatColor(RunicParadise.perms.getPrimaryGroup(Bukkit.getPlayer(this.getPlayerID())), false);
 				}
 
-				d.close();
+				connection.close();
 			}
 		} catch (SQLException e) {
 			getLogger().log(Level.SEVERE, "Failed DB check [refreshPlayerObject] because: " + e.getMessage());
@@ -676,18 +600,16 @@ public class RunicProfile {
 	}
 
 	private void retrieveDropData() {
-		MySQL MySQL = new MySQL(instance, instance.getConfig().getString("dbHost"),
-				instance.getConfig().getString("dbPort"), instance.getConfig().getString("dbDatabase"),
-				instance.getConfig().getString("dbUser"), instance.getConfig().getString("dbPassword"));
+		MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
 
 		try {
 			// TODO: Get data from DB based on UUID to protect vs name changes
-			final Connection d = MySQL.openConnection();
-			Statement dStmt = d.createStatement();
+			Connection connection = MySQL.openConnection();
+			Statement statement = connection.createStatement();
 
 			Long oneDayAgo = new Date().getTime() - 86400000;
 
-			ResultSet playerData = dStmt.executeQuery(
+			ResultSet playerData = statement.executeQuery(
 					"SELECT COUNT(ID) AS Count FROM `rp_SpecialDrops` WHERE `UUID` = '" + this.getPlayerID().toString()
 							+ "' AND `DropType` LIKE '%Gem' AND `Timestamp` > " + oneDayAgo + ";");
 
@@ -702,7 +624,7 @@ public class RunicProfile {
 				playerData.next();
 				this.setSpecialRankDrop24HrCount(playerData.getInt("Count"));
 
-				d.close();
+				connection.close();
 			}
 		} catch (SQLException e) {
 			getLogger().log(Level.SEVERE, "Failed DB check [retrieveDropData] because: " + e.getMessage());
@@ -710,17 +632,14 @@ public class RunicProfile {
 	}
 
 	private void retrieveMobKillsData() {
-		MySQL MySQL = new MySQL(instance, instance.getConfig().getString("dbHost"),
-				instance.getConfig().getString("dbPort"), instance.getConfig().getString("dbDatabase"),
-				instance.getConfig().getString("dbUser"), instance.getConfig().getString("dbPassword"));
+		MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
 
 		try {
-			final Connection d = MySQL.openConnection();
-			Statement dStmt = d.createStatement();
+			Connection connection = MySQL.openConnection();
 
-			PreparedStatement dStmt2 = d.prepareStatement("SELECT * FROM rp_PlayerMobKills WHERE UUID = ?;");
-			dStmt2.setString(1, this.getPlayerID().toString());
-			ResultSet playerData = dStmt2.executeQuery();
+			PreparedStatement statement = connection.prepareStatement("SELECT * FROM rp_PlayerMobKills WHERE UUID = ?;");
+			statement.setString(1, this.getPlayerID().toString());
+			ResultSet playerData = statement.executeQuery();
 
 			while (playerData.next()) {
 				// A fresh start
@@ -786,14 +705,11 @@ public class RunicProfile {
 	}
 
 	private boolean getMazeAndParkoursCompletedFirstTime() {
-		MySQL MySQL = new MySQL(instance, instance.getConfig().getString("dbHost"),
-				instance.getConfig().getString("dbPort"), instance.getConfig().getString("dbDatabase"),
-				instance.getConfig().getString("dbUser"), instance.getConfig().getString("dbPassword"));
-		final Connection d = MySQL.openConnection();
+		MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
+		Connection connection = MySQL.openConnection();
 		try {
-
-			Statement dStmt = d.createStatement();
-			ResultSet explorerLocData = dStmt
+			Statement statement = connection.createStatement();
+			ResultSet explorerLocData = statement
 					.executeQuery("SELECT COUNT(UUID) AS Count FROM rp_RunicGameCompletions WHERE UUID='"
 							+ this.getPlayerID().toString() + "';");
 
@@ -808,13 +724,13 @@ public class RunicProfile {
 					if (explorerLocData.getInt("Count") > 0) {
 
 						this.mazesAndParkoursCompletedFirstTime = explorerLocData.getInt("Count");
-						d.close();
-						dStmt.close();
+						connection.close();
+						statement.close();
 						return true;
 					} else {
 						this.mazesAndParkoursCompletedFirstTime = explorerLocData.getInt("Count");
-						d.close();
-						dStmt.close();
+						connection.close();
+						statement.close();
 						return false;
 					}
 				}
@@ -847,14 +763,11 @@ public class RunicProfile {
 	}
 
 	public void getTotalExplorerCompletions() {
-		MySQL MySQL = new MySQL(instance, instance.getConfig().getString("dbHost"),
-				instance.getConfig().getString("dbPort"), instance.getConfig().getString("dbDatabase"),
-				instance.getConfig().getString("dbUser"), instance.getConfig().getString("dbPassword"));
-		final Connection d = MySQL.openConnection();
+		MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
+		Connection connection = MySQL.openConnection();
 		try {
-
-			Statement dStmt = d.createStatement();
-			ResultSet explorerLocData = dStmt
+			Statement statement = connection.createStatement();
+			ResultSet explorerLocData = statement
 					.executeQuery("SELECT COUNT(ID) AS Count FROM rp_ExplorerCompletions WHERE UUID='"
 							+ this.getPlayerID().toString() + "';");
 
@@ -877,15 +790,14 @@ public class RunicProfile {
 				}
 			}
 
-			d.close();
-			dStmt.close();
+			connection.close();
+			statement.close();
 
 		} catch (SQLException err) {
 			Bukkit.getLogger().log(Level.SEVERE,
 					"Error checking getTotalExplorerCompletions because: " + err.getMessage());
 			this.explorerLocsFound = 0;
 		}
-
 	}
 
 	public void addMazeCompletion(int puzzleID) {
@@ -893,21 +805,19 @@ public class RunicProfile {
 		Player p = Bukkit.getPlayer(this.getPlayerID());
 
 		try {
-			MySQL MySQL = new MySQL(instance, instance.getConfig().getString("dbHost"),
-					instance.getConfig().getString("dbPort"), instance.getConfig().getString("dbDatabase"),
-					instance.getConfig().getString("dbUser"), instance.getConfig().getString("dbPassword"));
-			final Connection dbCon = MySQL.openConnection();
+			MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
+			Connection connection = MySQL.openConnection();
 
 			// Get player puzzle results
-			PreparedStatement dbStmt = dbCon
+			PreparedStatement statement = connection
 					.prepareStatement("SELECT * FROM rp_RunicGameCompletions WHERE UUID = ? AND GameID = ?;");
 
-			dbStmt.setString(1, p.getUniqueId().toString());
-			dbStmt.setInt(2, puzzleID);
-			ResultSet mcResult = dbStmt.executeQuery();
+			statement.setString(1, p.getUniqueId().toString());
+			statement.setInt(2, puzzleID);
+			ResultSet mcResult = statement.executeQuery();
 
 			// Get puzzle data (for prizes) - and validate the puzzleID is ok
-			PreparedStatement mzStmt = dbCon.prepareStatement("SELECT * FROM rp_RunicGames WHERE ID = ?;");
+			PreparedStatement mzStmt = connection.prepareStatement("SELECT * FROM rp_RunicGames WHERE ID = ?;");
 
 			mzStmt.setInt(1, puzzleID);
 			ResultSet mzResult = mzStmt.executeQuery();
@@ -926,7 +836,7 @@ public class RunicProfile {
 
 				p.sendMessage(ChatColor.GRAY
 						+ "This maze has been configured incorrectly. Ask an admin to check the game ID# in the command block");
-				dbCon.close();
+				connection.close();
 				return;
 
 			} else {
@@ -942,7 +852,7 @@ public class RunicProfile {
 				// No results, add a record
 				// This is player's FIRST completion!!
 				mcResult.next();
-				updStmt = dbCon
+				updStmt = connection
 						.prepareStatement("INSERT INTO rp_RunicGameCompletions (UUID, GameID, Count, LastCompletion) "
 								+ "VALUES (?, ?, ?, ?);");
 				updStmt.setString(1, p.getUniqueId().toString());
@@ -1025,14 +935,14 @@ public class RunicProfile {
 					}
 				}
 
-				dbStmt.close();
-				dbCon.close();
+				statement.close();
+				connection.close();
 
 			} else {
 				// results found!
 				// not player's first completion!
 				mcResult.next();
-				updStmt = dbCon
+				updStmt = connection
 						.prepareStatement("UPDATE rp_RunicGameCompletions SET Count = ?, LastCompletion = ? WHERE "
 								+ "UUID = ? AND GameID = ?;");
 				updStmt.setInt(1, RunicParadise.getPlayerMazeCompletionCount(p, puzzleID) + 1);
@@ -1078,23 +988,20 @@ public class RunicProfile {
 
 			}
 
-			dbStmt.close();
+			statement.close();
 
-			dbCon.close();
+			connection.close();
 		} catch (SQLException z) {
 			Bukkit.getLogger().log(Level.SEVERE, "Failed adding maze completion " + z.getMessage());
 		}
 	}
 
 	public Boolean checkPlayerExploration(int locID) {
-		MySQL MySQL = new MySQL(instance, instance.getConfig().getString("dbHost"),
-				instance.getConfig().getString("dbPort"), instance.getConfig().getString("dbDatabase"),
-				instance.getConfig().getString("dbUser"), instance.getConfig().getString("dbPassword"));
-		final Connection d = MySQL.openConnection();
+		MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
+		Connection connection = MySQL.openConnection();
 		try {
-
-			Statement dStmt = d.createStatement();
-			ResultSet explorerLocData = dStmt
+			Statement statement = connection.createStatement();
+			ResultSet explorerLocData = statement
 					.executeQuery("SELECT COUNT(ID) AS Count FROM rp_ExplorerCompletions WHERE UUID='"
 							+ this.getPlayerID().toString() + "' AND LocID= " + locID + ";");
 
@@ -1107,12 +1014,12 @@ public class RunicProfile {
 				// results found!
 				while (explorerLocData.next()) {
 					if (explorerLocData.getInt("Count") > 0) {
-						d.close();
-						dStmt.close();
+						connection.close();
+						statement.close();
 						return true;
 					} else {
-						d.close();
-						dStmt.close();
+						connection.close();
+						statement.close();
 						return false;
 					}
 				}
@@ -1150,19 +1057,16 @@ public class RunicProfile {
 			}
 		}
 
-		final Plugin instance = RunicParadise.getInstance();
-		MySQL MySQL = new MySQL(instance, instance.getConfig().getString("dbHost"),
-				instance.getConfig().getString("dbPort"), instance.getConfig().getString("dbDatabase"),
-				instance.getConfig().getString("dbUser"), instance.getConfig().getString("dbPassword"));
-		final Connection d = MySQL.openConnection();
+		Plugin instance = RunicParadise.getInstance();
+		MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
+		Connection connection = MySQL.openConnection();
 		try {
-
-			Statement dStmt = d.createStatement();
-			dStmt.executeUpdate("INSERT INTO rp_ExplorerCompletions (`UUID`, `LocID`, `Timestamp`, `PlayerName`) "
+			Statement statement = connection.createStatement();
+			statement.executeUpdate("INSERT INTO rp_ExplorerCompletions (`UUID`, `LocID`, `Timestamp`, `PlayerName`) "
 					+ "VALUES ('" + p.getUniqueId().toString() + "', " + locID + ", " + new Date().getTime() + ", '"
 					+ p.getName() + "');");
-			d.close();
-			dStmt.close();
+			connection.close();
+			statement.close();
 
 			// Give player reward if you've come this far...
 			Commands.givePlayerExplorationReward(locID, p);
@@ -1252,13 +1156,10 @@ public class RunicProfile {
 		return true;
 	}
 
-	public Boolean saveMobKillsForPlayer() {
+	public boolean saveMobKillsForPlayer() {
+		MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
 
-		MySQL MySQL = new MySQL(instance, instance.getConfig().getString("dbHost"),
-				instance.getConfig().getString("dbPort"), instance.getConfig().getString("dbDatabase"),
-				instance.getConfig().getString("dbUser"), instance.getConfig().getString("dbPassword"));
-
-		final Connection d = MySQL.openConnection();
+		Connection connection = MySQL.openConnection();
 
 		for (EntityType et : RunicParadise.mobKillTracker.get(this.getPlayerID()).keySet()) {
 			try {
@@ -1269,10 +1170,10 @@ public class RunicProfile {
 				// a dummy to force creation of the map for everyone.
 				// Restricting the zeroes out just keeps things clean.
 				if (killIncrement != 0) {
-					PreparedStatement pStmt = d.prepareStatement("UPDATE rp_PlayerMobKills SET " + et.toString() + "="
+					PreparedStatement statement = connection.prepareStatement("UPDATE rp_PlayerMobKills SET " + et.toString() + "="
 							+ et.toString() + " + " + killIncrement + " WHERE UUID = ?");
-					pStmt.setString(1, this.getPlayerID().toString());
-					pStmt.executeUpdate();
+					statement.setString(1, this.getPlayerID().toString());
+					statement.executeUpdate();
 
 				}
 			} catch (SQLException e) {
@@ -1286,7 +1187,7 @@ public class RunicProfile {
 		RunicParadise.mobKillTracker.get(this.getPlayerID()).clear();
 
 		try {
-			d.close();
+			connection.close();
 		} catch (SQLException e) {
 			getLogger().log(Level.SEVERE, "Failed saveMobKillsForPlayer because: " + e.getMessage());
 			return false;

@@ -99,10 +99,7 @@ class Ranks {
 	/*
 	 * public void playerkillCounts(Player user) { Date now = new Date();
 	 * 
-	 * MySQL MySQL = new MySQL(instance, instance.getConfig().getString(
-	 * "dbHost"), instance.getConfig().getString("dbPort"), instance
-	 * .getConfig().getString("dbDatabase"), instance.getConfig()
-	 * .getString("dbUser"), instance.getConfig().getString( "dbPassword"));
+	 * MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
 	 * final Connection d = MySQL.openConnection();
 	 * 
 	 * user.sendMessage(ChatColor.GRAY +
@@ -303,11 +300,8 @@ class Ranks {
 					+ " To learn about perks: http://www.runic-paradise.com/ranks.php");
 			Bukkit.dispatchCommand(Bukkit.getConsoleSender(),
 					"sc Converting " + user.getName() + " from " + rank + " to " + newRank);
-			Bukkit.getServer().getScheduler().scheduleAsyncDelayedTask(RunicParadise.getInstance(), new Runnable() {
-				public void run() {
-					Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "faith enable " + user.getName() + " Sun");
-				}
-			}, 60);
+			Bukkit.getServer().getScheduler().scheduleAsyncDelayedTask(RunicParadise.getInstance(),
+					() -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "faith enable " + user.getName() + " Sun"), 60);
 		}
 	}
 
@@ -359,10 +353,8 @@ class Ranks {
 	void checkPromotion(Player user, boolean execute) {
 		Date now = new Date();
 
-		MySQL MySQL = new MySQL(instance, instance.getConfig().getString("dbHost"),
-				instance.getConfig().getString("dbPort"), instance.getConfig().getString("dbDatabase"),
-				instance.getConfig().getString("dbUser"), instance.getConfig().getString("dbPassword"));
-		final Connection d = MySQL.openConnection();
+		MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
+		Connection connection = MySQL.openConnection();
 		float daysPlayed = 0f;
 		DecimalFormat df = new DecimalFormat("#.00");
 
@@ -395,8 +387,8 @@ class Ranks {
 		// Check how many days played; report days played and current rank to
 		// user
 		try {
-			Statement dStmt = d.createStatement();
-			ResultSet playerData = dStmt.executeQuery("SELECT * FROM `rp_PlayerInfo` WHERE `PlayerName` = '"
+			Statement statement = connection.createStatement();
+			ResultSet playerData = statement.executeQuery("SELECT * FROM `rp_PlayerInfo` WHERE `PlayerName` = '"
 					+ user.getName() + "' ORDER BY `id` ASC LIMIT 1;");
 			playerData.next();
 
@@ -491,7 +483,7 @@ class Ranks {
 					Ranks tempRank = new Ranks();
 					tempRank.congratsPromotion(user.getName(), "Baron");
 					logPromotion(user.getName(), "Baron", new Date().getTime());
-					RunicParadise.playerProfiles.get(user.getUniqueId()).setChatColor("YELLOW", true);
+					RunicParadise.playerProfiles.get(user.getUniqueId()).setChatColor(ChatColor.YELLOW, true);
 				} else {
 					// just checking... we're not executing the promotion!!
 					user.sendMessage(
@@ -565,7 +557,7 @@ class Ranks {
 					Ranks tempRank = new Ranks();
 					tempRank.congratsPromotion(user.getName(), "Duke");
 					logPromotion(user.getName(), "Duke", new Date().getTime());
-					RunicParadise.playerProfiles.get(user.getUniqueId()).setChatColor("GREEN", true);
+					RunicParadise.playerProfiles.get(user.getUniqueId()).setChatColor(ChatColor.GREEN, true);
 				}
 			} else {
 				ineligible = true;
@@ -658,7 +650,7 @@ class Ranks {
 					Ranks tempRank = new Ranks();
 					tempRank.congratsPromotion(user.getName(), "Master");
 					logPromotion(user.getName(), "Master", new Date().getTime());
-					RunicParadise.playerProfiles.get(user.getUniqueId()).setChatColor("RED", true);
+					RunicParadise.playerProfiles.get(user.getUniqueId()).setChatColor(ChatColor.RED, true);
 				}
 			} else {
 				ineligible = true;
@@ -757,7 +749,7 @@ class Ranks {
 					Ranks tempRank = new Ranks();
 					tempRank.congratsPromotion(user.getName(), "Champion");
 					logPromotion(user.getName(), "Champion", new Date().getTime());
-					RunicParadise.playerProfiles.get(user.getUniqueId()).setChatColor("DARK_PURPLE", true);
+					RunicParadise.playerProfiles.get(user.getUniqueId()).setChatColor(ChatColor.DARK_PURPLE, true);
 				}
 			} else {
 				ineligible = true;
@@ -862,7 +854,7 @@ class Ranks {
 					Ranks tempRank = new Ranks();
 					tempRank.congratsPromotion(user.getName(), "Warder");
 					logPromotion(user.getName(), "Warder", new Date().getTime());
-					RunicParadise.playerProfiles.get(user.getUniqueId()).setChatColor("LIGHT_PURPLE", true);
+					RunicParadise.playerProfiles.get(user.getUniqueId()).setChatColor(ChatColor.LIGHT_PURPLE, true);
 				}
 			} else {
 				ineligible = true;
@@ -952,7 +944,7 @@ class Ranks {
 					Ranks tempRank = new Ranks();
 					tempRank.congratsPromotion(user.getName(), "Slayer");
 					logPromotion(user.getName(), "Slayer", new Date().getTime());
-					RunicParadise.playerProfiles.get(user.getUniqueId()).setChatColor("BLUE", true);
+					RunicParadise.playerProfiles.get(user.getUniqueId()).setChatColor(ChatColor.BLUE, true);
 				}
 			} else {
 				ineligible = true;
@@ -1066,7 +1058,7 @@ class Ranks {
 					Ranks tempRank = new Ranks();
 					tempRank.congratsPromotion(user.getName(), "Hunter");
 					logPromotion(user.getName(), "Hunter", new Date().getTime());
-					RunicParadise.playerProfiles.get(user.getUniqueId()).setChatColor("BLUE", true);
+					RunicParadise.playerProfiles.get(user.getUniqueId()).setChatColor(ChatColor.BLUE, true);
 				}
 			} else {
 				ineligible = true;
@@ -1156,7 +1148,7 @@ class Ranks {
 					Ranks tempRank = new Ranks();
 					tempRank.congratsPromotion(user.getName(), "Guard");
 					logPromotion(user.getName(), "Guard", new Date().getTime());
-					RunicParadise.playerProfiles.get(user.getUniqueId()).setChatColor("DARK_AQUA", true);
+					RunicParadise.playerProfiles.get(user.getUniqueId()).setChatColor(ChatColor.DARK_AQUA, true);
 				}
 			} else {
 				ineligible = true;
@@ -1260,7 +1252,7 @@ class Ranks {
 					Ranks tempRank = new Ranks();
 					tempRank.congratsPromotion(user.getName(), "Keeper");
 					logPromotion(user.getName(), "Keeper", new Date().getTime());
-					RunicParadise.playerProfiles.get(user.getUniqueId()).setChatColor("AQUA", true);
+					RunicParadise.playerProfiles.get(user.getUniqueId()).setChatColor(ChatColor.AQUA, true);
 				}
 			} else {
 				ineligible = true;
@@ -1350,7 +1342,7 @@ class Ranks {
 					Ranks tempRank = new Ranks();
 					tempRank.congratsPromotion(user.getName(), "Brawler");
 					logPromotion(user.getName(), "Brawler", new Date().getTime());
-					RunicParadise.playerProfiles.get(user.getUniqueId()).setChatColor("GOLD", true);
+					RunicParadise.playerProfiles.get(user.getUniqueId()).setChatColor(ChatColor.GOLD, true);
 				}
 			} else {
 				ineligible = true;
@@ -1439,7 +1431,7 @@ class Ranks {
 					Ranks tempRank = new Ranks();
 					tempRank.congratsPromotion(user.getName(), "Singer");
 					logPromotion(user.getName(), "Singer", new Date().getTime());
-					RunicParadise.playerProfiles.get(user.getUniqueId()).setChatColor("YELLOW", true);
+					RunicParadise.playerProfiles.get(user.getUniqueId()).setChatColor(ChatColor.YELLOW, true);
 				}
 			} else {
 				ineligible = true;
@@ -1519,7 +1511,7 @@ class Ranks {
 					Ranks tempRank = new Ranks();
 					tempRank.congratsPromotion(user.getName(), "Runner");
 					logPromotion(user.getName(), "Runner", new Date().getTime());
-					RunicParadise.playerProfiles.get(user.getUniqueId()).setChatColor("DARK_GREEN", true);
+					RunicParadise.playerProfiles.get(user.getUniqueId()).setChatColor(ChatColor.DARK_GREEN, true);
 				} else {
 					// just checking... we're not executing the promotion!!
 					user.sendMessage(
@@ -1549,25 +1541,22 @@ class Ranks {
 
 		// Close the connection
 		try {
-			d.close();
+			connection.close();
 		} catch (SQLException e) {
 			getLogger().log(Level.SEVERE, "Cant close mysql conn after checkpromotion: " + e.getMessage());
 		}
 	}
 
 	private static void logPromotion(String playerName, String newRank, Long timestamp) {
-		final Plugin instance = RunicParadise.getInstance();
-		MySQL MySQL = new MySQL(instance, instance.getConfig().getString("dbHost"),
-				instance.getConfig().getString("dbPort"), instance.getConfig().getString("dbDatabase"),
-				instance.getConfig().getString("dbUser"), instance.getConfig().getString("dbPassword"));
+		Plugin instance = RunicParadise.getInstance();
+		MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
 		try {
-
-			final Connection d = MySQL.openConnection();
-			Statement dStmt = d.createStatement();
-			int tempD = dStmt
+			Connection connection = MySQL.openConnection();
+			Statement statement = connection.createStatement();
+			int tempD = statement
 					.executeUpdate("INSERT INTO rp_PlayerPromotions (`PlayerName`, `NewRank`, `TimeStamp`) VALUES "
 							+ "('" + playerName + "', '" + newRank + "', " + timestamp + ");");
-			d.close();
+			connection.close();
 		} catch (SQLException z) {
 			getLogger().log(Level.SEVERE, "Failed DB check for restore grave cuz " + z.getMessage());
 		}

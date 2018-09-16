@@ -50,7 +50,7 @@ import java.util.logging.Logger;
 public final class RunicParadise extends JavaPlugin implements Listener, PluginMessageListener {
 
 	private static Plugin instance;
-	private static final Logger log = Logger.getLogger("Minecraft");
+	private static final Logger log = Bukkit.getLogger();
 	public static Permission perms = null;
 	public static Economy economy = null;
 	public static final long PUZZLE_REPEAT_TIME = 518400000;
@@ -438,12 +438,9 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 		getCommand("rptest").setExecutor(new Commands());
 		getCommand("rankitem").setExecutor(new Commands());
 		getCommand("consoleseeker").setExecutor(new Commands());
-		getCommand("sendentity").setExecutor(new Commands());
 		getCommand("miningreset").setExecutor(new Commands());
 		getCommand("miningworldreminder").setExecutor(new Commands());
 		getCommand("rpreload").setExecutor(new Commands());
-		getCommand("oldrankperks").setExecutor(new Commands());
-		getCommand("carnivalaxe").setExecutor(new Commands());
 		getCommand("faithweapons").setExecutor(new Commands());
 		getCommand("faithweapon").setExecutor(new Commands());
 		getCommand("headofplayer").setExecutor(new Commands());
@@ -453,10 +450,8 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 		getCommand("miningworld").setExecutor(new Commands());
 		getCommand("mw").setExecutor(new Commands());
 		getCommand("wild").setExecutor(new Commands());
-		getCommand("gift").setExecutor(new Commands());
 		getCommand("rpgames").setExecutor(new Commands());
 		getCommand("games").setExecutor(new Commands());
-		getCommand("hmsay").setExecutor(new Commands());
 		getCommand("adventureparkourprize").setExecutor(new Commands());
 		getCommand("promote").setExecutor(new Commands());
 		getCommand("rankup").setExecutor(new Commands());
@@ -470,11 +465,9 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 		getCommand("music").setExecutor(new Commands());
 		getCommand("radio").setExecutor(new Commands());
 		getCommand("ready").setExecutor(new Commands());
-		getCommand("rpmail").setExecutor(new Commands());
 		getCommand("rptokens").setExecutor(new Commands());
 		getCommand("dailykarma").setExecutor(new Commands());
 		getCommand("say").setExecutor(new Commands());
-		getCommand("rptransfer").setExecutor(new Commands());
 		getCommand("rpvote").setExecutor(new Commands());
 		getCommand("rpjobs").setExecutor(new Commands());
 		getCommand("rpeffects").setExecutor(new Commands());
@@ -661,12 +654,10 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 		int mazeSlot = 19;
 
 		try {
-			MySQL MySQL = new MySQL(instance, instance.getConfig().getString("dbHost"),
-					instance.getConfig().getString("dbPort"), instance.getConfig().getString("dbDatabase"),
-					instance.getConfig().getString("dbUser"), instance.getConfig().getString("dbPassword"));
-			final Connection dbCon = MySQL.openConnection();
-			Statement dbStmt = dbCon.createStatement();
-			ResultSet menuResult = dbStmt
+			MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
+			Connection connection = MySQL.openConnection();
+			Statement statement = connection.createStatement();
+			ResultSet menuResult = statement
 					.executeQuery("SELECT * FROM rp_RunicGames WHERE GameType='" + typeSingle + "';");
 			int playerMazeCount = 0;
 			long playerLastCompletion = 0;
@@ -677,7 +668,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 				// do nothing
 				Bukkit.getLogger().log(Level.INFO,
 						"Failed to display carnival menu for puzzles. Found no entries in the database.");
-				dbCon.close();
+				connection.close();
 			} else {
 				// results found!
 				while (menuResult.next()) {
@@ -766,8 +757,8 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 						mazeSlot++;
 					}
 				}
-				dbStmt.close();
-				dbCon.close();
+				statement.close();
+				connection.close();
 			}
 
 		} catch (SQLException z) {
@@ -1178,52 +1169,52 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 
 			} else if (event.getSlot() == 28 && event.getWhoClicked().hasPermission("rp.chatcolors.green")) {
 
-				playerProfiles.get(event.getWhoClicked().getUniqueId()).setChatColor("GREEN", true);
+				playerProfiles.get(event.getWhoClicked().getUniqueId()).setChatColor(ChatColor.GREEN, true);
 
 			} else if (event.getSlot() == 29
 					&& event.getWhoClicked().hasPermission("rp.chatcolors.dark_green")) {
 
-				playerProfiles.get(event.getWhoClicked().getUniqueId()).setChatColor("DARK_GREEN", true);
+				playerProfiles.get(event.getWhoClicked().getUniqueId()).setChatColor(ChatColor.DARK_GREEN, true);
 
 			} else if (event.getSlot() == 30
 					&& event.getWhoClicked().hasPermission("rp.chatcolors.yellow")) {
 
-				playerProfiles.get(event.getWhoClicked().getUniqueId()).setChatColor("YELLOW", true);
+				playerProfiles.get(event.getWhoClicked().getUniqueId()).setChatColor(ChatColor.YELLOW, true);
 
 			} else if (event.getSlot() == 31 && event.getWhoClicked().hasPermission("rp.chatcolors.gold")) {
 
-				playerProfiles.get(event.getWhoClicked().getUniqueId()).setChatColor("GOLD", true);
+				playerProfiles.get(event.getWhoClicked().getUniqueId()).setChatColor(ChatColor.GOLD, true);
 
 			} else if (event.getSlot() == 32 && event.getWhoClicked().hasPermission("rp.chatcolors.aqua")) {
 
-				playerProfiles.get(event.getWhoClicked().getUniqueId()).setChatColor("AQUA", true);
+				playerProfiles.get(event.getWhoClicked().getUniqueId()).setChatColor(ChatColor.AQUA, true);
 
 			} else if (event.getSlot() == 33
 					&& event.getWhoClicked().hasPermission("rp.chatcolors.dark_aqua")) {
 
-				playerProfiles.get(event.getWhoClicked().getUniqueId()).setChatColor("DARK_AQUA", true);
+				playerProfiles.get(event.getWhoClicked().getUniqueId()).setChatColor(ChatColor.DARK_AQUA, true);
 
 			} else if (event.getSlot() == 34 && event.getWhoClicked().hasPermission("rp.chatcolors.blue")) {
 
-				playerProfiles.get(event.getWhoClicked().getUniqueId()).setChatColor("BLUE", true);
+				playerProfiles.get(event.getWhoClicked().getUniqueId()).setChatColor(ChatColor.BLUE, true);
 
 			} else if (event.getSlot() == 38
 					&& event.getWhoClicked().hasPermission("rp.chatcolors.light_purple")) {
 
-				playerProfiles.get(event.getWhoClicked().getUniqueId()).setChatColor("LIGHT_PURPLE", true);
+				playerProfiles.get(event.getWhoClicked().getUniqueId()).setChatColor(ChatColor.LIGHT_PURPLE, true);
 
 			} else if (event.getSlot() == 39
 					&& event.getWhoClicked().hasPermission("rp.chatcolors.dark_purple")) {
 
-				playerProfiles.get(event.getWhoClicked().getUniqueId()).setChatColor("DARK_PURPLE", true);
+				playerProfiles.get(event.getWhoClicked().getUniqueId()).setChatColor(ChatColor.DARK_PURPLE, true);
 
 			} else if (event.getSlot() == 41 && event.getWhoClicked().hasPermission("rp.chatcolors.red")) {
 
-				playerProfiles.get(event.getWhoClicked().getUniqueId()).setChatColor("RED", true);
+				playerProfiles.get(event.getWhoClicked().getUniqueId()).setChatColor(ChatColor.RED, true);
 
 			} else if (event.getSlot() == 42 && event.getWhoClicked().hasPermission("rp.chatcolors.white")) {
 
-				playerProfiles.get(event.getWhoClicked().getUniqueId()).setChatColor("WHITE", true);
+				playerProfiles.get(event.getWhoClicked().getUniqueId()).setChatColor(ChatColor.WHITE, true);
 
 			}
 
@@ -1457,7 +1448,6 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 					faith = "Fire";
 				}
 				break;
-
 			case 12:
 				if (event.getWhoClicked().hasPermission("rp.faith.water")) {
 					faith = "Water";
@@ -1520,9 +1510,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 				getServer().dispatchCommand(getServer().getConsoleSender(),
 						"faith enable " + event.getWhoClicked().getName() + " " + faith);
 			}
-
 		}
-
 	}
 
 	@EventHandler
@@ -2145,10 +2133,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 	 * // Maintain table of player info public void updatePlayerInfo(String
 	 * name, boolean join, boolean leave) { final Date now = new Date();
 	 * 
-	 * MySQL MySQL = new MySQL(instance, instance.getConfig().getString(
-	 * "dbHost"), instance.getConfig().getString("dbPort"), instance
-	 * .getConfig().getString("dbDatabase"), instance.getConfig()
-	 * .getString("dbUser"), instance.getConfig().getString( "dbPassword"));
+	 * MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
 	 * final Connection d = MySQL.openConnection();
 	 * 
 	 * final String innerName = name; final boolean innerJoin = join; final
@@ -2235,26 +2220,24 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 		String playerName = name;
 		UUID playerUUID = pUUID;
 
-		MySQL MySQL = new MySQL(instance, instance.getConfig().getString("dbHost"),
-				instance.getConfig().getString("dbPort"), instance.getConfig().getString("dbDatabase"),
-				instance.getConfig().getString("dbUser"), instance.getConfig().getString("dbPassword"));
-		final Connection dbConn = MySQL.openConnection();
+		MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
+		Connection connection = MySQL.openConnection();
 		int rowCount = -1;
 		int rowCountnameMatch = -1;
 		String previousName = "";
 
 		try {
-			PreparedStatement dStmt = dbConn
+			PreparedStatement statement = connection
 					.prepareStatement("SELECT COUNT(*) as Total, PlayerName FROM rp_PlayerInfo WHERE UUID = ?;");
-			dStmt.setString(1, playerUUID.toString());
-			ResultSet dbResult = dStmt.executeQuery();
+			statement.setString(1, playerUUID.toString());
+			ResultSet dbResult = statement.executeQuery();
 			while (dbResult.next()) {
 				rowCount = dbResult.getInt("Total");
 				previousName = dbResult.getString("PlayerName");
 			}
-			dStmt.close();
+			statement.close();
 
-			PreparedStatement zStmt = dbConn
+			PreparedStatement zStmt = connection
 					.prepareStatement("SELECT COUNT(*) as Total FROM rp_PlayerInfo WHERE PlayerName = ?;");
 			zStmt.setString(1, playerName);
 			ResultSet zResult = zStmt.executeQuery();
@@ -2317,7 +2300,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 				}, 140);
 
 				// /////////////////////
-				PreparedStatement dStmt = dbConn.prepareStatement(
+				PreparedStatement dStmt = connection.prepareStatement(
 						"INSERT INTO rp_PlayerInfo (`PlayerName`, `UUID`, `ActiveFaith`, `LastIP`, `FirstSeen`, `LastSeen`) VALUES "
 								+ "(?, ?, ?, ?, ?, ?);");
 				dStmt.setString(1, playerName);
@@ -2329,7 +2312,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 
 				dStmt.executeUpdate();
 
-				PreparedStatement pStmt = dbConn
+				PreparedStatement pStmt = connection
 						.prepareStatement("INSERT INTO rp_PlayerMobKills (`UUID`) VALUES " + "(?);");
 				pStmt.setString(1, playerUUID.toString());
 				pStmt.executeUpdate();
@@ -2339,7 +2322,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 
 				// if this player has 1 row in the table
 			} else if (rowCount == 1) {
-				PreparedStatement dStmt = dbConn.prepareStatement(
+				PreparedStatement dStmt = connection.prepareStatement(
 						"UPDATE `rp_PlayerInfo` SET LastSeen=?, PlayerName=?, LastIP=? WHERE UUID=?;");
 				dStmt.setLong(1, now.getTime());
 				dStmt.setString(2, playerName);
@@ -2353,7 +2336,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 				// table
 			} else if (rowCount > 1) {
 				int counter = 1;
-				PreparedStatement zStmt = dbConn
+				PreparedStatement zStmt = connection
 						.prepareStatement("SELECT * FROM rp_PlayerInfo WHERE UUID = ? ORDER BY ID ASC;");
 				zStmt.setString(1, playerUUID.toString());
 				ResultSet zResult = zStmt.executeQuery();
@@ -2361,7 +2344,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 					// The first row is our valid one - update
 					// it!
 					if (counter == 1) {
-						PreparedStatement dStmt = dbConn
+						PreparedStatement dStmt = connection
 								.prepareStatement("UPDATE `rp_PlayerInfo` SET LastSeen=?, PlayerName=? WHERE UUID=?;");
 						dStmt.setLong(1, now.getTime());
 						dStmt.setString(2, playerName);
@@ -2374,7 +2357,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 						// All further rows are invalid, delete
 						// them!
 					} else if (counter > 1) {
-						PreparedStatement dStmt = dbConn
+						PreparedStatement dStmt = connection
 								.prepareStatement("DELETE FROM `rp_PlayerInfo` WHERE ID = ? LIMIT 1;");
 						dStmt.setInt(1, zResult.getInt("ID"));
 						dStmt.executeUpdate();
@@ -2388,7 +2371,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 				zStmt.close();
 
 			}
-			dbConn.close();
+			connection.close();
 		} catch (SQLException e) {
 			getLogger().log(Level.SEVERE,
 					"Cant work with DB updatePlayerInfoOnJoin for " + playerName + " because: " + e.getMessage());
@@ -2400,19 +2383,17 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 		String locString = loc.getWorld().getName() + "." + loc.getBlockX() + "." + loc.getBlockY() + "."
 				+ loc.getBlockZ();
 
-		MySQL MySQL = new MySQL(instance, instance.getConfig().getString("dbHost"),
-				instance.getConfig().getString("dbPort"), instance.getConfig().getString("dbDatabase"),
-				instance.getConfig().getString("dbUser"), instance.getConfig().getString("dbPassword"));
+		MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
 		try {
-			final Connection dbCon = MySQL.openConnection();
+			Connection connection = MySQL.openConnection();
 
 			String simpleProc = "{ call Add_Runic_Eye(?) }";
-			CallableStatement cs = dbCon.prepareCall(simpleProc);
+			CallableStatement cs = connection.prepareCall(simpleProc);
 			cs.setString("Loc_param", locString);
 			cs.executeUpdate();
 
 			cs.close();
-			dbCon.close();
+			connection.close();
 			p.sendMessage("Runic Eye successfully created.");
 
 		} catch (SQLException z) {
@@ -2427,19 +2408,17 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 		String locString = loc.getWorld().getName() + "." + loc.getBlockX() + "." + loc.getBlockY() + "."
 				+ loc.getBlockZ();
 
-		MySQL MySQL = new MySQL(instance, instance.getConfig().getString("dbHost"),
-				instance.getConfig().getString("dbPort"), instance.getConfig().getString("dbDatabase"),
-				instance.getConfig().getString("dbUser"), instance.getConfig().getString("dbPassword"));
+		MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
 		try {
-			final Connection dbCon = MySQL.openConnection();
+			Connection connection = MySQL.openConnection();
 
 			String simpleProc = "{ call Add_Prayer_Book(?) }";
-			CallableStatement cs = dbCon.prepareCall(simpleProc);
+			CallableStatement cs = connection.prepareCall(simpleProc);
 			cs.setString("Loc_param", locString);
 			cs.executeUpdate();
 
 			cs.close();
-			dbCon.close();
+			connection.close();
 			p.sendMessage("PrayerBook successfully created.");
 
 		} catch (SQLException z) {
@@ -2460,14 +2439,12 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 
 		prayerBookEntities.clear();
 
-		MySQL MySQL = new MySQL(instance, instance.getConfig().getString("dbHost"),
-				instance.getConfig().getString("dbPort"), instance.getConfig().getString("dbDatabase"),
-				instance.getConfig().getString("dbUser"), instance.getConfig().getString("dbPassword"));
+		MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
 
 		try {
-			final Connection dbCon = MySQL.openConnection();
-			Statement dbStmt = dbCon.createStatement();
-			ResultSet bookResult = dbStmt.executeQuery("SELECT * FROM rp_PrayerBooks;");
+			Connection connection = MySQL.openConnection();
+			Statement statement = connection.createStatement();
+			ResultSet bookResult = statement.executeQuery("SELECT * FROM rp_PrayerBooks;");
 			if (!bookResult.isBeforeFirst()) {
 				// No results
 				// do nothing
@@ -2476,7 +2453,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 				Bukkit.dispatchCommand(Bukkit.getConsoleSender(),
 						"sc This is a critical problem; Prayer Books will not work :(");
 
-				dbCon.close();
+				connection.close();
 				return;
 			} else {
 				// results found!
@@ -2525,7 +2502,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 
 				}
 
-				dbCon.close();
+				connection.close();
 			}
 
 		} catch (SQLException z) {
@@ -2545,14 +2522,12 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 
 		runicEyeEntities.clear();
 
-		MySQL MySQL = new MySQL(instance, instance.getConfig().getString("dbHost"),
-				instance.getConfig().getString("dbPort"), instance.getConfig().getString("dbDatabase"),
-				instance.getConfig().getString("dbUser"), instance.getConfig().getString("dbPassword"));
+		MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
 		StringBuilder eyeList = new StringBuilder();
 		try {
-			final Connection dbCon = MySQL.openConnection();
-			Statement dbStmt = dbCon.createStatement();
-			ResultSet eyeResult = dbStmt.executeQuery("SELECT * FROM rp_RunicEyes;");
+			Connection connection = MySQL.openConnection();
+			Statement statement = connection.createStatement();
+			ResultSet eyeResult = statement.executeQuery("SELECT * FROM rp_RunicEyes;");
 			if (!eyeResult.isBeforeFirst()) {
 				// No results
 				// do nothing
@@ -2561,7 +2536,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 				Bukkit.dispatchCommand(Bukkit.getConsoleSender(),
 						"sc This is a critical problem; Runic Eyes will not work :(");
 
-				dbCon.close();
+				connection.close();
 				return;
 			} else {
 				// results found!
@@ -2586,7 +2561,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 									eyeResult.getString("Message") });
 					eyeList.append(eyeResult.getString("Name")).append(". ");
 				}
-				dbCon.close();
+				connection.close();
 			}
 		} catch (SQLException z) {
 			Bukkit.getLogger().log(Level.SEVERE, "Failed Faith.faithSettings " + z.getMessage());
@@ -2600,32 +2575,27 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 		final String playerName = name;
 		final UUID playerUUID = pUUID;
 
-		Bukkit.getServer().getScheduler().runTaskAsynchronously(instance, new Runnable() {
-			public void run() {
+		Bukkit.getServer().getScheduler().runTaskAsynchronously(instance, () -> {
+			MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
+			Connection connection = MySQL.openConnection();
 
-				MySQL MySQL = new MySQL(instance, instance.getConfig().getString("dbHost"),
-						instance.getConfig().getString("dbPort"), instance.getConfig().getString("dbDatabase"),
-						instance.getConfig().getString("dbUser"), instance.getConfig().getString("dbPassword"));
-				final Connection dbConn = MySQL.openConnection();
+			try {
 
-				try {
+				PreparedStatement statement = connection
+						.prepareStatement("UPDATE `rp_PlayerInfo` SET LastSeen=? WHERE UUID=?;");
+				statement.setLong(1, now.getTime());
+				statement.setString(2, playerUUID.toString());
+				statement.executeUpdate();
+				statement.close();
+				Bukkit.getLogger().log(Level.INFO, "[RP] PlayerInfo data updated for " + playerName);
+				connection.close();
 
-					PreparedStatement dStmt = dbConn
-							.prepareStatement("UPDATE `rp_PlayerInfo` SET LastSeen=? WHERE UUID=?;");
-					dStmt.setLong(1, now.getTime());
-					dStmt.setString(2, playerUUID.toString());
-					dStmt.executeUpdate();
-					dStmt.close();
-					Bukkit.getLogger().log(Level.INFO, "[RP] PlayerInfo data updated for " + playerName);
-					dbConn.close();
-
-				} catch (SQLException e) {
-					getLogger().log(Level.SEVERE, "Cant work with DB updatePlayerInfoOnquit for " + playerName
-							+ " because: " + e.getMessage());
-				}
-
+			} catch (SQLException e) {
+				getLogger().log(Level.SEVERE, "Cant work with DB updatePlayerInfoOnquit for " + playerName
+						+ " because: " + e.getMessage());
 			}
-		}); // end run task async
+
+		});
 	}
 
 	private boolean setupPermissions() {
@@ -2747,70 +2717,64 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 
 			final PlayerDeathEvent innerEvent = event;
 
-			Bukkit.getServer().getScheduler().runTaskAsynchronously(instance, new Runnable() {
-				public void run() {
+			Bukkit.getServer().getScheduler().runTaskAsynchronously(instance, () -> {
+				Player player = innerEvent.getEntity();
+				String cause = "";
+				String killerName = "";
 
-					Player player = innerEvent.getEntity();
-					String cause = "";
-					String killerName = "";
+				if (RunicGateway.getLastEntityDamager(player) != null) {
+					Entity killer = RunicGateway.getLastEntityDamager(player);
 
-					if (RunicGateway.getLastEntityDamager(player) != null) {
-						Entity killer = RunicGateway.getLastEntityDamager(player);
+					if (killer instanceof Player) {
+						Player k = (Player) killer;
+						killerName = k.getName();
 
-						if (killer instanceof Player) {
-							Player k = (Player) killer;
-							killerName = k.getName();
-
-							cause = "PLAYER_KILL";
-						} else {
-							// Not a player... so maybe a mob :)
-							killerName = killer.getType().toString();
-							EntityDamageEvent ede = player.getLastDamageCause();
-							DamageCause dc = ede.getCause();
-							cause = dc.toString();
-						}
+						cause = "PLAYER_KILL";
 					} else {
-						// death not caused by an entity; entity check
-						// returned null
+						// Not a player... so maybe a mob :)
+						killerName = killer.getType().toString();
 						EntityDamageEvent ede = player.getLastDamageCause();
 						DamageCause dc = ede.getCause();
 						cause = dc.toString();
-						killerName = cause;
 					}
-
-					String uuid = player.getUniqueId().toString();
-					String name = player.getName();
-					String loc = innerEvent.getEntity().getLocation().toString();
-
-					// String pvp =
-					// event.getEntity().getKiller().toString();
-					long time = new Date().getTime();
-
-					MySQL MySQL = new MySQL(instance, instance.getConfig().getString("dbHost"),
-							instance.getConfig().getString("dbPort"), instance.getConfig().getString("dbDatabase"),
-							instance.getConfig().getString("dbUser"), instance.getConfig().getString("dbPassword"));
-					final Connection e = MySQL.openConnection();
-					// do the insert
-					try {
-						Statement eStmt = e.createStatement();
-						eStmt.executeUpdate(
-								"INSERT INTO rp_PlayerDeath (`PlayerName`, `UUID`, `TimeStamp`, `CauseOfDeath`, `Killer`, `Location`) VALUES "
-										+ "('" + name + "', '" + uuid + "', '" + time + "', '" + cause + "', '"
-										+ killerName + "', '" + loc + "');");
-					} catch (SQLException err) {
-						getLogger().log(Level.SEVERE,
-								"Cant create new row PlayerDeath for " + name + " because: " + err.getMessage());
-					}
-					// close the connection
-					try {
-						e.close();
-					} catch (SQLException err) {
-						getLogger().log(Level.SEVERE,
-								"Cant close conn PlayerDeath for " + name + " because: " + err.getMessage());
-					}
-					player = null;
+				} else {
+					// death not caused by an entity; entity check
+					// returned null
+					EntityDamageEvent ede = player.getLastDamageCause();
+					DamageCause dc = ede.getCause();
+					cause = dc.toString();
+					killerName = cause;
 				}
 
+				String uuid = player.getUniqueId().toString();
+				String name = player.getName();
+				String loc = innerEvent.getEntity().getLocation().toString();
+
+				// String pvp =
+				// event.getEntity().getKiller().toString();
+				long time = new Date().getTime();
+
+				MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
+				Connection connection = MySQL.openConnection();
+				// do the insert
+				try {
+					Statement statement = connection.createStatement();
+					statement.executeUpdate(
+							"INSERT INTO rp_PlayerDeath (`PlayerName`, `UUID`, `TimeStamp`, `CauseOfDeath`, `Killer`, `Location`) VALUES "
+									+ "('" + name + "', '" + uuid + "', '" + time + "', '" + cause + "', '"
+									+ killerName + "', '" + loc + "');");
+				} catch (SQLException err) {
+					getLogger().log(Level.SEVERE,
+							"Cant create new row PlayerDeath for " + name + " because: " + err.getMessage());
+				}
+				// close the connection
+				try {
+					connection.close();
+				} catch (SQLException err) {
+					getLogger().log(Level.SEVERE,
+							"Cant close conn PlayerDeath for " + name + " because: " + err.getMessage());
+				}
+				player = null;
 			}); // end run task async
 		}
 	}
@@ -3014,18 +2978,16 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 		long lastCom = 0;
 
 		try {
-			MySQL MySQL = new MySQL(instance, instance.getConfig().getString("dbHost"),
-					instance.getConfig().getString("dbPort"), instance.getConfig().getString("dbDatabase"),
-					instance.getConfig().getString("dbUser"), instance.getConfig().getString("dbPassword"));
-			final Connection dbCon = MySQL.openConnection();
-			Statement dbStmt = dbCon.createStatement();
-			ResultSet mcResult = dbStmt.executeQuery("SELECT * FROM rp_RunicGameCompletions WHERE UUID='"
+			MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
+			Connection connection = MySQL.openConnection();
+			Statement statement = connection.createStatement();
+			ResultSet mcResult = statement.executeQuery("SELECT * FROM rp_RunicGameCompletions WHERE UUID='"
 					+ p.getUniqueId() + "' AND GameID=" + puzzleID + ";");
 			if (!mcResult.isBeforeFirst()) {
 				// No results
 				// do nothing
-				dbStmt.close();
-				dbCon.close();
+				statement.close();
+				connection.close();
 
 				return 0;
 
@@ -3036,8 +2998,8 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 					lastCom = mcResult.getLong("LastCompletion");
 
 				}
-				dbStmt.close();
-				dbCon.close();
+				statement.close();
+				connection.close();
 			}
 
 		} catch (SQLException z) {
@@ -3086,20 +3048,18 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 		int completionCount = 0;
 
 		try {
-			MySQL MySQL = new MySQL(instance, instance.getConfig().getString("dbHost"),
-					instance.getConfig().getString("dbPort"), instance.getConfig().getString("dbDatabase"),
-					instance.getConfig().getString("dbUser"), instance.getConfig().getString("dbPassword"));
-			final Connection dbCon = MySQL.openConnection();
-			Statement dbStmt = dbCon.createStatement();
-			ResultSet mcResult = dbStmt.executeQuery(
+			MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
+			Connection connection = MySQL.openConnection();
+			Statement statement = connection.createStatement();
+			ResultSet mcResult = statement.executeQuery(
 					"SELECT COUNT(rp_RunicGameCompletions.ID) AS Count FROM rp_RunicGameCompletions INNER JOIN rp_RunicGames on rp_RunicGameCompletions.GameID = rp_RunicGames.ID "
 							+ "WHERE rp_RunicGameCompletions.UUID='" + p.getUniqueId()
 							+ "' AND rp_RunicGames.GameType = 'Maze';");
 			if (!mcResult.isBeforeFirst()) {
 				// No results
 				// do nothing
-				dbStmt.close();
-				dbCon.close();
+				statement.close();
+				connection.close();
 
 				return 0;
 
@@ -3110,8 +3070,8 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 					completionCount = mcResult.getInt("Count");
 
 				}
-				dbStmt.close();
-				dbCon.close();
+				statement.close();
+				connection.close();
 			}
 
 		} catch (SQLException z) {
@@ -3126,20 +3086,18 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 		int count = 0;
 
 		try {
-			MySQL MySQL = new MySQL(instance, instance.getConfig().getString("dbHost"),
-					instance.getConfig().getString("dbPort"), instance.getConfig().getString("dbDatabase"),
-					instance.getConfig().getString("dbUser"), instance.getConfig().getString("dbPassword"));
-			final Connection dbCon = MySQL.openConnection();
-			Statement dbStmt = dbCon.createStatement();
-			ResultSet mcResult = dbStmt.executeQuery("SELECT * FROM rp_PlayerInfo;");
+			MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
+			Connection connection = MySQL.openConnection();
+			Statement statement = connection.createStatement();
+			ResultSet mcResult = statement.executeQuery("SELECT * FROM rp_PlayerInfo;");
 
-			Statement zStmt = dbCon.createStatement();
+			Statement zStmt = connection.createStatement();
 
 			if (!mcResult.isBeforeFirst()) {
 				// No results
 				// do nothing
-				dbStmt.close();
-				dbCon.close();
+				statement.close();
+				connection.close();
 
 			} else {
 				// results found!
@@ -3194,9 +3152,9 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 
 			}
 
-			dbStmt.close();
+			statement.close();
 			zStmt.close();
-			dbCon.close();
+			connection.close();
 		} catch (SQLException z) {
 			Bukkit.getLogger().log(Level.SEVERE, "Failed getting puzzle completion count -" + z.getMessage());
 		}

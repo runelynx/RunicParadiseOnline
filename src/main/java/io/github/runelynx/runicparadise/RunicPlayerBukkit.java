@@ -90,48 +90,36 @@ public class RunicPlayerBukkit {
 	}
 
 	public Map<String, Integer> getPlayerKillCounts() {
-		MySQL MySQL = new MySQL(instance, instance.getConfig().getString(
-				"dbHost"), instance.getConfig().getString("dbPort"), instance
-				.getConfig().getString("dbDatabase"), instance.getConfig()
-				.getString("dbUser"), instance.getConfig().getString(
-				"dbPassword"));
+		MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
 
-		Map<String, Integer> resultMap = new HashMap<String, Integer>();
+		Map<String, Integer> resultMap = new HashMap<>();
 
 		try {
 			// TODO: Change to update DB based on UUID
-			final Connection d = MySQL.openConnection();
-			Statement dStmt = d.createStatement();
+			Connection connection = MySQL.openConnection();
 
-			PreparedStatement dStmt2 = d
+			PreparedStatement statement = connection
 					.prepareStatement("SELECT * FROM rp_PlayerInfo WHERE UUID = ?;");
-			dStmt2.setString(1, this.getPlayerUUID());
-			ResultSet playerData = dStmt2.executeQuery();
+			statement.setString(1, this.getPlayerUUID());
+			ResultSet playerData = statement.executeQuery();
 
 			while (playerData.next()) {
 				resultMap.put("KillWither", playerData.getInt("KillWither"));
 				resultMap.put("KillZombie", playerData.getInt("KillZombie"));
 				resultMap.put("KillWitch", playerData.getInt("KillWitch"));
-				resultMap
-						.put("KillSkeleton", playerData.getInt("KillSkeleton"));
+				resultMap.put("KillSkeleton", playerData.getInt("KillSkeleton"));
 				resultMap.put("KillSlime", playerData.getInt("KillSlime"));
-				resultMap.put("KillMagmaCube",
-						playerData.getInt("KillMagmaCube"));
-				resultMap.put("KillSilverfish",
-						playerData.getInt("KillSilverfish"));
+				resultMap.put("KillMagmaCube", playerData.getInt("KillMagmaCube"));
+				resultMap.put("KillSilverfish", playerData.getInt("KillSilverfish"));
 				resultMap.put("KillGiant", playerData.getInt("KillGiant"));
 				resultMap.put("KillBlaze", playerData.getInt("KillBlaze"));
 				resultMap.put("KillCreeper", playerData.getInt("KillCreeper"));
-				resultMap
-						.put("KillEnderman", playerData.getInt("KillEnderman"));
+				resultMap.put("KillEnderman", playerData.getInt("KillEnderman"));
 				resultMap.put("KillSpider", playerData.getInt("KillSpider"));
-				resultMap.put("KillCaveSpider",
-						playerData.getInt("KillCaveSpider"));
+				resultMap.put("KillCaveSpider", playerData.getInt("KillCaveSpider"));
 				resultMap.put("KillSquid", playerData.getInt("KillSquid"));
-				resultMap.put("KillEnderDragon",
-						playerData.getInt("KillEnderDragon"));
-				resultMap.put("KillPigZombie",
-						playerData.getInt("KillPigZombie"));
+				resultMap.put("KillEnderDragon", playerData.getInt("KillEnderDragon"));
+				resultMap.put("KillPigZombie", playerData.getInt("KillPigZombie"));
 				resultMap.put("KillGhast", playerData.getInt("KillGhast"));
 				resultMap.put("KillChicken", playerData.getInt("KillChicken"));
 				resultMap.put("KillCow", playerData.getInt("KillCow"));
@@ -139,35 +127,23 @@ public class RunicPlayerBukkit {
 				resultMap.put("KillPig", playerData.getInt("KillPig"));
 				resultMap.put("KillOcelot", playerData.getInt("KillOcelot"));
 				resultMap.put("KillBat", playerData.getInt("KillBat"));
-				resultMap.put("KillMooshroom",
-						playerData.getInt("KillMooshroom"));
+				resultMap.put("KillMooshroom", playerData.getInt("KillMooshroom"));
 				resultMap.put("KillRabbit", playerData.getInt("KillRabbit"));
 				resultMap.put("KillWolf", playerData.getInt("KillWolf"));
-				resultMap.put("KillEndermite",
-						playerData.getInt("KillEndermite"));
-				resultMap
-						.put("KillGuardian", playerData.getInt("KillGuardian"));
-				resultMap.put("KillElderGuardian",
-						playerData.getInt("KillElderGuardian"));
-				resultMap.put("KillSnowGolem",
-						playerData.getInt("KillSnowGolem"));
-				resultMap.put("KillIronGolem",
-						playerData.getInt("KillIronGolem"));
-				resultMap
-						.put("KillVillager", playerData.getInt("KillVillager"));
-				resultMap
-				.put("KillShulker", playerData.getInt("KillShulker"));
-				resultMap
-				.put("KillWSkeleton", playerData.getInt("KillWSkeleton"));
-				resultMap
-				.put("KillStray", playerData.getInt("KillStray"));
-				resultMap
-				.put("KillHusk", playerData.getInt("KillHusk"));
-				resultMap
-				.put("KillPolarBear", playerData.getInt("KillPolarBear"));
+				resultMap.put("KillEndermite", playerData.getInt("KillEndermite"));
+				resultMap.put("KillGuardian", playerData.getInt("KillGuardian"));
+				resultMap.put("KillElderGuardian", playerData.getInt("KillElderGuardian"));
+				resultMap.put("KillSnowGolem", playerData.getInt("KillSnowGolem"));
+				resultMap.put("KillIronGolem", playerData.getInt("KillIronGolem"));
+				resultMap.put("KillVillager", playerData.getInt("KillVillager"));
+				resultMap.put("KillShulker", playerData.getInt("KillShulker"));
+				resultMap.put("KillWSkeleton", playerData.getInt("KillWSkeleton"));
+				resultMap.put("KillStray", playerData.getInt("KillStray"));
+				resultMap.put("KillHusk", playerData.getInt("KillHusk"));
+				resultMap.put("KillPolarBear", playerData.getInt("KillPolarBear"));
 			}
 
-			d.close();
+			connection.close();
 			return resultMap;
 
 		} catch (SQLException e) {
@@ -175,7 +151,6 @@ public class RunicPlayerBukkit {
 					"Failed getPlayerKillCount because: " + e.getMessage());
 			return resultMap;
 		}
-
 	}
 
 	public String getActiveFaith() {
@@ -183,52 +158,42 @@ public class RunicPlayerBukkit {
 	}
 
 	public void setActiveFaith(String faithName) {
-		MySQL MySQL = new MySQL(instance, instance.getConfig().getString(
-				"dbHost"), instance.getConfig().getString("dbPort"), instance
-				.getConfig().getString("dbDatabase"), instance.getConfig()
-				.getString("dbUser"), instance.getConfig().getString(
-				"dbPassword"));
+		MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
 
 		try {
 			// TODO: Change to update DB based on UUID
-			final Connection d = MySQL.openConnection();
+			Connection connection = MySQL.openConnection();
 
-			PreparedStatement dStmt2 = d
+			PreparedStatement statement = connection
 					.prepareStatement("UPDATE rp_PlayerInfo SET ActiveFaith = '"
 							+ faithName + "' WHERE UUID = ?");
-			dStmt2.setString(1, this.getPlayerUUID());
-			dStmt2.executeUpdate();
+			statement.setString(1, this.getPlayerUUID());
+			statement.executeUpdate();
 
-			d.close();
+			connection.close();
 
 		} catch (SQLException e) {
 			getLogger().log(Level.SEVERE,
 					"Failed setActiveFaith because: " + e.getMessage());
-
 		}
 
 		this.refreshPlayerObject(Bukkit.getPlayer(this.getPlayerName()));
-
 	}
 
 	public boolean incrementPlayerVotes() {
-		MySQL MySQL = new MySQL(instance, instance.getConfig().getString(
-				"dbHost"), instance.getConfig().getString("dbPort"), instance
-				.getConfig().getString("dbDatabase"), instance.getConfig()
-				.getString("dbUser"), instance.getConfig().getString(
-				"dbPassword"));
+		MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
 
 		try {
 			// TODO: Change to update DB based on UUID
-			final Connection d = MySQL.openConnection();
+			Connection connection = MySQL.openConnection();
 			Date now = new Date();
 
-			PreparedStatement dStmt2 = d
+			PreparedStatement statement = connection
 					.prepareStatement("UPDATE rp_PlayerInfo SET Votes = Votes+1 WHERE LastIP = ?");
-			dStmt2.setString(1, this.getIP());
-			dStmt2.executeUpdate();
+			statement.setString(1, this.getIP());
+			statement.executeUpdate();
 
-			PreparedStatement dStmt3 = d
+			PreparedStatement dStmt3 = connection
 					.prepareStatement("INSERT INTO rp_Votes (`PlayerName`, `UUID`, `Timestamp`) VALUES "
 							+ "(?, ?, ?);");
 			dStmt3.setString(1, this.playerName);
@@ -237,7 +202,7 @@ public class RunicPlayerBukkit {
 
 			dStmt3.executeUpdate();
 
-			d.close();
+			connection.close();
 			return true;
 
 		} catch (SQLException e) {
@@ -249,29 +214,25 @@ public class RunicPlayerBukkit {
 	}
 
 	public int getCountGravesCreated() {
-		MySQL MySQL = new MySQL(instance, instance.getConfig().getString(
-				"dbHost"), instance.getConfig().getString("dbPort"), instance
-				.getConfig().getString("dbDatabase"), instance.getConfig()
-				.getString("dbUser"), instance.getConfig().getString(
-				"dbPassword"));
+		MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
 
 		try {
 			// TODO: Change to update DB based on UUID
-			final Connection d = MySQL.openConnection();
+			Connection connection = MySQL.openConnection();
 
-			PreparedStatement dStmt2 = d
+			PreparedStatement statement = connection
 					.prepareStatement("SELECT COUNT(*) FROM rp_PlayerGraves WHERE PlayerName = ?");
-			dStmt2.setString(1, this.getPlayerName());
-			ResultSet data = dStmt2.executeQuery();
+			statement.setString(1, this.getPlayerName());
+			ResultSet data = statement.executeQuery();
 
 			if (data.isBeforeFirst()) {
 				// result found
 				data.next();
 				int temp = data.getInt("COUNT(*)");
-				d.close();
+				connection.close();
 				return temp;
 			} else {
-				d.close();
+				connection.close();
 				return 0;
 			}
 
@@ -283,21 +244,17 @@ public class RunicPlayerBukkit {
 	}
 
 	public int getCountGravesStolen() {
-		MySQL MySQL = new MySQL(instance, instance.getConfig().getString(
-				"dbHost"), instance.getConfig().getString("dbPort"), instance
-				.getConfig().getString("dbDatabase"), instance.getConfig()
-				.getString("dbUser"), instance.getConfig().getString(
-				"dbPassword"));
+		MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
 
 		try {
 			// TODO: Change to update DB based on UUID
-			final Connection d = MySQL.openConnection();
+			Connection d = MySQL.openConnection();
 
-			PreparedStatement dStmt2 = d
+			PreparedStatement statement = d
 					.prepareStatement("SELECT COUNT(*) FROM rp_PlayerGraves WHERE LooterName = ? AND PlayerName!=?");
-			dStmt2.setString(1, this.getPlayerName());
-			dStmt2.setString(2, this.getPlayerName());
-			ResultSet data = dStmt2.executeQuery();
+			statement.setString(1, this.getPlayerName());
+			statement.setString(2, this.getPlayerName());
+			ResultSet data = statement.executeQuery();
 
 			if (data.isBeforeFirst()) {
 				// result found
@@ -318,68 +275,54 @@ public class RunicPlayerBukkit {
 	}
 
 	public int getCountGravesRemaining() {
-		MySQL MySQL = new MySQL(instance, instance.getConfig().getString(
-				"dbHost"), instance.getConfig().getString("dbPort"), instance
-				.getConfig().getString("dbDatabase"), instance.getConfig()
-				.getString("dbUser"), instance.getConfig().getString(
-				"dbPassword"));
+		MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
 
 		try {
 			// TODO: Change to update DB based on UUID
-			final Connection d = MySQL.openConnection();
+			Connection connection = MySQL.openConnection();
 
-			PreparedStatement dStmt2 = d
+			PreparedStatement statement = connection
 					.prepareStatement("SELECT COUNT(*) FROM rp_PlayerGraves WHERE PlayerName = ? AND Status!=?");
-			dStmt2.setString(1, this.getPlayerName());
-			dStmt2.setString(2, "Gone");
-			ResultSet data = dStmt2.executeQuery();
+			statement.setString(1, this.getPlayerName());
+			statement.setString(2, "Gone");
+			ResultSet data = statement.executeQuery();
 
 			if (data.isBeforeFirst()) {
 				// result found
 				data.next();
 				int temp = data.getInt("COUNT(*)");
-				d.close();
+				connection.close();
 				return temp;
 			} else {
-				d.close();
+				connection.close();
 				return 0;
 			}
 
 		} catch (SQLException e) {
-			getLogger()
-					.log(Level.SEVERE,
-							"Failed getCountGravesRemaining because: "
-									+ e.getMessage());
+			getLogger().log(Level.SEVERE, "Failed getCountGravesRemaining because: " + e.getMessage());
 			return 0;
 		}
 	}
 
-	public static boolean incrementPlayerKillCount(UUID playerUUID,
-			String columnName) {
-		MySQL MySQL = new MySQL(instance, instance.getConfig().getString(
-				"dbHost"), instance.getConfig().getString("dbPort"), instance
-				.getConfig().getString("dbDatabase"), instance.getConfig()
-				.getString("dbUser"), instance.getConfig().getString(
-				"dbPassword"));
+	public static boolean incrementPlayerKillCount(UUID playerUUID, String columnName) {
+		MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
 
 		if (!columnName.contains("Kill")) {
-			getLogger().log(
-					Level.SEVERE,
-					"Invalid column in incrementPlayerKillCount - given "
-							+ columnName + " but expected Kill____");
+			getLogger().log(Level.SEVERE, "Invalid column in incrementPlayerKillCount - given "
+					+ columnName + " but expected Kill____");
 			return false;
 		}
 
 		try {
-			final Connection d = MySQL.openConnection();
+			Connection connection = MySQL.openConnection();
 
-			PreparedStatement dStmt2 = d
+			PreparedStatement statement = connection
 					.prepareStatement("UPDATE rp_PlayerInfo SET " + columnName
 							+ "=" + columnName + "+1 WHERE UUID = ?");
-			dStmt2.setString(1, playerUUID.toString());
-			dStmt2.executeUpdate();
+			statement.setString(1, playerUUID.toString());
+			statement.executeUpdate();
 
-			d.close();
+			connection.close();
 			return true;
 
 		} catch (SQLException e) {
@@ -443,22 +386,17 @@ public class RunicPlayerBukkit {
 	 */
 
 	public static void maintainJobTable() {
-		MySQL MySQL = new MySQL(instance, instance.getConfig().getString(
-				"dbHost"), instance.getConfig().getString("dbPort"), instance
-				.getConfig().getString("dbDatabase"), instance.getConfig()
-				.getString("dbUser"), instance.getConfig().getString(
-				"dbPassword"));
+		MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
 
-		Bukkit.dispatchCommand(
-				Bukkit.getConsoleSender(),
+		Bukkit.dispatchCommand(Bukkit.getConsoleSender(),
 				"sc Rune's job maintenance has started. This hits the database hard - incoming lag!");
 
 		try {
 			// TODO: Change to update DB based on UUID
-			final Connection d = MySQL.openConnection();
-			Statement dStmt = d.createStatement();
+			Connection connection = MySQL.openConnection();
+			Statement dStmt = connection.createStatement();
 
-			PreparedStatement dStmt2 = d
+			PreparedStatement dStmt2 = connection
 					.prepareStatement("SELECT hex(player_uuid) as player_uuid,id FROM Jobs_jobs WHERE runes_uuid_field IS NULL;");
 
 			getLogger().log(Level.INFO, "rpjobs debug maintenance starting");
@@ -479,7 +417,7 @@ public class RunicPlayerBukkit {
 					"sc Rune's job maintenance progress: " + counter
 							+ " UUIDs transformed in jobs table.");
 
-			PreparedStatement dStmt3 = d
+			PreparedStatement dStmt3 = connection
 					.prepareStatement("SELECT ID,UUID FROM rp_PlayerInfo WHERE UUID_nodashes IS NULL;");
 			getLogger()
 					.log(Level.INFO,
@@ -504,7 +442,7 @@ public class RunicPlayerBukkit {
 					"sc Rune's job maintenance progress: " + counter
 							+ " UUIDs transformed in players table.");
 
-			PreparedStatement dStmt4 = d
+			PreparedStatement dStmt4 = connection
 					.prepareStatement("SELECT UUID_nodashes,PlayerName FROM rp_PlayerInfo");
 			ResultSet playerData4 = dStmt4.executeQuery();
 			int dupeCounter = 0;
@@ -542,7 +480,7 @@ public class RunicPlayerBukkit {
 								+ " unemployed players.");
 			}
 
-			d.close();
+			connection.close();
 			getLogger().log(Level.INFO,
 					"[RpJobMastery] Maintenance completed. ");
 			// Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "sudo " +
@@ -561,16 +499,12 @@ public class RunicPlayerBukkit {
 	 */
 
 	public boolean executeJobMastery() {
-		MySQL MySQL = new MySQL(instance, instance.getConfig().getString(
-				"dbHost"), instance.getConfig().getString("dbPort"), instance
-				.getConfig().getString("dbDatabase"), instance.getConfig()
-				.getString("dbUser"), instance.getConfig().getString(
-				"dbPassword"));
+		MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
 
 		try {
 			// TODO: Change to update DB based on UUID
-			final Connection d = MySQL.openConnection();
-			Statement dStmt = d.createStatement();
+			Connection connection = MySQL.openConnection();
+			Statement dStmt = connection.createStatement();
 			String newJobString = "";
 			int newJobCount = 0;
 			String oldJob = "";
@@ -590,7 +524,7 @@ public class RunicPlayerBukkit {
 					jobsID = jobPlayerIDResult.getInt("id");
 				}
 
-				PreparedStatement dStmt2 = d
+				PreparedStatement dStmt2 = connection
 						.prepareStatement("SELECT job, level FROM Jobs_jobs WHERE userid = ?");
 				dStmt2.setInt(1, jobsID);
 
@@ -643,7 +577,7 @@ public class RunicPlayerBukkit {
 					jobsID = jobPlayerIDResult.getInt("id");
 				}
 
-				PreparedStatement dStmt2 = d
+				PreparedStatement dStmt2 = connection
 						.prepareStatement("SELECT job, level FROM Jobs_jobs WHERE userid = ?");
 				dStmt2.setInt(1, jobsID);
 
@@ -691,7 +625,7 @@ public class RunicPlayerBukkit {
 				}
 			}
 
-			d.close();
+			connection.close();
 			getLogger()
 					.log(Level.INFO,
 							"[RpJobMastery] Success: " + this.playerName + ", "
@@ -792,22 +726,18 @@ public class RunicPlayerBukkit {
 	 */
 
 	public boolean setPlayerLifetimeTokens(int increment) {
-		MySQL MySQL = new MySQL(instance, instance.getConfig().getString(
-				"dbHost"), instance.getConfig().getString("dbPort"), instance
-				.getConfig().getString("dbDatabase"), instance.getConfig()
-				.getString("dbUser"), instance.getConfig().getString(
-				"dbPassword"));
+		MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
 
 		int newBalance = this.getPlayerLifetimeTokens() + increment;
 
 		try {
 			// TODO: Change to update DB based on UUID
-			final Connection d = MySQL.openConnection();
-			Statement dStmt = d.createStatement();
-			dStmt.executeUpdate("UPDATE `rp_PlayerInfo` SET LifetimeTokens="
+			Connection connection = MySQL.openConnection();
+			Statement statement = connection.createStatement();
+			statement.executeUpdate("UPDATE `rp_PlayerInfo` SET LifetimeTokens="
 					+ newBalance + " WHERE PlayerName='" + this.playerName
 					+ "';");
-			d.close();
+			connection.close();
 
 			// Update object directly since change successful
 			this.lifetimeTokens = newBalance;
@@ -821,19 +751,15 @@ public class RunicPlayerBukkit {
 	}
 
 	public static boolean adjustOfflinePlayerKarma(String name, int change) {
-		MySQL MySQL = new MySQL(instance, instance.getConfig().getString(
-				"dbHost"), instance.getConfig().getString("dbPort"), instance
-				.getConfig().getString("dbDatabase"), instance.getConfig()
-				.getString("dbUser"), instance.getConfig().getString(
-				"dbPassword"));
+		MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
 
 		try {
 			// TODO: Change to update DB based on UUID
-			final Connection d = MySQL.openConnection();
-			Statement dStmt = d.createStatement();
-			dStmt.executeUpdate("UPDATE `rp_PlayerInfo` SET Karma=Karma+"
+			Connection connection = MySQL.openConnection();
+			Statement statement = connection.createStatement();
+			statement.executeUpdate("UPDATE `rp_PlayerInfo` SET Karma=Karma+"
 					+ change + " WHERE PlayerName='" + name + "';");
-			d.close();
+			connection.close();
 			// Update the player object directly since the DB change was
 			// successful
 
@@ -849,26 +775,19 @@ public class RunicPlayerBukkit {
 
 			return true; // since change was successful
 		} catch (SQLException e) {
-			getLogger().log(
-					Level.SEVERE,
-					"Failed karma update (change " + name + " . ) because: "
-							+ e.getMessage());
+			getLogger().log(Level.SEVERE, "Failed karma update (change " + name + " . ) because: " + e.getMessage());
 			return false; // since change failed
 		}
 	}
 
 	public boolean adjustPlayerKarma(int change) {
-		MySQL MySQL = new MySQL(instance, instance.getConfig().getString(
-				"dbHost"), instance.getConfig().getString("dbPort"), instance
-				.getConfig().getString("dbDatabase"), instance.getConfig()
-				.getString("dbUser"), instance.getConfig().getString(
-				"dbPassword"));
+		MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
 
 		try {
 			// TODO: Change to update DB based on UUID
-			final Connection d = MySQL.openConnection();
-			Statement dStmt = d.createStatement();
-			dStmt.executeUpdate("UPDATE `rp_PlayerInfo` SET Karma=Karma+"
+			Connection d = MySQL.openConnection();
+			Statement statement = d.createStatement();
+			statement.executeUpdate("UPDATE `rp_PlayerInfo` SET Karma=Karma+"
 					+ change + " WHERE PlayerName='" + this.playerName + "';");
 			d.close();
 			// Update the player object directly since the DB change was
@@ -901,20 +820,16 @@ public class RunicPlayerBukkit {
 	 */
 
 	public boolean setPlayerSouls(int newSoulCount) {
-		MySQL MySQL = new MySQL(instance, instance.getConfig().getString(
-				"dbHost"), instance.getConfig().getString("dbPort"), instance
-				.getConfig().getString("dbDatabase"), instance.getConfig()
-				.getString("dbUser"), instance.getConfig().getString(
-				"dbPassword"));
+		MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
 
 		try {
 			// TODO: Change to update DB based on UUID
-			final Connection d = MySQL.openConnection();
-			Statement dStmt = d.createStatement();
-			dStmt.executeUpdate("UPDATE `rp_PlayerInfo` SET SoulCount='"
+			Connection connection = MySQL.openConnection();
+			Statement statement = connection.createStatement();
+			statement.executeUpdate("UPDATE `rp_PlayerInfo` SET SoulCount='"
 					+ newSoulCount + "' WHERE PlayerName='" + this.playerName
 					+ "';");
-			d.close();
+			connection.close();
 			// Update the player object directly since the DB change was
 			// successful
 			this.soulCount = newSoulCount;
@@ -929,22 +844,17 @@ public class RunicPlayerBukkit {
 		}
 	}
 
-	
 	public boolean addPlayerSouls(int addition) {
-		MySQL MySQL = new MySQL(instance, instance.getConfig().getString(
-				"dbHost"), instance.getConfig().getString("dbPort"), instance
-				.getConfig().getString("dbDatabase"), instance.getConfig()
-				.getString("dbUser"), instance.getConfig().getString(
-				"dbPassword"));
+		MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
 
 		try {
 			// TODO: Change to update DB based on UUID
-			final Connection d = MySQL.openConnection();
-			Statement dStmt = d.createStatement();
-			dStmt.executeUpdate("UPDATE `rp_PlayerInfo` SET SoulCount=SoulCount+"
+			Connection connection = MySQL.openConnection();
+			Statement statement = connection.createStatement();
+			statement.executeUpdate("UPDATE `rp_PlayerInfo` SET SoulCount=SoulCount+"
 					+ addition + " WHERE LastIP='" + this.getIP()
 					+ "';");
-			d.close();
+			connection.close();
 			// Update the player object directly since the DB change was
 			// successful
 			this.soulCount =  this.soulCount  + addition;
@@ -965,22 +875,18 @@ public class RunicPlayerBukkit {
 	 */
 
 	public boolean setPlayerTokenBalance(int newBalance) {
-		MySQL MySQL = new MySQL(instance, instance.getConfig().getString(
-				"dbHost"), instance.getConfig().getString("dbPort"), instance
-				.getConfig().getString("dbDatabase"), instance.getConfig()
-				.getString("dbUser"), instance.getConfig().getString(
-				"dbPassword"));
+		MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
 
 		int lifetimeBalanceIncrement = newBalance - this.tokenBalance;
 
 		try {
 			// TODO: Change to update DB based on UUID
-			final Connection d = MySQL.openConnection();
-			Statement dStmt = d.createStatement();
-			dStmt.executeUpdate("UPDATE `rp_PlayerInfo` SET Tokens='"
+			Connection connection = MySQL.openConnection();
+			Statement statement = connection.createStatement();
+			statement.executeUpdate("UPDATE `rp_PlayerInfo` SET Tokens='"
 					+ newBalance + "' WHERE PlayerName='" + this.playerName
 					+ "';");
-			d.close();
+			connection.close();
 			this.sendMessageToPlayer("Your new token balance is " + newBalance
 					+ "! Spend them at /games 2");
 			// Update the player object directly since the DB change was
@@ -1026,12 +932,11 @@ public class RunicPlayerBukkit {
 	 */
 
 	public void refreshPlayerObject(OfflinePlayer player) {
-
 		this.playerName = player.getName();
 		
 		try {
 			this.playerDisplayName = player.getPlayer().getDisplayName();
-			this.isStaff = player.getPlayer().hasPermission("rp.staff") ? true : false;	
+			this.isStaff = player.getPlayer().hasPermission("rp.staff");
 		} catch (Exception e) {
 			this.playerDisplayName = player.getName();
 			this.isStaff = false;
@@ -1040,19 +945,15 @@ public class RunicPlayerBukkit {
 		
 		this.playerUUID = player.getUniqueId();
 
-		MySQL MySQL = new MySQL(instance, instance.getConfig().getString(
-				"dbHost"), instance.getConfig().getString("dbPort"), instance
-				.getConfig().getString("dbDatabase"), instance.getConfig()
-				.getString("dbUser"), instance.getConfig().getString(
-				"dbPassword"));
+		MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
 
 		try {
 			// TODO: Get data from DB based on UUID to protect vs name changes
-			final Connection d = MySQL.openConnection();
-			Statement dStmt = d.createStatement();
+			Connection connection = MySQL.openConnection();
+			Statement statement = connection.createStatement();
 
 			int jobsID = 0;
-			ResultSet jobPlayerIDResult = dStmt
+			ResultSet jobPlayerIDResult = statement
 					.executeQuery("SELECT ID FROM `Jobs_users` WHERE `player_uuid` = '"
 							+ this.getPlayerUUID().toString()
 							+ "' ORDER BY `id` ASC LIMIT 1;");
@@ -1063,7 +964,7 @@ public class RunicPlayerBukkit {
 				jobsID = jobPlayerIDResult.getInt("id");
 			}
 
-			ResultSet playerData = dStmt
+			ResultSet playerData = statement
 					.executeQuery("SELECT * FROM `rp_PlayerInfo` WHERE `PlayerName` = '"
 							+ this.playerName + "' ORDER BY `id` ASC LIMIT 1;");
 
@@ -1071,7 +972,7 @@ public class RunicPlayerBukkit {
 			// .executeQuery("SELECT job,level FROM `Jobs_jobs` WHERE `player_uuid` = '"+
 			// this.playerUUID + "' LIMIT 1;");
 
-			PreparedStatement dStmt2 = d
+			PreparedStatement dStmt2 = connection
 					.prepareStatement("SELECT job,level FROM Jobs_jobs WHERE userid = "
 							+ jobsID + " LIMIT 1;");
 
@@ -1089,7 +990,7 @@ public class RunicPlayerBukkit {
 				this.currentJobLevel = 0;
 			}
 
-			PreparedStatement dStmt3 = d
+			PreparedStatement dStmt3 = connection
 					.prepareStatement("SELECT SUM(Level) AS FPL FROM rp_PlayerFaiths WHERE UUID = ?;");
 			dStmt3.setString(1, this.getPlayerUUID());
 
@@ -1129,7 +1030,7 @@ public class RunicPlayerBukkit {
 				this.voteCount = playerData.getInt("Votes");
 				this.activeFaith = playerData.getString("ActiveFaith");
 
-				d.close();
+				connection.close();
 			}
 		} catch (SQLException e) {
 			getLogger().log(
@@ -1276,9 +1177,7 @@ public class RunicPlayerBukkit {
 //	}
 
 	public void givePlayerItemStack(ItemStack[] items) {
-
-		PlayerInventory inventory = Bukkit.getPlayer(this.playerUUID)
-				.getInventory();
+		PlayerInventory inventory = Bukkit.getPlayer(this.playerUUID).getInventory();
 
 		for (ItemStack item : items) {
 			if (item != null) {
@@ -1287,13 +1186,10 @@ public class RunicPlayerBukkit {
 
 		}
 		new BukkitRunnable() {
-
 			public void run() {
 				for (Player p : Bukkit.getOnlinePlayers())
 					p.updateInventory();
 			}
 		}.runTaskLater(instance, 0);
-
 	}
-
 }
