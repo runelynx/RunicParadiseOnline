@@ -491,7 +491,7 @@ class Ranks {
 					Ranks tempRank = new Ranks();
 					tempRank.congratsPromotion(user.getName(), "Baron");
 					logPromotion(user.getName(), "Baron", new Date().getTime());
-					RunicParadise.playerProfiles.get(user.getUniqueId()).setChatColor("YELLOW", true);
+					RunicParadise.playerProfiles.get(user.getUniqueId()).setChatColor(ChatColor.YELLOW, true);
 				} else {
 					// just checking... we're not executing the promotion!!
 					user.sendMessage(
@@ -565,7 +565,7 @@ class Ranks {
 					Ranks tempRank = new Ranks();
 					tempRank.congratsPromotion(user.getName(), "Duke");
 					logPromotion(user.getName(), "Duke", new Date().getTime());
-					RunicParadise.playerProfiles.get(user.getUniqueId()).setChatColor("GREEN", true);
+					RunicParadise.playerProfiles.get(user.getUniqueId()).setChatColor(ChatColor.GREEN, true);
 				}
 			} else {
 				ineligible = true;
@@ -658,7 +658,7 @@ class Ranks {
 					Ranks tempRank = new Ranks();
 					tempRank.congratsPromotion(user.getName(), "Master");
 					logPromotion(user.getName(), "Master", new Date().getTime());
-					RunicParadise.playerProfiles.get(user.getUniqueId()).setChatColor("RED", true);
+					RunicParadise.playerProfiles.get(user.getUniqueId()).setChatColor(ChatColor.RED, true);
 				}
 			} else {
 				ineligible = true;
@@ -757,7 +757,7 @@ class Ranks {
 					Ranks tempRank = new Ranks();
 					tempRank.congratsPromotion(user.getName(), "Champion");
 					logPromotion(user.getName(), "Champion", new Date().getTime());
-					RunicParadise.playerProfiles.get(user.getUniqueId()).setChatColor("DARK_PURPLE", true);
+					RunicParadise.playerProfiles.get(user.getUniqueId()).setChatColor(ChatColor.DARK_PURPLE, true);
 				}
 			} else {
 				ineligible = true;
@@ -862,7 +862,7 @@ class Ranks {
 					Ranks tempRank = new Ranks();
 					tempRank.congratsPromotion(user.getName(), "Warder");
 					logPromotion(user.getName(), "Warder", new Date().getTime());
-					RunicParadise.playerProfiles.get(user.getUniqueId()).setChatColor("LIGHT_PURPLE", true);
+					RunicParadise.playerProfiles.get(user.getUniqueId()).setChatColor(ChatColor.LIGHT_PURPLE, true);
 				}
 			} else {
 				ineligible = true;
@@ -952,7 +952,7 @@ class Ranks {
 					Ranks tempRank = new Ranks();
 					tempRank.congratsPromotion(user.getName(), "Slayer");
 					logPromotion(user.getName(), "Slayer", new Date().getTime());
-					RunicParadise.playerProfiles.get(user.getUniqueId()).setChatColor("BLUE", true);
+					RunicParadise.playerProfiles.get(user.getUniqueId()).setChatColor(ChatColor.BLUE, true);
 				}
 			} else {
 				ineligible = true;
@@ -1066,7 +1066,7 @@ class Ranks {
 					Ranks tempRank = new Ranks();
 					tempRank.congratsPromotion(user.getName(), "Hunter");
 					logPromotion(user.getName(), "Hunter", new Date().getTime());
-					RunicParadise.playerProfiles.get(user.getUniqueId()).setChatColor("BLUE", true);
+					RunicParadise.playerProfiles.get(user.getUniqueId()).setChatColor(ChatColor.BLUE, true);
 				}
 			} else {
 				ineligible = true;
@@ -1156,7 +1156,7 @@ class Ranks {
 					Ranks tempRank = new Ranks();
 					tempRank.congratsPromotion(user.getName(), "Guard");
 					logPromotion(user.getName(), "Guard", new Date().getTime());
-					RunicParadise.playerProfiles.get(user.getUniqueId()).setChatColor("DARK_AQUA", true);
+					RunicParadise.playerProfiles.get(user.getUniqueId()).setChatColor(ChatColor.DARK_AQUA, true);
 				}
 			} else {
 				ineligible = true;
@@ -1260,7 +1260,7 @@ class Ranks {
 					Ranks tempRank = new Ranks();
 					tempRank.congratsPromotion(user.getName(), "Keeper");
 					logPromotion(user.getName(), "Keeper", new Date().getTime());
-					RunicParadise.playerProfiles.get(user.getUniqueId()).setChatColor("AQUA", true);
+					RunicParadise.playerProfiles.get(user.getUniqueId()).setChatColor(ChatColor.AQUA, true);
 				}
 			} else {
 				ineligible = true;
@@ -1350,7 +1350,7 @@ class Ranks {
 					Ranks tempRank = new Ranks();
 					tempRank.congratsPromotion(user.getName(), "Brawler");
 					logPromotion(user.getName(), "Brawler", new Date().getTime());
-					RunicParadise.playerProfiles.get(user.getUniqueId()).setChatColor("GOLD", true);
+					RunicParadise.playerProfiles.get(user.getUniqueId()).setChatColor(ChatColor.GOLD, true);
 				}
 			} else {
 				ineligible = true;
@@ -1439,7 +1439,7 @@ class Ranks {
 					Ranks tempRank = new Ranks();
 					tempRank.congratsPromotion(user.getName(), "Singer");
 					logPromotion(user.getName(), "Singer", new Date().getTime());
-					RunicParadise.playerProfiles.get(user.getUniqueId()).setChatColor("YELLOW", true);
+					RunicParadise.playerProfiles.get(user.getUniqueId()).setChatColor(ChatColor.YELLOW, true);
 				}
 			} else {
 				ineligible = true;
@@ -1519,7 +1519,7 @@ class Ranks {
 					Ranks tempRank = new Ranks();
 					tempRank.congratsPromotion(user.getName(), "Runner");
 					logPromotion(user.getName(), "Runner", new Date().getTime());
-					RunicParadise.playerProfiles.get(user.getUniqueId()).setChatColor("DARK_GREEN", true);
+					RunicParadise.playerProfiles.get(user.getUniqueId()).setChatColor(ChatColor.DARK_GREEN, true);
 				} else {
 					// just checking... we're not executing the promotion!!
 					user.sendMessage(

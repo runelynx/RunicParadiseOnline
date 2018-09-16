@@ -999,7 +999,7 @@ public class Commands implements CommandExecutor {
 				}
 				Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "faith enable " + p.getName() + " Sun");
 
-				RunicParadise.playerProfiles.get(p.getUniqueId()).setChatColor("GREEN", true);
+				RunicParadise.playerProfiles.get(p.getUniqueId()).setChatColor(ChatColor.GREEN, true);
 			}
 		}
 	}
@@ -1020,7 +1020,7 @@ public class Commands implements CommandExecutor {
 			senderPlayer.adjustPlayerKarma(1);
 
 			addAttemptedPromotion(args[0], senderPlayer.getPlayerName());
-			RunicParadise.playerProfiles.get((Bukkit.getPlayer(args[0])).getUniqueId()).setChatColor("GREEN", true);
+			RunicParadise.playerProfiles.get((Bukkit.getPlayer(args[0])).getUniqueId()).setChatColor(ChatColor.GREEN, true);
 
 		} else if (checkAttemptedPromotion(args[0], sender.getName()) == 0
 				&& RunicParadise.newReadyPlayer.containsKey(Bukkit.getPlayer(args[0]).getName())) {
@@ -1051,7 +1051,7 @@ public class Commands implements CommandExecutor {
 			Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "faith setlevel " + args[0] + " Sun 0");
 			Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "faith enable " + args[0] + " Sun");
 
-			RunicParadise.playerProfiles.get((Bukkit.getPlayer(args[0])).getUniqueId()).setChatColor("GREEN", true);
+			RunicParadise.playerProfiles.get((Bukkit.getPlayer(args[0])).getUniqueId()).setChatColor(ChatColor.GREEN, true);
 		}
 	}
 

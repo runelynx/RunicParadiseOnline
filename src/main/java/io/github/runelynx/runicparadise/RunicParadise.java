@@ -1171,52 +1171,52 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 
 			} else if (event.getSlot() == 28 && event.getWhoClicked().hasPermission("rp.chatcolors.green")) {
 
-				playerProfiles.get(event.getWhoClicked().getUniqueId()).setChatColor("GREEN", true);
+				playerProfiles.get(event.getWhoClicked().getUniqueId()).setChatColor(ChatColor.GREEN, true);
 
 			} else if (event.getSlot() == 29
 					&& event.getWhoClicked().hasPermission("rp.chatcolors.dark_green")) {
 
-				playerProfiles.get(event.getWhoClicked().getUniqueId()).setChatColor("DARK_GREEN", true);
+				playerProfiles.get(event.getWhoClicked().getUniqueId()).setChatColor(ChatColor.DARK_GREEN, true);
 
 			} else if (event.getSlot() == 30
 					&& event.getWhoClicked().hasPermission("rp.chatcolors.yellow")) {
 
-				playerProfiles.get(event.getWhoClicked().getUniqueId()).setChatColor("YELLOW", true);
+				playerProfiles.get(event.getWhoClicked().getUniqueId()).setChatColor(ChatColor.YELLOW, true);
 
 			} else if (event.getSlot() == 31 && event.getWhoClicked().hasPermission("rp.chatcolors.gold")) {
 
-				playerProfiles.get(event.getWhoClicked().getUniqueId()).setChatColor("GOLD", true);
+				playerProfiles.get(event.getWhoClicked().getUniqueId()).setChatColor(ChatColor.GOLD, true);
 
 			} else if (event.getSlot() == 32 && event.getWhoClicked().hasPermission("rp.chatcolors.aqua")) {
 
-				playerProfiles.get(event.getWhoClicked().getUniqueId()).setChatColor("AQUA", true);
+				playerProfiles.get(event.getWhoClicked().getUniqueId()).setChatColor(ChatColor.AQUA, true);
 
 			} else if (event.getSlot() == 33
 					&& event.getWhoClicked().hasPermission("rp.chatcolors.dark_aqua")) {
 
-				playerProfiles.get(event.getWhoClicked().getUniqueId()).setChatColor("DARK_AQUA", true);
+				playerProfiles.get(event.getWhoClicked().getUniqueId()).setChatColor(ChatColor.DARK_AQUA, true);
 
 			} else if (event.getSlot() == 34 && event.getWhoClicked().hasPermission("rp.chatcolors.blue")) {
 
-				playerProfiles.get(event.getWhoClicked().getUniqueId()).setChatColor("BLUE", true);
+				playerProfiles.get(event.getWhoClicked().getUniqueId()).setChatColor(ChatColor.BLUE, true);
 
 			} else if (event.getSlot() == 38
 					&& event.getWhoClicked().hasPermission("rp.chatcolors.light_purple")) {
 
-				playerProfiles.get(event.getWhoClicked().getUniqueId()).setChatColor("LIGHT_PURPLE", true);
+				playerProfiles.get(event.getWhoClicked().getUniqueId()).setChatColor(ChatColor.LIGHT_PURPLE, true);
 
 			} else if (event.getSlot() == 39
 					&& event.getWhoClicked().hasPermission("rp.chatcolors.dark_purple")) {
 
-				playerProfiles.get(event.getWhoClicked().getUniqueId()).setChatColor("DARK_PURPLE", true);
+				playerProfiles.get(event.getWhoClicked().getUniqueId()).setChatColor(ChatColor.DARK_PURPLE, true);
 
 			} else if (event.getSlot() == 41 && event.getWhoClicked().hasPermission("rp.chatcolors.red")) {
 
-				playerProfiles.get(event.getWhoClicked().getUniqueId()).setChatColor("RED", true);
+				playerProfiles.get(event.getWhoClicked().getUniqueId()).setChatColor(ChatColor.RED, true);
 
 			} else if (event.getSlot() == 42 && event.getWhoClicked().hasPermission("rp.chatcolors.white")) {
 
-				playerProfiles.get(event.getWhoClicked().getUniqueId()).setChatColor("WHITE", true);
+				playerProfiles.get(event.getWhoClicked().getUniqueId()).setChatColor(ChatColor.WHITE, true);
 
 			}
 

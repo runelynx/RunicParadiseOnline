@@ -15,10 +15,8 @@ import org.bukkit.plugin.Plugin;
 import java.sql.*;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.UUID;
 import java.util.logging.Level;
 
 import static org.bukkit.Bukkit.getLogger;
@@ -75,71 +73,17 @@ public class RunicProfile {
 		return this.playerUUID;
 	}
 
-	void setChatColor(String newSetting, boolean updateDB) {
-		boolean error = false;
-
-		switch (newSetting) {
-		case "WHITE":
-			this.chatColor = ChatColor.WHITE + "";
-			break;
-		case "GREEN":
-		case "Seeker":
-			this.chatColor = ChatColor.GREEN + "";
-			break;
-		case "DARK_GREEN":
-		case "Runner":
-			this.chatColor = ChatColor.DARK_GREEN + "";
-			break;
-		case "YELLOW":
-		case "Singer":
-			this.chatColor = ChatColor.YELLOW + "";
-			break;
-		case "GOLD":
-		case "Brawler":
-			this.chatColor = ChatColor.GOLD + "";
-			break;
-		case "AQUA":
-		case "Keeper":
-			this.chatColor = ChatColor.AQUA + "";
-			break;
-		case "DARK_AQUA":
-		case "Guard":
-			this.chatColor = ChatColor.DARK_AQUA + "";
-			break;
-		case "BLUE":
-		case "Hunter":
-			this.chatColor = ChatColor.BLUE + "";
-			break;
-		case "LIGHT_PURPLE":
-		case "Warder":
-			this.chatColor = ChatColor.LIGHT_PURPLE + "";
-			break;
-		case "DARK_PURPLE":
-		case "Champion":
-			this.chatColor = ChatColor.DARK_PURPLE + "";
-			break;
-		case "RED":
-		case "Master":
-			this.chatColor = ChatColor.RED + "";
-			break;
-		case "GRAY":
-		case "Ghost":
-			this.chatColor = ChatColor.GRAY + "";
-			break;
-		default:
-			error = true;
-			break;
-		}
-
-		if (updateDB && !error) {
+	void setChatColor(ChatColor newSetting, boolean updateDB) {
+		this.chatColor = newSetting.toString();
+		if (updateDB) {
 			MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
 
 			try {
 				Connection connection = MySQL.openConnection();
 
-				PreparedStatement dStmt2 = connection.prepareStatement("UPDATE rp_PlayerInfo SET ChatColor ='" + newSetting + "' WHERE UUID = ?");
-				dStmt2.setString(1, this.getPlayerID().toString());
-				dStmt2.executeUpdate();
+				PreparedStatement statement = connection.prepareStatement("UPDATE rp_PlayerInfo SET ChatColor ='" + newSetting.toString() + "' WHERE UUID = ?");
+				statement.setString(1, this.getPlayerID().toString());
+				statement.executeUpdate();
 
 				connection.close();
 			} catch (SQLException e) {
@@ -148,13 +92,26 @@ public class RunicProfile {
 		}
 	}
 
-	public String getChatColor() {
-		return this.chatColor;
-
+	void setChatColor(String newSetting, boolean updateDB) {
+		ChatColor color;
+		try {
+			color = ChatColor.valueOf(newSetting);
+		} catch (IllegalArgumentException e) {
+			Optional<Map.Entry<String, ChatColor>> result  = RunicParadise.rankColors.entrySet().stream().filter(x -> x.getKey().equalsIgnoreCase(newSetting)).findFirst();
+			if (result.isPresent()) {
+				color = result.get().getValue();
+			} else {
+				return;
+			}
+		}
+		setChatColor(color, updateDB);
 	}
 
-	public void changeGender(String T_toggle_M_male_F_female, Boolean updateDB) {
+	public String getChatColor() {
+		return this.chatColor;
+	}
 
+	public void changeGender(String T_toggle_M_male_F_female, boolean updateDB) {
 		char newGender = 'M';
 
 		char entry = T_toggle_M_male_F_female.charAt(0);
