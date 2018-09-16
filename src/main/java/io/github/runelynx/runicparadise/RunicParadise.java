@@ -50,7 +50,7 @@ import java.util.logging.Logger;
 public final class RunicParadise extends JavaPlugin implements Listener, PluginMessageListener {
 
 	private static Plugin instance;
-	private static final Logger log = Logger.getLogger("Minecraft");
+	private static final Logger log = Bukkit.getLogger();
 	public static Permission perms = null;
 	public static Economy economy = null;
 	public static final long PUZZLE_REPEAT_TIME = 518400000;
@@ -1450,7 +1450,6 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 					faith = "Fire";
 				}
 				break;
-
 			case 12:
 				if (event.getWhoClicked().hasPermission("rp.faith.water")) {
 					faith = "Water";
@@ -1513,9 +1512,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 				getServer().dispatchCommand(getServer().getConsoleSender(),
 						"faith enable " + event.getWhoClicked().getName() + " " + faith);
 			}
-
 		}
-
 	}
 
 	@EventHandler
@@ -2593,32 +2590,27 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 		final String playerName = name;
 		final UUID playerUUID = pUUID;
 
-		Bukkit.getServer().getScheduler().runTaskAsynchronously(instance, new Runnable() {
-			public void run() {
+		Bukkit.getServer().getScheduler().runTaskAsynchronously(instance, () -> {
+			MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
+			Connection connection = MySQL.openConnection();
 
-				MySQL MySQL = new MySQL(instance, instance.getConfig().getString("dbHost"),
-						instance.getConfig().getString("dbPort"), instance.getConfig().getString("dbDatabase"),
-						instance.getConfig().getString("dbUser"), instance.getConfig().getString("dbPassword"));
-				final Connection dbConn = MySQL.openConnection();
+			try {
 
-				try {
+				PreparedStatement statement = connection
+						.prepareStatement("UPDATE `rp_PlayerInfo` SET LastSeen=? WHERE UUID=?;");
+				statement.setLong(1, now.getTime());
+				statement.setString(2, playerUUID.toString());
+				statement.executeUpdate();
+				statement.close();
+				Bukkit.getLogger().log(Level.INFO, "[RP] PlayerInfo data updated for " + playerName);
+				connection.close();
 
-					PreparedStatement dStmt = dbConn
-							.prepareStatement("UPDATE `rp_PlayerInfo` SET LastSeen=? WHERE UUID=?;");
-					dStmt.setLong(1, now.getTime());
-					dStmt.setString(2, playerUUID.toString());
-					dStmt.executeUpdate();
-					dStmt.close();
-					Bukkit.getLogger().log(Level.INFO, "[RP] PlayerInfo data updated for " + playerName);
-					dbConn.close();
-
-				} catch (SQLException e) {
-					getLogger().log(Level.SEVERE, "Cant work with DB updatePlayerInfoOnquit for " + playerName
-							+ " because: " + e.getMessage());
-				}
-
+			} catch (SQLException e) {
+				getLogger().log(Level.SEVERE, "Cant work with DB updatePlayerInfoOnquit for " + playerName
+						+ " because: " + e.getMessage());
 			}
-		}); // end run task async
+
+		});
 	}
 
 	private boolean setupPermissions() {
@@ -2740,70 +2732,66 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 
 			final PlayerDeathEvent innerEvent = event;
 
-			Bukkit.getServer().getScheduler().runTaskAsynchronously(instance, new Runnable() {
-				public void run() {
+			Bukkit.getServer().getScheduler().runTaskAsynchronously(instance, () -> {
+				Player player = innerEvent.getEntity();
+				String cause = "";
+				String killerName = "";
 
-					Player player = innerEvent.getEntity();
-					String cause = "";
-					String killerName = "";
+				if (RunicGateway.getLastEntityDamager(player) != null) {
+					Entity killer = RunicGateway.getLastEntityDamager(player);
 
-					if (RunicGateway.getLastEntityDamager(player) != null) {
-						Entity killer = RunicGateway.getLastEntityDamager(player);
+					if (killer instanceof Player) {
+						Player k = (Player) killer;
+						killerName = k.getName();
 
-						if (killer instanceof Player) {
-							Player k = (Player) killer;
-							killerName = k.getName();
-
-							cause = "PLAYER_KILL";
-						} else {
-							// Not a player... so maybe a mob :)
-							killerName = killer.getType().toString();
-							EntityDamageEvent ede = player.getLastDamageCause();
-							DamageCause dc = ede.getCause();
-							cause = dc.toString();
-						}
+						cause = "PLAYER_KILL";
 					} else {
-						// death not caused by an entity; entity check
-						// returned null
+						// Not a player... so maybe a mob :)
+						killerName = killer.getType().toString();
 						EntityDamageEvent ede = player.getLastDamageCause();
 						DamageCause dc = ede.getCause();
 						cause = dc.toString();
-						killerName = cause;
 					}
-
-					String uuid = player.getUniqueId().toString();
-					String name = player.getName();
-					String loc = innerEvent.getEntity().getLocation().toString();
-
-					// String pvp =
-					// event.getEntity().getKiller().toString();
-					long time = new Date().getTime();
-
-					MySQL MySQL = new MySQL(instance, instance.getConfig().getString("dbHost"),
-							instance.getConfig().getString("dbPort"), instance.getConfig().getString("dbDatabase"),
-							instance.getConfig().getString("dbUser"), instance.getConfig().getString("dbPassword"));
-					final Connection e = MySQL.openConnection();
-					// do the insert
-					try {
-						Statement eStmt = e.createStatement();
-						eStmt.executeUpdate(
-								"INSERT INTO rp_PlayerDeath (`PlayerName`, `UUID`, `TimeStamp`, `CauseOfDeath`, `Killer`, `Location`) VALUES "
-										+ "('" + name + "', '" + uuid + "', '" + time + "', '" + cause + "', '"
-										+ killerName + "', '" + loc + "');");
-					} catch (SQLException err) {
-						getLogger().log(Level.SEVERE,
-								"Cant create new row PlayerDeath for " + name + " because: " + err.getMessage());
-					}
-					// close the connection
-					try {
-						e.close();
-					} catch (SQLException err) {
-						getLogger().log(Level.SEVERE,
-								"Cant close conn PlayerDeath for " + name + " because: " + err.getMessage());
-					}
-					player = null;
+				} else {
+					// death not caused by an entity; entity check
+					// returned null
+					EntityDamageEvent ede = player.getLastDamageCause();
+					DamageCause dc = ede.getCause();
+					cause = dc.toString();
+					killerName = cause;
 				}
 
+				String uuid = player.getUniqueId().toString();
+				String name = player.getName();
+				String loc = innerEvent.getEntity().getLocation().toString();
+
+				// String pvp =
+				// event.getEntity().getKiller().toString();
+				long time = new Date().getTime();
+
+				MySQL MySQL = new MySQL(instance, instance.getConfig().getString("dbHost"),
+						instance.getConfig().getString("dbPort"), instance.getConfig().getString("dbDatabase"),
+						instance.getConfig().getString("dbUser"), instance.getConfig().getString("dbPassword"));
+				final Connection e = MySQL.openConnection();
+				// do the insert
+				try {
+					Statement eStmt = e.createStatement();
+					eStmt.executeUpdate(
+							"INSERT INTO rp_PlayerDeath (`PlayerName`, `UUID`, `TimeStamp`, `CauseOfDeath`, `Killer`, `Location`) VALUES "
+									+ "('" + name + "', '" + uuid + "', '" + time + "', '" + cause + "', '"
+									+ killerName + "', '" + loc + "');");
+				} catch (SQLException err) {
+					getLogger().log(Level.SEVERE,
+							"Cant create new row PlayerDeath for " + name + " because: " + err.getMessage());
+				}
+				// close the connection
+				try {
+					e.close();
+				} catch (SQLException err) {
+					getLogger().log(Level.SEVERE,
+							"Cant close conn PlayerDeath for " + name + " because: " + err.getMessage());
+				}
+				player = null;
 			}); // end run task async
 		}
 	}

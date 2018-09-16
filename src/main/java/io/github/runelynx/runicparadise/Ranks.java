@@ -303,11 +303,8 @@ class Ranks {
 					+ " To learn about perks: http://www.runic-paradise.com/ranks.php");
 			Bukkit.dispatchCommand(Bukkit.getConsoleSender(),
 					"sc Converting " + user.getName() + " from " + rank + " to " + newRank);
-			Bukkit.getServer().getScheduler().scheduleAsyncDelayedTask(RunicParadise.getInstance(), new Runnable() {
-				public void run() {
-					Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "faith enable " + user.getName() + " Sun");
-				}
-			}, 60);
+			Bukkit.getServer().getScheduler().scheduleAsyncDelayedTask(RunicParadise.getInstance(),
+					() -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "faith enable " + user.getName() + " Sun"), 60);
 		}
 	}
 

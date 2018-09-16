@@ -130,26 +130,20 @@ public class RunicProfile {
 
 		if (updateDB) {
 
-			MySQL MySQL = new MySQL(instance, instance.getConfig().getString("dbHost"),
-					instance.getConfig().getString("dbPort"), instance.getConfig().getString("dbDatabase"),
-					instance.getConfig().getString("dbUser"), instance.getConfig().getString("dbPassword"));
+			MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
 
 			try {
-				final Connection d = MySQL.openConnection();
+				Connection connection = MySQL.openConnection();
 
-				PreparedStatement dStmt2 = d
-						.prepareStatement("UPDATE rp_PlayerInfo SET Gender ='" + newGender + "' WHERE UUID = ?");
-				dStmt2.setString(1, this.getPlayerID().toString());
-				dStmt2.executeUpdate();
+				PreparedStatement statement = connection.prepareStatement("UPDATE rp_PlayerInfo SET Gender ='" + newGender + "' WHERE UUID = ?");
+				statement.setString(1, this.getPlayerID().toString());
+				statement.executeUpdate();
 
-				d.close();
-
+				connection.close();
 			} catch (SQLException e) {
 				getLogger().log(Level.SEVERE, "Failed setGender because: " + e.getMessage());
-
 			}
 		}
-
 	}
 
 	public char getGender() {

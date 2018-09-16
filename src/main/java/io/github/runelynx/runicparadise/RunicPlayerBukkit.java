@@ -1276,9 +1276,7 @@ public class RunicPlayerBukkit {
 //	}
 
 	public void givePlayerItemStack(ItemStack[] items) {
-
-		PlayerInventory inventory = Bukkit.getPlayer(this.playerUUID)
-				.getInventory();
+		PlayerInventory inventory = Bukkit.getPlayer(this.playerUUID).getInventory();
 
 		for (ItemStack item : items) {
 			if (item != null) {
@@ -1287,13 +1285,10 @@ public class RunicPlayerBukkit {
 
 		}
 		new BukkitRunnable() {
-
 			public void run() {
 				for (Player p : Bukkit.getOnlinePlayers())
 					p.updateInventory();
 			}
 		}.runTaskLater(instance, 0);
-
 	}
-
 }

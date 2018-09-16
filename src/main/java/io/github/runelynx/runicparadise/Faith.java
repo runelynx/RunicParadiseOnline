@@ -1221,11 +1221,7 @@ public class Faith {
 			RunicParadise.protectedPlayers.put(p.getUniqueId(), p.getDisplayName());
 
 			// schedule removal of protection 80 tickets out
-			Bukkit.getServer().getScheduler().scheduleAsyncDelayedTask(instance, new Runnable() {
-				public void run() {
-					RunicParadise.protectedPlayers.remove(p.getUniqueId());
-				}
-			}, 100);
+			Bukkit.getServer().getScheduler().scheduleAsyncDelayedTask(instance, () -> RunicParadise.protectedPlayers.remove(p.getUniqueId()), 100);
 
 			// stop all nearby monsters from targeting players
 			final List<Entity> nearby = p.getNearbyEntities(15, 15, 15);
