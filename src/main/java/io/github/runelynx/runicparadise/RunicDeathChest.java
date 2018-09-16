@@ -33,18 +33,16 @@ public class RunicDeathChest implements Serializable {
 
 	public static String checkLocForDeath(Location loc) {
 		final Plugin instance = RunicParadise.getInstance();
-		MySQL MySQL = new MySQL(instance, instance.getConfig().getString("dbHost"),
-				instance.getConfig().getString("dbPort"), instance.getConfig().getString("dbDatabase"),
-				instance.getConfig().getString("dbUser"), instance.getConfig().getString("dbPassword"));
+		MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
 
 		String strToCheck = loc.getWorld().getName() + "." + loc.getBlockX() + "." + loc.getBlockY() + "."
 				+ loc.getBlockZ();
 
 		try {
 			// TODO: Get data from DB based on UUID to protect vs name changes
-			final Connection d = MySQL.openConnection();
-			Statement dStmt = d.createStatement();
-			ResultSet graveData = dStmt
+			Connection connection = MySQL.openConnection();
+			Statement statement = connection.createStatement();
+			ResultSet graveData = statement
 					.executeQuery("SELECT PlayerName,Status FROM `rp_PlayerGraves` WHERE Location = '" + strToCheck
 							+ "' AND Status != 'Gone' ORDER BY ID ASC LIMIT 1;");
 			// AND
@@ -61,11 +59,11 @@ public class RunicDeathChest implements Serializable {
 				if (graveData.getString("Status").equals("Locked")) {
 					// Grave is still locked; return owner name
 					String pname = graveData.getString("PlayerName");
-					d.close();
+					connection.close();
 					return pname;
 				} else {
 					// Grave is OPEN!
-					d.close();
+					connection.close();
 					return "Unlocked";
 				}
 
@@ -93,10 +91,7 @@ public class RunicDeathChest implements Serializable {
 	 * public static void savePlayerDeath(Player player, Location loc) { final
 	 * Plugin instance = RunicParadise.getInstance();
 	 * 
-	 * MySQL MySQL = new MySQL(instance, instance.getConfig().getString(
-	 * "dbHost"), instance.getConfig().getString("dbPort"), instance
-	 * .getConfig().getString("dbDatabase"), instance.getConfig()
-	 * .getString("dbUser"), instance.getConfig().getString( "dbPassword"));
+	 * MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
 	 * final Connection e = MySQL.openConnection(); // Establish ID for new
 	 * storing this death long newDeathID = new Date().getTime();
 	 * 
@@ -208,28 +203,23 @@ public class RunicDeathChest implements Serializable {
 			playerAtGrave.sendMessageToPlayer(ChatColor.DARK_GRAY + "[RunicReaper] " + ChatColor.GRAY
 					+ "You have retrieved your items, if there were any to retrieve.");
 			// remove data
-			final Plugin instance = RunicParadise.getInstance();
+			Plugin instance = RunicParadise.getInstance();
 
-			MySQL MySQL = new MySQL(instance, instance.getConfig().getString("dbHost"),
-					instance.getConfig().getString("dbPort"), instance.getConfig().getString("dbDatabase"),
-					instance.getConfig().getString("dbUser"), instance.getConfig().getString("dbPassword"));
-			final Connection d = MySQL.openConnection();
+			MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
+			Connection connection = MySQL.openConnection();
 
 			try {
-
-				Statement dStmt = d.createStatement();
-				dStmt.executeUpdate(
+				Statement statement = connection.createStatement();
+				statement.executeUpdate(
 						"UPDATE `rp_PlayerGraves` SET InvBlob=null, LooterName='" + playerAtGrave.getPlayerName()
 								+ "',LootTime=" + new Date().getTime() + " WHERE ID=" + graveID + ";");
-				d.close();
+				connection.close();
 				return true;
 			} catch (SQLException err) {
 				getLogger().log(Level.SEVERE, "Error updating invBlob because: " + err.getMessage());
 				return false;
 			}
-
 		}
-
 	}
 
 	public static boolean handleOffhand(ItemStack item, RunicPlayerBukkit playerAtGrave, int graveID) {
@@ -252,26 +242,21 @@ public class RunicDeathChest implements Serializable {
 			// remove data
 			final Plugin instance = RunicParadise.getInstance();
 
-			MySQL MySQL = new MySQL(instance, instance.getConfig().getString("dbHost"),
-					instance.getConfig().getString("dbPort"), instance.getConfig().getString("dbDatabase"),
-					instance.getConfig().getString("dbUser"), instance.getConfig().getString("dbPassword"));
-			final Connection d = MySQL.openConnection();
-			String emptyJSON = "";
+			MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
+			Connection connection = MySQL.openConnection();
 			try {
-				emptyJSON = "[{\"amount\":0,\"id\":0,\"index\":0,\"data\":-1}]";
-				Statement dStmt = d.createStatement();
+				String emptyJSON = "[{\"amount\":0,\"id\":0,\"index\":0,\"data\":-1}]";
+				Statement dStmt = connection.createStatement();
 				dStmt.executeUpdate("UPDATE `rp_PlayerGraves` SET OffhandItemStack='" + emptyJSON + "',LooterName='"
 						+ playerAtGrave.getPlayerName() + "',LootTime=" + new Date().getTime() + " WHERE ID=" + graveID
 						+ ";");
-				d.close();
+				connection.close();
 				return true;
 			} catch (SQLException err) {
 				getLogger().log(Level.SEVERE, "Error updating OffhandItemStack because: " + err.getMessage());
 				return false;
 			}
-
 		}
-
 	}
 
 	public static boolean handleArmor(ItemStack[] armor, RunicPlayerBukkit playerAtGrave, int graveID) {
@@ -296,25 +281,21 @@ public class RunicDeathChest implements Serializable {
 			// remove data
 			final Plugin instance = RunicParadise.getInstance();
 
-			MySQL MySQL = new MySQL(instance, instance.getConfig().getString("dbHost"),
-					instance.getConfig().getString("dbPort"), instance.getConfig().getString("dbDatabase"),
-					instance.getConfig().getString("dbUser"), instance.getConfig().getString("dbPassword"));
-			final Connection d = MySQL.openConnection();
+			MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
+			Connection connection = MySQL.openConnection();
 
 			try {
-				Statement dStmt = d.createStatement();
-				dStmt.executeUpdate(
+				Statement statement = connection.createStatement();
+				statement.executeUpdate(
 						"UPDATE `rp_PlayerGraves` SET EquipBlob=null,LooterName='" + playerAtGrave.getPlayerName()
 								+ "',LootTime=" + new Date().getTime() + " WHERE ID=" + graveID + ";");
-				d.close();
+				connection.close();
 				return true;
 			} catch (SQLException err) {
 				getLogger().log(Level.SEVERE, "Error updating equipBlob because: " + err.getMessage());
 				return false;
 			}
-
 		}
-
 	}
 
 	public static boolean handleLevels(int graveID, RunicPlayerBukkit playerAtGrave, int lostLevels, boolean isOwner) {
@@ -383,14 +364,12 @@ public class RunicDeathChest implements Serializable {
 			// check ownership
 			// Retrieve deathID
 			final Plugin instance = RunicParadise.getInstance();
-			MySQL MySQL = new MySQL(instance, instance.getConfig().getString("dbHost"),
-					instance.getConfig().getString("dbPort"), instance.getConfig().getString("dbDatabase"),
-					instance.getConfig().getString("dbUser"), instance.getConfig().getString("dbPassword"));
-			final Connection d = MySQL.openConnection();
+			MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
+			Connection connection = MySQL.openConnection();
 
 			try {
-				Statement dStmt = d.createStatement();
-				ResultSet graveData = dStmt.executeQuery("SELECT * FROM `rp_PlayerGraves` WHERE `ID`=" + graveNum
+				Statement statement = connection.createStatement();
+				ResultSet graveData = statement.executeQuery("SELECT * FROM `rp_PlayerGraves` WHERE `ID`=" + graveNum
 						+ " AND `PlayerName` = '" + playerName + "' AND `Status` != 'Gone' ORDER BY `id` ASC LIMIT 1;");
 				// if (!playerData.first() && !playerData.next()) {
 				if (!graveData.isBeforeFirst()) {
@@ -424,18 +403,16 @@ public class RunicDeathChest implements Serializable {
 
 		// Retrieve deathID
 		final Plugin instance = RunicParadise.getInstance();
-		MySQL MySQL = new MySQL(instance, instance.getConfig().getString("dbHost"),
-				instance.getConfig().getString("dbPort"), instance.getConfig().getString("dbDatabase"),
-				instance.getConfig().getString("dbUser"), instance.getConfig().getString("dbPassword"));
+		MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
 
 		String strToCheck = loc.getWorld().getName() + "." + loc.getBlockX() + "." + loc.getBlockY() + "."
 				+ loc.getBlockZ();
 
 		try {
 			// TODO: Get data from DB based on UUID to protect vs name changes
-			final Connection d = MySQL.openConnection();
-			Statement dStmt = d.createStatement();
-			ResultSet graveData = dStmt.executeQuery("SELECT * FROM `rp_PlayerGraves` WHERE `Location` = '" + strToCheck
+			Connection connection = MySQL.openConnection();
+			Statement statement = connection.createStatement();
+			ResultSet graveData = statement.executeQuery("SELECT * FROM `rp_PlayerGraves` WHERE `Location` = '" + strToCheck
 					+ "' AND `Status` != 'Gone' ORDER BY `id` ASC LIMIT 1;");
 			// if (!playerData.first() && !playerData.next()) {
 			if (!graveData.isBeforeFirst()) {
@@ -467,7 +444,7 @@ public class RunicDeathChest implements Serializable {
 					// Everything finished OK!
 					// remove the rest of this data
 
-					dStmt.executeUpdate(
+					statement.executeUpdate(
 							"UPDATE `rp_PlayerGraves` SET Status='Gone' WHERE ID=" + graveData.getInt("ID") + ";");
 
 					loc.getWorld().playEffect(loc, Effect.MOBSPAWNER_FLAMES, 0);
@@ -483,7 +460,7 @@ public class RunicDeathChest implements Serializable {
 					syncGraveLocations();
 				}
 
-				d.close();
+				connection.close();
 			}
 		} catch (SQLException z) {
 			getLogger().log(Level.SEVERE, "Failed DB check for restore grave cuz " + z.getMessage());
@@ -494,13 +471,11 @@ public class RunicDeathChest implements Serializable {
 	public static void listDeaths(Player commandSender, String playerSearch) {
 
 		final Plugin instance = RunicParadise.getInstance();
-		MySQL MySQL = new MySQL(instance, instance.getConfig().getString("dbHost"),
-				instance.getConfig().getString("dbPort"), instance.getConfig().getString("dbDatabase"),
-				instance.getConfig().getString("dbUser"), instance.getConfig().getString("dbPassword"));
+		MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
 
 		try {
-			final Connection d = MySQL.openConnection();
-			Statement dStmt = d.createStatement();
+			Connection connection = MySQL.openConnection();
+			Statement statement = connection.createStatement();
 			String searchQuery = "";
 			if (!playerSearch.equals("all")) {
 				searchQuery = "SELECT * FROM `rp_PlayerGraves` WHERE `PlayerName` LIKE '%" + playerSearch
@@ -508,7 +483,7 @@ public class RunicDeathChest implements Serializable {
 			} else {
 				searchQuery = "SELECT * FROM `rp_PlayerGraves` ORDER BY `id` DESC LIMIT 30;";
 			}
-			ResultSet graveData = dStmt.executeQuery(searchQuery);
+			ResultSet graveData = statement.executeQuery(searchQuery);
 			// if (!playerData.first() && !playerData.next()) {
 			if (!graveData.isBeforeFirst()) {
 				// No results
@@ -557,7 +532,7 @@ public class RunicDeathChest implements Serializable {
 					 */
 				}
 
-				d.close();
+				connection.close();
 			}
 
 		} catch (SQLException z) {
@@ -566,42 +541,40 @@ public class RunicDeathChest implements Serializable {
 
 	}
 
-	public static void graveTeleport(Player commandSender, int ID) {
+	public static void graveTeleport(Player sender, int ID) {
 
 		final Plugin instance = RunicParadise.getInstance();
-		MySQL MySQL = new MySQL(instance, instance.getConfig().getString("dbHost"),
-				instance.getConfig().getString("dbPort"), instance.getConfig().getString("dbDatabase"),
-				instance.getConfig().getString("dbUser"), instance.getConfig().getString("dbPassword"));
+		MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
 		try {
 			// TODO: Get data from DB based on UUID to protect vs name changes
-			final Connection d = MySQL.openConnection();
-			Statement dStmt = d.createStatement();
-			ResultSet graveData = dStmt.executeQuery(
+			Connection connection = MySQL.openConnection();
+			Statement statement = connection.createStatement();
+			ResultSet graveData = statement.executeQuery(
 					"SELECT * FROM `rp_PlayerGraves` WHERE `ID` = " + ID + " ORDER BY `id` DESC LIMIT 1;");
 			// if (!playerData.first() && !playerData.next()) {
 			if (!graveData.isBeforeFirst()) {
 				// No results
-				commandSender.sendMessage(ChatColor.DARK_GRAY + "[RunicReaper] " + ChatColor.GRAY
+				sender.sendMessage(ChatColor.DARK_GRAY + "[RunicReaper] " + ChatColor.GRAY
 						+ "No graves found. Invalid grave ID specified.");
-				d.close();
+				connection.close();
 				return;
 			} else {
 				// results found!
 				graveData.next();
-				commandSender.sendMessage(ChatColor.DARK_GRAY + "[RunicReaper] " + ChatColor.GRAY
+				sender.sendMessage(ChatColor.DARK_GRAY + "[RunicReaper] " + ChatColor.GRAY
 						+ "Sending you to grave ID " + ChatColor.YELLOW + ID + ChatColor.GRAY + " owned by "
 						+ ChatColor.YELLOW + graveData.getString("PlayerName"));
 				if (graveData.getString("Status").equals("Gone")) {
-					commandSender.sendMessage(ChatColor.GRAY + " This grave has been looted by " + ChatColor.YELLOW
+					sender.sendMessage(ChatColor.GRAY + " This grave has been looted by " + ChatColor.YELLOW
 							+ graveData.getString("LooterName") + ChatColor.GRAY + " @ " + ChatColor.YELLOW
 							+ new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm:ss")
 									.format(new java.util.Date(Long.parseLong(graveData.getString("LootTime")))));
 				}
 				String[] locParts = graveData.getString("Location").split("[\\x2E]");
-				commandSender.teleport(new Location(Bukkit.getWorld(locParts[0]), Integer.parseInt(locParts[1]),
+				sender.teleport(new Location(Bukkit.getWorld(locParts[0]), Integer.parseInt(locParts[1]),
 						Integer.parseInt(locParts[2]), Integer.parseInt(locParts[3])));
 
-				d.close();
+				connection.close();
 			}
 
 		} catch (SQLException z) {
@@ -618,19 +591,17 @@ public class RunicDeathChest implements Serializable {
 
 		// retrieve updated grave data
 		final Plugin instance = RunicParadise.getInstance();
-		MySQL MySQL = new MySQL(instance, instance.getConfig().getString("dbHost"),
-				instance.getConfig().getString("dbPort"), instance.getConfig().getString("dbDatabase"),
-				instance.getConfig().getString("dbUser"), instance.getConfig().getString("dbPassword"));
+		MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
 		try {
-			final Connection d = MySQL.openConnection();
-			Statement dStmt = d.createStatement();
-			ResultSet graveData = dStmt.executeQuery(
+			Connection connection = MySQL.openConnection();
+			Statement statement = connection.createStatement();
+			ResultSet graveData = statement.executeQuery(
 					"SELECT Location,ID,Status FROM rp_PlayerGraves WHERE Status != 'Gone' ORDER BY id DESC;");
 			// if (!playerData.first() && !playerData.next()) {
 			if (!graveData.isBeforeFirst()) {
 				// No results
 				// do nothing
-				d.close();
+				connection.close();
 				return;
 			} else {
 				// results found!
@@ -641,7 +612,7 @@ public class RunicDeathChest implements Serializable {
 					graveCount++;
 				}
 
-				d.close();
+				connection.close();
 
 				Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "sc " + graveCount + " graves loaded into memory!");
 			}
@@ -669,15 +640,13 @@ public class RunicDeathChest implements Serializable {
 		// check for expired graves - set their status to Unlocked
 		// retrieve updated grave data
 		final Plugin instance = RunicParadise.getInstance();
-		MySQL MySQL = new MySQL(instance, instance.getConfig().getString("dbHost"),
-				instance.getConfig().getString("dbPort"), instance.getConfig().getString("dbDatabase"),
-				instance.getConfig().getString("dbUser"), instance.getConfig().getString("dbPassword"));
+		MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
 		try {
-			final Connection d = MySQL.openConnection();
-			Statement dStmt = d.createStatement();
-			ResultSet graveData = dStmt.executeQuery("SELECT Location,ID FROM `rp_PlayerGraves` WHERE ExpiryTime<"
+			Connection connection = MySQL.openConnection();
+			Statement statement = connection.createStatement();
+			ResultSet graveData = statement.executeQuery("SELECT Location,ID FROM `rp_PlayerGraves` WHERE ExpiryTime<"
 					+ new Date().getTime() + " AND Status='Locked' ORDER BY ID DESC;");
-			int expiries = dStmt.executeUpdate("UPDATE `rp_PlayerGraves` SET Status='Unlocked' WHERE ExpiryTime<"
+			int expiries = statement.executeUpdate("UPDATE `rp_PlayerGraves` SET Status='Unlocked' WHERE ExpiryTime<"
 					+ new Date().getTime() + " AND Status='Locked';");
 
 			if (expiries > 0) {
@@ -688,7 +657,7 @@ public class RunicDeathChest implements Serializable {
 				}
 			}
 
-			d.close();
+			connection.close();
 
 			syncGraveLocations();
 
@@ -701,21 +670,18 @@ public class RunicDeathChest implements Serializable {
 	public static void unlockGrave(Player commandSender, int ID) {
 
 		final Plugin instance = RunicParadise.getInstance();
-		MySQL MySQL = new MySQL(instance, instance.getConfig().getString("dbHost"),
-				instance.getConfig().getString("dbPort"), instance.getConfig().getString("dbDatabase"),
-				instance.getConfig().getString("dbUser"), instance.getConfig().getString("dbPassword"));
+		MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
 		try {
-
-			final Connection d = MySQL.openConnection();
-			Statement dStmt = d.createStatement();
-			ResultSet graveData = dStmt.executeQuery(
+			Connection connection = MySQL.openConnection();
+			Statement statement = connection.createStatement();
+			ResultSet graveData = statement.executeQuery(
 					"SELECT * FROM `rp_PlayerGraves` WHERE `ID` = " + ID + " ORDER BY `ID` DESC LIMIT 1;");
 			// if (!playerData.first() && !playerData.next()) {
 			if (!graveData.isBeforeFirst()) {
 				// No results
 				commandSender.sendMessage(ChatColor.DARK_GRAY + "[RunicReaper] " + ChatColor.GRAY
 						+ "No graves found. Invalid grave ID specified.");
-				d.close();
+				connection.close();
 				return;
 			} else {
 				// results found!
@@ -724,7 +690,7 @@ public class RunicDeathChest implements Serializable {
 					commandSender.sendMessage(ChatColor.DARK_GRAY + "[RunicReaper] " + ChatColor.GRAY
 							+ "Unlocking grave ID " + ChatColor.YELLOW + ID + ChatColor.GRAY + " owned by "
 							+ ChatColor.YELLOW + graveData.getString("PlayerName"));
-					Statement cStmt = d.createStatement();
+					Statement cStmt = connection.createStatement();
 					int tempC = cStmt
 							.executeUpdate("UPDATE rp_PlayerGraves SET Status='Unlocked' WHERE ID=" + ID + ";");
 
@@ -734,7 +700,7 @@ public class RunicDeathChest implements Serializable {
 							+ "That grave isn't locked! Can't unlock it.");
 				}
 
-				d.close();
+				connection.close();
 			}
 
 		} catch (SQLException z) {
@@ -747,10 +713,8 @@ public class RunicDeathChest implements Serializable {
 		final Plugin instance = RunicParadise.getInstance();
 		boolean criticalFail = false;
 
-		MySQL MySQL = new MySQL(instance, instance.getConfig().getString("dbHost"),
-				instance.getConfig().getString("dbPort"), instance.getConfig().getString("dbDatabase"),
-				instance.getConfig().getString("dbUser"), instance.getConfig().getString("dbPassword"));
-		final Connection e = MySQL.openConnection();
+		MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
+		Connection connection = MySQL.openConnection();
 
 		// define which item types we'll put into the grave
 		Integer[] protectedItemsTemp = new Integer[] { 0, 443, 6, 8, 9, 10, 11, 18, 51, 176, 177, 321, 340, 358, 386,
@@ -902,7 +866,7 @@ public class RunicDeathChest implements Serializable {
 		// /////////////
 		try {
 
-			PreparedStatement eStmt = e.prepareStatement("INSERT INTO rp_PlayerGraves "
+			PreparedStatement eStmt = connection.prepareStatement("INSERT INTO rp_PlayerGraves "
 					+ "(`Location`, `Status`, `PlayerName`, `UUID`, `ExpiryTime`, `CreationTime`, "
 					// + "`LevelsLost`, `LooterName`, `LootTime`,
 					// `PreviousBlock`, `InvBlob`, `EquipBlob`, `InvItemStack`,
@@ -955,7 +919,7 @@ public class RunicDeathChest implements Serializable {
 			 * "Creating grave FAILED, could not retrieve new grave ID!"); } }
 			 */
 			eStmt.close();
-			e.close();
+			connection.close();
 		} catch (SQLException err) {
 			Bukkit.getLogger().log(Level.SEVERE,
 					"Cant create new row Grave for " + player.getName() + " because: " + err.getMessage());
@@ -1074,18 +1038,16 @@ public class RunicDeathChest implements Serializable {
 
 		// Retrieve deathID
 		final Plugin instance = RunicParadise.getInstance();
-		MySQL MySQL = new MySQL(instance, instance.getConfig().getString("dbHost"),
-				instance.getConfig().getString("dbPort"), instance.getConfig().getString("dbDatabase"),
-				instance.getConfig().getString("dbUser"), instance.getConfig().getString("dbPassword"));
+		MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
 
 		String strToCheck = loc.getWorld().getName() + "." + loc.getBlockX() + "." + loc.getBlockY() + "."
 				+ loc.getBlockZ();
 
 		try {
 			// TODO: Get data from DB based on UUID to protect vs name changes
-			final Connection d = MySQL.openConnection();
-			Statement dStmt = d.createStatement();
-			ResultSet graveData = dStmt.executeQuery("SELECT * FROM `rp_PlayerGraves` WHERE `Location` = '" + strToCheck
+			Connection connection = MySQL.openConnection();
+			Statement statement = connection.createStatement();
+			ResultSet graveData = statement.executeQuery("SELECT * FROM `rp_PlayerGraves` WHERE `Location` = '" + strToCheck
 					+ "' AND `Status` != 'Gone' ORDER BY `id` ASC LIMIT 1;");
 			// if (!playerData.first() && !playerData.next()) {
 			if (!graveData.isBeforeFirst()) {
@@ -1142,7 +1104,7 @@ public class RunicDeathChest implements Serializable {
 					// Everything finished OK!
 					// remove the rest of this data
 
-					dStmt.executeUpdate(
+					statement.executeUpdate(
 							"UPDATE `rp_PlayerGraves` SET Status='Gone' WHERE ID=" + graveData.getInt("ID") + ";");
 
 					loc.getWorld().playEffect(loc, Effect.MOBSPAWNER_FLAMES, 0);
@@ -1158,7 +1120,7 @@ public class RunicDeathChest implements Serializable {
 					syncGraveLocations();
 				}
 
-				d.close();
+				connection.close();
 			}
 		} catch (SQLException | IOException | ClassNotFoundException z) {
 			getLogger().log(Level.SEVERE, "Failed DB check for restore grave cuz " + z.getMessage());

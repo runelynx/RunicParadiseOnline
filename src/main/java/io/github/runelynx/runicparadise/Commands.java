@@ -152,20 +152,18 @@ public class Commands implements CommandExecutor {
         RunicParadise.explorerPrereqs.clear();
 
         // retrieve updated Explorer data
-        final Plugin instance = RunicParadise.getInstance();
-        MySQL MySQL = new MySQL(instance, instance.getConfig().getString("dbHost"),
-                instance.getConfig().getString("dbPort"), instance.getConfig().getString("dbDatabase"),
-                instance.getConfig().getString("dbUser"), instance.getConfig().getString("dbPassword"));
+        Plugin instance = RunicParadise.getInstance();
+        MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
         try {
-            final Connection d = MySQL.openConnection();
-            Statement dStmt = d.createStatement();
-            ResultSet explorerLocData = dStmt.executeQuery(
+            Connection connection = MySQL.openConnection();
+            Statement statement = connection.createStatement();
+            ResultSet explorerLocData = statement.executeQuery(
                     "SELECT * FROM rp_ExplorerLocations WHERE Status != 'Disabled' ORDER BY `Order` ASC;");
             // if (!playerData.first() && !playerData.next()) {
             if (!explorerLocData.isBeforeFirst()) {
                 // No results
                 // do nothing
-                d.close();
+                connection.close();
                 return true;
             } else {
                 // results found!
@@ -187,7 +185,7 @@ public class Commands implements CommandExecutor {
                     locCount++;
                 }
 
-                d.close();
+                connection.close();
 
                 Bukkit.dispatchCommand(Bukkit.getConsoleSender(),
                         "sc " + locCount + " explorer locs loaded into memory!");
@@ -200,17 +198,15 @@ public class Commands implements CommandExecutor {
     }
 
     private void carnivalTokenCounts(Player player) {
-        MySQL MySQL = new MySQL(instance, instance.getConfig().getString("dbHost"),
-                instance.getConfig().getString("dbPort"), instance.getConfig().getString("dbDatabase"),
-                instance.getConfig().getString("dbUser"), instance.getConfig().getString("dbPassword"));
-        final Connection d = MySQL.openConnection();
+        MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
+        Connection connection = MySQL.openConnection();
 
         player.sendMessage(ChatColor.GRAY + "[RunicCarnival] Listing player token counts...");
 
         for (Player p : Bukkit.getOnlinePlayers()) {
             try {
-                Statement dStmt = d.createStatement();
-                ResultSet playerData = dStmt.executeQuery("SELECT * FROM `rp_PlayerInfo` WHERE `PlayerName` = '"
+                Statement statement = connection.createStatement();
+                ResultSet playerData = statement.executeQuery("SELECT * FROM `rp_PlayerInfo` WHERE `PlayerName` = '"
                         + p.getName() + "' ORDER BY `id` ASC LIMIT 1;");
                 playerData.next();
                 int tokenCount = playerData.getInt("Tokens");
@@ -223,7 +219,7 @@ public class Commands implements CommandExecutor {
         }
 
         try {
-            d.close();
+            connection.close();
         } catch (SQLException e) {
             Bukkit.getLogger().log(Level.SEVERE, "Failed DB close for carnivalTokenCounts because: " + e.getMessage());
         }

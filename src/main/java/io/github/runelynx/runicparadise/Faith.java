@@ -259,22 +259,19 @@ public class Faith {
 				Bukkit.getPlayer(this.getUUID())
 						.sendMessage(ChatColor.GRAY + " " + faithColor + faithName + ChatColor.BLUE + " Powers:");
 
-				MySQL MySQL = new MySQL(instance, instance.getConfig().getString("dbHost"),
-						instance.getConfig().getString("dbPort"), instance.getConfig().getString("dbDatabase"),
-						instance.getConfig().getString("dbUser"), instance.getConfig().getString("dbPassword"));
+				MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
 
 				try {
-
-					final Connection dbCon = MySQL.openConnection();
-					Statement dbStmt = dbCon.createStatement();
-					ResultSet powerResult = dbStmt.executeQuery("SELECT * FROM rp_MasterPowers WHERE FaithName='"
+					Connection connection = MySQL.openConnection();
+					Statement statement = connection.createStatement();
+					ResultSet powerResult = statement.executeQuery("SELECT * FROM rp_MasterPowers WHERE FaithName='"
 							+ faithName + "' ORDER BY RequiredLevel ASC;");
 					if (!powerResult.isBeforeFirst()) {
 						// No results
 						// do nothing
 						Bukkit.getPlayer(this.getUUID())
 								.sendMessage("Oops! Couldn't find any powers for the " + faithName + " faith.");
-						dbCon.close();
+						connection.close();
 					} else {
 						// results found!
 						while (powerResult.next()) {
@@ -306,8 +303,8 @@ public class Faith {
 									.*/
 
 						}
-						dbStmt.close();
-						dbCon.close();
+						statement.close();
+						connection.close();
 					}
 
 				} catch (SQLException z) {
@@ -329,15 +326,12 @@ public class Faith {
 	public static void getPowerSettings() {
 		RunicParadise.powerReqsMap.clear();
 
-		MySQL MySQL = new MySQL(instance, instance.getConfig().getString("dbHost"),
-				instance.getConfig().getString("dbPort"), instance.getConfig().getString("dbDatabase"),
-				instance.getConfig().getString("dbUser"), instance.getConfig().getString("dbPassword"));
+		MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
 		String powerList = "";
 		try {
-
-			final Connection dbCon = MySQL.openConnection();
-			Statement dbStmt = dbCon.createStatement();
-			ResultSet faithResult = dbStmt.executeQuery("SELECT * FROM rp_MasterPowers;");
+			Connection connection = MySQL.openConnection();
+			Statement statement = connection.createStatement();
+			ResultSet faithResult = statement.executeQuery("SELECT * FROM rp_MasterPowers;");
 			if (!faithResult.isBeforeFirst()) {
 				// No results
 				// do nothing
@@ -346,7 +340,7 @@ public class Faith {
 				Bukkit.dispatchCommand(Bukkit.getConsoleSender(),
 						"sc This is a critical problem; Powers will not work :(");
 
-				dbCon.close();
+				connection.close();
 				return;
 			} else {
 				// results found!
@@ -356,7 +350,7 @@ public class Faith {
 					powerList += faithResult.getString("PowerName") + ". ";
 				}
 
-				dbCon.close();
+				connection.close();
 			}
 
 		} catch (SQLException z) {
@@ -368,15 +362,12 @@ public class Faith {
 	public static void getFaithSettings() {
 		RunicParadise.faithSettingsMap.clear();
 
-		MySQL MySQL = new MySQL(instance, instance.getConfig().getString("dbHost"),
-				instance.getConfig().getString("dbPort"), instance.getConfig().getString("dbDatabase"),
-				instance.getConfig().getString("dbUser"), instance.getConfig().getString("dbPassword"));
-		String faithList = "";
+		MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
+		StringBuilder faithList = new StringBuilder();
 		try {
-
-			final Connection dbCon = MySQL.openConnection();
-			Statement dbStmt = dbCon.createStatement();
-			ResultSet faithResult = dbStmt.executeQuery("SELECT * FROM rp_MasterFaiths;");
+			Connection connection = MySQL.openConnection();
+			Statement statement = connection.createStatement();
+			ResultSet faithResult = statement.executeQuery("SELECT * FROM rp_MasterFaiths;");
 			if (!faithResult.isBeforeFirst()) {
 				// No results
 				// do nothing
@@ -385,7 +376,7 @@ public class Faith {
 				Bukkit.dispatchCommand(Bukkit.getConsoleSender(),
 						"sc This is a critical problem; Faiths will not work :(");
 
-				dbCon.close();
+				connection.close();
 				return;
 			} else {
 				// results found!
@@ -395,10 +386,10 @@ public class Faith {
 									faithResult.getString("Permission"), faithResult.getString("Description"),
 									faithResult.getString("MaxLevel"), faithResult.getString("CastMessage"),
 									faithResult.getString("ChatPrefix2") });
-					faithList += faithResult.getString("faithName") + ". ";
+					faithList.append(faithResult.getString("faithName")).append(". ");
 				}
 
-				dbCon.close();
+				connection.close();
 			}
 
 		} catch (SQLException z) {
@@ -434,28 +425,25 @@ public class Faith {
 		} else {
 			// it's a valid faith name!
 			// check if player already has a record for this faith in the DB
-			MySQL MySQL = new MySQL(instance, instance.getConfig().getString("dbHost"),
-					instance.getConfig().getString("dbPort"), instance.getConfig().getString("dbDatabase"),
-					instance.getConfig().getString("dbUser"), instance.getConfig().getString("dbPassword"));
+			MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
 			try {
-
 				Date now = new Date();
-				final Connection dbCon = MySQL.openConnection();
-				Statement dbStmt = dbCon.createStatement();
-				ResultSet faithResult = dbStmt.executeQuery("SELECT * FROM rp_PlayerFaiths WHERE UUID = '"
+				Connection connection = MySQL.openConnection();
+				Statement statement = connection.createStatement();
+				ResultSet faithResult = statement.executeQuery("SELECT * FROM rp_PlayerFaiths WHERE UUID = '"
 						+ nUUID.toString() + "' AND FaithName = '" + faithName + "';");
 				if (!faithResult.isBeforeFirst()) {
 					// No results
 					// add the faith
-					dbStmt.executeUpdate(
+					statement.executeUpdate(
 							"INSERT INTO rp_PlayerFaiths (UUID, Active, FaithName, Level, Timestamp) VALUES ('"
 									+ nUUID.toString() + "', 1, '" + faithName + "', 0, " + now.getTime() + ");");
 
 					targetPlayer.setActiveFaith(faithName);
 
-					dbStmt.close();
+					statement.close();
 
-					dbCon.close();
+					connection.close();
 
 					this.retrievePlayerData(nUUID);
 					return "Success";
@@ -464,9 +452,9 @@ public class Faith {
 
 					targetPlayer.setActiveFaith(faithName);
 
-					dbStmt.close();
+					statement.close();
 
-					dbCon.close();
+					connection.close();
 
 					this.retrievePlayerData(nUUID);
 					return "Success";
@@ -480,20 +468,18 @@ public class Faith {
 	}
 
 	public String getPlayerStats(UUID nUUID, UUID senderUUID) {
-		MySQL MySQL = new MySQL(instance, instance.getConfig().getString("dbHost"),
-				instance.getConfig().getString("dbPort"), instance.getConfig().getString("dbDatabase"),
-				instance.getConfig().getString("dbUser"), instance.getConfig().getString("dbPassword"));
+		MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
 		try {
-			final Connection dbCon = MySQL.openConnection();
-			Statement dbStmt = dbCon.createStatement();
-			ResultSet faithResult = dbStmt.executeQuery(
+			Connection connection = MySQL.openConnection();
+			Statement statement = connection.createStatement();
+			ResultSet faithResult = statement.executeQuery(
 					"SELECT * FROM rp_PlayerFaiths WHERE UUID = '" + nUUID.toString() + "' ORDER BY FaithName ASC;");
 			if (!faithResult.isBeforeFirst()) {
 				getLogger().log(Level.INFO, "No Faiths found for " + Bukkit.getPlayer(nUUID).getDisplayName());
 
 				// No results
 				// do nothing
-				dbCon.close();
+				connection.close();
 				return "No faiths found.";
 			} else {
 				// results found!
@@ -588,7 +574,7 @@ public class Faith {
 					 */
 				}
 
-				dbCon.close();
+				connection.close();
 				return "Success";
 			}
 
@@ -627,13 +613,11 @@ public class Faith {
 		this.trueUUID = nUUID;
 		this.playerName = new RunicPlayerBukkit(nUUID).getPlayerName();
 
-		MySQL MySQL = new MySQL(instance, instance.getConfig().getString("dbHost"),
-				instance.getConfig().getString("dbPort"), instance.getConfig().getString("dbDatabase"),
-				instance.getConfig().getString("dbUser"), instance.getConfig().getString("dbPassword"));
+		MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
 		try {
-			final Connection dbCon = MySQL.openConnection();
-			Statement dbStmt = dbCon.createStatement();
-			ResultSet faithResult = dbStmt
+			Connection connection = MySQL.openConnection();
+			Statement statement = connection.createStatement();
+			ResultSet faithResult = statement
 					.executeQuery("SELECT * FROM rp_PlayerFaiths WHERE UUID = '" + nUUID.toString() + "';");
 			if (!faithResult.isBeforeFirst()) {
 				getLogger().log(Level.INFO, "No Faiths found for " + Bukkit.getPlayer(nUUID).getDisplayName());
@@ -642,7 +626,7 @@ public class Faith {
 
 				// No results
 				// do nothing
-				dbCon.close();
+				connection.close();
 			} else {
 				// results found!
 
@@ -656,7 +640,7 @@ public class Faith {
 					this.primaryFaithName = new RunicPlayerBukkit(nUUID).getActiveFaith();
 				}
 
-				dbCon.close();
+				connection.close();
 			}
 		} catch (SQLException z) {
 			getLogger().log(Level.SEVERE,
@@ -670,9 +654,7 @@ public class Faith {
 	}
 
 	public String setSkill(Player p, String adminName, String faithName, int newValue) {
-		MySQL MySQL = new MySQL(instance, instance.getConfig().getString("dbHost"),
-				instance.getConfig().getString("dbPort"), instance.getConfig().getString("dbDatabase"),
-				instance.getConfig().getString("dbUser"), instance.getConfig().getString("dbPassword"));
+		MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
 
 		if (newValue < 0) {
 			getLogger().log(Level.SEVERE, "Invalid newValue in Faith.setSkill - given " + newValue + " less than 0");
@@ -695,16 +677,15 @@ public class Faith {
 		}
 
 		try {
-			final Connection dbCon = MySQL.openConnection();
+			Connection connection = MySQL.openConnection();
 
-			PreparedStatement dbStmt = dbCon.prepareStatement(
+			PreparedStatement statement = connection.prepareStatement(
 					"UPDATE rp_PlayerFaiths SET Level=" + newValue + " WHERE UUID = ? AND FaithName = ?");
-			dbStmt.setString(1, this.playerUUID);
-			dbStmt.setString(2, faithName);
-			dbStmt.executeUpdate();
+			statement.setString(1, this.playerUUID);
+			statement.setString(2, faithName);
+			statement.executeUpdate();
 
-			dbCon.close();
-
+			connection.close();
 		} catch (SQLException e) {
 			getLogger().log(Level.SEVERE, "Failed Powers.setSkill because: " + e.getMessage());
 			return "Error DatabaseError or PlayerDoesntHaveThatFaith!";
@@ -722,9 +703,7 @@ public class Faith {
 	}
 
 	public boolean incrementSkill(Player p, String faithName) {
-		MySQL MySQL = new MySQL(instance, instance.getConfig().getString("dbHost"),
-				instance.getConfig().getString("dbPort"), instance.getConfig().getString("dbDatabase"),
-				instance.getConfig().getString("dbUser"), instance.getConfig().getString("dbPassword"));
+		MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
 
 		// Update the hashmap first;
 		if (this.faithLevels.containsKey(faithName)) {
@@ -735,15 +714,15 @@ public class Faith {
 		}
 
 		try {
-			final Connection dbCon = MySQL.openConnection();
+			Connection connection = MySQL.openConnection();
 
-			PreparedStatement dbStmt = dbCon
+			PreparedStatement statement = connection
 					.prepareStatement("UPDATE rp_PlayerFaiths SET Level=Level+1 WHERE UUID = ? AND FaithName = ?");
-			dbStmt.setString(1, this.playerUUID);
-			dbStmt.setString(2, faithName);
-			dbStmt.executeUpdate();
+			statement.setString(1, this.playerUUID);
+			statement.setString(2, faithName);
+			statement.executeUpdate();
 
-			dbCon.close();
+			connection.close();
 
 			p.sendMessage(ChatColor.GRAY + "[" + ChatColor.BLUE + "Runic" + ChatColor.DARK_AQUA + "Faith"
 					+ ChatColor.GRAY + "] " + ChatColor.BLUE + "Your " + faithName + ChatColor.BLUE

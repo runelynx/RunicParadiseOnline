@@ -157,25 +157,18 @@ public class Gift {
 	}
 
 	static void removeGift(Player p, int ID) {
-		MySQL MySQL = new MySQL(instance, instance.getConfig().getString(
-				"dbHost"), instance.getConfig().getString("dbPort"), instance
-				.getConfig().getString("dbDatabase"), instance.getConfig()
-				.getString("dbUser"), instance.getConfig().getString(
-				"dbPassword"));
-		final Connection e = MySQL.openConnection();
+		MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
+		Connection connection = MySQL.openConnection();
 
-		// /////////////
 		try {
-			// Statement eStmt = e.createStatement();
-
-			PreparedStatement statement = e
+			PreparedStatement statement = connection
 					.prepareStatement("UPDATE rp_RunicGifts SET `Status` = 'Taken' WHERE `GiftID` = "
 							+ ID + ";");
 
 			statement.executeUpdate();
 
 			statement.close();
-			e.close();
+			connection.close();
 		} catch (SQLException err) {
 			Bukkit.getLogger().log(Level.SEVERE,
 					"Cant remove gift because : " + err.getMessage());

@@ -99,10 +99,7 @@ class Ranks {
 	/*
 	 * public void playerkillCounts(Player user) { Date now = new Date();
 	 * 
-	 * MySQL MySQL = new MySQL(instance, instance.getConfig().getString(
-	 * "dbHost"), instance.getConfig().getString("dbPort"), instance
-	 * .getConfig().getString("dbDatabase"), instance.getConfig()
-	 * .getString("dbUser"), instance.getConfig().getString( "dbPassword"));
+	 * MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
 	 * final Connection d = MySQL.openConnection();
 	 * 
 	 * user.sendMessage(ChatColor.GRAY +
@@ -356,10 +353,8 @@ class Ranks {
 	void checkPromotion(Player user, boolean execute) {
 		Date now = new Date();
 
-		MySQL MySQL = new MySQL(instance, instance.getConfig().getString("dbHost"),
-				instance.getConfig().getString("dbPort"), instance.getConfig().getString("dbDatabase"),
-				instance.getConfig().getString("dbUser"), instance.getConfig().getString("dbPassword"));
-		final Connection d = MySQL.openConnection();
+		MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
+		Connection connection = MySQL.openConnection();
 		float daysPlayed = 0f;
 		DecimalFormat df = new DecimalFormat("#.00");
 
@@ -392,8 +387,8 @@ class Ranks {
 		// Check how many days played; report days played and current rank to
 		// user
 		try {
-			Statement dStmt = d.createStatement();
-			ResultSet playerData = dStmt.executeQuery("SELECT * FROM `rp_PlayerInfo` WHERE `PlayerName` = '"
+			Statement statement = connection.createStatement();
+			ResultSet playerData = statement.executeQuery("SELECT * FROM `rp_PlayerInfo` WHERE `PlayerName` = '"
 					+ user.getName() + "' ORDER BY `id` ASC LIMIT 1;");
 			playerData.next();
 
@@ -1546,25 +1541,22 @@ class Ranks {
 
 		// Close the connection
 		try {
-			d.close();
+			connection.close();
 		} catch (SQLException e) {
 			getLogger().log(Level.SEVERE, "Cant close mysql conn after checkpromotion: " + e.getMessage());
 		}
 	}
 
 	private static void logPromotion(String playerName, String newRank, Long timestamp) {
-		final Plugin instance = RunicParadise.getInstance();
-		MySQL MySQL = new MySQL(instance, instance.getConfig().getString("dbHost"),
-				instance.getConfig().getString("dbPort"), instance.getConfig().getString("dbDatabase"),
-				instance.getConfig().getString("dbUser"), instance.getConfig().getString("dbPassword"));
+		Plugin instance = RunicParadise.getInstance();
+		MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
 		try {
-
-			final Connection d = MySQL.openConnection();
-			Statement dStmt = d.createStatement();
-			int tempD = dStmt
+			Connection connection = MySQL.openConnection();
+			Statement statement = connection.createStatement();
+			int tempD = statement
 					.executeUpdate("INSERT INTO rp_PlayerPromotions (`PlayerName`, `NewRank`, `TimeStamp`) VALUES "
 							+ "('" + playerName + "', '" + newRank + "', " + timestamp + ");");
-			d.close();
+			connection.close();
 		} catch (SQLException z) {
 			getLogger().log(Level.SEVERE, "Failed DB check for restore grave cuz " + z.getMessage());
 		}

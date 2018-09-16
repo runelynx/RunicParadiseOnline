@@ -48,7 +48,6 @@ public class Borderlands {
     }
 
     public static void handleEntityTargetEventBL(EntityTargetLivingEntityEvent event) {
-
         // ZombieShaman Regeneration effect
 
         if (event.getEntity().getCustomName() != null && event.getEntity().getCustomName().contains("Zombie Shaman")
