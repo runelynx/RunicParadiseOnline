@@ -1696,6 +1696,7 @@ class Ranks {
 	}
 
 	private static String[] ALLOWED_WORLDS_FOR_DUKE_BARON = new String[] {
+			"RunicKingdom",
 			"RunicRealm",
 			"_nether",
 			"the_end",
