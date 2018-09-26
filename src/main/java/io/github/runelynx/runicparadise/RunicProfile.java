@@ -81,7 +81,7 @@ public class RunicProfile {
 			try {
 				Connection connection = MySQL.openConnection();
 
-				PreparedStatement statement = connection.prepareStatement("UPDATE rp_PlayerInfo SET ChatColor ='" + newSetting.toString() + "' WHERE UUID = ?");
+				PreparedStatement statement = connection.prepareStatement("UPDATE rp_PlayerInfo SET ChatColor ='" + newSetting.name() + "' WHERE UUID = ?");
 				statement.setString(1, this.getPlayerID().toString());
 				statement.executeUpdate();
 
