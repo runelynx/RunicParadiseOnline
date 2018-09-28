@@ -494,7 +494,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 		try {
 			initializeRunicSystems();
 		} catch (Exception e) {
-			getLogger().log(Level.WARNING, e.toString());
+			getLogger().log(Level.WARNING, "Exception happened", e);
 		}
 
 		//TODO Move this to its own method and link to init method. Maybe just kill it for RP 5.0.
@@ -546,7 +546,6 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 		if (event.getEntityType() == EntityType.SKELETON) {
 			Borderlands.processSkeletonArrows(event);
 		}
-
 	}
 
 	@EventHandler
