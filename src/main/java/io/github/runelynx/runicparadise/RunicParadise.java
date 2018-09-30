@@ -1228,58 +1228,63 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 
 			case 30:
 				// teleport to library
-				event.getWhoClicked().teleport(new Location(Bukkit.getWorld("RunicSky"), -556.766, 65.00, 389.410,
-						(float) 88.51739, (float) -2.9999824));
+				event.getWhoClicked().teleport(new Location(Bukkit.getWorld("RunicSky"), -917, 94.00, -413,
+						(float) 91.49997, (float) -050000125));
 				break;
 			case 19:
 				// teleport to jobs
-				event.getWhoClicked().teleport(new Location(Bukkit.getWorld("RunicSky"), -516.921, 65.0, 387.544,
-						(float) -80.082596, (float) -32.09998));
+				event.getWhoClicked().teleport(new Location(Bukkit.getWorld("RunicSky"), -911, 94.0, -430,
+						(float) -88.65011, (float) -2.6000035));
 				break;
 			case 20:
 				// teleport to donation
-				event.getWhoClicked().teleport(new Location(Bukkit.getWorld("RunicSky"), -433.324, 64.5, 326.462,
-						(float) -89.23262, (float) -8.699987));
+				event.getWhoClicked().teleport(new Location(Bukkit.getWorld("RunicSky"), -927, 94.0, -350,
+						(float) -271.05072, (float) -0.9500019));
 				break;
 			case 21:
 				// teleport to towns n shops
-				event.getWhoClicked().teleport(new Location(Bukkit.getWorld("RunicSky"), -528.783, 64.0, 263.419,
-						(float) 89.417404, (float) -13.500004));
+				event.getWhoClicked().teleport(new Location(Bukkit.getWorld("RunicSky"), -922, 94.0, -349.0,
+						(float) -88.200745, (float) -0.65000284));
 				break;
 			case 22:
 				// teleport to wild
 				event.getWhoClicked().teleport(
-						new Location(Bukkit.getWorld("RunicSky"), -493.195, 64.50, 302.930, 212.86743F, -1.3499908F));
+						new Location(Bukkit.getWorld("RunicSky"), -309, 126.0, -412.0, 268.15707F, -0.49672678F));
 				break;
 			case 23:
 				// teleport to hub
 				event.getWhoClicked().teleport(
-						new Location(Bukkit.getWorld("RunicSky"), -537.697, 64.00, 223.938, 180.61739F, -16.8F));
+						new Location(Bukkit.getWorld("RunicSky"), -967, 89.0, 120.0, -178.53664F, 5.8302865F));
 				break;
 			case 24:
 				// teleport to faith
 				event.getWhoClicked().teleport(
-						new Location(Bukkit.getWorld("RunicSky"), -581.701, 65.06250, 279.598, 91.81739F, -4.3499947F));
+						new Location(Bukkit.getWorld("RunicSky"), -1013, 89.0, 164.0, -270.03625F, -29.269753F));
 				break;
 			case 25:
 				// teleport to mining
 				event.getWhoClicked().teleport(
-						new Location(Bukkit.getWorld("RunicSky"), -639.232, 64.0, 326.465, 93.31604F, -4.499901F));
+						new Location(Bukkit.getWorld("RunicSky"), -943, 64.0, 326.465, -43.536087F, -2.5697594F));
 				break;
+			case 31:
+					// teleport to pet shop
+					event.getWhoClicked().teleport(
+							new Location(Bukkit.getWorld("RunicSky"), -911, 94, -392, -90.14988F, -0.7999952F));
+					break;
 			case 32:
 				// teleport to graves
 				event.getWhoClicked().teleport(
-						new Location(Bukkit.getWorld("RunicSky"), -573.410, 65.00, 262.568, 175.96742F, -14.99999F));
+						new Location(Bukkit.getWorld("RunicSky"), -934, 82, 132, -134.8862F, -3.769757F));
 				break;
 			case 33:
 				// teleport to soda
 				event.getWhoClicked().teleport(
-						new Location(Bukkit.getWorld("RunicSky"), -621.645, 65.00, 373.348, 106.96734F, -7.1999516F));
+						new Location(Bukkit.getWorld("RunicSky"), -870, 94, -367.0, -180.14984F, -10.999985F));
 				break;
 			case 29:
 				// teleport to crates
 				event.getWhoClicked().teleport(
-						new Location(Bukkit.getWorld("RunicSky"), -462.230, 64.00, 341.324, 3.3174438F, -7.3499503F));
+						new Location(Bukkit.getWorld("RunicSky"), -983, 84, 181, 47.21338F, -1.5197498F));
 				break;
 			default:
 				break;
@@ -3261,6 +3266,11 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 		meta.setDisplayName(ChatColor.RESET + "" + ChatColor.BOLD + "" + ChatColor.LIGHT_PURPLE + "Mining World");
 		mining.setItemMeta(meta);
 
+		ItemStack petshop = new ItemStack(Material.CHORUS_FLOWER);
+		meta = petshop.getItemMeta();
+		meta.setDisplayName(ChatColor.RESET + "" + ChatColor.BOLD + "" + ChatColor.LIGHT_PURPLE + "Pet Shop");
+		petshop.setItemMeta(meta);
+
 		ItemStack graves = new ItemStack(Material.CHORUS_FLOWER);
 		meta = graves.getItemMeta();
 		meta.setDisplayName(ChatColor.RESET + "" + ChatColor.BOLD + "" + ChatColor.LIGHT_PURPLE + "Death & Graves");
@@ -3291,6 +3301,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 		skynetMenu.setItem(23, hub);
 		skynetMenu.setItem(24, faith);
 		skynetMenu.setItem(25, mining);
+		skynetMenu.setItem(31, petshop);
 		skynetMenu.setItem(32, graves);
 
 		skynetMenu.setItem(29, crates);
