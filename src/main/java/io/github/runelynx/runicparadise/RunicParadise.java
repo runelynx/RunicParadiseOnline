@@ -428,6 +428,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 		getCommand("machinemaze").setExecutor(new Commands());
 		getCommand("el").setExecutor(new Commands());
 		getCommand("fixranks").setExecutor(new Commands());
+		getCommand("massreset").setExecutor(new Commands());
 		getCommand("freezemob").setExecutor(new Commands());
 		getCommand("unfreezemob").setExecutor(new Commands());
 		getCommand("runiceye").setExecutor(new Commands());
