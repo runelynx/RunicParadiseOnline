@@ -1264,7 +1264,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 			case 25:
 				// teleport to mining
 				event.getWhoClicked().teleport(
-						new Location(Bukkit.getWorld("RunicSky"), -943, 64.0, 326.465, -43.536087F, -2.5697594F));
+						new Location(Bukkit.getWorld("RunicSky"), -943, 85.0, 189, -43.536087F, -2.5697594F));
 				break;
 			case 31:
 					// teleport to pet shop
