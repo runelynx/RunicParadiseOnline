@@ -65,14 +65,12 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 	public static HashMap<Location, String[]> prayerBooks = new HashMap<>();
 	public static HashMap<Entity, String> prayerBookEntities = new HashMap<>();
 	public static HashMap<String, String> newReadyPlayer = new HashMap<>();
-	public static HashMap<UUID, Integer> giftIDTracker = new HashMap<>();
 	public static HashMap<Integer, Location> explorerLocations = new HashMap<>();
 	public static HashMap<Integer, Integer> explorerDifficulties = new HashMap<>();
 	public static HashMap<Integer, Integer> explorerRewards = new HashMap<>();
 	public static LinkedHashMap<Location, Integer> explorerLocationsReversed = new LinkedHashMap<>();
 	public static HashMap<Integer, String> explorerIDs = new HashMap<>();
 	public static HashMap<Integer, Integer> explorerPrereqs = new HashMap<>();
-	public static ArrayList<Integer> repairableItemTypes = new ArrayList<>();
 	public static HashMap<EntityType, Integer> trackableEntityKillsMap = new HashMap<>();
 
 	public static HashMap<UUID, HashMap<EntityType, Integer>> mobKillTracker = new HashMap<>();
@@ -128,10 +126,6 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 
 		if (defineEntityTracking()) {
 			getLogger().info("[RunicParadise] Defined entity kill tracking rules");
-		}
-
-		if (defineRepairableItems()) {
-			getLogger().info("[RunicParadise] Defined repairable items using /rpfix");
 		}
 
 		if (Recipes.customRecipes()) {
@@ -312,71 +306,6 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 		trackableEntityKillsMap.put(EntityType.UNKNOWN, 0);
 		trackableEntityKillsMap.put(EntityType.WEATHER, 0);
 		trackableEntityKillsMap.put(EntityType.WITHER_SKULL, 0);
-		return true;
-	}
-
-	private boolean defineRepairableItems() {
-		// Establish repairable items for //rpfix command
-		// Diamond tools + armor
-		repairableItemTypes.add(276);
-		repairableItemTypes.add(277);
-		repairableItemTypes.add(278);
-		repairableItemTypes.add(279);
-		repairableItemTypes.add(293);
-		repairableItemTypes.add(310);
-		repairableItemTypes.add(311);
-		repairableItemTypes.add(312);
-		repairableItemTypes.add(313);
-		// Gold tools + armor
-		repairableItemTypes.add(283);
-		repairableItemTypes.add(284);
-		repairableItemTypes.add(285);
-		repairableItemTypes.add(286);
-		repairableItemTypes.add(294);
-		repairableItemTypes.add(314);
-		repairableItemTypes.add(315);
-		repairableItemTypes.add(316);
-		repairableItemTypes.add(317);
-		// Iron tools + armor
-		repairableItemTypes.add(256);
-		repairableItemTypes.add(257);
-		repairableItemTypes.add(258);
-		repairableItemTypes.add(267);
-		repairableItemTypes.add(292);
-		repairableItemTypes.add(306);
-		repairableItemTypes.add(307);
-		repairableItemTypes.add(308);
-		repairableItemTypes.add(309);
-		// Stone tools + armor
-		repairableItemTypes.add(272);
-		repairableItemTypes.add(273);
-		repairableItemTypes.add(274);
-		repairableItemTypes.add(275);
-		repairableItemTypes.add(291);
-		// Wood tools + armor
-		repairableItemTypes.add(268);
-		repairableItemTypes.add(269);
-		repairableItemTypes.add(270);
-		repairableItemTypes.add(271);
-		repairableItemTypes.add(290);
-		// Chain tools + armor
-		repairableItemTypes.add(302);
-		repairableItemTypes.add(303);
-		repairableItemTypes.add(304);
-		repairableItemTypes.add(305);
-		// Leather armor
-		repairableItemTypes.add(298);
-		repairableItemTypes.add(299);
-		repairableItemTypes.add(300);
-		repairableItemTypes.add(301);
-		// Elytra
-		repairableItemTypes.add(443);
-		// Misc
-		repairableItemTypes.add(359);
-		repairableItemTypes.add(259);
-		repairableItemTypes.add(346);
-		repairableItemTypes.add(261);
-
 		return true;
 	}
 
@@ -1864,7 +1793,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 	}
 
 	@EventHandler
-	public void onEntityDeath(final EntityDeathEvent ede) {
+	public void onEntityDeath(EntityDeathEvent ede) {
 		boolean farming = false;
 
 		// check for Monsters... Flying=Ghast... Slime=Slime/Magmacube...
@@ -2593,7 +2522,6 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 				getLogger().log(Level.SEVERE, "Cant work with DB updatePlayerInfoOnquit for " + playerName
 						+ " because: " + e.getMessage());
 			}
-
 		});
 	}
 

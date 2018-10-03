@@ -40,7 +40,7 @@ public class Commands implements CommandExecutor {
 
 	private Plugin instance = RunicParadise.getInstance();
 
-	public static ArrayList<Integer> PARTICLE_TASK_IDS = new ArrayList<>();
+	public static List<Integer> PARTICLE_TASK_IDS = new ArrayList<>();
 
     private static boolean searchExplorerLocation(Location loc, Player p) {
         int targetID = 0;
@@ -493,6 +493,10 @@ public class Commands implements CommandExecutor {
 	}
 
 	private static void rpFixCommand(CommandSender sender) {
+    	if (!(sender instanceof Player)) {
+    		sender.sendMessage("You must run this command in game");
+    		return;
+	    }
 		Player player = ((Player) sender);
 		PlayerInventory inventory = player.getInventory();
 		repairCommand(player, inventory.getItemInMainHand(), inventory.getItemInOffHand());
@@ -3257,9 +3261,13 @@ public class Commands implements CommandExecutor {
     	return item;
 	}
 
+	private static boolean isReparable(ItemStack item) {
+		return item.getType().getMaxDurability() != 0;
+	}
+
 	private static void repairCommand(Player p, ItemStack main, ItemStack off) {
-		boolean mainOkToRepair = RunicParadise.repairableItemTypes.contains(main.getType().getId());
-		boolean offOkToRepair = RunicParadise.repairableItemTypes.contains(off.getType().getId());
+		boolean mainOkToRepair = isReparable(main);
+		boolean offOkToRepair = isReparable(off);
 
 		int cooldown = 360;
 
