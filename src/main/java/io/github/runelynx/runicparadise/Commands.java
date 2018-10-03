@@ -435,18 +435,11 @@ public class Commands implements CommandExecutor {
 		case "music":
 			radioCommand(sender, args);
 			break;
-		case "ranks":
-			ranksCommand(sender, args);
-			break;
 		case "punish":
 			punishCommand(sender, args);
 			break;
 		case "staff":
 			staffCommand(sender, args);
-			break;
-		case "promote":
-		case "rankup":
-			rankUpCommand(sender, args);
 			break;
 		case "rp":
 			rpCommand(sender, args);
@@ -717,12 +710,6 @@ public class Commands implements CommandExecutor {
 		}
 	}
 
-	private void ranksCommand(CommandSender sender, String[] args) {
-		if (sender instanceof Player) {
-			rank.showRequirements((Player) sender);
-		}
-	}
-
 	private void rpReloadCommand(CommandSender sender, String[] args) {
 		instance.reloadConfig();
 		if (sender instanceof Player) {
@@ -782,21 +769,6 @@ public class Commands implements CommandExecutor {
 
 		} else {
 			sender.sendMessage("[RP] Command RP must be used by a player");
-		}
-	}
-
-	private void rankUpCommand(CommandSender sender, String[] args) {
-		if (sender instanceof Player) {
-			// if no args provided, run a check to tell player if they
-			// qualify for a promotion
-			if (args.length == 0) {
-				rank.checkPromotion((Player) sender, false);
-			} else if (args[0].equals("now")) {
-				// player is requesting to activate a promotion
-				rank.checkPromotion((Player) sender, true);
-			}
-		} else {
-			sender.sendMessage("[Error] Command must be used by a player");
 		}
 	}
 
