@@ -255,12 +255,6 @@ commands:
       description: "Channel where staff can chat together"
       permission: rp.staff
       permission-message: "Only staff (mods/admins) can use this command."
-   promote:
-      description: "Runic Paradise Promotion Command"
-   rankup:
-      description: "Runic Paradise Promotion Command"
-   ranks:
-      description: "Display requirements for each rank"
    sc:
       description: "Channel where staff can chat together"
       permission: rp.staff
