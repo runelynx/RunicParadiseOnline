@@ -810,7 +810,7 @@ public class Commands implements CommandExecutor {
 					sender.sendMessage(
 							ChatColor.AQUA + "/censor" + ChatColor.GRAY + " Chat censor for all servers");
 				}
-				sender.sendMessage(ChatColor.AQUA + "/announce" + ChatColor.GRAY + " Manage announcements");
+				sender.sendMessage(ChatColor.AQUA + "/staff setplayercolor <player> <color>" + ChatColor.GRAY + " Set player color");
 			} else if (args[0].equals("PE") || args[0].equals("pe")) {
 				rank.playerStats((Player) sender);
 			} else if (args[0].equals("EC") || args[0].equals("ec")) {
@@ -915,6 +915,14 @@ public class Commands implements CommandExecutor {
 			} else if ((args[0].equals("NP") || args[0].equals("np")) && args.length == 2) {
 				RunicMessaging.sendMessage(((Player) sender), RunicMessaging.RunicFormat.SYSTEM,
 						whoIsNearPlayer(Bukkit.getPlayer(args[1])));
+			} else if (args.length == 3 && args[0].equalsIgnoreCase("setplayercolor")) {
+				Player player = Bukkit.getPlayer(args[1]);
+				if (player == null) {
+					sender.sendMessage("No player found with that name");
+					return;
+				}
+				RunicProfile profile = RunicParadise.playerProfiles.get(player.getUniqueId());
+				profile.setChatColor(args[2].toUpperCase(), true);
 			} else {
 				RunicMessaging.sendMessage(((Player) sender), RunicMessaging.RunicFormat.SYSTEM,
 						ChatColor.LIGHT_PURPLE + "Hmm... please check your command usage with /staff");
