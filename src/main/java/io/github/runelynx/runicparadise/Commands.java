@@ -40,7 +40,7 @@ public class Commands implements CommandExecutor {
 
 	private Plugin instance = RunicParadise.getInstance();
 
-	public static ArrayList<Integer> PARTICLE_TASK_IDS = new ArrayList<>();
+	public static List<Integer> PARTICLE_TASK_IDS = new ArrayList<>();
 
     private static boolean searchExplorerLocation(Location loc, Player p) {
         int targetID = 0;
@@ -435,18 +435,11 @@ public class Commands implements CommandExecutor {
 		case "music":
 			radioCommand(sender, args);
 			break;
-		case "ranks":
-			ranksCommand(sender, args);
-			break;
 		case "punish":
 			punishCommand(sender, args);
 			break;
 		case "staff":
 			staffCommand(sender, args);
-			break;
-		case "promote":
-		case "rankup":
-			rankUpCommand(sender, args);
 			break;
 		case "rp":
 			rpCommand(sender, args);
@@ -493,6 +486,10 @@ public class Commands implements CommandExecutor {
 	}
 
 	private static void rpFixCommand(CommandSender sender) {
+    	if (!(sender instanceof Player)) {
+    		sender.sendMessage("You must run this command in game");
+    		return;
+	    }
 		Player player = ((Player) sender);
 		PlayerInventory inventory = player.getInventory();
 		repairCommand(player, inventory.getItemInMainHand(), inventory.getItemInOffHand());
@@ -713,12 +710,6 @@ public class Commands implements CommandExecutor {
 		}
 	}
 
-	private void ranksCommand(CommandSender sender, String[] args) {
-		if (sender instanceof Player) {
-			rank.showRequirements((Player) sender);
-		}
-	}
-
 	private void rpReloadCommand(CommandSender sender, String[] args) {
 		instance.reloadConfig();
 		if (sender instanceof Player) {
@@ -781,21 +772,6 @@ public class Commands implements CommandExecutor {
 		}
 	}
 
-	private void rankUpCommand(CommandSender sender, String[] args) {
-		if (sender instanceof Player) {
-			// if no args provided, run a check to tell player if they
-			// qualify for a promotion
-			if (args.length == 0) {
-				rank.checkPromotion((Player) sender, false);
-			} else if (args[0].equals("now")) {
-				// player is requesting to activate a promotion
-				rank.checkPromotion((Player) sender, true);
-			}
-		} else {
-			sender.sendMessage("[Error] Command must be used by a player");
-		}
-	}
-
 	private void staffCommand(CommandSender sender, String[] args) {
 		if (sender instanceof Player) {
 			if (args.length == 0) {
@@ -834,7 +810,7 @@ public class Commands implements CommandExecutor {
 					sender.sendMessage(
 							ChatColor.AQUA + "/censor" + ChatColor.GRAY + " Chat censor for all servers");
 				}
-				sender.sendMessage(ChatColor.AQUA + "/announce" + ChatColor.GRAY + " Manage announcements");
+				sender.sendMessage(ChatColor.AQUA + "/staff setplayercolor <player> <color>" + ChatColor.GRAY + " Set player color");
 			} else if (args[0].equals("PE") || args[0].equals("pe")) {
 				rank.playerStats((Player) sender);
 			} else if (args[0].equals("EC") || args[0].equals("ec")) {
@@ -939,6 +915,14 @@ public class Commands implements CommandExecutor {
 			} else if ((args[0].equals("NP") || args[0].equals("np")) && args.length == 2) {
 				RunicMessaging.sendMessage(((Player) sender), RunicMessaging.RunicFormat.SYSTEM,
 						whoIsNearPlayer(Bukkit.getPlayer(args[1])));
+			} else if (args.length == 3 && args[0].equalsIgnoreCase("setplayercolor")) {
+				Player player = Bukkit.getPlayer(args[1]);
+				if (player == null) {
+					sender.sendMessage("No player found with that name");
+					return;
+				}
+				RunicProfile profile = RunicParadise.playerProfiles.get(player.getUniqueId());
+				profile.setChatColor(args[2].toUpperCase(), true);
 			} else {
 				RunicMessaging.sendMessage(((Player) sender), RunicMessaging.RunicFormat.SYSTEM,
 						ChatColor.LIGHT_PURPLE + "Hmm... please check your command usage with /staff");
@@ -3257,9 +3241,13 @@ public class Commands implements CommandExecutor {
     	return item;
 	}
 
+	private static boolean isReparable(ItemStack item) {
+		return item.getType().getMaxDurability() != 0;
+	}
+
 	private static void repairCommand(Player p, ItemStack main, ItemStack off) {
-		boolean mainOkToRepair = RunicParadise.repairableItemTypes.contains(main.getType().getId());
-		boolean offOkToRepair = RunicParadise.repairableItemTypes.contains(off.getType().getId());
+		boolean mainOkToRepair = isReparable(main);
+		boolean offOkToRepair = isReparable(off);
 
 		int cooldown = 360;
 
