@@ -165,7 +165,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 		}, 0L, 3600L);
 
 		scheduler.runTaskTimer(this, () -> {
-			for (Player p : Bukkit.getWorld("RunicRealm_nether").getPlayers()) {
+			for (Player p : Bukkit.getWorld("RunicKingdom_nether").getPlayers()) {
 				if (faithMap.get(p.getUniqueId()).checkEquippedFaithLevel("Nether",
 						RunicParadise.powerReqsMap.get("Netherborn"))) {
 					faithMap.get(p.getUniqueId()).castNether_Netherborn(p);
@@ -199,13 +199,13 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 		Bukkit.dispatchCommand(Bukkit.getConsoleSender(), tempInvSetting);
 		tempInvSetting = "mvrule keepInventory true RunicSky";
 		Bukkit.dispatchCommand(Bukkit.getConsoleSender(), tempInvSetting);
-		tempInvSetting = "mvrule keepInventory true RunicRealm";
+		tempInvSetting = "mvrule keepInventory true RunicKingdom";
 		Bukkit.dispatchCommand(Bukkit.getConsoleSender(), tempInvSetting);
 		tempInvSetting = "mvrule keepInventory true Mining";
 		Bukkit.dispatchCommand(Bukkit.getConsoleSender(), tempInvSetting);
-		tempInvSetting = "mvrule keepInventory true RunicRealm_nether";
+		tempInvSetting = "mvrule keepInventory true RunicKingdom_nether";
 		Bukkit.dispatchCommand(Bukkit.getConsoleSender(), tempInvSetting);
-		tempInvSetting = "mvrule keepInventory true RunicRealm_the_end";
+		tempInvSetting = "mvrule keepInventory true RunicKingdom_the_end";
 		Bukkit.dispatchCommand(Bukkit.getConsoleSender(), tempInvSetting);
 		return true;
 	}
@@ -1676,7 +1676,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 
 	@EventHandler(priority = EventPriority.NORMAL)
 	public void onPlayerDamage(final EntityDamageEvent ede) {
-		boolean daytime = (Bukkit.getWorld("RunicRealm").getTime() <= 14000 || Bukkit.getWorld("RunicRealm").getTime() >= 23000);
+		boolean daytime = (Bukkit.getWorld("RunicKingdom").getTime() <= 14000 || Bukkit.getWorld("RunicKingdom").getTime() >= 23000);
 
 		// handle deaths in the dungeon maze
 		if (ede.getEntity() instanceof Player) {
