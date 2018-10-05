@@ -797,7 +797,7 @@ public class Faith {
 		Faith pfo = RunicParadise.faithMap.get(p.getUniqueId());
 		String faith = pfo.getPrimaryFaith();
 		int level = pfo.getPrimaryFaithLevel();
-		final boolean daytime = (Bukkit.getWorld("RunicRealm").getTime() <= 14000 || Bukkit.getWorld("RunicRealm").getTime() >= 23000);
+		final boolean daytime = (Bukkit.getWorld("RunicKingdom").getTime() <= 14000 || Bukkit.getWorld("RunicKingdom").getTime() >= 23000);
 
 		if (!(event.getCause() == DamageCause.ENTITY_EXPLOSION && event.getCause() == DamageCause.ENTITY_ATTACK
 				&& event.getCause() == DamageCause.PROJECTILE)) {
@@ -811,7 +811,7 @@ public class Faith {
 			if (level > RunicParadise.powerReqsMap.get("Sunflare") && daytime) {
 
 				// Cast Sunflare if player got hit and its daytime
-				if (p.getWorld().getName().equals("RunicRealm")) {
+				if (p.getWorld().getName().equals("RunicKingdom")) {
 					pfo.castSun_Sunflare(p.getUniqueId(), p);
 				}
 
@@ -822,7 +822,7 @@ public class Faith {
 			if (level > RunicParadise.powerReqsMap.get("Lunar Calm") && !daytime) {
 
 				// Cast Lunar Calm if player got hit and its night
-				if (p.getWorld().getName().equals("RunicRealm")) {
+				if (p.getWorld().getName().equals("RunicKingdom")) {
 					pfo.castSun_Sunflare(p.getUniqueId(), p);
 				}
 
@@ -832,7 +832,7 @@ public class Faith {
 			if (level > RunicParadise.powerReqsMap.get("Unstable Embers")) {
 
 				// Cast Unstable Embers if player got hit
-				if (p.getWorld().getName().equals("RunicRealm")) {
+				if (p.getWorld().getName().equals("RunicKingdom")) {
 					pfo.castFlame_UnstableEmbers(p);
 				}
 			}
@@ -842,7 +842,7 @@ public class Faith {
 			if (level > RunicParadise.powerReqsMap.get("Arctic Frost")) {
 
 				// Cast Unstable Embers if player got hit
-				if (p.getWorld().getName().equals("RunicRealm")) {
+				if (p.getWorld().getName().equals("RunicKingdom")) {
 					pfo.castWater_ArcticFrost(p);
 				}
 			}
@@ -850,7 +850,7 @@ public class Faith {
 			if (level > RunicParadise.powerReqsMap.get("Protective Bubble")) {
 
 				// Cast Unstable Embers if player got hit
-				if (p.getWorld().getName().equals("RunicRealm")) {
+				if (p.getWorld().getName().equals("RunicKingdom")) {
 					pfo.castWater_ProtectiveBubble(p);
 				}
 			}
@@ -860,7 +860,7 @@ public class Faith {
 			if (level > RunicParadise.powerReqsMap.get("Healing Breeze")) {
 
 				// Cast Healing Breeze if player got hit
-				if (p.getWorld().getName().equals("RunicRealm")) {
+				if (p.getWorld().getName().equals("RunicKingdom")) {
 					pfo.castAir_HealingBreeze(p);
 				}
 			}
@@ -901,11 +901,11 @@ public class Faith {
 			if (level > RunicParadise.powerReqsMap.get("Netherborn")) {
 
 				// Cast Netherborn if player is going into the nether
-				if (event.getTo().getWorld().getName().equals("RunicRealm_nether")
-						&& !event.getFrom().getWorld().getName().equals("RunicRealm_nether")) {
+				if (event.getTo().getWorld().getName().equals("RunicKingdom_nether")
+						&& !event.getFrom().getWorld().getName().equals("RunicKingdom_nether")) {
 					pfo.castNether_Netherborn(event.getPlayer());
 					// Remove Netherborn if player is leaving the nether
-				} else if (event.getFrom().getWorld().getName().equals("RunicRealm_nether")) {
+				} else if (event.getFrom().getWorld().getName().equals("RunicKingdom_nether")) {
 					event.getPlayer().removePotionEffect(PotionEffectType.HEALTH_BOOST);
 					event.getPlayer().removePotionEffect(PotionEffectType.DAMAGE_RESISTANCE);
 				}
@@ -921,7 +921,7 @@ public class Faith {
 		Faith pfo = RunicParadise.faithMap.get(p.getUniqueId());
 		String faith = pfo.getPrimaryFaith();
 		int level = pfo.getPrimaryFaithLevel();
-		final boolean daytime = (Bukkit.getWorld("RunicRealm").getTime() <= 14000 || Bukkit.getWorld("RunicRealm").getTime() >= 23000);
+		final boolean daytime = (Bukkit.getWorld("RunicKingdom").getTime() <= 14000 || Bukkit.getWorld("RunicKingdom").getTime() >= 23000);
 
 		switch (faith) {
 
@@ -929,7 +929,7 @@ public class Faith {
 			if (level > RunicParadise.powerReqsMap.get("Solar Power") && daytime) {
 
 				// Cast Solar Power if player hit a monster
-				if (p.getWorld().getName().equals("RunicRealm")) {
+				if (p.getWorld().getName().equals("RunicKingdom")) {
 					pfo.castSun_SolarPower(p.getUniqueId(), p);
 				}
 
@@ -940,7 +940,7 @@ public class Faith {
 			if (level > RunicParadise.powerReqsMap.get("Volcanic Fury") && daytime) {
 
 				// Cast Volcanic Fury if player hit a monster
-				if (p.getWorld().getName().equals("RunicRealm")) {
+				if (p.getWorld().getName().equals("RunicKingdom")) {
 					pfo.castSun_SolarPower(p.getUniqueId(), p);
 				}
 
@@ -951,7 +951,7 @@ public class Faith {
 			if (level > RunicParadise.powerReqsMap.get("Celestial Healing") && !daytime) {
 
 				// Cast Celestial Healing if player got hit and its night
-				if (p.getWorld().getName().equals("RunicRealm")) {
+				if (p.getWorld().getName().equals("RunicKingdom")) {
 					pfo.castMoon_CelestialHealing(p.getUniqueId(), p);
 				}
 
