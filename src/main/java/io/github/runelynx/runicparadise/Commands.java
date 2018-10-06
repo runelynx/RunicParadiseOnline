@@ -1487,7 +1487,6 @@ public class Commands implements CommandExecutor {
 			// Qualify for an upper tier job
 			Player p = Bukkit.getPlayer(args[1]);
 			String jobTally = "";
-			boolean showFail = true;
 
 			RunicMessaging.sendMessage(p, RunicFormat.EMPTY, ChatColor.BLUE + "*** Tier 2 Jobs ***");
 
@@ -1651,11 +1650,6 @@ public class Commands implements CommandExecutor {
 			}
 			else {
 				jobTally += ChatColor.DARK_RED + "ARTIFICER ";
-			}
-			// FAILURE
-			if (showFail) {
-				RunicMessaging.sendMessage(p, RunicFormat.ERROR, ChatColor.RED
-						+ "Something went wrong. Couldn't build your qualification list!");
 			}
 
 			RunicMessaging.sendMessage(p, RunicFormat.EMPTY	, jobTally);
