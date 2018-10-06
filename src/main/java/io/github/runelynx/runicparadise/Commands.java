@@ -521,7 +521,7 @@ public class Commands implements CommandExecutor {
 
 	private static void wildCommand(CommandSender sender) {
 		((Player) sender).teleport(
-				new Location(Bukkit.getWorld("RunicSky"), -493.195, 64.50, 302.930, 212.86743F, -1.3499908F));
+				new Location(Bukkit.getWorld("RunicSky"), -308.688, 126, -411.603, 270.8571F, 4.7532725F));
 		sender.sendMessage(ChatColor.YELLOW + "There are portals to different areas of the wilderness here - look for a biome you like and head into the portal.\n"
 				+ ChatColor.DARK_RED + ChatColor.BOLD + "Borderlands" + ChatColor.RESET + ChatColor.YELLOW + " areas have VERY tough monsters!");
 	}

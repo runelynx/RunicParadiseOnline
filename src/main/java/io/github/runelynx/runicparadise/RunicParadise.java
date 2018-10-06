@@ -2649,9 +2649,12 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 
 
 			getLogger().log(Level.INFO, deadPlayer.getName() + " died. Returning xp " + getPlayerExp(deadPlayer) + " * pctToKeep " + pctExpToReturn);
+			float expLost = deadPlayer.getExp();
+
 			deadPlayer.setLevel(0);
 			deadPlayer.setExp(0);
-			deadPlayer.giveExp((int)(getPlayerExp(deadPlayer) * pctExpToReturn));
+
+			deadPlayer.giveExp((int)(expLost * pctExpToReturn));
 			getLogger().log(Level.INFO, deadPlayer.getName() + " new exp after death is " + deadPlayer.getLevel() + " level; " + deadPlayer.getExp() + " exp");
 
 			if (pctExpToReturn > .01) {
@@ -3324,6 +3327,23 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 		exp += Math.round(getExpToLevelUp(level) * player.getExp());
 
 		return exp;
+	}
+
+	// Give or take EXP
+	public static int changePlayerExp(Player player, int exp){
+		// Get player's current exp
+		int currentExp = getPlayerExp(player);
+
+		// Reset player's current exp to 0
+		player.setExp(0);
+		player.setLevel(0);
+
+		// Give the player their exp back, with the difference
+		int newExp = currentExp + exp;
+		player.giveExp(newExp);
+
+		// Return the player's new exp amount
+		return newExp;
 	}
 
 
