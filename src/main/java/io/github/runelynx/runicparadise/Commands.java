@@ -1456,7 +1456,7 @@ public class Commands implements CommandExecutor {
 			RunicPlayerBukkit targetPlayer = new RunicPlayerBukkit(args[1]);
 			if (targetPlayer.getCurrentJob().equals("None")) {
 				targetPlayer.sendMessageToPlayer(
-						ChatColor.GREEN + "You don't have a job. Get a job and get level 25 in it.");
+						ChatColor.GREEN + "You don't have a job. Get a job and get level 30 in it.");
 				return false;
 			} else {
 				if (targetPlayer.getMasteredJobs().contains(targetPlayer.getCurrentJob())) {
@@ -1465,7 +1465,7 @@ public class Commands implements CommandExecutor {
 				}
 			}
 
-			if (targetPlayer.getCurrentJobLevel() >= 25) {
+			if (targetPlayer.getCurrentJobLevel() >= 30) {
 				// Player has sufficient level in a tier 1 job
 				if (targetPlayer.executeJobMastery()) {
 					// Execution succeeded!
@@ -1480,334 +1480,215 @@ public class Commands implements CommandExecutor {
 
 			} else {
 				targetPlayer.sendMessageToPlayer(ChatColor.GRAY + "" + ChatColor.ITALIC
-						+ "You must have level 25 in a job to achieve mastery.");
-			}
-		} else if (args[0].equals("qualifyt4") && args.length == 2 && !(sender instanceof Player)) {
-			// Qualify for a tier4 job
-			RunicPlayerBukkit targetPlayer = new RunicPlayerBukkit(args[1]);
-			boolean showFail = true;
-
-			if (targetPlayer.getMasteredJobCount() > 0 && !targetPlayer.checkPlayerPermission("rp.level.master")) {
-				targetPlayer.sendMessageToPlayer(
-						ChatColor.YELLOW + "[RunicRanks] Your previous masteries are now visible to Runic Ranks!");
-
-				RunicParadise.perms.playerAdd(((Player) sender), "rp.level.master");
-			}
-
-			targetPlayer.sendMessageToPlayer(ChatColor.YELLOW + "[RunicRanks] You have mastered these jobs: "
-					+ ChatColor.GOLD + targetPlayer.getMasteredJobs());
-
-			int masteredJobsNeededForTier4 = 21;
-			int masteredJobCount = 0;
-			String jobTally = "";
-
-			if (!targetPlayer.getMasteredJobs().contains("Wizard")) {
-				jobTally += ChatColor.DARK_GRAY + "[" + ChatColor.DARK_RED + "Wizard" + ChatColor.DARK_GRAY + "]";
-			} else {
-				jobTally += ChatColor.DARK_GRAY + "[" + ChatColor.GREEN + "Wizard" + ChatColor.DARK_GRAY + "]";
-				masteredJobCount++;
-			}
-
-			if (!targetPlayer.getMasteredJobs().contains("Scientist")) {
-				jobTally += ChatColor.DARK_GRAY + "[" + ChatColor.DARK_RED + "Scientist" + ChatColor.DARK_GRAY
-						+ "]";
-			} else {
-				jobTally += ChatColor.DARK_GRAY + "[" + ChatColor.GREEN + "Scientist" + ChatColor.DARK_GRAY + "]";
-				masteredJobCount++;
-			}
-
-			if (!targetPlayer.getMasteredJobs().contains("Miner")) {
-				jobTally += ChatColor.DARK_GRAY + "[" + ChatColor.DARK_RED + "Miner" + ChatColor.DARK_GRAY + "]";
-			} else {
-				jobTally += ChatColor.DARK_GRAY + "[" + ChatColor.GREEN + "Miner" + ChatColor.DARK_GRAY + "]";
-				masteredJobCount++;
-			}
-
-			if (!targetPlayer.getMasteredJobs().contains("Chef")) {
-				jobTally += ChatColor.DARK_GRAY + "[" + ChatColor.DARK_RED + "Chef" + ChatColor.DARK_GRAY + "]";
-			} else {
-				jobTally += ChatColor.DARK_GRAY + "[" + ChatColor.GREEN + "Chef" + ChatColor.DARK_GRAY + "]";
-				masteredJobCount++;
-			}
-
-			if (!targetPlayer.getMasteredJobs().contains("Rancher")) {
-				jobTally += ChatColor.DARK_GRAY + "[" + ChatColor.DARK_RED + "Rancher" + ChatColor.DARK_GRAY + "]";
-			} else {
-				jobTally += ChatColor.DARK_GRAY + "[" + ChatColor.GREEN + "Rancher" + ChatColor.DARK_GRAY + "]";
-				masteredJobCount++;
-			}
-
-			if (!targetPlayer.getMasteredJobs().contains("Blacksmith")) {
-				jobTally += ChatColor.DARK_GRAY + "[" + ChatColor.DARK_RED + "Blacksmith" + ChatColor.DARK_GRAY
-						+ "]";
-			} else {
-				jobTally += ChatColor.DARK_GRAY + "[" + ChatColor.GREEN + "Blacksmith" + ChatColor.DARK_GRAY + "]";
-				masteredJobCount++;
-			}
-
-			if (!targetPlayer.getMasteredJobs().contains("Woodsman")) {
-				jobTally += ChatColor.DARK_GRAY + "[" + ChatColor.DARK_RED + "Woodsman" + ChatColor.DARK_GRAY + "]";
-			} else {
-				jobTally += ChatColor.DARK_GRAY + "[" + ChatColor.GREEN + "Woodsman" + ChatColor.DARK_GRAY + "]";
-				masteredJobCount++;
-			}
-
-			if (!targetPlayer.getMasteredJobs().contains("Druid")) {
-				jobTally += ChatColor.DARK_GRAY + "[" + ChatColor.DARK_RED + "Druid" + ChatColor.DARK_GRAY + "]";
-			} else {
-				jobTally += ChatColor.DARK_GRAY + "[" + ChatColor.GREEN + "Druid" + ChatColor.DARK_GRAY + "]";
-				masteredJobCount++;
-			}
-
-			if (!targetPlayer.getMasteredJobs().contains("Engineer")) {
-				jobTally += ChatColor.DARK_GRAY + "[" + ChatColor.DARK_RED + "Engineer" + ChatColor.DARK_GRAY + "]";
-			} else {
-				jobTally += ChatColor.DARK_GRAY + "[" + ChatColor.GREEN + "Engineer" + ChatColor.DARK_GRAY + "]";
-				masteredJobCount++;
-			}
-
-			if (!targetPlayer.getMasteredJobs().contains("Conjurer")) {
-				jobTally += ChatColor.DARK_GRAY + "[" + ChatColor.DARK_RED + "Conjurer" + ChatColor.DARK_GRAY + "]";
-			} else {
-				jobTally += ChatColor.DARK_GRAY + "[" + ChatColor.GREEN + "Conjurer" + ChatColor.DARK_GRAY + "]";
-				masteredJobCount++;
-			}
-
-			if (!targetPlayer.getMasteredJobs().contains("Geomancer")) {
-				jobTally += ChatColor.DARK_GRAY + "[" + ChatColor.DARK_RED + "Geomancer" + ChatColor.DARK_GRAY
-						+ "]";
-			} else {
-				jobTally += ChatColor.DARK_GRAY + "[" + ChatColor.GREEN + "Geomancer" + ChatColor.DARK_GRAY + "]";
-				masteredJobCount++;
-			}
-
-			if (!targetPlayer.getMasteredJobs().contains("Nomad")) {
-				jobTally += ChatColor.DARK_GRAY + "[" + ChatColor.DARK_RED + "Nomad" + ChatColor.DARK_GRAY + "]";
-			} else {
-				jobTally += ChatColor.DARK_GRAY + "[" + ChatColor.GREEN + "Nomad" + ChatColor.DARK_GRAY + "]";
-				masteredJobCount++;
-			}
-
-			if (!targetPlayer.getMasteredJobs().contains("Alchemist")) {
-				jobTally += ChatColor.DARK_GRAY + "[" + ChatColor.DARK_RED + "Alchemist" + ChatColor.DARK_GRAY
-						+ "]";
-			} else {
-				jobTally += ChatColor.DARK_GRAY + "[" + ChatColor.GREEN + "Alchemist" + ChatColor.DARK_GRAY + "]";
-				masteredJobCount++;
-			}
-
-			if (!targetPlayer.getMasteredJobs().contains("Biologist")) {
-				jobTally += ChatColor.DARK_GRAY + "[" + ChatColor.DARK_RED + "Biologist" + ChatColor.DARK_GRAY
-						+ "]";
-			} else {
-				jobTally += ChatColor.DARK_GRAY + "[" + ChatColor.GREEN + "Biologist" + ChatColor.DARK_GRAY + "]";
-				masteredJobCount++;
-			}
-
-			if (!targetPlayer.getMasteredJobs().contains("Forgemaster")) {
-				jobTally += ChatColor.DARK_GRAY + "[" + ChatColor.DARK_RED + "Forgemaster" + ChatColor.DARK_GRAY
-						+ "]";
-			} else {
-				jobTally += ChatColor.DARK_GRAY + "[" + ChatColor.GREEN + "Forgemaster" + ChatColor.DARK_GRAY + "]";
-				masteredJobCount++;
-			}
-
-			if (!targetPlayer.getMasteredJobs().contains("Ranger")) {
-				jobTally += ChatColor.DARK_GRAY + "[" + ChatColor.DARK_RED + "Ranger" + ChatColor.DARK_GRAY + "]";
-			} else {
-				jobTally += ChatColor.DARK_GRAY + "[" + ChatColor.GREEN + "Ranger" + ChatColor.DARK_GRAY + "]";
-				masteredJobCount++;
-			}
-
-			if (!targetPlayer.getMasteredJobs().contains("Tamer")) {
-				jobTally += ChatColor.DARK_GRAY + "[" + ChatColor.DARK_RED + "Tamer" + ChatColor.DARK_GRAY + "]";
-			} else {
-				jobTally += ChatColor.DARK_GRAY + "[" + ChatColor.GREEN + "Tamer" + ChatColor.DARK_GRAY + "]";
-				masteredJobCount++;
-			}
-
-			if (!targetPlayer.getMasteredJobs().contains("Beastmaster")) {
-				jobTally += ChatColor.DARK_GRAY + "[" + ChatColor.DARK_RED + "Beastmaster" + ChatColor.DARK_GRAY
-						+ "]";
-			} else {
-				jobTally += ChatColor.DARK_GRAY + "[" + ChatColor.GREEN + "Beastmaster" + ChatColor.DARK_GRAY + "]";
-				masteredJobCount++;
-			}
-
-			if (!targetPlayer.getMasteredJobs().contains("Sorcerer")) {
-				jobTally += ChatColor.DARK_GRAY + "[" + ChatColor.DARK_RED + "Sorcerer" + ChatColor.DARK_GRAY + "]";
-			} else {
-				jobTally += ChatColor.DARK_GRAY + "[" + ChatColor.GREEN + "Sorcerer" + ChatColor.DARK_GRAY + "]";
-				masteredJobCount++;
-			}
-
-			if (!targetPlayer.getMasteredJobs().contains("Geneticist")) {
-				jobTally += ChatColor.DARK_GRAY + "[" + ChatColor.DARK_RED + "Geneticist" + ChatColor.DARK_GRAY
-						+ "]";
-			} else {
-				jobTally += ChatColor.DARK_GRAY + "[" + ChatColor.GREEN + "Geneticist" + ChatColor.DARK_GRAY + "]";
-				masteredJobCount++;
-			}
-
-			if (!targetPlayer.getMasteredJobs().contains("Artificer")) {
-				jobTally += ChatColor.DARK_GRAY + "[" + ChatColor.DARK_RED + "Artificer" + ChatColor.DARK_GRAY
-						+ "]";
-			} else {
-				jobTally += ChatColor.DARK_GRAY + "[" + ChatColor.GREEN + "Artificer" + ChatColor.DARK_GRAY + "]";
-				masteredJobCount++;
-			}
-
-			// FAILURE
-			if (masteredJobCount < masteredJobsNeededForTier4) {
-				targetPlayer.sendMessageToPlayer(ChatColor.RED
-						+ "You don't qualify for tier 4 jobs. You must master ALL lower tier jobs first!");
-				targetPlayer.sendMessageToPlayer(jobTally);
-			} else {
-				// SUCCESS
-				RunicParadise.perms.playerAdd(Bukkit.getPlayer(args[1]), "jobs.join.craftsman");
-				RunicParadise.perms.playerAdd(Bukkit.getPlayer(args[1]), "jobs.join.seafarer");
-				RunicParadise.perms.playerAdd(Bukkit.getPlayer(args[1]), "jobs.join.builder");
-				RunicParadise.perms.playerAdd(Bukkit.getPlayer(args[1]), "jobs.join.wanderer");
-				targetPlayer.sendMessageToPlayer(ChatColor.GREEN + "You qualify for tier 4 jobs!");
+						+ "You must have level 30 in a job to achieve mastery.");
 			}
 
 		} else if (args[0].equals("qualify") && args.length == 2 && !(sender instanceof Player)) {
-			// Qualify for a tier2 job
-			RunicPlayerBukkit targetPlayer = new RunicPlayerBukkit(args[1]);
+			// Qualify for an upper tier job
+			Player p = Bukkit.getPlayer(args[1]);
+			String jobTally = "";
 			boolean showFail = true;
 
-			if (targetPlayer.getMasteredJobCount() > 0 && !targetPlayer.checkPlayerPermission("rp.level.master")) {
-				targetPlayer.sendMessageToPlayer(
-						ChatColor.YELLOW + "[RunicRanks] Your previous masteries are now visible to Runic Ranks!");
-
-				RunicParadise.perms.playerAdd(Bukkit.getPlayer(args[1]), "rp.level.master");
-			}
-
-			targetPlayer.sendMessageToPlayer(ChatColor.YELLOW + "[RunicRanks] You have mastered these jobs: "
-					+ ChatColor.GOLD + targetPlayer.getMasteredJobs());
-
-			// BEASTMASTER
-			if (targetPlayer.getMasteredJobs().contains("Druid") && targetPlayer.getMasteredJobs().contains("Tamer")
-					&& targetPlayer.getMasteredJobs().contains("Nomad")) {
-				RunicParadise.perms.playerAdd(Bukkit.getPlayer(args[1]), "jobs.join.beastmaster");
-				targetPlayer.sendMessageToPlayer(
-						ChatColor.GREEN + "You qualify to become a " + ChatColor.DARK_GREEN + "BEASTMASTER");
-				showFail = false;
-			}
-			// SORCEROR
-			if (targetPlayer.getMasteredJobs().contains("Alchemist")
-					&& targetPlayer.getMasteredJobs().contains("Geomancer")
-					&& targetPlayer.getMasteredJobs().contains("Conjurer")) {
-				RunicParadise.perms.playerAdd(Bukkit.getPlayer(args[1]), "jobs.join.sorcerer");
-				targetPlayer.sendMessageToPlayer(
-						ChatColor.GREEN + "You qualify to become a " + ChatColor.DARK_GREEN + "SORCERER");
-				showFail = false;
-			}
-			// GENETICIST
-			if (targetPlayer.getMasteredJobs().contains("Ranger")
-					&& targetPlayer.getMasteredJobs().contains("Nomad")
-					&& targetPlayer.getMasteredJobs().contains("Biologist")) {
-				RunicParadise.perms.playerAdd(Bukkit.getPlayer(args[1]), "jobs.join.geneticist");
-				targetPlayer.sendMessageToPlayer(
-						ChatColor.GREEN + "You qualify to become a " + ChatColor.DARK_GREEN + "GENETICIST");
-				showFail = false;
-			}
-			// ARTIFICER
-			if (targetPlayer.getMasteredJobs().contains("Engineer")
-					&& targetPlayer.getMasteredJobs().contains("Forgemaster")
-					&& targetPlayer.getMasteredJobs().contains("Geomancer")) {
-				RunicParadise.perms.playerAdd(Bukkit.getPlayer(args[1]), "jobs.join.artificer");
-				targetPlayer.sendMessageToPlayer(
-						ChatColor.GREEN + "You qualify to become a " + ChatColor.DARK_GREEN + "ARTIFICER");
-				showFail = false;
-			}
+			RunicMessaging.sendMessage(p, RunicFormat.EMPTY, ChatColor.BLUE + "*** Tier 2 Jobs ***");
 
 			// RANGER
-			if (targetPlayer.getMasteredJobs().contains("Woodsman")
-					&& targetPlayer.getMasteredJobs().contains("Rancher")) {
-				RunicParadise.perms.playerAdd(Bukkit.getPlayer(args[1]), "jobs.join.ranger");
-				targetPlayer.sendMessageToPlayer(
-						ChatColor.GREEN + "You qualify to become a " + ChatColor.DARK_GREEN + "RANGER");
-				showFail = false;
-			}
-
+				if (p.hasPermission("rp.jobs.max.woodsman") && p.hasPermission("rp.jobs.max.rancher")
+						&& !p.hasPermission("jobs.join.RANGER")) {
+					RunicParadise.perms.playerAdd(p, "jobs.join.RANGER");
+					jobTally += ChatColor.GREEN + "RANGER ";
+				}
+				else if (p.hasPermission("jobs.join.RANGER")) {
+					jobTally += ChatColor.GREEN + "RANGER ";
+				}
+				else {
+					jobTally += ChatColor.DARK_RED + "RANGER ";
+				}
 			// FORGEMASTER
-			if (targetPlayer.getMasteredJobs().contains("Blacksmith")
-					&& targetPlayer.getMasteredJobs().contains("Miner")) {
-				RunicParadise.perms.playerAdd(Bukkit.getPlayer(args[1]), "jobs.join.forgemaster");
-				targetPlayer.sendMessageToPlayer(
-						ChatColor.GREEN + "You qualify to become a " + ChatColor.DARK_GREEN + "FORGEMASTER");
-				showFail = false;
-			}
-
+				if (p.hasPermission("rp.jobs.max.blacksmith") && p.hasPermission("rp.jobs.max.miner")
+						&& !p.hasPermission("jobs.join.FORGEMASTER")) {
+					RunicParadise.perms.playerAdd(p, "jobs.join.FORGEMASTER");
+					jobTally += ChatColor.GREEN + "FORGEMASTER ";
+				}
+				else if (p.hasPermission("jobs.join.FORGEMASTER")) {
+					jobTally += ChatColor.GREEN + "FORGEMASTER ";
+				}
+				else {
+					jobTally += ChatColor.DARK_RED + "FORGEMASTER ";
+				}
 			// BIOLOGIST
-			if (targetPlayer.getMasteredJobs().contains("Scientist")
-					&& targetPlayer.getMasteredJobs().contains("Rancher")) {
-				RunicParadise.perms.playerAdd(Bukkit.getPlayer(args[1]), "jobs.join.biologist");
-				targetPlayer.sendMessageToPlayer(
-						ChatColor.GREEN + "You qualify to become a " + ChatColor.DARK_GREEN + "BIOLOGIST");
-				showFail = false;
-			}
-
+				if (p.hasPermission("rp.jobs.max.scientist") && p.hasPermission("rp.jobs.max.rancher")
+						&& !p.hasPermission("jobs.join.BIOLOGIST")) {
+					RunicParadise.perms.playerAdd(p, "jobs.join.BIOLOGIST");
+					jobTally += ChatColor.GREEN + "BIOLOGIST ";
+				}
+				else if (p.hasPermission("jobs.join.BIOLOGIST")) {
+					jobTally += ChatColor.GREEN + "BIOLOGIST ";
+				}
+				else {
+					jobTally += ChatColor.DARK_RED + "BIOLOGIST ";
+				}
 			// ALCHEMIST
-			if (targetPlayer.getMasteredJobs().contains("Wizard")
-					&& targetPlayer.getMasteredJobs().contains("Chef")) {
-				RunicParadise.perms.playerAdd(Bukkit.getPlayer(args[1]), "jobs.join.alchemist");
-				targetPlayer.sendMessageToPlayer(
-						ChatColor.GREEN + "You qualify to become a " + ChatColor.DARK_GREEN + "ALCHEMIST");
-				showFail = false;
-			}
-
+				if (p.hasPermission("rp.jobs.max.wizard") && p.hasPermission("rp.jobs.max.chef")
+						&& !p.hasPermission("jobs.join.ALCHEMIST")) {
+					RunicParadise.perms.playerAdd(p, "jobs.join.ALCHEMIST");
+					jobTally += ChatColor.GREEN + "ALCHEMIST ";
+				}
+				else if (p.hasPermission("jobs.join.ALCHEMIST")) {
+					jobTally += ChatColor.GREEN + "ALCHEMIST ";
+				}
+				else {
+					jobTally += ChatColor.DARK_RED + "ALCHEMIST ";
+				}
 			// NOMAD
-			if (targetPlayer.getMasteredJobs().contains("Chef")
-					&& targetPlayer.getMasteredJobs().contains("Rancher")) {
-				RunicParadise.perms.playerAdd(Bukkit.getPlayer(args[1]), "jobs.join.nomad");
-				targetPlayer.sendMessageToPlayer(
-						ChatColor.GREEN + "You qualify to become a " + ChatColor.DARK_GREEN + "NOMAD");
-				showFail = false;
-			}
-
+				if (p.hasPermission("rp.jobs.max.chef") && p.hasPermission("rp.jobs.max.rancher")
+						&& !p.hasPermission("jobs.join.NOMAD")) {
+					RunicParadise.perms.playerAdd(p, "jobs.join.NOMAD");
+					jobTally += ChatColor.GREEN + "NOMAD ";
+				}
+				else if (p.hasPermission("jobs.join.NOMAD")) {
+					jobTally += ChatColor.GREEN + "NOMAD ";
+				}
+				else {
+					jobTally += ChatColor.DARK_RED + "NOMAD ";
+				}
 			// GEOMANCER
-			if (targetPlayer.getMasteredJobs().contains("Wizard")
-					&& targetPlayer.getMasteredJobs().contains("Miner")) {
-				RunicParadise.perms.playerAdd(Bukkit.getPlayer(args[1]), "jobs.join.geomancer");
-				targetPlayer.sendMessageToPlayer(
-						ChatColor.GREEN + "You qualify to become a " + ChatColor.DARK_GREEN + "GEOMANCER");
-				showFail = false;
-			}
-
+				if (p.hasPermission("rp.jobs.max.wizard") && p.hasPermission("rp.jobs.max.miner")
+						&& !p.hasPermission("jobs.join.GEOMANCER")) {
+					RunicParadise.perms.playerAdd(p, "jobs.join.GEOMANCER");
+					jobTally += ChatColor.GREEN + "GEOMANCER ";
+				}
+				else if (p.hasPermission("jobs.join.GEOMANCER")) {
+					jobTally += ChatColor.GREEN + "GEOMANCER ";
+				}
+				else {
+					jobTally += ChatColor.DARK_RED + "GEOMANCER ";
+				}
 			// CONJURER
-			if (targetPlayer.getMasteredJobs().contains("Blacksmith")
-					&& targetPlayer.getMasteredJobs().contains("Wizard")) {
-				RunicParadise.perms.playerAdd(Bukkit.getPlayer(args[1]), "jobs.join.conjurer");
-				targetPlayer.sendMessageToPlayer(
-						ChatColor.GREEN + "You qualify to become a " + ChatColor.DARK_GREEN + "CONJURER");
-				showFail = false;
-			}
-
+				if (p.hasPermission("rp.jobs.max.wizard") && p.hasPermission("rp.jobs.max.blacksmith")
+						&& !p.hasPermission("jobs.join.CONJURER")) {
+					RunicParadise.perms.playerAdd(p, "jobs.join.CONJURER");
+					jobTally += ChatColor.GREEN + "CONJURER ";
+				}
+				else if (p.hasPermission("jobs.join.CONJURER")) {
+					jobTally += ChatColor.GREEN + "CONJURER ";
+				}
+				else {
+					jobTally += ChatColor.DARK_RED + "CONJURER ";
+				}
 			// DRUID
-			if (targetPlayer.getMasteredJobs().contains("Wizard")
-					&& targetPlayer.getMasteredJobs().contains("Woodsman")) {
-				RunicParadise.perms.playerAdd(Bukkit.getPlayer(args[1]), "jobs.join.druid");
-				targetPlayer.sendMessageToPlayer(
-						ChatColor.GREEN + "You qualify to become a " + ChatColor.DARK_GREEN + "DRUID");
-				showFail = false;
-			}
-
+				if (p.hasPermission("rp.jobs.max.wizard") && p.hasPermission("rp.jobs.max.woodsman")
+						&& !p.hasPermission("jobs.join.DRUID")) {
+					RunicParadise.perms.playerAdd(p, "jobs.join.DRUID");
+					jobTally += ChatColor.GREEN + "DRUID ";
+				}
+				else if (p.hasPermission("jobs.join.DRUID")) {
+					jobTally += ChatColor.GREEN + "DRUID ";
+				}
+				else {
+					jobTally += ChatColor.DARK_RED + "DRUID ";
+				}
 			// ENGINEER
-			if (targetPlayer.getMasteredJobs().contains("Scientist")
-					&& targetPlayer.getMasteredJobs().contains("Miner")) {
-				RunicParadise.perms.playerAdd(Bukkit.getPlayer(args[1]), "jobs.join.engineer");
-				targetPlayer.sendMessageToPlayer(
-						ChatColor.GREEN + "You qualify to become a " + ChatColor.DARK_GREEN + "ENGINEER");
-				showFail = false;
-			}
+				if (p.hasPermission("rp.jobs.max.scientist") && p.hasPermission("rp.jobs.max.miner")
+						&& !p.hasPermission("jobs.join.ENGINEER")) {
+					RunicParadise.perms.playerAdd(p, "jobs.join.ENGINEER");
+					jobTally += ChatColor.GREEN + "ENGINEER ";
+				}
+				else if (p.hasPermission("jobs.join.ENGINEER")) {
+					jobTally += ChatColor.GREEN + "ENGINEER ";
+				}
+				else {
+					jobTally += ChatColor.DARK_RED + "ENGINEER ";
+				}
 
+			RunicMessaging.sendMessage(p, RunicFormat.EMPTY	, jobTally);
+			jobTally = "";
+
+			RunicMessaging.sendMessage(p, RunicFormat.EMPTY, ChatColor.YELLOW + "*** Tier 3 Jobs ***");
+
+			// BEASTMASTER
+			if (p.hasPermission("rp.jobs.max.druid") && p.hasPermission("rp.jobs.max.tamer") && p.hasPermission("rp.jobs.max.nomad") && !p.hasPermission("jobs.join.beastmaster")) {
+				RunicParadise.perms.playerAdd(p, "jobs.join.beastmaster");
+				jobTally += ChatColor.GREEN + "BEASTMASTER ";
+			}
+			else if (p.hasPermission("jobs.join.beastmaster")) {
+				jobTally += ChatColor.GREEN + "BEASTMASTER ";
+			}
+			else {
+				jobTally += ChatColor.DARK_RED + "BEASTMASTER ";
+			}
+			// SORCERER
+			if (p.hasPermission("rp.jobs.max.alchemist") && p.hasPermission("rp.jobs.max.geomancer") && p.hasPermission("rp.jobs.max.conjurer")
+					&& !p.hasPermission("jobs.join.sorcerer")) {
+				RunicParadise.perms.playerAdd(p, "jobs.join.sorcerer");
+				jobTally += ChatColor.GREEN + "SORCERER ";
+			}
+			else if (p.hasPermission("jobs.join.sorcerer")) {
+				jobTally += ChatColor.GREEN + "SORCERER ";
+			}
+			else {
+				jobTally += ChatColor.DARK_RED + "SORCERER ";
+			}
+			// GENETICIST
+			if (p.hasPermission("rp.jobs.max.ranger") && p.hasPermission("rp.jobs.max.nomad") && p.hasPermission("rp.jobs.max.biologist")
+					&& !p.hasPermission("jobs.join.GENETICIST")) {
+				RunicParadise.perms.playerAdd(p, "jobs.join.GENETICIST");
+				jobTally += ChatColor.GREEN + "GENETICIST ";
+			}
+			else if (p.hasPermission("jobs.join.GENETICIST")) {
+				jobTally += ChatColor.GREEN + "GENETICIST ";
+			}
+			else {
+				jobTally += ChatColor.DARK_RED + "GENETICIST ";
+			}
+			// ARTIFICER
+			if (p.hasPermission("rp.jobs.max.engineer") && p.hasPermission("rp.jobs.max.forgemaster") && p.hasPermission("rp.jobs.max.geomancer")
+					&& !p.hasPermission("jobs.join.ARTIFICER")) {
+				RunicParadise.perms.playerAdd(p, "jobs.join.ARTIFICER");
+				jobTally += ChatColor.GREEN + "ARTIFICER ";
+			}
+			else if (p.hasPermission("jobs.join.ARTIFICER")) {
+				jobTally += ChatColor.GREEN + "ARTIFICER ";
+			}
+			else {
+				jobTally += ChatColor.DARK_RED + "ARTIFICER ";
+			}
 			// FAILURE
 			if (showFail) {
-				targetPlayer.sendMessageToPlayer(ChatColor.RED
-						+ "You don't qualify for any additional jobs yet. Master another job and try again!");
+				RunicMessaging.sendMessage(p, RunicFormat.ERROR, ChatColor.RED
+						+ "Something went wrong. Couldn't build your qualification list!");
 			}
+
+			RunicMessaging.sendMessage(p, RunicFormat.EMPTY	, jobTally);
+			jobTally = "";
+
+			RunicMessaging.sendMessage(p, RunicFormat.EMPTY, ChatColor.DARK_RED + "*** Tier 4 Jobs ***");
+
+			// CRAFTSMAN
+				if (p.hasPermission("rp.jobs.max.artificer") && p.hasPermission("rp.jobs.max.sorcerer") && !p.hasPermission("jobs.join.craftsman")) {
+					RunicParadise.perms.playerAdd(p, "jobs.join.CRAFTSMAN");
+					jobTally += ChatColor.GREEN + "CRAFTSMAN ";
+				}
+				else if (p.hasPermission("jobs.join.CRAFTSMAN")) {
+					jobTally += ChatColor.GREEN + "CRAFTSMAN ";
+				}
+				else {
+					jobTally += ChatColor.DARK_RED + "CRAFTSMAN ";
+				}
+			//  SEAFARER
+				if (p.hasPermission("rp.jobs.max.geneticist") && p.hasPermission("rp.jobs.max.beastmaster") && !p.hasPermission("jobs.join.seafarer")) {
+					RunicParadise.perms.playerAdd(p, "jobs.join.seafarer");
+					jobTally += ChatColor.GREEN + "SEAFARER ";
+				}
+				else if (p.hasPermission("jobs.join.SEAFARER")) {
+					jobTally += ChatColor.GREEN + "SEAFARER ";
+				}
+				else {
+					jobTally += ChatColor.DARK_RED + "SEAFARER ";
+				}
+
+			RunicMessaging.sendMessage(p, RunicFormat.EMPTY	, jobTally);
+			jobTally = "";
+
 
 		} else if (args[0].equals("maintenance") && args.length == 1 && !(sender instanceof Player)) {
 
