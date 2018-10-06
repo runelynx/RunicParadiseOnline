@@ -2646,9 +2646,13 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 			} else if (deadPlayer.hasPermission("rp.xpreturn.5")) {
 				pctExpToReturn = .05;
 			}
-			getLogger().log(Level.INFO, deadPlayer.getName() + " died. Returning xpLevel " + deadPlayer.getLevel() + " * pctToKeep " + pctExpToReturn);
-			deadPlayer.setLevel((int) (deadPlayer.getLevel() * pctExpToReturn));
-			getLogger().log(Level.INFO, deadPlayer.getName() + " new exp level after death is " + deadPlayer.getLevel());
+
+
+			getLogger().log(Level.INFO, deadPlayer.getName() + " died. Returning xp " + getPlayerExp(deadPlayer) + " * pctToKeep " + pctExpToReturn);
+			deadPlayer.setLevel(0);
+			deadPlayer.setExp(0);
+			deadPlayer.giveExp((int)(getPlayerExp(deadPlayer) * pctExpToReturn));
+			getLogger().log(Level.INFO, deadPlayer.getName() + " new exp after death is " + deadPlayer.getLevel() + " level; " + deadPlayer.getExp() + " exp");
 
 			if (pctExpToReturn > .01) {
 				RunicMessaging.sendMessage(deadPlayer, RunicFormat.AFTERLIFE, "Returning " + 100 * pctExpToReturn + "% of your experience levels to you!");
@@ -3285,4 +3289,42 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 		item.setItemMeta(headMeta);
 		return item;
 	}
+
+	// Calculate amount of EXP needed to level up
+	public static int getExpToLevelUp(int level){
+		if(level <= 15){
+			return 2*level+7;
+		} else if(level <= 30){
+			return 5*level-38;
+		} else {
+			return 9*level-158;
+		}
+	}
+
+	// Calculate total experience up to a level
+	public static int getExpAtLevel(int level){
+		if(level <= 16){
+			return (int) (Math.pow(level,2) + 6*level);
+		} else if(level <= 31){
+			return (int) (2.5*Math.pow(level,2) - 40.5*level + 360.0);
+		} else {
+			return (int) (4.5*Math.pow(level,2) - 162.5*level + 2220.0);
+		}
+	}
+
+	// Calculate player's current EXP amount
+	public static int getPlayerExp(Player player){
+		int exp = 0;
+		int level = player.getLevel();
+
+		// Get the amount of XP in past levels
+		exp += getExpAtLevel(level);
+
+		// Get amount of XP towards next level
+		exp += Math.round(getExpToLevelUp(level) * player.getExp());
+
+		return exp;
+	}
+
+
 }
