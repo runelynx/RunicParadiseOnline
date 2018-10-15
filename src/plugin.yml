@@ -56,8 +56,8 @@ commands:
    rpfix:
       description: "Donation perk. Repairs item in both hands."
       usage: /<command>
-      permission: rp.repair
-      permission-message: "You don't have permission: rp.runicspawntravel"
+      permission: rp.repair.disabled
+      permission-message: "/rpfix is disabled!"
    runicspawntravel:
       description: "Just for admins"
       usage: /<command>
