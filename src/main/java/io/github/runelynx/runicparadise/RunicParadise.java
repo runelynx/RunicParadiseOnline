@@ -2649,7 +2649,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 
 
 			getLogger().log(Level.INFO, deadPlayer.getName() + " died. Returning xp " + getPlayerExp(deadPlayer) + " * pctToKeep " + pctExpToReturn);
-			float expLost = deadPlayer.getExp();
+			float expLost = getPlayerExp(deadPlayer);
 
 			deadPlayer.setLevel(0);
 			deadPlayer.setExp(0);
