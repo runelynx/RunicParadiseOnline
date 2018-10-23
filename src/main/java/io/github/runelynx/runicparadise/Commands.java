@@ -1694,7 +1694,7 @@ public class Commands implements CommandExecutor {
 			RunicMessaging.sendMessage(p, RunicFormat.EMPTY, ChatColor.BLUE + "*** Tier 2 Jobs ***");
 
 			// RANGER
-				if (p.hasPermission("rp.jobs.max.woodsman") && p.hasPermission("rp.jobs.max.rancher")
+				if (p.hasPermission("rp.jobs.mastery.woodsman") && p.hasPermission("rp.jobs.mastery.rancher")
 						&& !p.hasPermission("jobs.join.RANGER")) {
 					RunicParadise.perms.playerAdd(p, "jobs.join.RANGER");
 					jobTally += ChatColor.GREEN + "RANGER ";
@@ -1706,7 +1706,7 @@ public class Commands implements CommandExecutor {
 					jobTally += ChatColor.DARK_RED + "RANGER ";
 				}
 			// FORGEMASTER
-				if (p.hasPermission("rp.jobs.max.blacksmith") && p.hasPermission("rp.jobs.max.miner")
+				if (p.hasPermission("rp.jobs.mastery.blacksmith") && p.hasPermission("rp.jobs.mastery.miner")
 						&& !p.hasPermission("jobs.join.FORGEMASTER")) {
 					RunicParadise.perms.playerAdd(p, "jobs.join.FORGEMASTER");
 					jobTally += ChatColor.GREEN + "FORGEMASTER ";
@@ -1718,7 +1718,7 @@ public class Commands implements CommandExecutor {
 					jobTally += ChatColor.DARK_RED + "FORGEMASTER ";
 				}
 			// BIOLOGIST
-				if (p.hasPermission("rp.jobs.max.scientist") && p.hasPermission("rp.jobs.max.rancher")
+				if (p.hasPermission("rp.jobs.mastery.scientist") && p.hasPermission("rp.jobs.mastery.rancher")
 						&& !p.hasPermission("jobs.join.BIOLOGIST")) {
 					RunicParadise.perms.playerAdd(p, "jobs.join.BIOLOGIST");
 					jobTally += ChatColor.GREEN + "BIOLOGIST ";
@@ -1730,7 +1730,7 @@ public class Commands implements CommandExecutor {
 					jobTally += ChatColor.DARK_RED + "BIOLOGIST ";
 				}
 			// ALCHEMIST
-				if (p.hasPermission("rp.jobs.max.wizard") && p.hasPermission("rp.jobs.max.chef")
+				if (p.hasPermission("rp.jobs.mastery.wizard") && p.hasPermission("rp.jobs.mastery.chef")
 						&& !p.hasPermission("jobs.join.ALCHEMIST")) {
 					RunicParadise.perms.playerAdd(p, "jobs.join.ALCHEMIST");
 					jobTally += ChatColor.GREEN + "ALCHEMIST ";
@@ -1742,7 +1742,7 @@ public class Commands implements CommandExecutor {
 					jobTally += ChatColor.DARK_RED + "ALCHEMIST ";
 				}
 			// NOMAD
-				if (p.hasPermission("rp.jobs.max.chef") && p.hasPermission("rp.jobs.max.rancher")
+				if (p.hasPermission("rp.jobs.mastery.chef") && p.hasPermission("rp.jobs.mastery.rancher")
 						&& !p.hasPermission("jobs.join.NOMAD")) {
 					RunicParadise.perms.playerAdd(p, "jobs.join.NOMAD");
 					jobTally += ChatColor.GREEN + "NOMAD ";
@@ -1754,7 +1754,7 @@ public class Commands implements CommandExecutor {
 					jobTally += ChatColor.DARK_RED + "NOMAD ";
 				}
 			// GEOMANCER
-				if (p.hasPermission("rp.jobs.max.wizard") && p.hasPermission("rp.jobs.max.miner")
+				if (p.hasPermission("rp.jobs.mastery.wizard") && p.hasPermission("rp.jobs.mastery.miner")
 						&& !p.hasPermission("jobs.join.GEOMANCER")) {
 					RunicParadise.perms.playerAdd(p, "jobs.join.GEOMANCER");
 					jobTally += ChatColor.GREEN + "GEOMANCER ";
@@ -1766,7 +1766,7 @@ public class Commands implements CommandExecutor {
 					jobTally += ChatColor.DARK_RED + "GEOMANCER ";
 				}
 			// CONJURER
-				if (p.hasPermission("rp.jobs.max.wizard") && p.hasPermission("rp.jobs.max.blacksmith")
+				if (p.hasPermission("rp.jobs.mastery.wizard") && p.hasPermission("rp.jobs.mastery.blacksmith")
 						&& !p.hasPermission("jobs.join.CONJURER")) {
 					RunicParadise.perms.playerAdd(p, "jobs.join.CONJURER");
 					jobTally += ChatColor.GREEN + "CONJURER ";
@@ -1778,7 +1778,7 @@ public class Commands implements CommandExecutor {
 					jobTally += ChatColor.DARK_RED + "CONJURER ";
 				}
 			// DRUID
-				if (p.hasPermission("rp.jobs.max.wizard") && p.hasPermission("rp.jobs.max.woodsman")
+				if (p.hasPermission("rp.jobs.mastery.wizard") && p.hasPermission("rp.jobs.mastery.woodsman")
 						&& !p.hasPermission("jobs.join.DRUID")) {
 					RunicParadise.perms.playerAdd(p, "jobs.join.DRUID");
 					jobTally += ChatColor.GREEN + "DRUID ";
@@ -1790,7 +1790,7 @@ public class Commands implements CommandExecutor {
 					jobTally += ChatColor.DARK_RED + "DRUID ";
 				}
 			// ENGINEER
-				if (p.hasPermission("rp.jobs.max.scientist") && p.hasPermission("rp.jobs.max.miner")
+				if (p.hasPermission("rp.jobs.mastery.scientist") && p.hasPermission("rp.jobs.mastery.miner")
 						&& !p.hasPermission("jobs.join.ENGINEER")) {
 					RunicParadise.perms.playerAdd(p, "jobs.join.ENGINEER");
 					jobTally += ChatColor.GREEN + "ENGINEER ";
@@ -1808,7 +1808,7 @@ public class Commands implements CommandExecutor {
 			RunicMessaging.sendMessage(p, RunicFormat.EMPTY, ChatColor.YELLOW + "*** Tier 3 Jobs ***");
 
 			// BEASTMASTER
-			if (p.hasPermission("rp.jobs.max.druid") && p.hasPermission("rp.jobs.max.tamer") && p.hasPermission("rp.jobs.max.nomad") && !p.hasPermission("jobs.join.beastmaster")) {
+			if (p.hasPermission("rp.jobs.mastery.druid") && p.hasPermission("rp.jobs.mastery.tamer") && p.hasPermission("rp.jobs.mastery.nomad") && !p.hasPermission("jobs.join.beastmaster")) {
 				RunicParadise.perms.playerAdd(p, "jobs.join.beastmaster");
 				jobTally += ChatColor.GREEN + "BEASTMASTER ";
 			}
@@ -1819,7 +1819,7 @@ public class Commands implements CommandExecutor {
 				jobTally += ChatColor.DARK_RED + "BEASTMASTER ";
 			}
 			// SORCERER
-			if (p.hasPermission("rp.jobs.max.alchemist") && p.hasPermission("rp.jobs.max.geomancer") && p.hasPermission("rp.jobs.max.conjurer")
+			if (p.hasPermission("rp.jobs.mastery.alchemist") && p.hasPermission("rp.jobs.mastery.geomancer") && p.hasPermission("rp.jobs.mastery.conjurer")
 					&& !p.hasPermission("jobs.join.sorcerer")) {
 				RunicParadise.perms.playerAdd(p, "jobs.join.sorcerer");
 				jobTally += ChatColor.GREEN + "SORCERER ";
@@ -1831,7 +1831,7 @@ public class Commands implements CommandExecutor {
 				jobTally += ChatColor.DARK_RED + "SORCERER ";
 			}
 			// GENETICIST
-			if (p.hasPermission("rp.jobs.max.ranger") && p.hasPermission("rp.jobs.max.nomad") && p.hasPermission("rp.jobs.max.biologist")
+			if (p.hasPermission("rp.jobs.mastery.ranger") && p.hasPermission("rp.jobs.mastery.nomad") && p.hasPermission("rp.jobs.mastery.biologist")
 					&& !p.hasPermission("jobs.join.GENETICIST")) {
 				RunicParadise.perms.playerAdd(p, "jobs.join.GENETICIST");
 				jobTally += ChatColor.GREEN + "GENETICIST ";
@@ -1843,7 +1843,7 @@ public class Commands implements CommandExecutor {
 				jobTally += ChatColor.DARK_RED + "GENETICIST ";
 			}
 			// ARTIFICER
-			if (p.hasPermission("rp.jobs.max.engineer") && p.hasPermission("rp.jobs.max.forgemaster") && p.hasPermission("rp.jobs.max.geomancer")
+			if (p.hasPermission("rp.jobs.mastery.engineer") && p.hasPermission("rp.jobs.mastery.forgemaster") && p.hasPermission("rp.jobs.mastery.geomancer")
 					&& !p.hasPermission("jobs.join.ARTIFICER")) {
 				RunicParadise.perms.playerAdd(p, "jobs.join.ARTIFICER");
 				jobTally += ChatColor.GREEN + "ARTIFICER ";
@@ -1861,7 +1861,7 @@ public class Commands implements CommandExecutor {
 			RunicMessaging.sendMessage(p, RunicFormat.EMPTY, ChatColor.DARK_RED + "*** Tier 4 Jobs ***");
 
 			// CRAFTSMAN
-				if (p.hasPermission("rp.jobs.max.artificer") && p.hasPermission("rp.jobs.max.sorcerer") && !p.hasPermission("jobs.join.craftsman")) {
+				if (p.hasPermission("rp.jobs.mastery.artificer") && p.hasPermission("rp.jobs.mastery.sorcerer") && !p.hasPermission("jobs.join.craftsman")) {
 					RunicParadise.perms.playerAdd(p, "jobs.join.CRAFTSMAN");
 					jobTally += ChatColor.GREEN + "CRAFTSMAN ";
 				}
@@ -1872,7 +1872,7 @@ public class Commands implements CommandExecutor {
 					jobTally += ChatColor.DARK_RED + "CRAFTSMAN ";
 				}
 			//  SEAFARER
-				if (p.hasPermission("rp.jobs.max.geneticist") && p.hasPermission("rp.jobs.max.beastmaster") && !p.hasPermission("jobs.join.seafarer")) {
+				if (p.hasPermission("rp.jobs.mastery.geneticist") && p.hasPermission("rp.jobs.mastery.beastmaster") && !p.hasPermission("jobs.join.seafarer")) {
 					RunicParadise.perms.playerAdd(p, "jobs.join.seafarer");
 					jobTally += ChatColor.GREEN + "SEAFARER ";
 				}
