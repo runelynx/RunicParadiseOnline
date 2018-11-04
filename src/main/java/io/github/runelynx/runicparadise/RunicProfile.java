@@ -15,6 +15,7 @@ import org.bukkit.plugin.Plugin;
 import java.sql.*;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.*;
 import java.util.Date;
 import java.util.logging.Level;
@@ -886,6 +887,21 @@ public class RunicProfile {
 					// Adventure Parkour
 					Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "give " + p.getName() + " witherskull 1");
 					p.sendMessage(ChatColor.GOLD + "You received a wither skull for first completion here!");
+				}
+				if (mzResult.getInt("ID") == 7) {
+					// Adventure Parkour
+					Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "give " + p.getName() + " witherskull 1");
+					p.sendMessage(ChatColor.GOLD + "You received a wither skull for first completion here!");
+				}
+				if (mzResult.getInt("ID") == 23) {
+					// Cake Maze
+					p.getInventory().addItem(Recipes.customItemStacks("CAKE_MAZE_1"));
+					p.sendMessage(ChatColor.GOLD + "You received a cake trophy for first completion here!");
+
+					if (LocalDate.now().isBefore(LocalDate.of(2018, 11, 23))) {
+						p.getInventory().addItem(Recipes.customItemStacks("CAKE_MAZE_2"));
+						p.sendMessage(ChatColor.GOLD + "You received a Thanksgiving pie trophy for first completion here before Thanksgiving 2018!");
+					}
 				}
 				
 				if (mzResult.getInt("ID") == 21) {

@@ -22,6 +22,32 @@ class Recipes {
 		ItemMeta meta;
 
 		switch (key) {
+			case "CAKE_MAZE_1":
+				newItem = new ItemStack(Material.CAKE, 1);
+				meta = newItem.getItemMeta();
+				meta.setDisplayName(ChatColor.LIGHT_PURPLE + "Frustratingly Delicious Cake");
+				meta.setLore(Arrays.asList(ChatColor.GRAY
+						+ "The chocolate filling seems to", " ", ChatColor.GRAY
+						+ "run through this cake like a maze!", ChatColor.YELLOW
+						+ "", ChatColor.DARK_PURPLE
+						+ "Prize for completing the Cake Maze"
+						));
+				meta.addEnchant(Enchantment.MENDING, 1, true);
+				newItem.setItemMeta(meta);
+				return newItem;
+			case "CAKE_MAZE_2":
+				newItem = new ItemStack(Material.PUMPKIN_PIE, 1);
+				meta = newItem.getItemMeta();
+				meta.setDisplayName(ChatColor.LIGHT_PURPLE + "Puzzling Pumpkin Pie");
+				meta.setLore(Arrays.asList(ChatColor.GRAY
+						+ "Difficult to make, but tastes great!", ChatColor.GRAY
+						+ "A must for any Thanksgiving :)",
+						 " ", ChatColor.DARK_PURPLE
+						+ "Prize for early completion of Cake Maze"
+				));
+				meta.addEnchant(Enchantment.MENDING, 1, true);
+				newItem.setItemMeta(meta);
+				return newItem;
 			case "FAITH_SWORD_1":
 					newItem = new ItemStack(Material.GOLDEN_SWORD, 1);
 					meta = newItem.getItemMeta();

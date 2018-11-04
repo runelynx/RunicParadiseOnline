@@ -3091,39 +3091,6 @@ public class Commands implements CommandExecutor {
 		if (args.length == 0 || args.length > 1) {
 			RunicParadise.showRunicCarnivalMenu(player);
 
-			/*
-			 * player.sendMessage(ChatColor.YELLOW + "  ✸ " +
-			 * ChatColor.GOLD + "✹ " + ChatColor.RED + "✺ " +
-			 * ChatColor.RED + "Runic Carnival" + ChatColor.RED + " ✺ "
-			 * + ChatColor.GOLD + "✹ " + ChatColor.YELLOW + "✸");
-			 * player.sendMessage(ChatColor.GREEN + "      ♪ " +
-			 * ChatColor.DARK_AQUA + "♫ " + ChatColor.AQUA + "☾ " +
-			 * ChatColor.BLUE + "Tokens: " + tokenBal + ChatColor.AQUA +
-			 * " ☽ " + ChatColor.DARK_AQUA + "♫ " + ChatColor.GREEN +
-			 * "♪");
-			 *
-			 * // player.sendMessage(ChatColor.WHITE + "" + //
-			 * ChatColor.ITALIC // + "Format: /games [option]");
-			 * player.sendMessage(ChatColor.DARK_RED + "[1] " +
-			 * ChatColor.GRAY + "Information Center");
-			 * player.sendMessage(ChatColor.RED + "[2] " +
-			 * ChatColor.GRAY + "Prize Cabin");
-			 * player.sendMessage(ChatColor.GOLD + "[3] " +
-			 * ChatColor.GRAY + "Puzzle Kiosk");
-			 * player.sendMessage(ChatColor.YELLOW + "[4] " +
-			 * ChatColor.GRAY + "High Roller Casino" +
-			 * ChatColor.DARK_GRAY + " (Coming Soon!)");
-			 * player.sendMessage(ChatColor.GREEN + "[5] " +
-			 * ChatColor.GRAY + "Game Corner");
-			 * player.sendMessage(ChatColor.DARK_AQUA + "[6] " +
-			 * ChatColor.GRAY + "Quest Castle" + ChatColor.DARK_GRAY +
-			 * " (Adventure Maps)"); player.sendMessage(ChatColor.BLUE +
-			 * "[7] " + ChatColor.GRAY + "Battle Tower" +
-			 * ChatColor.DARK_GRAY + " (Mob & PVP Arenas)");
-			 * player.sendMessage(ChatColor.LIGHT_PURPLE + "[8] " +
-			 * ChatColor.GRAY + "Creation Zone" + ChatColor.DARK_GRAY +
-			 * " (Build Contests)");
-			 */
 		} else {
 			try {
 				Integer.parseInt(args[0]);

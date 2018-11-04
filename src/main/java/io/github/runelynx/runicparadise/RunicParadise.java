@@ -1728,33 +1728,12 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 				Player player = (Player) ede.getEntity();
 				player.setHealth(20);
 				// player.teleport(player.getWorld().getSpawnLocation());
-				String cmd = "sudo " + player.getName() + " warp spawn";
+				String cmd = "cmi spawn " + player.getName();
 				Bukkit.dispatchCommand(Bukkit.getConsoleSender(), cmd);
 
 				player.sendMessage(
 						ChatColor.AQUA + "" + ChatColor.ITALIC + "Found you lost in the void... watch your step!");
 			}
-			/*
-			 * } else if ( { //check if player has a sword of jupiter zombie in
-			 * the hashmap log.log(Level.INFO,
-			 * "Recvd player dmg event. Player has a SOJ zombie record in map."
-			 * ); if
-			 * (powersSwordOfJupiterMap.get(ede.getEntity().getUniqueId()).
-			 * isDead() ||
-			 * powersSwordOfJupiterMap.get(ede.getEntity().getUniqueId
-			 * ()).isEmpty()) { //if zombie doesnt exist anymore, then clear the
-			 * record from hashmap log.log(Level.INFO,
-			 * "Recvd player dmg event. Player had a SOJ zombie that is now gone. Clearing map."
-			 * ); powersSwordOfJupiterMap.remove(ede.getEntity().getUniqueId());
-			 * } else if (ede.getEntity().getLastDamageCause().getEntity()
-			 * instanceof LivingEntity) {
-			 * powersSwordOfJupiterMap.get(ede.getEntity
-			 * ().getUniqueId()).setTarget
-			 * ((LivingEntity)ede.getEntity().getLastDamageCause().getEntity());
-			 * log.log(Level.INFO,
-			 * "Recvd player dmg event. Player has a SOJ zombie. Set target to damage cause entity."
-			 * ); }
-			 */
 
 		} else if (ede.getCause() == DamageCause.FALL && ede.getEntity() instanceof Player) {
 			Faith.tryCast_PlayerTookFallDamage((Player) ede.getEntity());
