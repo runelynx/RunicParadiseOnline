@@ -1512,6 +1512,8 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 
 		faithMap.put(pje.getPlayer().getUniqueId(), new Faith(pje.getPlayer().getUniqueId()));
 
+		refreshCMIRank(pje.getPlayer());
+
 		Bukkit.getServer().getScheduler().scheduleAsyncDelayedTask(instance, () -> {
 			if (!pje.getPlayer().hasPermission("rp.slimefun.smallbackpack")
 					&& !pje.getPlayer().getWorld().getName().equalsIgnoreCase("plotworld")) {
@@ -3323,6 +3325,11 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 
 		// Return the player's new exp amount
 		return newExp;
+	}
+
+	private void refreshCMIRank (Player p) {
+		String groupName = perms.getPrimaryGroup(p);
+		Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "cmi rankset " + p.getName() + " " + groupName);
 	}
 
 
