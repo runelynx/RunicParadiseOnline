@@ -1998,7 +1998,7 @@ public class Commands implements CommandExecutor {
 		else if (args[0].toLowerCase().equals("video")) {
 			sender.sendMessage(ChatColor.GRAY + "[" + ChatColor.BLUE + "Runic" + ChatColor.DARK_AQUA + "Faith"
 					+ ChatColor.GRAY + "] " + ChatColor.BLUE + "Faith tutorial video @ " + ChatColor.WHITE
-					+ "https://goo.gl/2WEgT8");
+					+ "https://youtu.be/UOsNkstFSlI");
 		} else if (args[0].toLowerCase().equals("help")) {
 			sender.sendMessage(ChatColor.GRAY + "[" + ChatColor.BLUE + "Runic" + ChatColor.DARK_AQUA + "Faith"
 					+ ChatColor.GRAY + "] " + ChatColor.BLUE + "Basic Help:");
@@ -2871,7 +2871,7 @@ public class Commands implements CommandExecutor {
 		int tickets = 0;
 		int raffleCount = 0;
 		int totalRaffleCount = 0;
-		int ticketCost = 5000;
+		int ticketCost = 500;
 		int maxPurchaseTickets = 1000;
 		String raffleNameColor = "&bW&3i&bn&ft&be&3r &bR&fa&bf&3f&bl&fe";
 
