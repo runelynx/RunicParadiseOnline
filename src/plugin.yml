@@ -237,8 +237,6 @@ commands:
    ready:
       description: "Let us know you're ready to start building on the server. This notifies staff you need a promotion to Settler."
       usage: /<command>
-      permission: rp.ghost
-      permission-message: "Only Ghosts can use this command."
    music:
       description: "Join our DJ booth!"
       usage: /<command>

@@ -949,7 +949,7 @@ public class Commands implements CommandExecutor {
 		if (sender instanceof Player) {
 			Player p = ((Player) sender);
 
-			if (p.hasPermission("rp.ready")) {
+			if (p.hasPermission("rp.ghost") && !p.hasPermission("rp.seeker")) {
 
 				RunicMessaging.sendMessage(p, RunicMessaging.RunicFormat.RANKS,
 						"You have been promoted to SEEKER!");
@@ -966,9 +966,10 @@ public class Commands implements CommandExecutor {
 				RunicMessaging.sendMessage(p, RunicMessaging.RunicFormat.EMPTY,
 						"Say hello on our forums! " + ChatColor.AQUA + "www.runic-paradise.com");
 
-				RunicParadise.perms.playerAddGroup(null, p, "Seeker");
+				RunicParadise.perms.playerAddGroup(p, "Seeker");
+				RunicParadise.perms.playerRemoveGroup(p, "Ghost");
 
-				RunicParadise.perms.playerRemove(p, "rp.ready");
+
 
 				for (Player a : Bukkit.getOnlinePlayers()) {
 					RunicMessaging.sendMessage(a, RunicMessaging.RunicFormat.EMPTY,
@@ -978,8 +979,13 @@ public class Commands implements CommandExecutor {
 
 				}
 				Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "faith enable " + p.getName() + " Sun");
+				Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "cmi rankset " + p.getName() + " Seeker");
 
 				RunicParadise.playerProfiles.get(p.getUniqueId()).setChatColor(ChatColor.GREEN, true);
+				Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "pex reload");
+			} else {
+				RunicMessaging.sendMessage(p, RunicMessaging.RunicFormat.RANKS,
+						"That command is not for you :)");
 			}
 		}
 	}
