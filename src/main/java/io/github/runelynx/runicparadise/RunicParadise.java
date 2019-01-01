@@ -714,28 +714,6 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 			playerRankColor = RunicParadise.playerProfiles.get(event.getPlayer().getUniqueId()).getChatColor();
 		}
 
-		/*
-		 * if (event.getPlayer().hasPermission("rp.guardian")) { sword =
-		 * RunicParadise.rankColors.get(perms.getPrimaryGroup(event
-		 * .getPlayer())) + "★"; }
-		 */
-
-		// Auto ban for chat spam
-
-		/*
-		 * if (event.getMessage().toLowerCase().replaceAll(" ", "")
-		 * .contains("glade") &&
-		 * event.getMessage().toLowerCase().replaceAll(" ", "") .contains("mc")
-		 * && event.getMessage().toLowerCase().contains("io")) {
-		 *
-		 * getServer().dispatchCommand( getServer().getConsoleSender(), "ban " +
-		 * event.getPlayer().getName() + " AutoBan. Spamming advertisement.");
-		 *
-		 * Bukkit.getLogger().log( Level.INFO, "Spam blocked! " +
-		 * event.getPlayer().getName() + ": " + event.getMessage());
-		 * event.setCancelled(true);
-		 */
-
 		String staffPrefix = ChatColor.DARK_GRAY + "" + ChatColor.ITALIC + "SV ";
 		String donatorPrefix = "";
 		String newbiePrefix = "";
@@ -1730,7 +1708,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 				Player player = (Player) ede.getEntity();
 				player.setHealth(20);
 				// player.teleport(player.getWorld().getSpawnLocation());
-				String cmd = "cmi spawn " + player.getName();
+				String cmd = "sudo " + player.getName() + " warp spawn";
 				Bukkit.dispatchCommand(Bukkit.getConsoleSender(), cmd);
 
 				player.sendMessage(
