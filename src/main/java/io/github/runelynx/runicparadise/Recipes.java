@@ -157,7 +157,14 @@ class Recipes {
 		FurnaceRecipe fleshLeather = new FurnaceRecipe(new ItemStack(Material.LEATHER), Material.ROTTEN_FLESH);
 		Bukkit.getServer().addRecipe(fleshLeather);
 
+
+
 		ShapelessRecipe newRecipe;
+
+		// FLINT INTO GRAVEL
+		newRecipe = new ShapelessRecipe(new NamespacedKey(RunicParadise.getInstance(), "RP_FLINT_GRAVEL"), new ItemStack(Material.GRAVEL, 1) );
+		newRecipe.addIngredient(4, Material.FLINT);
+		Bukkit.getServer().addRecipe(newRecipe);
 
 		// FAITH WEAPON 1
 		newRecipe = new ShapelessRecipe(new NamespacedKey(RunicParadise.getInstance(), "RP_FAITH_SWORD_1"), customItemStacks("FAITH_SWORD_1"));
