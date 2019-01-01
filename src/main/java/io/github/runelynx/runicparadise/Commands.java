@@ -966,8 +966,8 @@ public class Commands implements CommandExecutor {
 				RunicMessaging.sendMessage(p, RunicMessaging.RunicFormat.EMPTY,
 						"Say hello on our forums! " + ChatColor.AQUA + "www.runic-paradise.com");
 
-				RunicParadise.perms.playerAddGroup(p, "Seeker");
-				RunicParadise.perms.playerRemoveGroup(p, "Ghost");
+				RunicParadise.perms.playerAddGroup(null, p, "Seeker");
+				RunicParadise.perms.playerRemoveGroup(null, p, "Ghost");
 
 
 
