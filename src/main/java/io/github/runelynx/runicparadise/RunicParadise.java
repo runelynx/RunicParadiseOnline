@@ -1208,7 +1208,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 		// Carnival menu - MAZES
 		if (event.getInventory().getTitle().contains("Runic Carnival - Mazes")) {
 			switch (event.getSlot()) {
-			case 17:
+			case 8:
 				// teleport to puzzle Kiosk
 				event.getWhoClicked().teleport(
 						new Location(Bukkit.getWorld("RunicSky"), 328, 58, 543, (float) 72.99, (float) -26.40));
