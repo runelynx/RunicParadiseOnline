@@ -920,9 +920,9 @@ public class RunicProfile {
 					p.sendMessage(ChatColor.GOLD
 							+ "Congratulations! You've earned a special reward for this first-time completion!");
 					for (Player q : Bukkit.getOnlinePlayers()) {
-						TitleAPI.sendTitle(q, 2, 3, 2, ChatColor.DARK_PURPLE + "" + ChatColor.BOLD + p.getName(),
-								ChatColor.GRAY + "just completed the " + mzResult.getString("GameName")
-										+ " for the first time!");
+						Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "cmi titlemsg all "+ ChatColor.DARK_PURPLE + "" + ChatColor.BOLD + p.getName() +" %subtitle% "+ ChatColor.GRAY
+								+ "just completed the " + mzResult.getString("GameName")	+ " for the first time!");
+
 					}
 				} else 	if (mzResult.getInt("ID") == 22) {
 					// Heart of Anguish
@@ -939,15 +939,13 @@ public class RunicProfile {
 					}
 
 					for (Player q : Bukkit.getOnlinePlayers()) {
-						TitleAPI.sendTitle(q, 2, 3, 2, ChatColor.DARK_PURPLE + "" + ChatColor.BOLD + p.getName(),
-								ChatColor.GRAY + "has freed the Souls of Anguish!");
+						Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "cmi titlemsg all "+ ChatColor.DARK_PURPLE + "" + ChatColor.BOLD + p.getName() +" %subtitle% "+ ChatColor.GRAY + "has freed the Souls of Anguish!");
 					}
 				} else {
 
 					for (Player q : Bukkit.getOnlinePlayers()) {
-						TitleAPI.sendTitle(q, 2, 3, 2, ChatColor.AQUA + "" + ChatColor.BOLD + p.getDisplayName(),
-								ChatColor.GREEN + "just completed the " + mzResult.getString("GameName")
-										+ " for the first time!");
+						Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "cmi titlemsg all "+ ChatColor.DARK_PURPLE + "" + ChatColor.BOLD + p.getName() +" %subtitle% "+ ChatColor.GRAY
+								+ "just completed the " + mzResult.getString("GameName")	+ " for the first time!");
 					}
 				}
 
