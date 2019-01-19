@@ -574,9 +574,9 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 		meta.setDisplayName("Warp to Puzzle Kiosk");
 		wings.setItemMeta(meta);
 
-		puzzleMenu.setItem(17, wings);
+		puzzleMenu.setItem(8, wings);
 
-		int mazeSlot = 19;
+		int mazeSlot = 9;
 
 		try {
 			MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
@@ -674,13 +674,14 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 					mazeIcon.setItemMeta(meta);
 					puzzleMenu.setItem(mazeSlot, mazeIcon);
 
-					if (mazeSlot == 25) {
+					/*if (mazeSlot == 25) {
 						mazeSlot = 28;
 					} else if (mazeSlot == 34) {
 						mazeSlot = 37;
 					} else {
 						mazeSlot++;
-					}
+					}*/
+					mazeSlot++;
 				}
 				statement.close();
 				connection.close();
