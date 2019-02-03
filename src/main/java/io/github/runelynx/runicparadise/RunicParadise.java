@@ -2592,33 +2592,37 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 	@EventHandler(priority = EventPriority.NORMAL)
 	public void onPlayerDeath(PlayerDeathEvent event) {
 		if (event.getEntity() != null) {
-			Player deadPlayer = event.getEntity();
-			double pctExpToReturn = 0.000;
 
-			if (deadPlayer.hasPermission("rp.xpreturn.25")) {
-				pctExpToReturn = .25;
-			} else if (deadPlayer.hasPermission("rp.xpreturn.20")) {
-				pctExpToReturn = .20;
-			} else if (deadPlayer.hasPermission("rp.xpreturn.15")) {
-				pctExpToReturn = .15;
-			} else if (deadPlayer.hasPermission("rp.xpreturn.10")) {
-				pctExpToReturn = .10;
-			} else if (deadPlayer.hasPermission("rp.xpreturn.5")) {
-				pctExpToReturn = .05;
-			}
+			//Execute death XP logic if world is not Sky
+			if (!event.getEntity().getLocation().getWorld().toString().equalsIgnoreCase("RunicSky")) {
+				Player deadPlayer = event.getEntity();
+				double pctExpToReturn = 0.000;
+
+				if (deadPlayer.hasPermission("rp.xpreturn.25")) {
+					pctExpToReturn = .25;
+				} else if (deadPlayer.hasPermission("rp.xpreturn.20")) {
+					pctExpToReturn = .20;
+				} else if (deadPlayer.hasPermission("rp.xpreturn.15")) {
+					pctExpToReturn = .15;
+				} else if (deadPlayer.hasPermission("rp.xpreturn.10")) {
+					pctExpToReturn = .10;
+				} else if (deadPlayer.hasPermission("rp.xpreturn.5")) {
+					pctExpToReturn = .05;
+				}
 
 
-			getLogger().log(Level.INFO, deadPlayer.getName() + " died. Returning xp " + getPlayerExp(deadPlayer) + " * pctToKeep " + pctExpToReturn);
-			float expLost = getPlayerExp(deadPlayer);
+				getLogger().log(Level.INFO, deadPlayer.getName() + " died. Returning xp " + getPlayerExp(deadPlayer) + " * pctToKeep " + pctExpToReturn);
+				float expLost = getPlayerExp(deadPlayer);
 
-			deadPlayer.setLevel(0);
-			deadPlayer.setExp(0);
+				deadPlayer.setLevel(0);
+				deadPlayer.setExp(0);
 
-			deadPlayer.giveExp((int)(expLost * pctExpToReturn));
-			getLogger().log(Level.INFO, deadPlayer.getName() + " new exp after death is " + deadPlayer.getLevel() + " level; " + deadPlayer.getExp() + " exp");
+				deadPlayer.giveExp((int)(expLost * pctExpToReturn));
+				getLogger().log(Level.INFO, deadPlayer.getName() + " new exp after death is " + deadPlayer.getLevel() + " level; " + deadPlayer.getExp() + " exp");
 
-			if (pctExpToReturn > .01) {
-				RunicMessaging.sendMessage(deadPlayer, RunicFormat.AFTERLIFE, "Returning " + 100 * pctExpToReturn + "% of your experience levels to you!");
+				if (pctExpToReturn > .01) {
+					RunicMessaging.sendMessage(deadPlayer, RunicFormat.AFTERLIFE, "Returning " + 100 * pctExpToReturn + "% of your experience levels to you!");
+				}
 			}
 
 			final PlayerDeathEvent innerEvent = event;

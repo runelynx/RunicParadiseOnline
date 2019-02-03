@@ -301,8 +301,9 @@ public class RunicProfile {
 		MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
 		Connection connection = MySQL.openConnection();
 		try {
-			PreparedStatement statement = connection.prepareStatement("UPDATE rp_PlayerInfo SET JobsMasteredCount WHERE UUID = ?");
-			statement.setString(1, this.getPlayerID().toString());
+			PreparedStatement statement = connection.prepareStatement("UPDATE rp_PlayerInfo SET JobsMasteredCount = ? WHERE UUID = ?");
+			statement.setInt(1, jobMasteryCount);
+			statement.setString(2, this.getPlayerID().toString());
 			statement.executeUpdate();
 
 		} catch (SQLException e) {
@@ -328,8 +329,8 @@ public class RunicProfile {
 		Connection connection = MySQL.openConnection();
 
 			try {
-					PreparedStatement statement = connection.prepareStatement("UPDATE rp_PlayerInfo SET JobsMastered="
-							+ jobMasteryString + " WHERE UUID = ?");
+					PreparedStatement statement = connection.prepareStatement("UPDATE rp_PlayerInfo SET JobsMastered='"
+							+ jobMasteryString + "' WHERE UUID = ?");
 					statement.setString(1, this.getPlayerID().toString());
 					statement.executeUpdate();
 

@@ -1565,7 +1565,7 @@ public class Commands implements CommandExecutor {
 
 		} else if (args[0].equals("qualify") && args.length >= 2 && !(sender instanceof Player)) {
 			// Qualify for an upper tier job
-			if (args.length == 3 && args[2] == "silent"){
+			if (args.length >= 3){
 				rpJobsCommandQualify(Bukkit.getPlayer(args[1]), true);
 			} else {
 				rpJobsCommandQualify(Bukkit.getPlayer(args[1]), false);
