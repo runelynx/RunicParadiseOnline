@@ -1460,442 +1460,103 @@ public class Commands implements CommandExecutor {
 		}
 	}
 
+	private boolean rpJobsCommandMastery (Player p, String jobName){
+
+		if(p.hasPermission("rp.jobs.max." + jobName) && !p.hasPermission("rp.jobs.mastery." + jobName)){
+			RunicMessaging.sendMessage(p, RunicFormat.SYSTEM, "Congrats! You've mastered the "+ jobName +" job!");
+			RunicParadise.perms.playerAdd(p, "rp.jobs.mastery." + jobName);
+
+			RunicParadise.playerProfiles.get(p.getUniqueId()).setJobMasteryCount(RunicParadise.playerProfiles.get(p.getUniqueId()).getJobMasteryCount()+1);
+
+			if (RunicParadise.playerProfiles.get(p.getUniqueId()).getJobMasteryString().equalsIgnoreCase("None")) {
+				RunicParadise.playerProfiles.get(p.getUniqueId()).setJobMasteryString(jobName);
+			} else {
+				RunicParadise.playerProfiles.get(p.getUniqueId()).setJobMasteryString(RunicParadise.playerProfiles.get(p.getUniqueId()).getJobMasteryString() + ", " + jobName);
+			}
+
+		} else if (p.hasPermission("rp.jobs.max." + jobName)) {
+			RunicMessaging.sendMessage(p, RunicFormat.ERROR, "Oops! You already mastered the "+ jobName +" job.");
+		} else {
+			RunicMessaging.sendMessage(p, RunicFormat.ERROR, "You need to be job level 30 and have the "+ jobName +" job active to master it.");
+		}
+
+		return true;
+	}
+
+	private boolean rpJobsCommandQualify (Player p) {
+    	String jobTally = "";
+		RunicMessaging.sendMessage(p, RunicFormat.EMPTY, ChatColor.BLUE + "*** Tier 2 Jobs ***");
+
+		jobTally += (rpJobsCommandQualifyLogic2(p, "Ranger", "Woodsman", "Rancher") ? ChatColor.GREEN + "Ranger "  : ChatColor.RED + "Ranger ");
+		jobTally += (rpJobsCommandQualifyLogic2(p, "ForgeMaster", "Blacksmith", "Miner") ? ChatColor.GREEN + "ForgeMaster "  : ChatColor.RED + "ForgeMaster ");
+		jobTally += (rpJobsCommandQualifyLogic2(p, "Biologist", "Scientist", "Rancher") ? ChatColor.GREEN + "Biologist "  : ChatColor.RED + "Biologist ");
+		jobTally += (rpJobsCommandQualifyLogic2(p, "Alchemist", "Wizard", "Chef") ? ChatColor.GREEN + "Alchemist "  : ChatColor.RED + "Alchemist ");
+		jobTally += (rpJobsCommandQualifyLogic2(p, "Nomad", "Chef", "Rancher") ? ChatColor.GREEN + "Nomad "  : ChatColor.RED + "Nomad ");
+		jobTally += (rpJobsCommandQualifyLogic2(p, "Geomancer", "Wizard", "Miner") ? ChatColor.GREEN + "Geomancer "  : ChatColor.RED + "Geomancer ");
+		jobTally += (rpJobsCommandQualifyLogic2(p, "Conjurer", "Wizard", "Blacksmith") ? ChatColor.GREEN + "Conjurer "  : ChatColor.RED + "Conjurer ");
+		jobTally += (rpJobsCommandQualifyLogic2(p, "Druid", "Wizard", "Woodsman") ? ChatColor.GREEN + "Druid "  : ChatColor.RED + "Druid ");
+		jobTally += (rpJobsCommandQualifyLogic2(p, "Engineer", "Scientist", "Miner") ? ChatColor.GREEN + "Engineer "  : ChatColor.RED + "Engineer ");
+
+		RunicMessaging.sendMessage(p, RunicFormat.EMPTY, jobTally);
+		jobTally = "";
+		RunicMessaging.sendMessage(p, RunicFormat.EMPTY, ChatColor.YELLOW + "*** Tier 3 Jobs ***");
+
+		jobTally += (rpJobsCommandQualifyLogic3(p, "BeastMaster", "Druid", "Tamer", "Nomad") ? ChatColor.GREEN + "BeastMaster "  : ChatColor.RED + "BeastMaster ");
+		jobTally += (rpJobsCommandQualifyLogic3(p, "Sorcerer", "Alchemist", "Geomancer", "Conjurer") ? ChatColor.GREEN + "Sorcerer "  : ChatColor.RED + "Sorcerer ");
+		jobTally += (rpJobsCommandQualifyLogic3(p, "Geneticist", "Ranger", "Nomad", "Biologist") ? ChatColor.GREEN + "Geneticist "  : ChatColor.RED + "Geneticist ");
+		jobTally += (rpJobsCommandQualifyLogic3(p, "Artificer", "Engineer", "ForgeMaster", "Geomancer") ? ChatColor.GREEN + "Artificer "  : ChatColor.RED + "Artificer ");
+
+		RunicMessaging.sendMessage(p, RunicFormat.EMPTY, jobTally);
+		jobTally = "";
+		RunicMessaging.sendMessage(p, RunicFormat.EMPTY, ChatColor.YELLOW + "*** Tier 4 Jobs ***");
+
+		jobTally += (rpJobsCommandQualifyLogic2(p, "Craftsman", "Artificer", "Sorcerer") ? ChatColor.GREEN + "Craftsman "  : ChatColor.RED + "Craftsman ");
+		jobTally += (rpJobsCommandQualifyLogic2(p, "Seafarer", "Geneticist", "BeastMaster") ? ChatColor.GREEN + "Seafarer "  : ChatColor.RED + "Seafarer ");
+
+		RunicMessaging.sendMessage(p, RunicFormat.EMPTY, jobTally);
+
+    	return true;
+	}
+
+	private boolean rpJobsCommandQualifyLogic2 (Player p, String jobName, String prereqA, String prereqB) {
+
+		if (RunicParadise.playerProfiles.get(p.getUniqueId()).getJobMasteryString().contains(prereqA) &&
+				RunicParadise.playerProfiles.get(p.getUniqueId()).getJobMasteryString().contains(prereqB) &&
+				!p.hasPermission("jobs.join." + jobName)) {
+			RunicParadise.perms.playerAdd(p, "jobs.join." + jobName);
+			return true;
+		} else if (p.hasPermission("jobs.join." + jobName)) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	private boolean rpJobsCommandQualifyLogic3 (Player p, String jobName, String prereqA, String prereqB, String prereqC) {
+
+		if (RunicParadise.playerProfiles.get(p.getUniqueId()).getJobMasteryString().contains(prereqA) &&
+				RunicParadise.playerProfiles.get(p.getUniqueId()).getJobMasteryString().contains(prereqB) &&
+				RunicParadise.playerProfiles.get(p.getUniqueId()).getJobMasteryString().contains(prereqC) &&
+				!p.hasPermission("jobs.join." + jobName)) {
+			RunicParadise.perms.playerAdd(p, "jobs.join." + jobName);
+			return true;
+		} else if (p.hasPermission("jobs.join." + jobName)) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
 	private boolean rpJobsCommand(CommandSender sender, String[] args) {
 		// Master a tier1 job
 		if (args[0].equals("master") && args.length == 3) {
 			Player q = Bukkit.getPlayer(args[2]);
 
-			// MINER
-			if(args[1].equalsIgnoreCase("Miner") && q.hasPermission("rp.jobs.max.Miner") && !q.hasPermission("rp.jobs.mastery.Miner")){
-				RunicMessaging.sendMessage(q, RunicFormat.SYSTEM, "Congrats! You've mastered the Miner job!");
-				RunicParadise.perms.playerAdd("", q, "rp.jobs.mastery.Miner");
-			} else if (args[1].equalsIgnoreCase("Miner") && q.hasPermission("rp.jobs.max.Miner")) {
-				RunicMessaging.sendMessage(q, RunicFormat.ERROR, "Oops! You already mastered the Miner job.");
-			} else if (args[1].equalsIgnoreCase("Miner")) {
-				RunicMessaging.sendMessage(q, RunicFormat.ERROR, "You need to be job level 30 and have the Miner job active to master it.");
-			}
-
-			// CHEF
-			if(args[1].equalsIgnoreCase("Chef") && q.hasPermission("rp.jobs.max.Chef") && !q.hasPermission("rp.jobs.mastery.Chef")){
-				RunicMessaging.sendMessage(q, RunicFormat.SYSTEM, "Congrats! You've mastered the Chef job!");
-				RunicParadise.perms.playerAdd("", q, "rp.jobs.mastery.Chef");
-			} else if (args[1].equalsIgnoreCase("Chef") && q.hasPermission("rp.jobs.max.Chef")) {
-				RunicMessaging.sendMessage(q, RunicFormat.ERROR, "Oops! You already mastered the Chef job.");
-			} else if (args[1].equalsIgnoreCase("Chef")) {
-				RunicMessaging.sendMessage(q, RunicFormat.ERROR, "You need to be job level 30 and have the Chef job active to master it.");
-			}
-
-			// BLACKSMITH
-			if(args[1].equalsIgnoreCase("Blacksmith") && q.hasPermission("rp.jobs.max.Blacksmith") && !q.hasPermission("rp.jobs.mastery.Blacksmith")){
-				RunicMessaging.sendMessage(q, RunicFormat.SYSTEM, "Congrats! You've mastered the Blacksmith job!");
-				RunicParadise.perms.playerAdd("", q, "rp.jobs.mastery.Blacksmith");
-			} else if (args[1].equalsIgnoreCase("Blacksmith") && q.hasPermission("rp.jobs.max.Blacksmith")) {
-				RunicMessaging.sendMessage(q, RunicFormat.ERROR, "Oops! You already mastered the Blacksmith job.");
-			} else if (args[1].equalsIgnoreCase("Blacksmith")) {
-				RunicMessaging.sendMessage(q, RunicFormat.ERROR, "You need to be job level 30 and have the Blacksmith job active to master it.");
-			}
-
-			// WOODSMAN
-			if(args[1].equalsIgnoreCase("Woodsman") && q.hasPermission("rp.jobs.max.Woodsman") && !q.hasPermission("rp.jobs.mastery.Woodsman")){
-				RunicMessaging.sendMessage(q, RunicFormat.SYSTEM, "Congrats! You've mastered the Woodsman job!");
-				RunicParadise.perms.playerAdd("", q, "rp.jobs.mastery.Woodsman");
-			} else if (args[1].equalsIgnoreCase("Woodsman") && q.hasPermission("rp.jobs.max.Woodsman")) {
-				RunicMessaging.sendMessage(q, RunicFormat.ERROR, "Oops! You already mastered the Woodsman job.");
-			} else if (args[1].equalsIgnoreCase("Woodsman")) {
-				RunicMessaging.sendMessage(q, RunicFormat.ERROR, "You need to be job level 30 and have the Woodsman job active to master it.");
-			}
-
-			// WIZARD
-			if(args[1].equalsIgnoreCase("Wizard") && q.hasPermission("rp.jobs.max.Wizard") && !q.hasPermission("rp.jobs.mastery.Wizard")){
-				RunicMessaging.sendMessage(q, RunicFormat.SYSTEM, "Congrats! You've mastered the Wizard job!");
-				RunicParadise.perms.playerAdd("", q, "rp.jobs.mastery.Wizard");
-			} else if (args[1].equalsIgnoreCase("Wizard") && q.hasPermission("rp.jobs.max.Wizard")) {
-				RunicMessaging.sendMessage(q, RunicFormat.ERROR, "Oops! You already mastered the Wizard job.");
-			} else if (args[1].equalsIgnoreCase("Wizard")) {
-				RunicMessaging.sendMessage(q, RunicFormat.ERROR, "You need to be job level 30 and have the Wizard job active to master it.");
-			}
-
-			// TAMER
-			if(args[1].equalsIgnoreCase("Tamer") && q.hasPermission("rp.jobs.max.Tamer") && !q.hasPermission("rp.jobs.mastery.Tamer")){
-				RunicMessaging.sendMessage(q, RunicFormat.SYSTEM, "Congrats! You've mastered the Tamer job!");
-				RunicParadise.perms.playerAdd("", q, "rp.jobs.mastery.Tamer");
-			} else if (args[1].equalsIgnoreCase("Tamer") && q.hasPermission("rp.jobs.max.Tamer")) {
-				RunicMessaging.sendMessage(q, RunicFormat.ERROR, "Oops! You already mastered the Tamer job.");
-			} else if (args[1].equalsIgnoreCase("Tamer")) {
-				RunicMessaging.sendMessage(q, RunicFormat.ERROR, "You need to be job level 30 and have the Tamer job active to master it.");
-			}
-
-			// SCIENTIST
-			if(args[1].equalsIgnoreCase("Scientist") && q.hasPermission("rp.jobs.max.Scientist") && !q.hasPermission("rp.jobs.mastery.Scientist")){
-				RunicMessaging.sendMessage(q, RunicFormat.SYSTEM, "Congrats! You've mastered the Scientist job!");
-				RunicParadise.perms.playerAdd("", q, "rp.jobs.mastery.Scientist");
-			} else if (args[1].equalsIgnoreCase("Ranger") && q.hasPermission("rp.jobs.max.Scientist")) {
-				RunicMessaging.sendMessage(q, RunicFormat.ERROR, "Oops! You already mastered the Scientist job.");
-			} else if (args[1].equalsIgnoreCase("Ranger")) {
-				RunicMessaging.sendMessage(q, RunicFormat.ERROR, "You need to be job level 30 and have the Scientist job active to master it.");
-			}
-
-			// RANCHER
-			if(args[1].equalsIgnoreCase("Rancher") && q.hasPermission("rp.jobs.max.Rancher") && !q.hasPermission("rp.jobs.mastery.Rancher")){
-				RunicMessaging.sendMessage(q, RunicFormat.SYSTEM, "Congrats! You've mastered the Rancher job!");
-				RunicParadise.perms.playerAdd("", q, "rp.jobs.mastery.Rancher");
-			} else if (args[1].equalsIgnoreCase("Rancher") && q.hasPermission("rp.jobs.max.Rancher")) {
-				RunicMessaging.sendMessage(q, RunicFormat.ERROR, "Oops! You already mastered the Rancher job.");
-			} else if (args[1].equalsIgnoreCase("Rancher")) {
-				RunicMessaging.sendMessage(q, RunicFormat.ERROR, "You need to be job level 30 and have the Rancher job active to master it.");
-			}
-
-			// RANGER
-			if(args[1].equalsIgnoreCase("Ranger") && q.hasPermission("rp.jobs.max.ranger") && !q.hasPermission("rp.jobs.mastery.ranger")){
-				RunicMessaging.sendMessage(q, RunicFormat.SYSTEM, "Congrats! You've mastered the Ranger job!");
-				RunicParadise.perms.playerAdd("", q, "rp.jobs.mastery.ranger");
-			} else if (args[1].equalsIgnoreCase("Ranger") && q.hasPermission("rp.jobs.max.ranger")) {
-				RunicMessaging.sendMessage(q, RunicFormat.ERROR, "Oops! You already mastered the Ranger job.");
-			} else if (args[1].equalsIgnoreCase("Ranger")) {
-				RunicMessaging.sendMessage(q, RunicFormat.ERROR, "You need to be job level 30 and have the Ranger job active to master it.");
-			}
-
-			// FORGEMASTER
-			if(args[1].equalsIgnoreCase("Forgemaster") && q.hasPermission("rp.jobs.max.Forgemaster") && !q.hasPermission("rp.jobs.mastery.Forgemaster")){
-				RunicMessaging.sendMessage(q, RunicFormat.SYSTEM, "Congrats! You've mastered the Forgemaster job!");
-				RunicParadise.perms.playerAdd("", q, "rp.jobs.mastery.Forgemaster");
-			} else if (args[1].equalsIgnoreCase("Forgemaster") && q.hasPermission("rp.jobs.max.Forgemaster")) {
-				RunicMessaging.sendMessage(q, RunicFormat.ERROR, "Oops! You already mastered the Forgemaster job.");
-			} else if (args[1].equalsIgnoreCase("Forgemaster")){
-				RunicMessaging.sendMessage(q, RunicFormat.ERROR, "You need to be job level 30 and have the Forgemaster job active to master it.");
-			}
-
-			// BIOLOGIST
-			if(args[1].equalsIgnoreCase("Biologist") && q.hasPermission("rp.jobs.max.Biologist") && !q.hasPermission("rp.jobs.mastery.Biologist")){
-				RunicMessaging.sendMessage(q, RunicFormat.SYSTEM, "Congrats! You've mastered the Biologist job!");
-				RunicParadise.perms.playerAdd("", q, "rp.jobs.mastery.Biologist");
-			} else if (args[1].equalsIgnoreCase("Biologist") && q.hasPermission("rp.jobs.max.Biologist")) {
-				RunicMessaging.sendMessage(q, RunicFormat.ERROR, "Oops! You already mastered the Biologist job.");
-			} else if (args[1].equalsIgnoreCase("Biologist")) {
-				RunicMessaging.sendMessage(q, RunicFormat.ERROR, "You need to be job level 30 and have the Biologist job active to master it.");
-			}
-
-			// ALCHEMIST
-			if(args[1].equalsIgnoreCase("Alchemist") && q.hasPermission("rp.jobs.max.Alchemist") && !q.hasPermission("rp.jobs.mastery.Alchemist")){
-				RunicMessaging.sendMessage(q, RunicFormat.SYSTEM, "Congrats! You've mastered the Alchemist job!");
-				RunicParadise.perms.playerAdd("", q, "rp.jobs.mastery.Alchemist");
-			} else if (args[1].equalsIgnoreCase("Alchemist") && q.hasPermission("rp.jobs.max.Alchemist")) {
-				RunicMessaging.sendMessage(q, RunicFormat.ERROR, "Oops! You already mastered the Alchemist job.");
-			} else if (args[1].equalsIgnoreCase("Alchemist")) {
-				RunicMessaging.sendMessage(q, RunicFormat.ERROR, "You need to be job level 30 and have the Alchemist job active to master it.");
-			}
-
-
-			// NOMAD
-			if(args[1].equalsIgnoreCase("Nomad") && q.hasPermission("rp.jobs.max.Nomad") && !q.hasPermission("rp.jobs.mastery.Nomad")){
-				RunicMessaging.sendMessage(q, RunicFormat.SYSTEM, "Congrats! You've mastered the Nomad job!");
-				RunicParadise.perms.playerAdd("", q, "rp.jobs.mastery.Nomad");
-			} else if (args[1].equalsIgnoreCase("Nomad") && q.hasPermission("rp.jobs.max.Nomad")) {
-				RunicMessaging.sendMessage(q, RunicFormat.ERROR, "Oops! You already mastered the Nomad job.");
-			} else if (args[1].equalsIgnoreCase("Nomad")) {
-				RunicMessaging.sendMessage(q, RunicFormat.ERROR, "You need to be job level 30 and have the Nomad job active to master it.");
-			}
-
-			// GEOMANCER
-			if(args[1].equalsIgnoreCase("Geomancer") && q.hasPermission("rp.jobs.max.Geomancer") && !q.hasPermission("rp.jobs.mastery.Geomancer")){
-				RunicMessaging.sendMessage(q, RunicFormat.SYSTEM, "Congrats! You've mastered the Geomancer job!");
-				RunicParadise.perms.playerAdd("", q, "rp.jobs.mastery.Geomancer");
-			} else if (args[1].equalsIgnoreCase("Geomancer") && q.hasPermission("rp.jobs.max.Geomancer")) {
-				RunicMessaging.sendMessage(q, RunicFormat.ERROR, "Oops! You already mastered the Geomancer job.");
-			} else if (args[1].equalsIgnoreCase("Geomancer")) {
-				RunicMessaging.sendMessage(q, RunicFormat.ERROR, "You need to be job level 30 and have the Geomancer job active to master it.");
-			}
-
-			// CONJURER
-			if(args[1].equalsIgnoreCase("Conjurer") && q.hasPermission("rp.jobs.max.Conjurer") && !q.hasPermission("rp.jobs.mastery.Conjurer")){
-				RunicMessaging.sendMessage(q, RunicFormat.SYSTEM, "Congrats! You've mastered the Conjurer job!");
-				RunicParadise.perms.playerAdd("", q, "rp.jobs.mastery.Conjurer");
-			} else if (args[1].equalsIgnoreCase("Conjurer") && q.hasPermission("rp.jobs.max.Conjurer")) {
-				RunicMessaging.sendMessage(q, RunicFormat.ERROR, "Oops! You already mastered the Conjurer job.");
-			} else if (args[1].equalsIgnoreCase("Conjurer")) {
-				RunicMessaging.sendMessage(q, RunicFormat.ERROR, "You need to be job level 30 and have the Conjurer job active to master it.");
-			}
-
-			// DRUID
-			if(args[1].equalsIgnoreCase("Druid") && q.hasPermission("rp.jobs.max.Druid") && !q.hasPermission("rp.jobs.mastery.Druid")){
-				RunicMessaging.sendMessage(q, RunicFormat.SYSTEM, "Congrats! You've mastered the Druid job!");
-				RunicParadise.perms.playerAdd("", q, "rp.jobs.mastery.Druid");
-			} else if (args[1].equalsIgnoreCase("Druid") && q.hasPermission("rp.jobs.max.Druid")) {
-				RunicMessaging.sendMessage(q, RunicFormat.ERROR, "Oops! You already mastered the Druid job.");
-			} else if (args[1].equalsIgnoreCase("Druid")) {
-				RunicMessaging.sendMessage(q, RunicFormat.ERROR, "You need to be job level 30 and have the Druid job active to master it.");
-			}
-
-			// ENGINEER
-			if(args[1].equalsIgnoreCase("Engineer") && q.hasPermission("rp.jobs.max.Engineer") && !q.hasPermission("rp.jobs.mastery.Engineer")){
-				RunicMessaging.sendMessage(q, RunicFormat.SYSTEM, "Congrats! You've mastered the Engineer job!");
-				RunicParadise.perms.playerAdd("", q, "rp.jobs.mastery.Engineer");
-			} else if (args[1].equalsIgnoreCase("Engineer") && q.hasPermission("rp.jobs.max.Engineer")) {
-				RunicMessaging.sendMessage(q, RunicFormat.ERROR, "Oops! You already mastered the Engineer job.");
-			} else if (args[1].equalsIgnoreCase("Engineer")) {
-				RunicMessaging.sendMessage(q, RunicFormat.ERROR, "You need to be job level 30 and have the Engineer job active to master it.");
-			}
-
-			// BEASTMASTER
-			if(args[1].equalsIgnoreCase("Beastmaster") && q.hasPermission("rp.jobs.max.Beastmaster") && !q.hasPermission("rp.jobs.mastery.Beastmaster")){
-				RunicMessaging.sendMessage(q, RunicFormat.SYSTEM, "Congrats! You've mastered the Beastmaster job!");
-				RunicParadise.perms.playerAdd("", q, "rp.jobs.mastery.Beastmaster");
-			} else if (args[1].equalsIgnoreCase("Beastmaster") && q.hasPermission("rp.jobs.max.Beastmaster")) {
-				RunicMessaging.sendMessage(q, RunicFormat.ERROR, "Oops! You already mastered the Beastmaster job.");
-			} else if (args[1].equalsIgnoreCase("Beastmaster")) {
-				RunicMessaging.sendMessage(q, RunicFormat.ERROR, "You need to be job level 30 and have the Beastmaster job active to master it.");
-			}
-
-			// SORCERER
-			if(args[1].equalsIgnoreCase("Sorcerer") && q.hasPermission("rp.jobs.max.Sorcerer") && !q.hasPermission("rp.jobs.mastery.Sorcerer")){
-				RunicMessaging.sendMessage(q, RunicFormat.SYSTEM, "Congrats! You've mastered the Sorcerer job!");
-				RunicParadise.perms.playerAdd("", q, "rp.jobs.mastery.Sorcerer");
-			} else if (args[1].equalsIgnoreCase("Sorcerer") && q.hasPermission("rp.jobs.max.Sorcerer")) {
-				RunicMessaging.sendMessage(q, RunicFormat.ERROR, "Oops! You already mastered the Sorcerer job.");
-			} else if (args[1].equalsIgnoreCase("Sorcerer")) {
-				RunicMessaging.sendMessage(q, RunicFormat.ERROR, "You need to be job level 30 and have the Sorcerer job active to master it.");
-			}
-
-			// GENETICIST
-			if(args[1].equalsIgnoreCase("Geneticist") && q.hasPermission("rp.jobs.max.Geneticist") && !q.hasPermission("rp.jobs.mastery.Geneticist")){
-				RunicMessaging.sendMessage(q, RunicFormat.SYSTEM, "Congrats! You've mastered the Geneticist job!");
-				RunicParadise.perms.playerAdd("", q, "rp.jobs.mastery.Geneticist");
-			} else if (args[1].equalsIgnoreCase("Geneticist") && q.hasPermission("rp.jobs.max.Geneticist")) {
-				RunicMessaging.sendMessage(q, RunicFormat.ERROR, "Oops! You already mastered the Geneticist job.");
-			} else if (args[1].equalsIgnoreCase("Geneticist")) {
-				RunicMessaging.sendMessage(q, RunicFormat.ERROR, "You need to be job level 30 and have the Geneticist job active to master it.");
-			}
-
-			// ARTIFICER
-			if(args[1].equalsIgnoreCase("Artificer") && q.hasPermission("rp.jobs.max.Artificer") && !q.hasPermission("rp.jobs.mastery.Artificer")){
-				RunicMessaging.sendMessage(q, RunicFormat.SYSTEM, "Congrats! You've mastered the Artificer job!");
-				RunicParadise.perms.playerAdd("", q, "rp.jobs.mastery.Artificer");
-			} else if (args[1].equalsIgnoreCase("Artificer") && q.hasPermission("rp.jobs.max.Artificer")) {
-				RunicMessaging.sendMessage(q, RunicFormat.ERROR, "Oops! You already mastered the Artificer job.");
-			} else if (args[1].equalsIgnoreCase("Artificer")) {
-				RunicMessaging.sendMessage(q, RunicFormat.ERROR, "You need to be job level 30 and have the Artificer job active to master it.");
-			}
-
-			// CRAFTSMAN
-			if(args[1].equalsIgnoreCase("Craftsman") && q.hasPermission("rp.jobs.max.Craftsman") && !q.hasPermission("rp.jobs.mastery.Craftsman")){
-				RunicMessaging.sendMessage(q, RunicFormat.SYSTEM, "Congrats! You've mastered the Craftsman job!");
-				RunicParadise.perms.playerAdd("", q, "rp.jobs.mastery.Craftsman");
-			} else if (args[1].equalsIgnoreCase("Craftsman") && q.hasPermission("rp.jobs.max.Craftsman")) {
-				RunicMessaging.sendMessage(q, RunicFormat.ERROR, "Oops! You already mastered the Craftsman job.");
-			} else if (args[1].equalsIgnoreCase("Craftsman")) {
-				RunicMessaging.sendMessage(q, RunicFormat.ERROR, "You need to be job level 30 and have the Craftsman job active to master it.");
-			}
-
-			//  SEAFARER
-			if(args[1].equalsIgnoreCase("Seafarer") && q.hasPermission("rp.jobs.max.Seafarer") && !q.hasPermission("rp.jobs.mastery.Seafarer")){
-				RunicMessaging.sendMessage(q, RunicFormat.SYSTEM, "Congrats! You've mastered the Seafarer job!");
-				RunicParadise.perms.playerAdd("", q, "rp.jobs.mastery.Seafarer");
-			} else if (args[1].equalsIgnoreCase("Seafarer") && q.hasPermission("rp.jobs.max.Seafarer")) {
-				RunicMessaging.sendMessage(q, RunicFormat.ERROR, "Oops! You already mastered the Seafarer job.");
-			} else if (args[1].equalsIgnoreCase("Seafarer")) {
-				RunicMessaging.sendMessage(q, RunicFormat.ERROR, "You need to be job level 30 and have the Seafarer job active to master it.");
-			}
+			rpJobsCommandMastery(q, args[1]);
 
 		} else if (args[0].equals("qualify") && args.length == 2 && !(sender instanceof Player)) {
 			// Qualify for an upper tier job
-			Player p = Bukkit.getPlayer(args[1]);
-			String jobTally = "";
-
-			RunicMessaging.sendMessage(p, RunicFormat.EMPTY, ChatColor.BLUE + "*** Tier 2 Jobs ***");
-
-			// RANGER
-				if (p.hasPermission("rp.jobs.mastery.woodsman") && p.hasPermission("rp.jobs.mastery.rancher")
-						&& !p.hasPermission("jobs.join.RANGER")) {
-					RunicParadise.perms.playerAdd(p, "jobs.join.RANGER");
-					jobTally += ChatColor.GREEN + "RANGER ";
-				}
-				else if (p.hasPermission("jobs.join.RANGER")) {
-					jobTally += ChatColor.GREEN + "RANGER ";
-				}
-				else {
-					jobTally += ChatColor.DARK_RED + "RANGER ";
-				}
-			// FORGEMASTER
-				if (p.hasPermission("rp.jobs.mastery.blacksmith") && p.hasPermission("rp.jobs.mastery.miner")
-						&& !p.hasPermission("jobs.join.FORGEMASTER")) {
-					RunicParadise.perms.playerAdd(p, "jobs.join.FORGEMASTER");
-					jobTally += ChatColor.GREEN + "FORGEMASTER ";
-				}
-				else if (p.hasPermission("jobs.join.FORGEMASTER")) {
-					jobTally += ChatColor.GREEN + "FORGEMASTER ";
-				}
-				else {
-					jobTally += ChatColor.DARK_RED + "FORGEMASTER ";
-				}
-			// BIOLOGIST
-				if (p.hasPermission("rp.jobs.mastery.scientist") && p.hasPermission("rp.jobs.mastery.rancher")
-						&& !p.hasPermission("jobs.join.BIOLOGIST")) {
-					RunicParadise.perms.playerAdd(p, "jobs.join.BIOLOGIST");
-					jobTally += ChatColor.GREEN + "BIOLOGIST ";
-				}
-				else if (p.hasPermission("jobs.join.BIOLOGIST")) {
-					jobTally += ChatColor.GREEN + "BIOLOGIST ";
-				}
-				else {
-					jobTally += ChatColor.DARK_RED + "BIOLOGIST ";
-				}
-			// ALCHEMIST
-				if (p.hasPermission("rp.jobs.mastery.wizard") && p.hasPermission("rp.jobs.mastery.chef")
-						&& !p.hasPermission("jobs.join.ALCHEMIST")) {
-					RunicParadise.perms.playerAdd(p, "jobs.join.ALCHEMIST");
-					jobTally += ChatColor.GREEN + "ALCHEMIST ";
-				}
-				else if (p.hasPermission("jobs.join.ALCHEMIST")) {
-					jobTally += ChatColor.GREEN + "ALCHEMIST ";
-				}
-				else {
-					jobTally += ChatColor.DARK_RED + "ALCHEMIST ";
-				}
-			// NOMAD
-				if (p.hasPermission("rp.jobs.mastery.chef") && p.hasPermission("rp.jobs.mastery.rancher")
-						&& !p.hasPermission("jobs.join.NOMAD")) {
-					RunicParadise.perms.playerAdd(p, "jobs.join.NOMAD");
-					jobTally += ChatColor.GREEN + "NOMAD ";
-				}
-				else if (p.hasPermission("jobs.join.NOMAD")) {
-					jobTally += ChatColor.GREEN + "NOMAD ";
-				}
-				else {
-					jobTally += ChatColor.DARK_RED + "NOMAD ";
-				}
-			// GEOMANCER
-				if (p.hasPermission("rp.jobs.mastery.wizard") && p.hasPermission("rp.jobs.mastery.miner")
-						&& !p.hasPermission("jobs.join.GEOMANCER")) {
-					RunicParadise.perms.playerAdd(p, "jobs.join.GEOMANCER");
-					jobTally += ChatColor.GREEN + "GEOMANCER ";
-				}
-				else if (p.hasPermission("jobs.join.GEOMANCER")) {
-					jobTally += ChatColor.GREEN + "GEOMANCER ";
-				}
-				else {
-					jobTally += ChatColor.DARK_RED + "GEOMANCER ";
-				}
-			// CONJURER
-				if (p.hasPermission("rp.jobs.mastery.wizard") && p.hasPermission("rp.jobs.mastery.blacksmith")
-						&& !p.hasPermission("jobs.join.CONJURER")) {
-					RunicParadise.perms.playerAdd(p, "jobs.join.CONJURER");
-					jobTally += ChatColor.GREEN + "CONJURER ";
-				}
-				else if (p.hasPermission("jobs.join.CONJURER")) {
-					jobTally += ChatColor.GREEN + "CONJURER ";
-				}
-				else {
-					jobTally += ChatColor.DARK_RED + "CONJURER ";
-				}
-			// DRUID
-				if (p.hasPermission("rp.jobs.mastery.wizard") && p.hasPermission("rp.jobs.mastery.woodsman")
-						&& !p.hasPermission("jobs.join.DRUID")) {
-					RunicParadise.perms.playerAdd(p, "jobs.join.DRUID");
-					jobTally += ChatColor.GREEN + "DRUID ";
-				}
-				else if (p.hasPermission("jobs.join.DRUID")) {
-					jobTally += ChatColor.GREEN + "DRUID ";
-				}
-				else {
-					jobTally += ChatColor.DARK_RED + "DRUID ";
-				}
-			// ENGINEER
-				if (p.hasPermission("rp.jobs.mastery.scientist") && p.hasPermission("rp.jobs.mastery.miner")
-						&& !p.hasPermission("jobs.join.ENGINEER")) {
-					RunicParadise.perms.playerAdd(p, "jobs.join.ENGINEER");
-					jobTally += ChatColor.GREEN + "ENGINEER ";
-				}
-				else if (p.hasPermission("jobs.join.ENGINEER")) {
-					jobTally += ChatColor.GREEN + "ENGINEER ";
-				}
-				else {
-					jobTally += ChatColor.DARK_RED + "ENGINEER ";
-				}
-
-			RunicMessaging.sendMessage(p, RunicFormat.EMPTY	, jobTally);
-			jobTally = "";
-
-			RunicMessaging.sendMessage(p, RunicFormat.EMPTY, ChatColor.YELLOW + "*** Tier 3 Jobs ***");
-
-			// BEASTMASTER
-			if (p.hasPermission("rp.jobs.mastery.druid") && p.hasPermission("rp.jobs.mastery.tamer") && p.hasPermission("rp.jobs.mastery.nomad") && !p.hasPermission("jobs.join.beastmaster")) {
-				RunicParadise.perms.playerAdd(p, "jobs.join.beastmaster");
-				jobTally += ChatColor.GREEN + "BEASTMASTER ";
-			}
-			else if (p.hasPermission("jobs.join.beastmaster")) {
-				jobTally += ChatColor.GREEN + "BEASTMASTER ";
-			}
-			else {
-				jobTally += ChatColor.DARK_RED + "BEASTMASTER ";
-			}
-			// SORCERER
-			if (p.hasPermission("rp.jobs.mastery.alchemist") && p.hasPermission("rp.jobs.mastery.geomancer") && p.hasPermission("rp.jobs.mastery.conjurer")
-					&& !p.hasPermission("jobs.join.sorcerer")) {
-				RunicParadise.perms.playerAdd(p, "jobs.join.sorcerer");
-				jobTally += ChatColor.GREEN + "SORCERER ";
-			}
-			else if (p.hasPermission("jobs.join.sorcerer")) {
-				jobTally += ChatColor.GREEN + "SORCERER ";
-			}
-			else {
-				jobTally += ChatColor.DARK_RED + "SORCERER ";
-			}
-			// GENETICIST
-			if (p.hasPermission("rp.jobs.mastery.ranger") && p.hasPermission("rp.jobs.mastery.nomad") && p.hasPermission("rp.jobs.mastery.biologist")
-					&& !p.hasPermission("jobs.join.GENETICIST")) {
-				RunicParadise.perms.playerAdd(p, "jobs.join.GENETICIST");
-				jobTally += ChatColor.GREEN + "GENETICIST ";
-			}
-			else if (p.hasPermission("jobs.join.GENETICIST")) {
-				jobTally += ChatColor.GREEN + "GENETICIST ";
-			}
-			else {
-				jobTally += ChatColor.DARK_RED + "GENETICIST ";
-			}
-			// ARTIFICER
-			if (p.hasPermission("rp.jobs.mastery.engineer") && p.hasPermission("rp.jobs.mastery.forgemaster") && p.hasPermission("rp.jobs.mastery.geomancer")
-					&& !p.hasPermission("jobs.join.ARTIFICER")) {
-				RunicParadise.perms.playerAdd(p, "jobs.join.ARTIFICER");
-				jobTally += ChatColor.GREEN + "ARTIFICER ";
-			}
-			else if (p.hasPermission("jobs.join.ARTIFICER")) {
-				jobTally += ChatColor.GREEN + "ARTIFICER ";
-			}
-			else {
-				jobTally += ChatColor.DARK_RED + "ARTIFICER ";
-			}
-
-			RunicMessaging.sendMessage(p, RunicFormat.EMPTY	, jobTally);
-			jobTally = "";
-
-			RunicMessaging.sendMessage(p, RunicFormat.EMPTY, ChatColor.DARK_RED + "*** Tier 4 Jobs ***");
-
-			// CRAFTSMAN
-				if (p.hasPermission("rp.jobs.mastery.artificer") && p.hasPermission("rp.jobs.mastery.sorcerer") && !p.hasPermission("jobs.join.craftsman")) {
-					RunicParadise.perms.playerAdd(p, "jobs.join.CRAFTSMAN");
-					jobTally += ChatColor.GREEN + "CRAFTSMAN ";
-				}
-				else if (p.hasPermission("jobs.join.CRAFTSMAN")) {
-					jobTally += ChatColor.GREEN + "CRAFTSMAN ";
-				}
-				else {
-					jobTally += ChatColor.DARK_RED + "CRAFTSMAN ";
-				}
-			//  SEAFARER
-				if (p.hasPermission("rp.jobs.mastery.geneticist") && p.hasPermission("rp.jobs.mastery.beastmaster") && !p.hasPermission("jobs.join.seafarer")) {
-					RunicParadise.perms.playerAdd(p, "jobs.join.seafarer");
-					jobTally += ChatColor.GREEN + "SEAFARER ";
-				}
-				else if (p.hasPermission("jobs.join.SEAFARER")) {
-					jobTally += ChatColor.GREEN + "SEAFARER ";
-				}
-				else {
-					jobTally += ChatColor.DARK_RED + "SEAFARER ";
-				}
-
-			RunicMessaging.sendMessage(p, RunicFormat.EMPTY	, jobTally);
-			jobTally = "";
-
+			rpJobsCommandQualify(Bukkit.getPlayer(args[1]));
 
 		} else if (args[0].equals("maintenance") && args.length == 1 && !(sender instanceof Player)) {
 

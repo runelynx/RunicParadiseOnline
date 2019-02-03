@@ -295,19 +295,57 @@ public class RunicProfile {
 		return this.lifetimeTokens;
 	}
 
-	private void setJobMasteryCount(int jobMasteryCount) {
+	public void setJobMasteryCount(int jobMasteryCount) {
 		this.masteredJobCount = jobMasteryCount;
+
+		MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
+		Connection connection = MySQL.openConnection();
+		try {
+			PreparedStatement statement = connection.prepareStatement("UPDATE rp_PlayerInfo SET JobsMasteredCount WHERE UUID = ?");
+			statement.setString(1, this.getPlayerID().toString());
+			statement.executeUpdate();
+
+		} catch (SQLException e) {
+			getLogger().log(Level.SEVERE, "Failed setJobMasteryCount because: " + e.getMessage());
+		}
+
+		try {
+			connection.close();
+		} catch (SQLException e) {
+			getLogger().log(Level.SEVERE, "Failed setJobMasteryCount because: " + e.getMessage());
+		}
+
 	}
 
-	private int getJobMasteryCount() {
+	public int getJobMasteryCount() {
 		return this.masteredJobCount;
 	}
 
-	private void setJobMasteryString(String jobMasteryString) {
+	public void setJobMasteryString(String jobMasteryString) {
 		this.masteredJobsString = jobMasteryString;
+
+		MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
+		Connection connection = MySQL.openConnection();
+
+			try {
+					PreparedStatement statement = connection.prepareStatement("UPDATE rp_PlayerInfo SET JobsMastered="
+							+ jobMasteryString + " WHERE UUID = ?");
+					statement.setString(1, this.getPlayerID().toString());
+					statement.executeUpdate();
+
+			} catch (SQLException e) {
+				getLogger().log(Level.SEVERE, "Failed setJobMasteryString because: " + e.getMessage());
+			}
+
+		try {
+			connection.close();
+		} catch (SQLException e) {
+			getLogger().log(Level.SEVERE, "Failed setJobMasteryString because: " + e.getMessage());
+		}
+
 	}
 
-	private String getJobMasteryString() {
+	public String getJobMasteryString() {
 		return this.masteredJobsString;
 	}
 
