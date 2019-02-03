@@ -286,12 +286,16 @@ public class Faith {
 								// player does NOT qualify for this power
 								levelColor = ChatColor.GRAY;
 							}
-							
-							
-							Bukkit.getPlayer(this.getUUID()).sendMessage(ChatColor.BLUE + "   Level " + levelColor 
+/*
+							Bukkit.getPlayer(this.getUUID()).sendMessage( new ComponentBuilder( "   Level " ).color( ChatColor.BLUE ).
+									append(powerResult.getString("RequiredLevel")).color( levelColor ).
+									append( ": " ).color( ChatColor.WHITE ).
+									.create() );
+
+							.sendMessage(ChatColor.BLUE + "   Level " + levelColor
 									+ powerResult.getString("RequiredLevel") + ChatColor.WHITE + ": " + levelColor
 									+ powerResult.getString("PowerName"));
-							
+			*/
 							
 									/*
 									.tooltip(

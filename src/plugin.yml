@@ -5,7 +5,7 @@ description: "Bukkit plugin for Runic Paradise server."
 main: io.github.runelynx.runicparadise.RunicParadise
 version: 1.1
 #depend: [NoteBlockAPI, WorldGuard, RunicUniverse, CS-CoreLib, Slimefun]
-depend: [NoteBlockAPI, RunicUniverse]
+depend: [NoteBlockAPI, RunicUniverse, CS-CoreLib, Slimefun]
 api-version: 1.13
 commands:
    rpcrates:

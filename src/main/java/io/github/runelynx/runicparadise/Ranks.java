@@ -5,6 +5,7 @@ import io.github.runelynx.runicuniverse.RunicMessaging;
 import io.github.runelynx.runicuniverse.RunicMessaging.RunicFormat;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -26,13 +27,10 @@ import static io.github.runelynx.runicparadise.RunicParadise.economy;
 import static io.github.runelynx.runicparadise.RunicParadise.perms;
 import static org.bukkit.Bukkit.getLogger;
 
-/*
 import me.mrCookieSlime.CSCoreLibPlugin.general.Inventory.Item.CustomItem;
 import me.mrCookieSlime.Slimefun.Lists.RecipeType;
 import me.mrCookieSlime.Slimefun.Objects.Category;
 import me.mrCookieSlime.Slimefun.Objects.SlimefunItem.SlimefunItem;
-
-*/
 
 class Ranks {
 	private Plugin instance = RunicParadise.getInstance();
@@ -1741,95 +1739,95 @@ class Ranks {
 			}
 		}
 	}
-/*
+
 	public static void registerSlimefunItems() {
 
 		Category category = new Category(
-				new CustomItem(new MaterialData(Material.ANVIL), "&4Runic Specialties", "", "&a> Click to open"));
+				new CustomItem(Material.ANVIL, "&4Runic Specialties", "", "&a> Click to open"));
 
 		category.register();
 
 		SlimefunItem baronDiamondPart = new SlimefunItem(category,
-				new CustomItem(new MaterialData(Material.DIAMOND), "&eMist-Infused Diamond"), "MIST_INFUSED_DIAMOND",
+				new CustomItem(Material.DIAMOND, "&eMist-Infused Diamond"), "MIST_INFUSED_DIAMOND",
 				RecipeType.ANCIENT_ALTAR,
 				new ItemStack[] { SlimefunItem.getItem("ANCIENT_RUNE_WATER"), SlimefunItem.getItem("SYNTHETIC_DIAMOND"),
 						SlimefunItem.getItem("ANCIENT_RUNE_AIR"), SlimefunItem.getItem("SILVER_DUST"),
-						new ItemStack(Material.INK_SACK, 1, (short) DyeColor.LIGHT_BLUE.getDyeData()),
+						new ItemStack(Material.LIGHT_BLUE_DYE, 1),
 						SlimefunItem.getItem("SILVER_DUST"), SlimefunItem.getItem("ANCIENT_RUNE_AIR"),
 						SlimefunItem.getItem("SYNTHETIC_DIAMOND"), SlimefunItem.getItem("ANCIENT_RUNE_WATER") });
 		baronDiamondPart.register();
 
 		SlimefunItem baronDiamond2Part = new SlimefunItem(category,
-				new CustomItem(new MaterialData(Material.DIAMOND), "&eLava-Infused Diamond"), "LAVA_INFUSED_DIAMOND",
+				new CustomItem(Material.DIAMOND, "&eLava-Infused Diamond"), "LAVA_INFUSED_DIAMOND",
 				RecipeType.ANCIENT_ALTAR,
 				new ItemStack[] { SlimefunItem.getItem("ANCIENT_RUNE_FIRE"), SlimefunItem.getItem("SYNTHETIC_DIAMOND"),
 						SlimefunItem.getItem("ANCIENT_RUNE_EARTH"), SlimefunItem.getItem("SILVER_DUST"),
-						new ItemStack(Material.INK_SACK, 1, (short) DyeColor.ORANGE.getDyeData()),
+						new ItemStack(Material.ORANGE_DYE, 1),
 						SlimefunItem.getItem("SILVER_DUST"), SlimefunItem.getItem("ANCIENT_RUNE_EARTH"),
 						SlimefunItem.getItem("SYNTHETIC_DIAMOND"), SlimefunItem.getItem("ANCIENT_RUNE_FIRE") });
 		baronDiamond2Part.register();
 
 		SlimefunItem baronEmeraldPart = new SlimefunItem(category,
-				new CustomItem(new MaterialData(Material.EMERALD), "&eMist-Infused Emerald"), "MIST_INFUSED_EMERALD",
+				new CustomItem(Material.EMERALD, "&eMist-Infused Emerald"), "MIST_INFUSED_EMERALD",
 				RecipeType.ANCIENT_ALTAR,
 				new ItemStack[] { SlimefunItem.getItem("ANCIENT_RUNE_WATER"), SlimefunItem.getItem("SYNTHETIC_EMERALD"),
 						SlimefunItem.getItem("ANCIENT_RUNE_AIR"), SlimefunItem.getItem("ZINC_DUST"),
-						new ItemStack(Material.INK_SACK, 1, (short) DyeColor.LIGHT_BLUE.getDyeData()),
+						new ItemStack(Material.LIGHT_BLUE_DYE, 1),
 						SlimefunItem.getItem("ZINC_DUST"), SlimefunItem.getItem("ANCIENT_RUNE_AIR"),
 						SlimefunItem.getItem("SYNTHETIC_EMERALD"), SlimefunItem.getItem("ANCIENT_RUNE_WATER") });
 		baronEmeraldPart.register();
 
 		SlimefunItem baronEmerald2Part = new SlimefunItem(category,
-				new CustomItem(new MaterialData(Material.EMERALD), "&eLava-Infused Emerald"), "LAVA_INFUSED_EMERALD",
+				new CustomItem(Material.EMERALD, "&eLava-Infused Emerald"), "LAVA_INFUSED_EMERALD",
 				RecipeType.ANCIENT_ALTAR,
 				new ItemStack[] { SlimefunItem.getItem("ANCIENT_RUNE_FIRE"), SlimefunItem.getItem("SYNTHETIC_EMERALD"),
 						SlimefunItem.getItem("ANCIENT_RUNE_EARTH"), SlimefunItem.getItem("ZINC_DUST"),
-						new ItemStack(Material.INK_SACK, 1, (short) DyeColor.ORANGE.getDyeData()),
+						new ItemStack(Material.ORANGE_DYE, 1),
 						SlimefunItem.getItem("ZINC_DUST"), SlimefunItem.getItem("ANCIENT_RUNE_EARTH"),
 						SlimefunItem.getItem("SYNTHETIC_EMERALD"), SlimefunItem.getItem("ANCIENT_RUNE_FIRE") });
 		baronEmerald2Part.register();
 
 		SlimefunItem baronSapphirePart = new SlimefunItem(category,
-				new CustomItem(new ItemStack(Material.INK_SACK, 1, (short) DyeColor.BLUE.getDyeData()),
+				new CustomItem(Material.LIGHT_BLUE_DYE,
 						"&eMist-Infused Sapphire"),
 				"MIST_INFUSED_SAPPHIRE", RecipeType.ANCIENT_ALTAR,
 				new ItemStack[] { SlimefunItem.getItem("ANCIENT_RUNE_WATER"),
 						SlimefunItem.getItem("SYNTHETIC_SAPPHIRE"), SlimefunItem.getItem("ANCIENT_RUNE_AIR"),
 						SlimefunItem.getItem("ALUMINUM_DUST"),
-						new ItemStack(Material.INK_SACK, 1, (short) DyeColor.LIGHT_BLUE.getDyeData()),
+						new ItemStack(Material.LIGHT_BLUE_DYE, 1),
 						SlimefunItem.getItem("ALUMINUM_DUST"), SlimefunItem.getItem("ANCIENT_RUNE_AIR"),
 						SlimefunItem.getItem("SYNTHETIC_SAPPHIRE"), SlimefunItem.getItem("ANCIENT_RUNE_WATER") });
 		baronSapphirePart.register();
 
 		SlimefunItem baronSapphire2Part = new SlimefunItem(category,
-				new CustomItem(new ItemStack(Material.INK_SACK, 1, (short) DyeColor.BLUE.getDyeData()),
+				new CustomItem(Material.LAPIS_LAZULI,
 						"&eLava-Infused Sapphire"),
 				"LAVA_INFUSED_SAPPHIRE", RecipeType.ANCIENT_ALTAR,
 				new ItemStack[] { SlimefunItem.getItem("ANCIENT_RUNE_FIRE"), SlimefunItem.getItem("SYNTHETIC_SAPPHIRE"),
 						SlimefunItem.getItem("ANCIENT_RUNE_EARTH"), SlimefunItem.getItem("ALUMINUM_DUST"),
-						new ItemStack(Material.INK_SACK, 1, (short) DyeColor.ORANGE.getDyeData()),
+						new ItemStack(Material.ORANGE_DYE, 1),
 						SlimefunItem.getItem("ALUMINUM_DUST"), SlimefunItem.getItem("ANCIENT_RUNE_EARTH"),
 						SlimefunItem.getItem("SYNTHETIC_SAPPHIRE"), SlimefunItem.getItem("ANCIENT_RUNE_FIRE") });
 		baronSapphire2Part.register();
 
 		SlimefunItem baronMistyTopaz = new SlimefunItem(category,
-				new CustomItem(new ItemStack(Material.INK_SACK, 1, (short) DyeColor.LIGHT_BLUE.getDyeData()),
+				new CustomItem(new ItemStack(Material.LIGHT_BLUE_DYE, 1),
 						"&ePrismatic Topaz"),
 				"PRISMATIC_TOPAZ", RecipeType.MAGIC_WORKBENCH,
 				new ItemStack[] { SlimefunItem.getItem("ANCIENT_RUNE_RAINBOW"),
 						SlimefunItem.getItem("MIST_INFUSED_EMERALD"), SlimefunItem.getItem("ANCIENT_RUNE_RAINBOW"),
-						null, new ItemStack(Material.INK_SACK, 1, (short) DyeColor.LIGHT_BLUE.getDyeData()), null,
+						null, new ItemStack(Material.LIGHT_BLUE_DYE, 1), null,
 						SlimefunItem.getItem("MIST_INFUSED_DIAMOND"), SlimefunItem.getItem("ANCIENT_RUNE_RAINBOW"),
 						SlimefunItem.getItem("MIST_INFUSED_SAPPHIRE") });
 		baronMistyTopaz.register();
 
 		SlimefunItem baronMistyCitrine = new SlimefunItem(category,
-				new CustomItem(new ItemStack(Material.INK_SACK, 1, (short) DyeColor.ORANGE.getDyeData()),
+				new CustomItem(new ItemStack(Material.ORANGE_DYE, 1),
 						"&ePrismatic Citrine"),
 				"PRISMATIC_CITRINE", RecipeType.MAGIC_WORKBENCH,
 				new ItemStack[] { SlimefunItem.getItem("ANCIENT_RUNE_RAINBOW"),
 						SlimefunItem.getItem("LAVA_INFUSED_EMERALD"), SlimefunItem.getItem("ANCIENT_RUNE_RAINBOW"),
-						null, new ItemStack(Material.INK_SACK, 1, (short) DyeColor.YELLOW.getDyeData()), null,
+						null, new ItemStack(Material.DANDELION_YELLOW, 1), null,
 						SlimefunItem.getItem("LAVA_INFUSED_DIAMOND"), SlimefunItem.getItem("ANCIENT_RUNE_RAINBOW"),
 						SlimefunItem.getItem("LAVA_INFUSED_SAPPHIRE") });
 		baronMistyCitrine.register();
@@ -1838,7 +1836,7 @@ class Ranks {
 				"BARON_JEWEL", RecipeType.MAGIC_WORKBENCH,
 				new ItemStack[] { new ItemStack(Material.NETHER_STAR), SlimefunItem.getItem("PRISMATIC_CITRINE"),
 						new ItemStack(Material.NETHER_STAR), SlimefunItem.getItem("ANCIENT_RUNE_ENDER"),
-						new ItemStack(Material.INK_SACK, 1, (short) 12), SlimefunItem.getItem("ANCIENT_RUNE_ENDER"),
+						new ItemStack(Material.LIGHT_BLUE_DYE, 1), SlimefunItem.getItem("ANCIENT_RUNE_ENDER"),
 						new ItemStack(Material.NETHER_STAR), SlimefunItem.getItem("PRISMATIC_TOPAZ"),
 						new ItemStack(Material.NETHER_STAR) });
 		baronJewel.register();
@@ -1862,6 +1860,6 @@ class Ranks {
 						SlimefunItem.getItem("BLISTERING_INGOT_2"), null, SlimefunItem.getItem("BLISTERING_INGOT_2") });
 		baronIngot2.register();
 
-	}*/
+	}
 
 }

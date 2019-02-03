@@ -888,11 +888,14 @@ public class RunicProfile {
 					Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "give " + p.getName() + " witherskull 1");
 					p.sendMessage(ChatColor.GOLD + "You received a wither skull for first completion here!");
 				}
-				if (mzResult.getInt("ID") == 7) {
-					// Adventure Parkour
-					Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "give " + p.getName() + " witherskull 1");
-					p.sendMessage(ChatColor.GOLD + "You received a wither skull for first completion here!");
+
+
+				if (mzResult.getInt("ID") == 28) {
+					// Cake Maze
+					p.getInventory().addItem(Recipes.customItemStacks("FC_EXTREME_MAZE_1"));
+					p.sendMessage(ChatColor.GOLD + "You received a trophy for first completion here!");
 				}
+
 				if (mzResult.getInt("ID") == 23) {
 					// Cake Maze
 					p.getInventory().addItem(Recipes.customItemStacks("CAKE_MAZE_1"));

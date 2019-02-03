@@ -22,6 +22,7 @@ import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.plugin.Plugin;
 import org.json.JSONObject;
 import org.json.JSONTokener;
+import net.md_5.bungee.api.chat.TextComponent;
 
 import java.io.File;
 import java.io.InputStream;
@@ -692,6 +693,9 @@ public class Commands implements CommandExecutor {
 
 	private void rankItemCommand(CommandSender sender, String[] args) {
 		if (args.length == 3) {
+
+
+
 			if (args[1].equals("DukeMetal") && args[0].equalsIgnoreCase("Give")) {
 				Bukkit.getPlayer(args[2]).getLocation().getWorld().dropItemNaturally(
 						Bukkit.getPlayer(args[2]).getLocation(),

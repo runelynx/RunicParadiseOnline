@@ -101,8 +101,8 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 
 		RunicMessaging.initializeAnnouncements(instance);
 
-		// ** turn back on when slimefun 1.13 is out!
-		//Ranks.registerSlimefunItems();
+
+		Ranks.registerSlimefunItems();
 
 
 		if (setupPermissions()) {

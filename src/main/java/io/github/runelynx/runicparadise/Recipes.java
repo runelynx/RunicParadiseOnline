@@ -22,6 +22,17 @@ class Recipes {
 		ItemMeta meta;
 
 		switch (key) {
+			case "FC_EXTREME_MAZE_1":
+				newItem = new ItemStack(Material.ACACIA_WOOD, 1);
+				meta = newItem.getItemMeta();
+				meta.setDisplayName(ChatColor.GOLD + "Squared Wood");
+				meta.setLore(Arrays.asList(ChatColor.DARK_PURPLE
+						+ "Awarded for completing the Extreme ", ChatColor.DARK_PURPLE
+						+ "mode in the Four Corners Maze."
+				));
+				meta.addEnchant(Enchantment.MENDING, 1, true);
+				newItem.setItemMeta(meta);
+				return newItem;
 			case "CAKE_MAZE_1":
 				newItem = new ItemStack(Material.CAKE, 1);
 				meta = newItem.getItemMeta();
