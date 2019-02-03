@@ -1483,9 +1483,12 @@ public class Commands implements CommandExecutor {
 		return true;
 	}
 
-	private boolean rpJobsCommandQualify (Player p) {
+	private boolean rpJobsCommandQualify (Player p, Boolean silent) {
     	String jobTally = "";
-		RunicMessaging.sendMessage(p, RunicFormat.EMPTY, ChatColor.BLUE + "*** Tier 2 Jobs ***");
+
+    	if (!silent) {
+			RunicMessaging.sendMessage(p, RunicFormat.EMPTY, ChatColor.BLUE + "*** Tier 2 Jobs ***");
+		}
 
 		jobTally += (rpJobsCommandQualifyLogic2(p, "Ranger", "Woodsman", "Rancher") ? ChatColor.GREEN + "Ranger "  : ChatColor.RED + "Ranger ");
 		jobTally += (rpJobsCommandQualifyLogic2(p, "ForgeMaster", "Blacksmith", "Miner") ? ChatColor.GREEN + "ForgeMaster "  : ChatColor.RED + "ForgeMaster ");
@@ -1497,23 +1500,29 @@ public class Commands implements CommandExecutor {
 		jobTally += (rpJobsCommandQualifyLogic2(p, "Druid", "Wizard", "Woodsman") ? ChatColor.GREEN + "Druid "  : ChatColor.RED + "Druid ");
 		jobTally += (rpJobsCommandQualifyLogic2(p, "Engineer", "Scientist", "Miner") ? ChatColor.GREEN + "Engineer "  : ChatColor.RED + "Engineer ");
 
-		RunicMessaging.sendMessage(p, RunicFormat.EMPTY, jobTally);
-		jobTally = "";
-		RunicMessaging.sendMessage(p, RunicFormat.EMPTY, ChatColor.YELLOW + "*** Tier 3 Jobs ***");
+		if (!silent) {
+			RunicMessaging.sendMessage(p, RunicFormat.EMPTY, jobTally);
+			jobTally = "";
+			RunicMessaging.sendMessage(p, RunicFormat.EMPTY, ChatColor.YELLOW + "*** Tier 3 Jobs ***");
+		}
 
 		jobTally += (rpJobsCommandQualifyLogic3(p, "BeastMaster", "Druid", "Tamer", "Nomad") ? ChatColor.GREEN + "BeastMaster "  : ChatColor.RED + "BeastMaster ");
 		jobTally += (rpJobsCommandQualifyLogic3(p, "Sorcerer", "Alchemist", "Geomancer", "Conjurer") ? ChatColor.GREEN + "Sorcerer "  : ChatColor.RED + "Sorcerer ");
 		jobTally += (rpJobsCommandQualifyLogic3(p, "Geneticist", "Ranger", "Nomad", "Biologist") ? ChatColor.GREEN + "Geneticist "  : ChatColor.RED + "Geneticist ");
 		jobTally += (rpJobsCommandQualifyLogic3(p, "Artificer", "Engineer", "ForgeMaster", "Geomancer") ? ChatColor.GREEN + "Artificer "  : ChatColor.RED + "Artificer ");
 
-		RunicMessaging.sendMessage(p, RunicFormat.EMPTY, jobTally);
-		jobTally = "";
-		RunicMessaging.sendMessage(p, RunicFormat.EMPTY, ChatColor.YELLOW + "*** Tier 4 Jobs ***");
+		if (!silent) {
+			RunicMessaging.sendMessage(p, RunicFormat.EMPTY, jobTally);
+			jobTally = "";
+			RunicMessaging.sendMessage(p, RunicFormat.EMPTY, ChatColor.YELLOW + "*** Tier 4 Jobs ***");
+		}
 
 		jobTally += (rpJobsCommandQualifyLogic2(p, "Craftsman", "Artificer", "Sorcerer") ? ChatColor.GREEN + "Craftsman "  : ChatColor.RED + "Craftsman ");
 		jobTally += (rpJobsCommandQualifyLogic2(p, "Seafarer", "Geneticist", "BeastMaster") ? ChatColor.GREEN + "Seafarer "  : ChatColor.RED + "Seafarer ");
 
-		RunicMessaging.sendMessage(p, RunicFormat.EMPTY, jobTally);
+		if (!silent) {
+			RunicMessaging.sendMessage(p, RunicFormat.EMPTY, jobTally);
+		}
 
     	return true;
 	}
@@ -1554,9 +1563,14 @@ public class Commands implements CommandExecutor {
 
 			rpJobsCommandMastery(q, args[1]);
 
-		} else if (args[0].equals("qualify") && args.length == 2 && !(sender instanceof Player)) {
+		} else if (args[0].equals("qualify") && args.length >= 2 && !(sender instanceof Player)) {
 			// Qualify for an upper tier job
-			rpJobsCommandQualify(Bukkit.getPlayer(args[1]));
+			if (args.length == 3 && args[2] == "silent"){
+				rpJobsCommandQualify(Bukkit.getPlayer(args[1]), true);
+			} else {
+				rpJobsCommandQualify(Bukkit.getPlayer(args[1]), false);
+			}
+
 
 		} else if (args[0].equals("maintenance") && args.length == 1 && !(sender instanceof Player)) {
 
