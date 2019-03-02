@@ -700,6 +700,9 @@ public class Commands implements CommandExecutor {
 				Bukkit.getPlayer(args[2]).getLocation().getWorld().dropItemNaturally(
 						Bukkit.getPlayer(args[2]).getLocation(),
 						Borderlands.specialLootDrops("DukeMetal", Bukkit.getPlayer(args[2]).getUniqueId()));
+                Bukkit.getPlayer(args[2]).getLocation().getWorld().dropItemNaturally(
+                        Bukkit.getPlayer(args[2]).getLocation(),
+                        Borderlands.specialLootDrops("DukeMetal", Bukkit.getPlayer(args[2]).getUniqueId()));
 			} else if (args[1].equals("BaronMetal") && args[0].equalsIgnoreCase("Give")) {
 				Bukkit.getPlayer(args[2]).getLocation().getWorld().dropItemNaturally(
 						Bukkit.getPlayer(args[2]).getLocation(),
