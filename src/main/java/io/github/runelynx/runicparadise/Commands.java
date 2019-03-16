@@ -506,7 +506,7 @@ public class Commands implements CommandExecutor {
 		if(args[0].equalsIgnoreCase("user") &&
 				args[2].equalsIgnoreCase("add")) {
 			// adding perm to a user
-			RunicParadise.perms.playerAdd(Bukkit.getPlayer(args[1]), args[3]);
+			RunicParadise.perms.playerAdd("", Bukkit.getOfflinePlayer(args[1]), args[3]);
 
 			if ((sender instanceof Player)) {
 				RunicMessaging.sendMessage(((Player)sender),RunicFormat.SYSTEM, ChatColor.GREEN + "Added " + args[3] + " perm to " + args[1]);
@@ -516,7 +516,7 @@ public class Commands implements CommandExecutor {
 		} else if(args[0].equalsIgnoreCase("user") &&
 				args[2].equalsIgnoreCase("remove")) {
 			// removing perm from a user
-			RunicParadise.perms.playerRemove(Bukkit.getPlayer(args[1]), args[3]);
+			RunicParadise.perms.playerRemove("", Bukkit.getOfflinePlayer(args[1]), args[3]);
 
 			if ((sender instanceof Player)) {
 				RunicMessaging.sendMessage(((Player)sender),RunicFormat.SYSTEM, ChatColor.RED + "Removed " + args[3] + " perm from " + args[1]);

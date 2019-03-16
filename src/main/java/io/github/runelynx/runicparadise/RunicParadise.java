@@ -485,6 +485,12 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 				Borderlands.spawnBLMob(event);
 			}
 
+		} else {
+			// Spawn event handler for NON-Borderlands
+			if(event.getEntity().getType().toString().equalsIgnoreCase("phantom")) {
+				event.setCancelled(true);
+			}
+
 		}
 	}
 
