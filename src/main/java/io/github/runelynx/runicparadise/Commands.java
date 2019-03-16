@@ -321,6 +321,9 @@ public class Commands implements CommandExecutor {
 		// general approach is that errors will return immediately;
 		// successful runs will return after the switch completes
 		switch (cmd.getName()) {
+		case "pex":
+				pexCommand(sender, args);
+				break;
 		case "rpversion":
 			handleRpVersion(sender);
 			break;
@@ -484,6 +487,73 @@ public class Commands implements CommandExecutor {
 	private static void runicSpawnTravelCommand(CommandSender sender) {
     	Player player = (Player) sender;
 		spawnTransportBeacon(player.getLocation(), player);
+	}
+
+	private static void pexCommand (CommandSender sender, String[] args) {
+		if ((sender instanceof Player)) {
+			RunicMessaging.sendMessage(((Player)sender),RunicFormat.SYSTEM,"The pex command is here for convenience only to help with our transition to LuckPerms. Please learn the new Luckperms /lp commands. :)");
+		}
+
+		StringBuilder sb = new StringBuilder();
+		for (int i = 1; i < args.length; i++){
+			sb.append(args[i]).append(" ");
+		}
+		String allArgs = sb.toString().trim();
+
+		Bukkit.getLogger().log(Level.INFO, "[RunicPEX] Processing pex command: " + allArgs);
+
+
+		if(args[0].equalsIgnoreCase("user") &&
+				args[2].equalsIgnoreCase("add")) {
+			// adding perm to a user
+			RunicParadise.perms.playerAdd(Bukkit.getPlayer(args[1]), args[3]);
+
+			if ((sender instanceof Player)) {
+				RunicMessaging.sendMessage(((Player)sender),RunicFormat.SYSTEM, ChatColor.GREEN + "Added " + args[3] + " perm to " + args[1]);
+			}
+			Bukkit.getLogger().log(Level.INFO, "[RunicPEX] Added " + args[3] + " perm to " + args[1]);
+
+		} else if(args[0].equalsIgnoreCase("user") &&
+				args[2].equalsIgnoreCase("remove")) {
+			// removing perm from a user
+			RunicParadise.perms.playerRemove(Bukkit.getPlayer(args[1]), args[3]);
+
+			if ((sender instanceof Player)) {
+				RunicMessaging.sendMessage(((Player)sender),RunicFormat.SYSTEM, ChatColor.RED + "Removed " + args[3] + " perm from " + args[1]);
+			}
+			Bukkit.getLogger().log(Level.INFO, "[RunicPEX] Removed " + args[3] + " perm from " + args[1]);
+
+		} else if (args[0].equalsIgnoreCase("user") &&
+				args[2].equalsIgnoreCase("group") &&
+				args[3].equalsIgnoreCase("add")) {
+			// adding group to a user
+			RunicParadise.perms.playerAddGroup(Bukkit.getPlayer(args[1]), args[4]);
+
+			if ((sender instanceof Player)) {
+				RunicMessaging.sendMessage(((Player)sender),RunicFormat.SYSTEM, ChatColor.RED + "Added " + args[4] + " group to " + args[1]);
+			}
+			Bukkit.getLogger().log(Level.INFO, "[RunicPEX] Added " + args[4] + " group to " + args[1]);
+
+
+		} else if (args[0].equalsIgnoreCase("user") &&
+				args[2].equalsIgnoreCase("group") &&
+				args[3].equalsIgnoreCase("remove")) {
+			// removing group from a user
+			RunicParadise.perms.playerRemoveGroup(Bukkit.getPlayer(args[1]), args[4]);
+
+			if ((sender instanceof Player)) {
+				RunicMessaging.sendMessage(((Player)sender),RunicFormat.SYSTEM, ChatColor.RED + "Removed " + args[4] + " group from " + args[1]);
+			}
+			Bukkit.getLogger().log(Level.INFO, "[RunicPEX] Removed " + args[4] + " group from " + args[1]);
+		} else {
+			// malformed command or not something we're handling
+			if ((sender instanceof Player)) {
+				RunicMessaging.sendMessage(((Player)sender),RunicFormat.ERROR, ChatColor.DARK_RED + "Sorry... but our fake-pex commands can't handle what you just tried. Please look up the LuckPerms command for what you're trying to do. https://github.com/lucko/LuckPerms/wiki/Command-Usage");
+			}
+			Bukkit.getLogger().log(Level.INFO, "[RunicPEX] Failed to handle pex command.");
+
+		}
+
 	}
 
 	private static void rpFixCommand(CommandSender sender) {
@@ -2004,7 +2074,7 @@ public class Commands implements CommandExecutor {
 
 							RunicParadise.playerProfiles.get(Bukkit.getPlayer(args[1]).getUniqueId())
 									.addMazeCompletion(4);
-							new RunicPlayerBukkit(args[1]).adjustPlayerKarma(20);
+							//new RunicPlayerBukkit(args[1]).adjustPlayerKarma(20);
 
 						}
 						Bukkit.getPlayer(args[1]).sendMessage(new String[] { ChatColor.GRAY + "Your jungle maze completion status:",
@@ -3121,6 +3191,8 @@ public class Commands implements CommandExecutor {
 		 * }
 		 */
 	}
+
+
 
 	private static void itemInfoCommandAdd(StringBuilder message, String description, String data) {
     	message.append(ChatColor.GOLD).append(description).append(ChatColor.GRAY).append(data).append("\n");

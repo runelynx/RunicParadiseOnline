@@ -924,8 +924,14 @@ public class RunicProfile {
 				}
 				if (mzResult.getInt("ID") == 7) {
 					// Adventure Parkour
-					Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "give " + p.getName() + " witherskull 1");
+					Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "give " + p.getName() + " wither_skeleton_skull 1");
 					p.sendMessage(ChatColor.GOLD + "You received a wither skull for first completion here!");
+				}
+
+				if (mzResult.getInt("ID") == 4) {
+					// Jungle Maze
+					Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "give " + p.getName() + " totem_of_undying 1");
+					p.sendMessage(ChatColor.GOLD + "You received a prize for first completion here!");
 				}
 
 
