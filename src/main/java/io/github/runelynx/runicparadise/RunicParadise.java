@@ -1481,13 +1481,13 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 		}
 
 		if (pje.getPlayer().hasPermission("rp.chatfilterwarning1") && !pje.getPlayer().hasPermission("rp.admin")) {
-			RunicParadise.perms.playerRemove(pje.getPlayer(), "rp.chatfilterwarning1");
-			RunicParadise.perms.playerRemove(pje.getPlayer(), "-essentials.me");
+			RunicParadise.perms.playerRemove("", pje.getPlayer(), "rp.chatfilterwarning1");
+			RunicParadise.perms.playerRemove("", pje.getPlayer(), "-essentials.me");
 
 		}
 
 		if (pje.getPlayer().hasPermission("rp.chatfilterwarning2") && !pje.getPlayer().hasPermission("rp.admin")) {
-			RunicParadise.perms.playerRemove(pje.getPlayer(), "rp.chatfilterwarning2");
+			RunicParadise.perms.playerRemove("", pje.getPlayer(), "rp.chatfilterwarning2");
 		}
 
 		//RunicUtilities.convertGroupManager(pje.getPlayer());
@@ -1508,7 +1508,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 				RunicPlayerBukkit target = new RunicPlayerBukkit(pje.getPlayer().getUniqueId());
 
 				if (target.getPlayerVoteCount() > 125) {
-					perms.playerAdd(pje.getPlayer(), "rp.slimefun.smallbackpack");
+					perms.playerAdd("", pje.getPlayer(), "rp.slimefun.smallbackpack");
 
 					for (Player p : Bukkit.getOnlinePlayers()) {
 						p.sendMessage(ChatColor.DARK_PURPLE + "" + pje.getPlayer().getDisplayName()
@@ -1526,7 +1526,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 				RunicPlayerBukkit target = new RunicPlayerBukkit(pje.getPlayer().getUniqueId());
 
 				if (target.getPlayerVoteCount() > 250) {
-					perms.playerAdd(pje.getPlayer(), "rp.slimefun.mediumbackpack");
+					perms.playerAdd("", pje.getPlayer(), "rp.slimefun.mediumbackpack");
 
 					for (Player p : Bukkit.getOnlinePlayers()) {
 						p.sendMessage(ChatColor.LIGHT_PURPLE + "" + pje.getPlayer().getDisplayName()
