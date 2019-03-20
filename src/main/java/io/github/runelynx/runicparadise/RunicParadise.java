@@ -1490,7 +1490,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 			RunicParadise.perms.playerRemove(pje.getPlayer(), "rp.chatfilterwarning2");
 		}
 
-		RunicUtilities.convertGroupManager(pje.getPlayer());
+		//RunicUtilities.convertGroupManager(pje.getPlayer());
 
 		updatePlayerInfoOnJoin(pje.getPlayer().getName(), pje.getPlayer().getUniqueId());
 
@@ -1499,6 +1499,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 		faithMap.put(pje.getPlayer().getUniqueId(), new Faith(pje.getPlayer().getUniqueId()));
 
 		refreshCMIRank(pje.getPlayer());
+		eliminateDefaultGroup(pje.getPlayer());
 
 		Bukkit.getServer().getScheduler().scheduleAsyncDelayedTask(instance, () -> {
 			if (!pje.getPlayer().hasPermission("rp.slimefun.smallbackpack")
@@ -3320,6 +3321,14 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 	private void refreshCMIRank (Player p) {
 		String groupName = perms.getPrimaryGroup(p);
 		Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "cmi rankset " + p.getName() + " " + groupName);
+	}
+
+	private void eliminateDefaultGroup (Player p) {
+		String groupName = perms.getPrimaryGroup(p);
+		if (groupName.equalsIgnoreCase("default")) {
+			perms.playerAddGroup("", Bukkit.getOfflinePlayer(p.getUniqueId()), "Ghost");
+			Bukkit.getLogger().log(Level.INFO, "Found default group! Changing " + p.getName() + " to Ghost!");
+		}
 	}
 
 
