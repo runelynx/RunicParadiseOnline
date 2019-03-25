@@ -311,11 +311,11 @@ public class RunicProfile {
 		return this.masteredJobsString;
 	}
 
-	private void setSoulCount(int newSouls) {
+	public void setSoulCount(int newSouls) {
 		this.soulCount = newSouls;
 	}
 
-	private int getSoulCount() {
+    public int getSoulCount() {
 		return this.soulCount;
 	}
 
