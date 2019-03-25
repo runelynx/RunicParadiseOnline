@@ -62,7 +62,7 @@ public class RunicProfile {
 
 	private static Plugin instance = RunicParadise.getInstance();
 
-	RunicProfile(UUID playerID) {
+	public RunicProfile(UUID playerID) {
 		loadProfile(playerID);
 	}
 
