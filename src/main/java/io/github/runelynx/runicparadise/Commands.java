@@ -2628,7 +2628,7 @@ public class Commands implements CommandExecutor {
 		int totalRaffleCount = 0;
 		int ticketCost = 500;
 		int maxPurchaseTickets = 1000;
-		String raffleNameColor = "&bW&3i&bn&ft&be&3r &bR&fa&bf&3f&bl&fe";
+		String raffleNameColor = "&aS&2p&er&ai&2n&eg &aR&2a&ef&af&2l&ee";
 
 		// HANDLE PURCHASED TICKETS
 		if (args.length == 2 && args[0].equalsIgnoreCase("buy") && Integer.parseInt(args[1]) > 0
