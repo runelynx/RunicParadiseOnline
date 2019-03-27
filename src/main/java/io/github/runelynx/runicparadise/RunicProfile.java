@@ -62,7 +62,7 @@ public class RunicProfile {
 
 	private static Plugin instance = RunicParadise.getInstance();
 
-	RunicProfile(UUID playerID) {
+	public RunicProfile(UUID playerID) {
 		loadProfile(playerID);
 	}
 
@@ -350,11 +350,11 @@ public class RunicProfile {
 		return this.masteredJobsString;
 	}
 
-	private void setSoulCount(int newSouls) {
+	public void setSoulCount(int newSouls) {
 		this.soulCount = newSouls;
 	}
 
-	private int getSoulCount() {
+    public int getSoulCount() {
 		return this.soulCount;
 	}
 
