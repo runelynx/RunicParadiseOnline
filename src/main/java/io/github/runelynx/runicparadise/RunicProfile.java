@@ -66,7 +66,7 @@ public class RunicProfile {
 		loadProfile(playerID);
 	}
 
-	private void setPlayerID(UUID playerid) {
+	public void setPlayerID(UUID playerid) {
 		this.playerUUID = playerid;
 	}
 
@@ -151,16 +151,16 @@ public class RunicProfile {
 		return this.gender;
 	}
 
-	private OfflinePlayer getOfflinePlayer() {
+    public OfflinePlayer getOfflinePlayer() {
 		return this.op;
 	}
 
-	private void setOfflinePlayer() {
+    public void setOfflinePlayer() {
 		this.op = Bukkit.getOfflinePlayer(this.getPlayerID());
 	}
 
 	// if player is online, set both display and real names.
-	private void setPlayerNames(boolean online) {
+    public void setPlayerNames(boolean online) {
 
 		if (online) {
 			this.playerName = Bukkit.getOfflinePlayer(this.getPlayerID()).getName();
@@ -172,7 +172,7 @@ public class RunicProfile {
 
 	}
 
-	private String getPlayerName(boolean getRealName) {
+    public String getPlayerName(boolean getRealName) {
 		// this will only return the true display name if player is online.
 		// Controlled via setPlayerNames method.
 		if (getRealName) {
@@ -182,11 +182,11 @@ public class RunicProfile {
 		}
 	}
 
-	private void setFaithPowerLevel(int fpl) {
+    public void setFaithPowerLevel(int fpl) {
 		this.faithPowerLevel = fpl;
 	}
 
-	private int getFaithPowerLevel() {
+    public int getFaithPowerLevel() {
 		return this.faithPowerLevel;
 	}
 
@@ -255,7 +255,7 @@ public class RunicProfile {
 		new RunicPlayerBukkit(this.getPlayerID()).refreshPlayerObject(Bukkit.getOfflinePlayer(this.getPlayerID()));
 	}
 
-	private void setKarmaBalance(int newKarma) {
+    public void setKarmaBalance(int newKarma) {
 		this.karmaBalance = newKarma;
 	}
 
@@ -267,47 +267,47 @@ public class RunicProfile {
 		return this.skyblockRank;
 	}
 
-	private void setSkyblockRankNum(int newNum) {
+    public void setSkyblockRankNum(int newNum) {
 		this.skyblockRankNum = newNum;
 	}
 
-	private void setSkyblockRank(String newRank) {
+    public void setSkyblockRank(String newRank) {
 		this.skyblockRank = newRank;
 	}
 
-	private int getKarmaBalance() {
+    public int getKarmaBalance() {
 		return this.karmaBalance;
 	}
 
-	private void setTokenBalance(int newToken) {
+    public void setTokenBalance(int newToken) {
 		this.tokenBalance = newToken;
 	}
 
-	private int getTokenBalance() {
+    public int getTokenBalance() {
 		return this.tokenBalance;
 	}
 
-	private void setLifetimeToken(int lifetimeTokens) {
+    public void setLifetimeToken(int lifetimeTokens) {
 		this.lifetimeTokens = lifetimeTokens;
 	}
 
-	private int getLifetimeToken() {
+    public int getLifetimeToken() {
 		return this.lifetimeTokens;
 	}
 
-	private void setJobMasteryCount(int jobMasteryCount) {
+    public void setJobMasteryCount(int jobMasteryCount) {
 		this.masteredJobCount = jobMasteryCount;
 	}
 
-	private int getJobMasteryCount() {
+    public int getJobMasteryCount() {
 		return this.masteredJobCount;
 	}
 
-	private void setJobMasteryString(String jobMasteryString) {
+    public void setJobMasteryString(String jobMasteryString) {
 		this.masteredJobsString = jobMasteryString;
 	}
 
-	private String getJobMasteryString() {
+    public String getJobMasteryString() {
 		return this.masteredJobsString;
 	}
 
@@ -319,35 +319,35 @@ public class RunicProfile {
 		return this.soulCount;
 	}
 
-	private void setVoteCount(int newVotes) {
+    public void setVoteCount(int newVotes) {
 		this.voteTotal = newVotes;
 	}
 
-	private int getVoteCount() {
+    public int getVoteCount() {
 		return this.voteTotal;
 	}
 
-	private void setJoinDate(Date newJoinDate) {
+    public void setJoinDate(Date newJoinDate) {
 		this.joinDate = newJoinDate;
 	}
 
-	private Date getJoinDate() {
+    public Date getJoinDate() {
 		return this.joinDate;
 	}
 
-	private void setActiveFaith(String newFaith) {
+    public void setActiveFaith(String newFaith) {
 		this.activeFaith = newFaith;
 	}
 
-	private String getActiveFaith() {
+    public String getActiveFaith() {
 		return this.activeFaith;
 	}
 
-	private int getSpecialRankDrop24HrCount() {
+    public int getSpecialRankDrop24HrCount() {
 		return this.rankDropCountLast24Hours;
 	}
 
-	private void setSpecialRankDrop24HrCount(int newValue) {
+    public void setSpecialRankDrop24HrCount(int newValue) {
 		this.rankDropCountLast24Hours = newValue;
 	}
 
@@ -372,11 +372,11 @@ public class RunicProfile {
 		}
 	}
 
-	private void setPlayerIP(String playerIP) {
+    public void setPlayerIP(String playerIP) {
 		this.playerIP = playerIP;
 	}
 
-	private String getPlayerIP() {
+    public String getPlayerIP() {
 		return this.playerIP;
 	}
 
@@ -437,7 +437,7 @@ public class RunicProfile {
 		}
 	}
 
-	private void loadProfile(UUID playerid) {
+    public void loadProfile(UUID playerid) {
 
 		this.setPlayerID(playerid);
 
@@ -463,7 +463,7 @@ public class RunicProfile {
 		setOfflinePlayer();
 	}
 
-	private void restartAntiFarming() {
+    public void restartAntiFarming() {
 		this.farmKillLoc = Bukkit.getPlayer(this.getPlayerID()).getLocation();
 		this.farmKillCounter = 0;
 	}
@@ -499,7 +499,7 @@ public class RunicProfile {
 		return this.farmKillCounter >= FARMING_COUNT_THRESHOLD;
 	}
 
-	private void retrieveJobsData() {
+    public void retrieveJobsData() {
 		MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
 
 		try {
@@ -536,7 +536,7 @@ public class RunicProfile {
 		}
 	}
 
-	private void retrieveBasicData() {
+    public void retrieveBasicData() {
 		MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
 
 		try {
@@ -600,7 +600,7 @@ public class RunicProfile {
 
 	}
 
-	private void retrieveDropData() {
+    public void retrieveDropData() {
 		MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
 
 		try {
@@ -632,7 +632,7 @@ public class RunicProfile {
 		}
 	}
 
-	private void retrieveMobKillsData() {
+    public void retrieveMobKillsData() {
 		MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
 
 		try {
@@ -705,7 +705,7 @@ public class RunicProfile {
 		}
 	}
 
-	private boolean getMazeAndParkoursCompletedFirstTime() {
+    public boolean getMazeAndParkoursCompletedFirstTime() {
 		MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
 		Connection connection = MySQL.openConnection();
 		try {
@@ -903,7 +903,7 @@ public class RunicProfile {
 						p.sendMessage(ChatColor.GOLD + "You received a Thanksgiving pie trophy for first completion here before Thanksgiving 2018!");
 					}
 				}
-				
+
 				if (mzResult.getInt("ID") == 21) {
 					// Anguish Maze
 
