@@ -101,8 +101,8 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 
 		RunicMessaging.initializeAnnouncements(instance);
 
-		// ** turn back on when slimefun 1.13 is out!
-		//Ranks.registerSlimefunItems();
+
+		Ranks.registerSlimefunItems();
 
 
 		if (setupPermissions()) {
@@ -356,6 +356,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 		getCommand("explore").setExecutor(new Commands());
 		getCommand("machinemaze").setExecutor(new Commands());
 		getCommand("el").setExecutor(new Commands());
+		getCommand("pex").setExecutor(new Commands());
 		getCommand("fixranks").setExecutor(new Commands());
 		getCommand("freezemob").setExecutor(new Commands());
 		getCommand("unfreezemob").setExecutor(new Commands());
@@ -484,6 +485,12 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 				Borderlands.spawnBLMob(event);
 			}
 
+		} else {
+			// Spawn event handler for NON-Borderlands
+			if(event.getEntity().getType().toString().equalsIgnoreCase("phantom")) {
+				event.setCancelled(true);
+			}
+
 		}
 	}
 
@@ -574,9 +581,9 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 		meta.setDisplayName("Warp to Puzzle Kiosk");
 		wings.setItemMeta(meta);
 
-		puzzleMenu.setItem(17, wings);
+		puzzleMenu.setItem(8, wings);
 
-		int mazeSlot = 19;
+		int mazeSlot = 9;
 
 		try {
 			MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
@@ -674,13 +681,14 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 					mazeIcon.setItemMeta(meta);
 					puzzleMenu.setItem(mazeSlot, mazeIcon);
 
-					if (mazeSlot == 25) {
+					/*if (mazeSlot == 25) {
 						mazeSlot = 28;
 					} else if (mazeSlot == 34) {
 						mazeSlot = 37;
 					} else {
 						mazeSlot++;
-					}
+					}*/
+					mazeSlot++;
 				}
 				statement.close();
 				connection.close();
@@ -1207,7 +1215,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 		// Carnival menu - MAZES
 		if (event.getInventory().getTitle().contains("Runic Carnival - Mazes")) {
 			switch (event.getSlot()) {
-			case 17:
+			case 8:
 				// teleport to puzzle Kiosk
 				event.getWhoClicked().teleport(
 						new Location(Bukkit.getWorld("RunicSky"), 328, 58, 543, (float) 72.99, (float) -26.40));
@@ -1473,16 +1481,16 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 		}
 
 		if (pje.getPlayer().hasPermission("rp.chatfilterwarning1") && !pje.getPlayer().hasPermission("rp.admin")) {
-			RunicParadise.perms.playerRemove(pje.getPlayer(), "rp.chatfilterwarning1");
-			RunicParadise.perms.playerRemove(pje.getPlayer(), "-essentials.me");
+			RunicParadise.perms.playerRemove("", pje.getPlayer(), "rp.chatfilterwarning1");
+			RunicParadise.perms.playerRemove("", pje.getPlayer(), "-essentials.me");
 
 		}
 
 		if (pje.getPlayer().hasPermission("rp.chatfilterwarning2") && !pje.getPlayer().hasPermission("rp.admin")) {
-			RunicParadise.perms.playerRemove(pje.getPlayer(), "rp.chatfilterwarning2");
+			RunicParadise.perms.playerRemove("", pje.getPlayer(), "rp.chatfilterwarning2");
 		}
 
-		RunicUtilities.convertGroupManager(pje.getPlayer());
+		//RunicUtilities.convertGroupManager(pje.getPlayer());
 
 		updatePlayerInfoOnJoin(pje.getPlayer().getName(), pje.getPlayer().getUniqueId());
 
@@ -1491,6 +1499,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 		faithMap.put(pje.getPlayer().getUniqueId(), new Faith(pje.getPlayer().getUniqueId()));
 
 		refreshCMIRank(pje.getPlayer());
+		eliminateDefaultGroup(pje.getPlayer());
 
 		Bukkit.getServer().getScheduler().scheduleAsyncDelayedTask(instance, () -> {
 			if (!pje.getPlayer().hasPermission("rp.slimefun.smallbackpack")
@@ -1499,7 +1508,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 				RunicPlayerBukkit target = new RunicPlayerBukkit(pje.getPlayer().getUniqueId());
 
 				if (target.getPlayerVoteCount() > 125) {
-					perms.playerAdd(pje.getPlayer(), "rp.slimefun.smallbackpack");
+					perms.playerAdd("", pje.getPlayer(), "rp.slimefun.smallbackpack");
 
 					for (Player p : Bukkit.getOnlinePlayers()) {
 						p.sendMessage(ChatColor.DARK_PURPLE + "" + pje.getPlayer().getDisplayName()
@@ -1517,7 +1526,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 				RunicPlayerBukkit target = new RunicPlayerBukkit(pje.getPlayer().getUniqueId());
 
 				if (target.getPlayerVoteCount() > 250) {
-					perms.playerAdd(pje.getPlayer(), "rp.slimefun.mediumbackpack");
+					perms.playerAdd("", pje.getPlayer(), "rp.slimefun.mediumbackpack");
 
 					for (Player p : Bukkit.getOnlinePlayers()) {
 						p.sendMessage(ChatColor.LIGHT_PURPLE + "" + pje.getPlayer().getDisplayName()
@@ -2591,33 +2600,37 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 	@EventHandler(priority = EventPriority.NORMAL)
 	public void onPlayerDeath(PlayerDeathEvent event) {
 		if (event.getEntity() != null) {
-			Player deadPlayer = event.getEntity();
-			double pctExpToReturn = 0.000;
 
-			if (deadPlayer.hasPermission("rp.xpreturn.25")) {
-				pctExpToReturn = .25;
-			} else if (deadPlayer.hasPermission("rp.xpreturn.20")) {
-				pctExpToReturn = .20;
-			} else if (deadPlayer.hasPermission("rp.xpreturn.15")) {
-				pctExpToReturn = .15;
-			} else if (deadPlayer.hasPermission("rp.xpreturn.10")) {
-				pctExpToReturn = .10;
-			} else if (deadPlayer.hasPermission("rp.xpreturn.5")) {
-				pctExpToReturn = .05;
-			}
+			//Execute death XP logic if world is not Sky
+			if (!event.getEntity().getLocation().getWorld().toString().equalsIgnoreCase("RunicSky")) {
+				Player deadPlayer = event.getEntity();
+				double pctExpToReturn = 0.000;
+
+				if (deadPlayer.hasPermission("rp.xpreturn.25")) {
+					pctExpToReturn = .25;
+				} else if (deadPlayer.hasPermission("rp.xpreturn.20")) {
+					pctExpToReturn = .20;
+				} else if (deadPlayer.hasPermission("rp.xpreturn.15")) {
+					pctExpToReturn = .15;
+				} else if (deadPlayer.hasPermission("rp.xpreturn.10")) {
+					pctExpToReturn = .10;
+				} else if (deadPlayer.hasPermission("rp.xpreturn.5")) {
+					pctExpToReturn = .05;
+				}
 
 
-			getLogger().log(Level.INFO, deadPlayer.getName() + " died. Returning xp " + getPlayerExp(deadPlayer) + " * pctToKeep " + pctExpToReturn);
-			float expLost = getPlayerExp(deadPlayer);
+				getLogger().log(Level.INFO, deadPlayer.getName() + " died. Returning xp " + getPlayerExp(deadPlayer) + " * pctToKeep " + pctExpToReturn);
+				float expLost = getPlayerExp(deadPlayer);
 
-			deadPlayer.setLevel(0);
-			deadPlayer.setExp(0);
+				deadPlayer.setLevel(0);
+				deadPlayer.setExp(0);
 
-			deadPlayer.giveExp((int)(expLost * pctExpToReturn));
-			getLogger().log(Level.INFO, deadPlayer.getName() + " new exp after death is " + deadPlayer.getLevel() + " level; " + deadPlayer.getExp() + " exp");
+				deadPlayer.giveExp((int)(expLost * pctExpToReturn));
+				getLogger().log(Level.INFO, deadPlayer.getName() + " new exp after death is " + deadPlayer.getLevel() + " level; " + deadPlayer.getExp() + " exp");
 
-			if (pctExpToReturn > .01) {
-				RunicMessaging.sendMessage(deadPlayer, RunicFormat.AFTERLIFE, "Returning " + 100 * pctExpToReturn + "% of your experience levels to you!");
+				if (pctExpToReturn > .01) {
+					RunicMessaging.sendMessage(deadPlayer, RunicFormat.AFTERLIFE, "Returning " + 100 * pctExpToReturn + "% of your experience levels to you!");
+				}
 			}
 
 			final PlayerDeathEvent innerEvent = event;
@@ -3308,6 +3321,14 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 	private void refreshCMIRank (Player p) {
 		String groupName = perms.getPrimaryGroup(p);
 		Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "cmi rankset " + p.getName() + " " + groupName);
+	}
+
+	private void eliminateDefaultGroup (Player p) {
+		String groupName = perms.getPrimaryGroup(p);
+		if (groupName.equalsIgnoreCase("default")) {
+			perms.playerAddGroup("", Bukkit.getOfflinePlayer(p.getUniqueId()), "Ghost");
+			Bukkit.getLogger().log(Level.INFO, "Found default group! Changing " + p.getName() + " to Ghost!");
+		}
 	}
 
 

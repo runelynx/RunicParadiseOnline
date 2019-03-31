@@ -325,13 +325,18 @@ public class Borderlands {
 
 			event.setDroppedExp((int) (event.getDroppedExp() * Mobs.CREEPER_CRAZED.expModifier));
 			isBL = true;
+		} else if (event.getEntity().getType().toString().equalsIgnoreCase("phantom")) {
+
+			//event.setDroppedExp((int) (event.getDroppedExp() * Mobs.CREEPER_CRAZED.expModifier));
+			event.getEntity().getLocation().getWorld().dropItemNaturally(event.getEntity().getLocation(), new ItemStack(Material.SPECTRAL_ARROW, 2));
+			isBL = true;
 		}
 
 		if (value >= 500 && value <= 530 && isBL) { // 5.0% chance (50 out of
 													// 1000)
-			Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "crate givekey " + p.getName() + " SlimefunCrate 1");
+			Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "crate give to " + p.getName() + " FoodPack 1");
 			RunicMessaging.sendMessage(p, RunicFormat.BORDERLANDS,
-					"You found a key left behind by the " + event.getEntity().getCustomName());
+					"You found a pack left behind by the " + event.getEntity().getCustomName());
 		}
 
 	}

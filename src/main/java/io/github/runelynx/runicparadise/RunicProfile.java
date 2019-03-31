@@ -66,7 +66,7 @@ public class RunicProfile {
 		loadProfile(playerID);
 	}
 
-	public void setPlayerID(UUID playerid) {
+	private void setPlayerID(UUID playerid) {
 		this.playerUUID = playerid;
 	}
 
@@ -151,16 +151,16 @@ public class RunicProfile {
 		return this.gender;
 	}
 
-    public OfflinePlayer getOfflinePlayer() {
+	private OfflinePlayer getOfflinePlayer() {
 		return this.op;
 	}
 
-    public void setOfflinePlayer() {
+	private void setOfflinePlayer() {
 		this.op = Bukkit.getOfflinePlayer(this.getPlayerID());
 	}
 
 	// if player is online, set both display and real names.
-    public void setPlayerNames(boolean online) {
+	private void setPlayerNames(boolean online) {
 
 		if (online) {
 			this.playerName = Bukkit.getOfflinePlayer(this.getPlayerID()).getName();
@@ -172,7 +172,7 @@ public class RunicProfile {
 
 	}
 
-    public String getPlayerName(boolean getRealName) {
+	private String getPlayerName(boolean getRealName) {
 		// this will only return the true display name if player is online.
 		// Controlled via setPlayerNames method.
 		if (getRealName) {
@@ -182,11 +182,11 @@ public class RunicProfile {
 		}
 	}
 
-    public void setFaithPowerLevel(int fpl) {
+	private void setFaithPowerLevel(int fpl) {
 		this.faithPowerLevel = fpl;
 	}
 
-    public int getFaithPowerLevel() {
+	private int getFaithPowerLevel() {
 		return this.faithPowerLevel;
 	}
 
@@ -255,7 +255,7 @@ public class RunicProfile {
 		new RunicPlayerBukkit(this.getPlayerID()).refreshPlayerObject(Bukkit.getOfflinePlayer(this.getPlayerID()));
 	}
 
-    public void setKarmaBalance(int newKarma) {
+	private void setKarmaBalance(int newKarma) {
 		this.karmaBalance = newKarma;
 	}
 
@@ -267,47 +267,86 @@ public class RunicProfile {
 		return this.skyblockRank;
 	}
 
-    public void setSkyblockRankNum(int newNum) {
+	private void setSkyblockRankNum(int newNum) {
 		this.skyblockRankNum = newNum;
 	}
 
-    public void setSkyblockRank(String newRank) {
+	private void setSkyblockRank(String newRank) {
 		this.skyblockRank = newRank;
 	}
 
-    public int getKarmaBalance() {
+	private int getKarmaBalance() {
 		return this.karmaBalance;
 	}
 
-    public void setTokenBalance(int newToken) {
+	private void setTokenBalance(int newToken) {
 		this.tokenBalance = newToken;
 	}
 
-    public int getTokenBalance() {
+	private int getTokenBalance() {
 		return this.tokenBalance;
 	}
 
-    public void setLifetimeToken(int lifetimeTokens) {
+	private void setLifetimeToken(int lifetimeTokens) {
 		this.lifetimeTokens = lifetimeTokens;
 	}
 
-    public int getLifetimeToken() {
+	private int getLifetimeToken() {
 		return this.lifetimeTokens;
 	}
 
-    public void setJobMasteryCount(int jobMasteryCount) {
+	public void setJobMasteryCount(int jobMasteryCount) {
 		this.masteredJobCount = jobMasteryCount;
+
+		MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
+		Connection connection = MySQL.openConnection();
+		try {
+			PreparedStatement statement = connection.prepareStatement("UPDATE rp_PlayerInfo SET JobsMasteredCount = ? WHERE UUID = ?");
+			statement.setInt(1, jobMasteryCount);
+			statement.setString(2, this.getPlayerID().toString());
+			statement.executeUpdate();
+
+		} catch (SQLException e) {
+			getLogger().log(Level.SEVERE, "Failed setJobMasteryCount because: " + e.getMessage());
+		}
+
+		try {
+			connection.close();
+		} catch (SQLException e) {
+			getLogger().log(Level.SEVERE, "Failed setJobMasteryCount because: " + e.getMessage());
+		}
+
 	}
 
-    public int getJobMasteryCount() {
+	public int getJobMasteryCount() {
 		return this.masteredJobCount;
 	}
 
-    public void setJobMasteryString(String jobMasteryString) {
+	public void setJobMasteryString(String jobMasteryString) {
 		this.masteredJobsString = jobMasteryString;
+
+		MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
+		Connection connection = MySQL.openConnection();
+
+			try {
+					PreparedStatement statement = connection.prepareStatement("UPDATE rp_PlayerInfo SET JobsMastered='"
+							+ jobMasteryString + "' WHERE UUID = ?");
+					statement.setString(1, this.getPlayerID().toString());
+					statement.executeUpdate();
+
+			} catch (SQLException e) {
+				getLogger().log(Level.SEVERE, "Failed setJobMasteryString because: " + e.getMessage());
+			}
+
+		try {
+			connection.close();
+		} catch (SQLException e) {
+			getLogger().log(Level.SEVERE, "Failed setJobMasteryString because: " + e.getMessage());
+		}
+
 	}
 
-    public String getJobMasteryString() {
+	public String getJobMasteryString() {
 		return this.masteredJobsString;
 	}
 
@@ -319,35 +358,35 @@ public class RunicProfile {
 		return this.soulCount;
 	}
 
-    public void setVoteCount(int newVotes) {
+	private void setVoteCount(int newVotes) {
 		this.voteTotal = newVotes;
 	}
 
-    public int getVoteCount() {
+	private int getVoteCount() {
 		return this.voteTotal;
 	}
 
-    public void setJoinDate(Date newJoinDate) {
+	private void setJoinDate(Date newJoinDate) {
 		this.joinDate = newJoinDate;
 	}
 
-    public Date getJoinDate() {
+	private Date getJoinDate() {
 		return this.joinDate;
 	}
 
-    public void setActiveFaith(String newFaith) {
+	private void setActiveFaith(String newFaith) {
 		this.activeFaith = newFaith;
 	}
 
-    public String getActiveFaith() {
+	private String getActiveFaith() {
 		return this.activeFaith;
 	}
 
-    public int getSpecialRankDrop24HrCount() {
+	private int getSpecialRankDrop24HrCount() {
 		return this.rankDropCountLast24Hours;
 	}
 
-    public void setSpecialRankDrop24HrCount(int newValue) {
+	private void setSpecialRankDrop24HrCount(int newValue) {
 		this.rankDropCountLast24Hours = newValue;
 	}
 
@@ -372,11 +411,11 @@ public class RunicProfile {
 		}
 	}
 
-    public void setPlayerIP(String playerIP) {
+	private void setPlayerIP(String playerIP) {
 		this.playerIP = playerIP;
 	}
 
-    public String getPlayerIP() {
+	private String getPlayerIP() {
 		return this.playerIP;
 	}
 
@@ -437,7 +476,7 @@ public class RunicProfile {
 		}
 	}
 
-    public void loadProfile(UUID playerid) {
+	private void loadProfile(UUID playerid) {
 
 		this.setPlayerID(playerid);
 
@@ -463,7 +502,7 @@ public class RunicProfile {
 		setOfflinePlayer();
 	}
 
-    public void restartAntiFarming() {
+	private void restartAntiFarming() {
 		this.farmKillLoc = Bukkit.getPlayer(this.getPlayerID()).getLocation();
 		this.farmKillCounter = 0;
 	}
@@ -499,7 +538,7 @@ public class RunicProfile {
 		return this.farmKillCounter >= FARMING_COUNT_THRESHOLD;
 	}
 
-    public void retrieveJobsData() {
+	private void retrieveJobsData() {
 		MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
 
 		try {
@@ -536,7 +575,7 @@ public class RunicProfile {
 		}
 	}
 
-    public void retrieveBasicData() {
+	private void retrieveBasicData() {
 		MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
 
 		try {
@@ -600,7 +639,7 @@ public class RunicProfile {
 
 	}
 
-    public void retrieveDropData() {
+	private void retrieveDropData() {
 		MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
 
 		try {
@@ -632,7 +671,7 @@ public class RunicProfile {
 		}
 	}
 
-    public void retrieveMobKillsData() {
+	private void retrieveMobKillsData() {
 		MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
 
 		try {
@@ -705,7 +744,7 @@ public class RunicProfile {
 		}
 	}
 
-    public boolean getMazeAndParkoursCompletedFirstTime() {
+	private boolean getMazeAndParkoursCompletedFirstTime() {
 		MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
 		Connection connection = MySQL.openConnection();
 		try {
@@ -885,14 +924,23 @@ public class RunicProfile {
 				}
 				if (mzResult.getInt("ID") == 7) {
 					// Adventure Parkour
-					Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "give " + p.getName() + " witherskull 1");
+					Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "give " + p.getName() + " wither_skeleton_skull 1");
 					p.sendMessage(ChatColor.GOLD + "You received a wither skull for first completion here!");
 				}
-				if (mzResult.getInt("ID") == 7) {
-					// Adventure Parkour
-					Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "give " + p.getName() + " witherskull 1");
-					p.sendMessage(ChatColor.GOLD + "You received a wither skull for first completion here!");
+
+				if (mzResult.getInt("ID") == 4) {
+					// Jungle Maze
+					Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "give " + p.getName() + " totem_of_undying 1");
+					p.sendMessage(ChatColor.GOLD + "You received a prize for first completion here!");
 				}
+
+
+				if (mzResult.getInt("ID") == 28) {
+					// Cake Maze
+					p.getInventory().addItem(Recipes.customItemStacks("FC_EXTREME_MAZE_1"));
+					p.sendMessage(ChatColor.GOLD + "You received a trophy for first completion here!");
+				}
+
 				if (mzResult.getInt("ID") == 23) {
 					// Cake Maze
 					p.getInventory().addItem(Recipes.customItemStacks("CAKE_MAZE_1"));
@@ -903,7 +951,7 @@ public class RunicProfile {
 						p.sendMessage(ChatColor.GOLD + "You received a Thanksgiving pie trophy for first completion here before Thanksgiving 2018!");
 					}
 				}
-
+				
 				if (mzResult.getInt("ID") == 21) {
 					// Anguish Maze
 
@@ -920,9 +968,9 @@ public class RunicProfile {
 					p.sendMessage(ChatColor.GOLD
 							+ "Congratulations! You've earned a special reward for this first-time completion!");
 					for (Player q : Bukkit.getOnlinePlayers()) {
-						TitleAPI.sendTitle(q, 2, 3, 2, ChatColor.DARK_PURPLE + "" + ChatColor.BOLD + p.getName(),
-								ChatColor.GRAY + "just completed the " + mzResult.getString("GameName")
-										+ " for the first time!");
+						Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "cmi titlemsg all "+ ChatColor.DARK_PURPLE + "" + ChatColor.BOLD + p.getName() +" %subtitle% "+ ChatColor.GRAY
+								+ "just completed the " + mzResult.getString("GameName")	+ " for the first time!");
+
 					}
 				} else 	if (mzResult.getInt("ID") == 22) {
 					// Heart of Anguish
@@ -939,15 +987,13 @@ public class RunicProfile {
 					}
 
 					for (Player q : Bukkit.getOnlinePlayers()) {
-						TitleAPI.sendTitle(q, 2, 3, 2, ChatColor.DARK_PURPLE + "" + ChatColor.BOLD + p.getName(),
-								ChatColor.GRAY + "has freed the Souls of Anguish!");
+						Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "cmi titlemsg all "+ ChatColor.DARK_PURPLE + "" + ChatColor.BOLD + p.getName() +" %subtitle% "+ ChatColor.GRAY + "has freed the Souls of Anguish!");
 					}
 				} else {
 
 					for (Player q : Bukkit.getOnlinePlayers()) {
-						TitleAPI.sendTitle(q, 2, 3, 2, ChatColor.AQUA + "" + ChatColor.BOLD + p.getDisplayName(),
-								ChatColor.GREEN + "just completed the " + mzResult.getString("GameName")
-										+ " for the first time!");
+						Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "cmi titlemsg all "+ ChatColor.DARK_PURPLE + "" + ChatColor.BOLD + p.getName() +" %subtitle% "+ ChatColor.GRAY
+								+ "just completed the " + mzResult.getString("GameName")	+ " for the first time!");
 					}
 				}
 
