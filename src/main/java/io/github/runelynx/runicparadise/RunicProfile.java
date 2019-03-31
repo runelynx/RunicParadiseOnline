@@ -279,11 +279,11 @@ public class RunicProfile {
 		return this.karmaBalance;
 	}
 
-	private void setTokenBalance(int newToken) {
+	public void setTokenBalance(int newToken) {
 		this.tokenBalance = newToken;
 	}
 
-	private int getTokenBalance() {
+    public int getTokenBalance() {
 		return this.tokenBalance;
 	}
 
