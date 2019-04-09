@@ -22,7 +22,6 @@ import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.plugin.Plugin;
 import org.json.JSONObject;
 import org.json.JSONTokener;
-import net.md_5.bungee.api.chat.TextComponent;
 
 import java.io.File;
 import java.io.InputStream;
@@ -446,6 +445,7 @@ public class Commands implements CommandExecutor {
 			staffCommand(sender, args);
 			break;
 		case "rp":
+		case "paradise":
 			rpCommand(sender, args);
 			break;
 		case "rptest":
