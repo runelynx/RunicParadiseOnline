@@ -2,6 +2,7 @@ package io.github.runelynx.runicparadise;
 
 import io.github.runelynx.runicuniverse.RunicMessaging;
 import io.github.runelynx.runicuniverse.RunicMessaging.RunicFormat;
+import io.netty.channel.local.LocalEventLoopGroup;
 import org.bukkit.*;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.*;
@@ -21,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.logging.Level;
 
 public class Borderlands {
     public static boolean initializeBorderlands() {
@@ -212,6 +214,7 @@ public class Borderlands {
 		String playerCurrentRank = RunicParadise.perms.getPrimaryGroup(p);
 
 		double percentChanceForSpecialRankDrop = 0;
+		Bukkit.getLogger().log(Level.INFO, p.getDisplayName() + " adjustRewardsforBLMobs. " + playerCurrentRank);
 
 		// Check if player qualifies to get special rank drops
 		if (playerCurrentRank.equals("Master") || playerCurrentRank.equals("Duke") || playerCurrentRank.equals("Baron")
