@@ -223,22 +223,22 @@ public class Borderlands {
 			// Check how many special rank drops the player has already received
 			if (RunicParadise.playerProfiles.get(p.getUniqueId()).rankDropCountLast24Hours >= 10
 					&& !RunicParadise.playerProfiles.get(p.getUniqueId()).isFarming) {
-				percentChanceForSpecialRankDrop = .02;
+				percentChanceForSpecialRankDrop = .05;
 			} else if (RunicParadise.playerProfiles.get(p.getUniqueId()).rankDropCountLast24Hours >= 5
 					&& !RunicParadise.playerProfiles.get(p.getUniqueId()).isFarming) {
-				percentChanceForSpecialRankDrop = .04;
+				percentChanceForSpecialRankDrop = .09;
 			} else if (RunicParadise.playerProfiles.get(p.getUniqueId()).rankDropCountLast24Hours >= 4
 					&& !RunicParadise.playerProfiles.get(p.getUniqueId()).isFarming) {
-				percentChanceForSpecialRankDrop = .13;
+				percentChanceForSpecialRankDrop = .17;
 			} else if (RunicParadise.playerProfiles.get(p.getUniqueId()).rankDropCountLast24Hours >= 3
 					&& !RunicParadise.playerProfiles.get(p.getUniqueId()).isFarming) {
-				percentChanceForSpecialRankDrop = .21;
+				percentChanceForSpecialRankDrop = .25;
 			} else if (RunicParadise.playerProfiles.get(p.getUniqueId()).rankDropCountLast24Hours >= 2
 					&& !RunicParadise.playerProfiles.get(p.getUniqueId()).isFarming) {
-				percentChanceForSpecialRankDrop = .29;
+				percentChanceForSpecialRankDrop = .33;
 			} else if (RunicParadise.playerProfiles.get(p.getUniqueId()).rankDropCountLast24Hours <= 1
 					&& !RunicParadise.playerProfiles.get(p.getUniqueId()).isFarming) {
-				percentChanceForSpecialRankDrop = .37;
+				percentChanceForSpecialRankDrop = .41;
 			}  // player is farming
 
 
