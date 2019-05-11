@@ -214,11 +214,11 @@ public class Borderlands {
 		String playerCurrentRank = RunicParadise.perms.getPrimaryGroup(p);
 
 		double percentChanceForSpecialRankDrop = 0;
-		Bukkit.getLogger().log(Level.INFO, p.getDisplayName() + " adjustRewardsforBLMobs. " + playerCurrentRank);
+		//Bukkit.getLogger().log(Level.INFO, p.getDisplayName() + " adjustRewardsforBLMobs. " + playerCurrentRank);
 
 		// Check if player qualifies to get special rank drops
-		if (playerCurrentRank.equals("Master") || playerCurrentRank.equals("Duke") || playerCurrentRank.equals("Baron")
-				|| playerCurrentRank.equals("Count")) {
+		if (playerCurrentRank.equalsIgnoreCase("Master") || playerCurrentRank.equalsIgnoreCase("Duke") || playerCurrentRank.equalsIgnoreCase("Baron")
+				|| playerCurrentRank.equalsIgnoreCase("Count")) {
 
 			// Check how many special rank drops the player has already received
 			if (RunicParadise.playerProfiles.get(p.getUniqueId()).rankDropCountLast24Hours >= 10

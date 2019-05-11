@@ -1793,9 +1793,9 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 				if (playerProfiles.get(nEvent.getDamager().getUniqueId())
 						.checkFarming(ede.getEntity().getLocation())) {
 					farming = true;
-					Bukkit.getLogger().log(Level.INFO, ((Player) nEvent.getDamager()).getDisplayName() + " failed BL loot logic due to farming = true!");
+					//Bukkit.getLogger().log(Level.INFO, ((Player) nEvent.getDamager()).getDisplayName() + " failed BL loot logic due to farming = true!");
 				} else {
-					Bukkit.getLogger().log(Level.INFO, ((Player) nEvent.getDamager()).getDisplayName() + " has triggered a BL loot logic check; farming = false!");
+					//Bukkit.getLogger().log(Level.INFO, ((Player) nEvent.getDamager()).getDisplayName() + " has triggered a BL loot logic check; farming = false!");
 					Borderlands.adjustRewardsforBLMobs(ede, ((Player) nEvent.getDamager()));
 				}
 
