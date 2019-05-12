@@ -347,6 +347,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 		//TODO Move this to its own method and link to init method
 		// This will throw a NullPointerException if you don't have the command
 		// defined in your plugin.yml file!
+		getCommand("butcherbl").setExecutor(new Commands());
 		getCommand("rpcrates").setExecutor(new Commands());
 		getCommand("rprewards").setExecutor(new Commands());
 		getCommand("claim").setExecutor(new Commands());

@@ -410,6 +410,9 @@ public class Commands implements CommandExecutor {
 		case "rpvote":
 			rpVoteCommand(sender, args);
 			break;
+        case "butcherbl":
+        	butcherBLCommand(sender, args);
+		break;
 		case "graves":
 		case "grave":
 			graveCommand(sender, args);
@@ -572,6 +575,29 @@ public class Commands implements CommandExecutor {
 		inventory.addItem(Recipes.customItemStacks("FAITH_SWORD_1"));
 		inventory.addItem(Recipes.customItemStacks("FAITH_SWORD_2"));
 		inventory.addItem(Recipes.customItemStacks("FAITH_SWORD_3"));
+	}
+
+	private static void butcherBLCommand(CommandSender sender, String[] args) {
+		Player p = (Player) sender;
+		Location loc = p.getLocation();
+		int count = 0;
+
+		List<Entity> entities = p.getNearbyEntities(250, 250, 250);
+
+		for(Entity e : entities){
+			if (e.getCustomName().substring(0,0).equalsIgnoreCase("☠") &&
+			!e.isDead()) {
+				//BL Mob Found
+				e.remove();
+				count++;
+			}
+
+			RunicMessaging.sendMessage(p, RunicFormat.SYSTEM, count + " borderlands mobs were removed within 250 blocks.");
+		}
+
+
+
+
 	}
 
 	private static void faithWeaponCommand(String[] args) {
