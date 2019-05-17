@@ -476,21 +476,32 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 		}
 	}
 
-	@EventHandler
+	@EventHandler(priority = EventPriority.HIGH)
 	public void onCreatureSpawn(CreatureSpawnEvent event) {
+
 		if (event.getLocation().getX() > 7500 || event.getLocation().getX() < -7500 || event.getLocation().getZ() > 7500
 				|| event.getLocation().getZ() < -7500) {
 			// Confirmed spawn is in the borderlands!!
 
 			if (!event.getSpawnReason().equals(SpawnReason.SPAWNER)) {
 				Borderlands.spawnBLMob(event);
+				event.setCancelled(false);
 			}
 
 		} else {
-			// Spawn event handler for NON-Borderlands
+			//Not in the borderlands, could be in any world
+
+			//Force spawns to work in RunicKingdom
+			if (event.getLocation().getWorld().getName().equalsIgnoreCase("RunicKingdom")) {
+				event.setCancelled(false);
+			}
+
+			//Cancel Phantom spawns that aren't in the borderlands
 			if(event.getEntity().getType().toString().equalsIgnoreCase("phantom")) {
 				event.setCancelled(true);
 			}
+
+			//			Bukkit.getLogger().log(Level.INFO, "MobSpawnLog: " + event.getLocation() + " " + event.getEntity().getType().toString() + " " + event.isCancelled());
 
 		}
 	}

@@ -585,18 +585,15 @@ public class Commands implements CommandExecutor {
 		List<Entity> entities = p.getNearbyEntities(250, 250, 250);
 
 		for(Entity e : entities){
-			if (e.getCustomName().substring(0,0).equalsIgnoreCase("☠") &&
-			!e.isDead()) {
+			if (e.isCustomNameVisible() &&
+					e.getCustomName().contains("☠") &&
+					!e.isDead()) {
 				//BL Mob Found
 				e.remove();
 				count++;
 			}
-
-			RunicMessaging.sendMessage(p, RunicFormat.SYSTEM, count + " borderlands mobs were removed within 250 blocks.");
 		}
-
-
-
+		RunicMessaging.sendMessage(p, RunicFormat.SYSTEM, count + " borderlands mobs were removed within 250 blocks.");
 
 	}
 

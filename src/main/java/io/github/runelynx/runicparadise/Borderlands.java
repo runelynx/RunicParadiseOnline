@@ -79,23 +79,23 @@ public class Borderlands {
     }
 
 	public enum Mobs {
-		ZOMBIE_FALLENKNIGHT(2.0, "☠ Fallen Knight Zombie", EntityType.ZOMBIE, "Loot", true, true, 0, 2),
+		ZOMBIE_FALLENKNIGHT(2.0, "Fallen Knight Zombie", EntityType.ZOMBIE, "Loot", true, true, 0, 2),
 		//
-		ZOMBIE_MARAUDER(2.0, "☠ Marauder Zombie", EntityType.ZOMBIE, "Loot", true, true, 0, 2),
+		ZOMBIE_MARAUDER(2.0, "Marauder Zombie", EntityType.ZOMBIE, "Loot", true, true, 0, 2),
 		//
-		ZOMBIE_GOLIATH(3.0, "☠ Goliath Zombie", EntityType.ZOMBIE, "Loot", true, true, 1, 3),
+		ZOMBIE_GOLIATH(3.0, "Goliath Zombie", EntityType.ZOMBIE, "Loot", true, true, 1, 3),
 		//
-		ZOMBIE_SHAMAN(1.5, "☠ Shaman Zombie", EntityType.ZOMBIE, "Loot", true, true, 2, 1),
+		ZOMBIE_SHAMAN(1.5, "Shaman Zombie", EntityType.ZOMBIE, "Loot", true, true, 2, 1),
 		//
-		SKELETON_TOXIC(1.5, "☠ Toxic Skeleton", EntityType.SKELETON, "Loot", true, true, 1, 1),
+		SKELETON_TOXIC(1.5, "Toxic Skeleton", EntityType.SKELETON, "Loot", true, true, 1, 1),
 		//
-		SKELETON_SHADE(1.75, "☠ Shade Skeleton", EntityType.SKELETON, "Loot", true, true, 0, 1),
+		SKELETON_SHADE(1.75, "Shade Skeleton", EntityType.SKELETON, "Loot", true, true, 0, 1),
 		//
-		SKELETON_DRUNKEN(1.75, "☠ Drunken Skeleton", EntityType.SKELETON, "Loot", true, true, 0, 1),
+		SKELETON_DRUNKEN(1.75, "Drunken Skeleton", EntityType.SKELETON, "Loot", true, true, 0, 1),
 		//
-		SKELETON_GRANITE(2.5, "☠ Granite Skeleton", EntityType.SKELETON, "Loot", true, true, 1, 2),
+		SKELETON_GRANITE(2.5, "Granite Skeleton", EntityType.SKELETON, "Loot", true, true, 1, 2),
 		//
-		CREEPER_CRAZED(1.5, "☠ Crazed Creeper", EntityType.CREEPER, "Loot", false, false, 1, 1);
+		CREEPER_CRAZED(1.5, "Crazed Creeper", EntityType.CREEPER, "Loot", false, false, 1, 1);
 
 		private double expModifier;
 		private String customName;
@@ -119,16 +119,16 @@ public class Borderlands {
 
 			switch (t) {
 			case 1:
-				this.customName = ChatColor.GOLD + name;
+				this.customName = ChatColor.GOLD + "☠ " + name;
 				break;
 			case 2:
-				this.customName = ChatColor.RED + name;
+				this.customName = ChatColor.RED + "☠ " + name;
 				break;
 			case 3:
-				this.customName = ChatColor.DARK_RED + name;
+				this.customName = ChatColor.DARK_RED + "☠ " + name;
 				break;
 			case 4:
-				this.customName = ChatColor.DARK_PURPLE + name;
+				this.customName = ChatColor.DARK_PURPLE + "☠ " + name;
 				break;
 			default:
 				break;
@@ -220,6 +220,7 @@ public class Borderlands {
 		if (playerCurrentRank.equalsIgnoreCase("Master") || playerCurrentRank.equalsIgnoreCase("Duke") || playerCurrentRank.equalsIgnoreCase("Baron")
 				|| playerCurrentRank.equalsIgnoreCase("Count")) {
 
+
 			// Check how many special rank drops the player has already received
 			if (RunicParadise.playerProfiles.get(p.getUniqueId()).rankDropCountLast24Hours >= 10
 					&& !RunicParadise.playerProfiles.get(p.getUniqueId()).isFarming) {
@@ -241,6 +242,8 @@ public class Borderlands {
 				percentChanceForSpecialRankDrop = .41;
 			}  // player is farming
 
+			Bukkit.getLogger().log(Level.INFO, p.getDisplayName() + " adjustRewardsforBLMobs. Valid rank found! " + playerCurrentRank + ". Drop chance " + percentChanceForSpecialRankDrop + "Random Number " + value + ". Farming " +
+					RunicParadise.playerProfiles.get(p.getUniqueId()).isFarming);
 
 		}
 
@@ -248,7 +251,7 @@ public class Borderlands {
 		if (event.getEntity().getCustomName() != null
 				&& event.getEntity().getCustomName().contains("Fallen Knight Zombie")) {
 
-			if (playerCurrentRank.equals("Master")) {
+			if (playerCurrentRank.equalsIgnoreCase("Master")) {
 				if (value >= 100 && value <= (100 + (1000 * percentChanceForSpecialRankDrop))) {
 					p.getLocation().getWorld().dropItemNaturally(p.getLocation(),
 							specialLootDrops("DukeGem", p.getUniqueId()));
@@ -264,7 +267,7 @@ public class Borderlands {
 		} else if (event.getEntity().getCustomName() != null
 				&& event.getEntity().getCustomName().contains("Marauder Zombie")) {
 
-			if (playerCurrentRank.equals("Master")) {
+			if (playerCurrentRank.equalsIgnoreCase("Master")) {
 				if (value >= 100 && value <= (100 + (1000 * percentChanceForSpecialRankDrop))) {
 					p.getLocation().getWorld().dropItemNaturally(p.getLocation(),
 							specialLootDrops("DukeGem", p.getUniqueId()));
@@ -278,7 +281,7 @@ public class Borderlands {
 		} else if (event.getEntity().getCustomName() != null
 				&& event.getEntity().getCustomName().contains("Goliath Zombie")) {
 
-			if (playerCurrentRank.equals("Master")) {
+			if (playerCurrentRank.equalsIgnoreCase("Master")) {
 				if (value >= 100 && value <= (100 + (1000 * (percentChanceForSpecialRankDrop * 2)))) {
 					p.getLocation().getWorld().dropItemNaturally(p.getLocation(),
 							specialLootDrops("DukeGem", p.getUniqueId()));
@@ -292,7 +295,7 @@ public class Borderlands {
 		} else if (event.getEntity().getCustomName() != null
 				&& event.getEntity().getCustomName().contains("Zombie Shaman")) {
 
-			if (playerCurrentRank.equals("Master")) {
+			if (playerCurrentRank.equalsIgnoreCase("Master")) {
 				if (value >= 100 && value <= (100 + (1000 * percentChanceForSpecialRankDrop))) {
 					p.getLocation().getWorld().dropItemNaturally(p.getLocation(),
 							specialLootDrops("DukeGem", p.getUniqueId()));
