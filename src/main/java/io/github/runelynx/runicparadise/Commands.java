@@ -413,8 +413,8 @@ public class Commands implements CommandExecutor {
         case "butcherbl":
         	butcherBLCommand(sender, args);
 		break;
-		case "graves":
-		case "grave":
+		case "souls":
+		case "soul":
 			graveCommand(sender, args);
 			break;
 		case "rpcrates":
@@ -716,72 +716,13 @@ public class Commands implements CommandExecutor {
 		if (sender instanceof Player) {
 			Player player = (Player) sender;
 			RunicPlayerBukkit senderPlayer = new RunicPlayerBukkit(player.getUniqueId());
-			if (args.length > 0) {
-				if (args[0].equals("expire") && player.hasPermission("rp.staff")) {
-					RunicDeathChest.unlockExpiredGraves(true);
-				} else if (args[0].equals("list")) {
-					RunicDeathChest.listDeaths(player, player.getName());
-					// } else if (args[0].equals("quit")) {
-					// Bukkit.dispatchCommand(Bukkit.getConsoleSender(),
-					// "manudelp " + player.getName() + " rp.graves");
-					// } else if (args[0].equals("secret") && args.length ==
-					// 2) {
-					// RunicDeathChest.restoreByCommand(player.getName(),
-					// Integer.parseInt(args[1]));
-				} else if (args[0].equals("restore") && sender.hasPermission("rp.admin")) {
-					RunicDeathChest.restoreByCommand(args[1], Integer.parseInt(args[2]));
-					// } else if (args[0].equals("quit")) {
-					// Bukkit.dispatchCommand(Bukkit.getConsoleSender(),
-					// "manudelp " + player.getName() + " rp.graves");
-					// } else if (args[0].equals("secret") && args.length ==
-					// 2) {
-					// RunicDeathChest.restoreByCommand(player.getName(),
-					// Integer.parseInt(args[1]));
-				} else if (args[0].equals("create") && sender.hasPermission("rp.admin")) {
-					RunicDeathChest.savePlayerDeath_v19((Player) sender, ((Player) sender).getLocation());
 
-				} else {
-					showHelp = true;
-				}
-			} else {
-				showHelp = true;
-			}
-
-			// Show help!!
-			if (showHelp) {
-				player.sendMessage(ChatColor.DARK_GRAY + "[RunicReaper] " + ChatColor.GRAY
-						+ "Welcome to the Runic Afterlife...:");
-				player.sendMessage(ChatColor.GRAY + "You have " + ChatColor.AQUA + senderPlayer.getPlayerSouls()
-						+ ChatColor.GRAY + " souls remaining.");
-				player.sendMessage(ChatColor.AQUA + "/graves list " + ChatColor.GRAY + "List your graves");
-				// player.sendMessage(ChatColor.GRAY
-				// +
-				// "Restore a grave to you using its ID number [for
-				// testers]");
-				// player.sendMessage(ChatColor.AQUA
-				// + "/graves secret GraveIDNumber");
-				// player.sendMessage(ChatColor.GRAY
-				// + "Stop testing graves [for testers]");
-				// player.sendMessage(ChatColor.AQUA + "/graves quit");
-
-			}
-		} else {
-			if (args[0].equals("expire")) {
-				RunicDeathChest.unlockExpiredGraves(true);
-				Bukkit.getLogger().log(Level.INFO, "[RP] Running the graves expire command.");
-			} else if (args[0].equals("givesouls") && args.length == 3 && Integer.parseInt(args[2]) > 0
-					&& !(sender instanceof Player)) {
-				RunicPlayerBukkit targetPlayer = new RunicPlayerBukkit(args[1]);
-				int newSouls = targetPlayer.getPlayerSouls() + Integer.parseInt(args[2]);
-				targetPlayer.sendMessageToPlayer(ChatColor.GRAY + "[" + ChatColor.DARK_RED + "Runic" + ChatColor.RED
-						+ "Reaper" + ChatColor.GRAY + "] " + ChatColor.LIGHT_PURPLE + "The Reaper grants you "
-						+ ChatColor.WHITE + args[2] + ChatColor.LIGHT_PURPLE + " more souls. You have "
-						+ ChatColor.WHITE + newSouls + ChatColor.LIGHT_PURPLE + ".");
-
-				targetPlayer.setPlayerSouls(newSouls);
-				Bukkit.getLogger().log(Level.INFO, "[RP] Gave " + args[2] + " souls to " + args[1]);
-			}
+			player.sendMessage(ChatColor.DARK_GRAY + "[RunicReaper] " + ChatColor.GRAY
+					+ "Welcome to the Runic Afterlife...:");
+			player.sendMessage(ChatColor.GRAY + "You have " + ChatColor.AQUA + senderPlayer.getPlayerSouls()
+					+ ChatColor.GRAY + " souls remaining.");
 		}
+
 	}
 
 	private void rankItemCommand(CommandSender sender, String[] args) {
@@ -892,9 +833,8 @@ public class Commands implements CommandExecutor {
 				sender.sendMessage(
 						ChatColor.AQUA + "/staff vt <name>" + ChatColor.GRAY + " Give a vote reward. DONT ABUSE!");
 				sender.sendMessage(
-						ChatColor.AQUA + "/staff lg <optional name>" + ChatColor.GRAY + " Display recent graves");
-				sender.sendMessage(ChatColor.AQUA + "/staff gg <grave id>" + ChatColor.GRAY
-						+ " Teleport to a grave. Find graves with LG.");
+						ChatColor.AQUA + "/staff gs <name> <amount>" + ChatColor.GRAY + " Give player souls");
+
 				sender.sendMessage(
 						ChatColor.AQUA + "/staff ug <grave id>" + ChatColor.GRAY + " Unlocks a locked grave.");
 				sender.sendMessage(ChatColor.BLUE + "Misc Commands & Tools");
@@ -938,6 +878,17 @@ public class Commands implements CommandExecutor {
 				sender.sendMessage(ChatColor.RED + "Total: " + entityCounter
 						+ " found. If players are near each other this may include double-counts.");
 
+			} else if (args[0].equalsIgnoreCase("GS") && args.length == 3 && Integer.parseInt(args[2]) > 0
+					) {
+				RunicPlayerBukkit targetPlayer = new RunicPlayerBukkit(args[1]);
+				int newSouls = targetPlayer.getPlayerSouls() + Integer.parseInt(args[2]);
+				targetPlayer.sendMessageToPlayer(ChatColor.GRAY + "[" + ChatColor.DARK_RED + "Runic" + ChatColor.RED
+						+ "Reaper" + ChatColor.GRAY + "] " + ChatColor.LIGHT_PURPLE + "The Reaper grants you "
+						+ ChatColor.WHITE + args[2] + ChatColor.LIGHT_PURPLE + " more souls. You have "
+						+ ChatColor.WHITE + newSouls + ChatColor.LIGHT_PURPLE + ".");
+
+				targetPlayer.setPlayerSouls(newSouls);
+				Bukkit.getLogger().log(Level.INFO, "[RP] Gave " + args[2] + " souls to " + args[1]);
 			} else if (args[0].equals("LC") || args[0].equals("lc")) {
 				for (Player p : Bukkit.getOnlinePlayers()) {
 					for (Entity e : p.getNearbyEntities(200, 256, 200)) {

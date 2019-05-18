@@ -23,6 +23,16 @@ commands:
       usage: /<command>
       permission: rp.rpcrates
       permission-message: "Missing permission: rp.rpcrates"
+   soul:
+      description: "Check remaining souls"
+      usage: /<command>
+      permission: rp.seeker
+      permission-message: "Missing permission: rp.seeker"
+   souls:
+      description: "Check remaining souls"
+      usage: /<command>
+      permission: rp.seeker
+      permission-message: "Missing permission: rp.seeker"
    rprewards:
       description: "Grant Runic currencies to a player"
       usage: /<command>

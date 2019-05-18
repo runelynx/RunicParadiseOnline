@@ -1983,7 +1983,7 @@ public class Faith {
 		Random rand = new Random();
 		int value = rand.nextInt(1000);
 
-		if (rank.equals("Master")) {
+		if (rank.equalsIgnoreCase("Master")) {
 			if (value >= 250 && value <= (250 + (1000 * .30))) {
 				if (p.getInventory().firstEmpty() != -1) {
 					p.getInventory().addItem(Borderlands.specialLootDrops("DukeEssence", p.getUniqueId()));
