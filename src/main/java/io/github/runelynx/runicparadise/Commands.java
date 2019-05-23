@@ -761,13 +761,20 @@ public class Commands implements CommandExecutor {
 	private void rpCommand(CommandSender sender, String[] args) {
 		if (sender instanceof Player) {
 			Player p = ((Player) sender);
-			UUID pUUID;
-			RunicPlayerBukkit commandPlayer = new RunicPlayerBukkit(sender.getName());
+			Player pSender = ((Player) sender);
 
-			RunicParadise.playerProfiles.get(p.getUniqueId()).showServerMenu(p);
+			if (args.length == 1) {
+				p = Bukkit.getPlayer(args[0]);
+			}
+
+
+			UUID pUUID;
+			RunicPlayerBukkit commandPlayer = new RunicPlayerBukkit(p.getName());
+
+			RunicParadise.playerProfiles.get(p.getUniqueId()).showServerMenu(p, pSender);
 
 			if (args.length == 0) {
-				pUUID = ((Player) sender).getUniqueId();
+				pUUID = p.getUniqueId();
 			} else {
 				pUUID = Bukkit.getOfflinePlayer(args[0]).getUniqueId();
 			}

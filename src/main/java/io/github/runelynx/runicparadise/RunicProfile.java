@@ -1830,10 +1830,10 @@ public class RunicProfile {
 
 	}
 
-	public void showServerMenu(Player p) {
+	public void showServerMenu(Player p, Player pSender) {
 
 		Inventory poMenu = Bukkit.createInventory(null, 36,
-				ChatColor.DARK_RED + "" + ChatColor.BOLD + "Profile :: Main Menu");
+				ChatColor.DARK_RED + "" + ChatColor.BOLD + "Profile :: Main Menu :: " + p.getName());
 
 		// Top line & back buttons
 
@@ -2171,6 +2171,6 @@ public class RunicProfile {
 
 		poMenu.setItem(16, carnivalIcon);
 
-		p.openInventory(poMenu);
+		pSender.openInventory(poMenu);
 	}
 }
