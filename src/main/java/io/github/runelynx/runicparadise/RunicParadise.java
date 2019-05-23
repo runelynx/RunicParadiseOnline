@@ -1659,8 +1659,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 							.getLocation().subtract(0, 1, 0).getBlock().getType() == Material.PURPLE_STAINED_GLASS_PANE) {
 				RunicParadise.showSpawnSkynetMenu(event.getPlayer());
 				event.setCancelled(true);
-			}
-			if (event.getClickedBlock().getType().equals(Material.CHISELED_STONE_BRICKS)
+			} else 	if (event.getClickedBlock().getType().equals(Material.CHISELED_STONE_BRICKS)
 					&& prayerBooks.containsKey(event.getClickedBlock().getLocation())) {
 				// player has left clicked a stone block and its a prayer book
 				// location!
@@ -1670,12 +1669,42 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 						.sendMessage(ChatColor.GRAY + "" + ChatColor.ITALIC
 								+ "This prayer requires that you sacrifice: " + ChatColor.RESET + ChatColor.DARK_AQUA
 								+ prayerBooks.get(event.getClickedBlock().getLocation())[3]);
+			} else 	if (event.getClickedBlock().getType().equals(Material.OBSERVER)) {
+
+				Player p = event.getPlayer();
+				Integer currentSouls = playerProfiles.get(p.getUniqueId()).getSoulCount();
+
+				try {
+					if (p.getInventory().getItemInMainHand().getItemMeta().getDisplayName().contains("Soul Cheque")) {
+						 if (p.getInventory().getItemInMainHand().getItemMeta().getDisplayName().contains("4 Soul Cheque")) {
+							playerProfiles.get(p.getUniqueId()).setSoulCount(currentSouls + 4);
+						} else if (p.getInventory().getItemInMainHand().getItemMeta().getDisplayName().contains("16 Soul Cheque")) {
+							 playerProfiles.get(p.getUniqueId()).setSoulCount(currentSouls + 16);
+						} else if (p.getInventory().getItemInMainHand().getItemMeta().getDisplayName().contains("1 Soul Cheque")) {
+							 playerProfiles.get(p.getUniqueId()).setSoulCount(currentSouls + 1);
+						}
+
+					} else {
+						RunicMessaging.sendMessage(p, RunicFormat.AFTERLIFE, "You must have a " + ChatColor.BOLD + "Soul Cheque" + ChatColor.RESET + " in your hand to use this machine!");
+					}
+
+
+				}  catch(NullPointerException e){
+						RunicMessaging.sendMessage(p, RunicFormat.AFTERLIFE, "You must have a " + ChatColor.BOLD + "Soul Cheque" + ChatColor.RESET + " in your hand to use this machine!");
+				}
+
+
+			}
+
+
+				event.getPlayer().sendMessage(ChatColor.GOLD + "" + ChatColor.ITALIC
+						+ prayerBooks.get(event.getClickedBlock().getLocation())[2]);
+				event.getPlayer()
+						.sendMessage(ChatColor.GRAY + "" + ChatColor.ITALIC
+								+ "This prayer requires that you sacrifice: " + ChatColor.RESET + ChatColor.DARK_AQUA
+								+ prayerBooks.get(event.getClickedBlock().getLocation())[3]);
 			}
 		}
-
-		// event.getPlayer().sendMessage(runicEyes.toString());
-
-	}
 
 	@EventHandler(priority = EventPriority.NORMAL)
 	public void onPlayerDamage(final EntityDamageEvent ede) {
