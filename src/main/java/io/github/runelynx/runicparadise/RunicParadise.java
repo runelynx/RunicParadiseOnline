@@ -1675,7 +1675,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 				Integer currentSouls = playerProfiles.get(p.getUniqueId()).getSoulCount();
 
 				try {
-					if (p.getInventory().getItemInMainHand().getItemMeta().getDisplayName().contains("Soul Cheque")) {
+					if (p.getInventory().getItemInMainHand().getItemMeta().getLore().contains("Redeem")) {
 						 if (p.getInventory().getItemInMainHand().getItemMeta().getDisplayName().contains("4 Soul Cheque")) {
 							playerProfiles.get(p.getUniqueId()).setSoulCount(currentSouls + 4);
 							 p.getInventory().setItemInMainHand(null);
