@@ -1064,7 +1064,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 				event.getWhoClicked().closeInventory();
 				// Open main menu
 				playerProfiles.get(event.getWhoClicked().getUniqueId())
-						.showServerMenu(((Player) event.getWhoClicked()));
+						.showServerMenu(((Player) event.getWhoClicked()), ((Player) event.getWhoClicked()));
 
 			}
 
@@ -1090,7 +1090,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 				event.getWhoClicked().closeInventory();
 				// Open main menu
 				playerProfiles.get(event.getWhoClicked().getUniqueId())
-						.showServerMenu(((Player) event.getWhoClicked()));
+						.showServerMenu(((Player) event.getWhoClicked()), ((Player) event.getWhoClicked()));
 
 			} else if (event.getSlot() == 28 && event.getWhoClicked().hasPermission("rp.chatcolors.green")) {
 
