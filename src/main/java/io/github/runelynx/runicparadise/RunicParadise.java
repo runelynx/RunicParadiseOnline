@@ -1678,10 +1678,13 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 					if (p.getInventory().getItemInMainHand().getItemMeta().getDisplayName().contains("Soul Cheque")) {
 						 if (p.getInventory().getItemInMainHand().getItemMeta().getDisplayName().contains("4 Soul Cheque")) {
 							playerProfiles.get(p.getUniqueId()).setSoulCount(currentSouls + 4);
+							 p.getInventory().setItemInMainHand(null);
 						} else if (p.getInventory().getItemInMainHand().getItemMeta().getDisplayName().contains("16 Soul Cheque")) {
 							 playerProfiles.get(p.getUniqueId()).setSoulCount(currentSouls + 16);
+							 p.getInventory().setItemInMainHand(null);
 						} else if (p.getInventory().getItemInMainHand().getItemMeta().getDisplayName().contains("1 Soul Cheque")) {
 							 playerProfiles.get(p.getUniqueId()).setSoulCount(currentSouls + 1);
+							 p.getInventory().setItemInMainHand(null);
 						}
 
 					} else {
