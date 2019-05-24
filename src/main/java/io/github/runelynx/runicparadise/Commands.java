@@ -763,7 +763,7 @@ public class Commands implements CommandExecutor {
 			Player p = ((Player) sender);
 			Player pSender = ((Player) sender);
 
-			if (args.length == 1) {
+			if (args.length > 0) {
 				p = Bukkit.getPlayer(args[0]);
 			}
 
@@ -780,7 +780,7 @@ public class Commands implements CommandExecutor {
 			}
 
 			RunicPlayerBukkit targetPlayer = new RunicPlayerBukkit(pUUID);
-			Map<String, Integer> killCounts = targetPlayer.getPlayerKillCounts();
+			//Map<String, Integer> killCounts = targetPlayer.getPlayerKillCounts();
 
 			int daysSinceJoin = (int) ((new Date().getTime() - targetPlayer.getJoinDate().getTime()) / 86400000);
 

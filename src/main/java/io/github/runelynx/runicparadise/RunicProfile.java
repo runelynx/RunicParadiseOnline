@@ -864,12 +864,11 @@ public class RunicProfile {
 
 			PreparedStatement updStmt;
 
-			double prizeAdjust = 1;
-
 			int prizeKarma = 0;
 			int prizeSouls = 0;
 			int prizeRunics = 0;
 			int prizeTokens = 0;
+			double prizeAdjust = 1;
 
 			if (!mzResult.isBeforeFirst()) {
 				// No results, invalid puzzleID given
@@ -886,6 +885,7 @@ public class RunicProfile {
 				prizeSouls = mzResult.getInt("SoulReward");
 				prizeRunics = mzResult.getInt("CashReward");
 				prizeTokens = mzResult.getInt("TokenReward");
+				prizeAdjust = mzResult.getDouble("CashRepeatAdjust");
 			}
 
 			if (!mcResult.isBeforeFirst()) {
@@ -1012,14 +1012,6 @@ public class RunicProfile {
 				updStmt.setString(3, p.getUniqueId().toString());
 				updStmt.setInt(4, puzzleID);
 				updStmt.executeUpdate();
-
-				if (mzResult.getInt("ID") == 21) {
-					prizeAdjust = 0.10;
-				} else if (mzResult.getInt("ID") == 22) {
-					prizeAdjust = 0.15;
-				} else {
-					prizeAdjust = 0.5;
-				}
 
 				if (new Date().getTime() - mcResult.getLong("LastCompletion") > RunicParadise.PUZZLE_REPEAT_TIME) {
 

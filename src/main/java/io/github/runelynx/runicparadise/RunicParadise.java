@@ -653,7 +653,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 						mazeLore.add(ChatColor.GRAY + "Souls: " + ChatColor.YELLOW
 								+ (menuResult.getInt("SoulReward") / 2));
 						mazeLore.add(ChatColor.GRAY + "Runics: " + ChatColor.YELLOW
-								+ (menuResult.getInt("CashReward") / 2));
+								+ (menuResult.getInt("CashReward") * menuResult.getDouble("CashRepeatAdjust")));
 						mazeLore.add(null);
 						mazeLore.add(ChatColor.GREEN + "Last Completion:");
 						mazeLore.add(ChatColor.GRAY + sdf.format(new Date(playerLastCompletion)));
@@ -1675,7 +1675,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 				Integer currentSouls = playerProfiles.get(p.getUniqueId()).getSoulCount();
 
 				try {
-					if (p.getInventory().getItemInMainHand().getItemMeta().getLore().contains("Redeem")) {
+					if (p.getInventory().getItemInMainHand().getItemMeta().getLore().toString().contains("Redeem")) {
 						 if (p.getInventory().getItemInMainHand().getItemMeta().getDisplayName().contains("4 Soul Cheque")) {
 							playerProfiles.get(p.getUniqueId()).setSoulCount(currentSouls + 4);
 							 p.getInventory().setItemInMainHand(null);
@@ -1688,7 +1688,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 						}
 
 					} else {
-						RunicMessaging.sendMessage(p, RunicFormat.AFTERLIFE, "You must have a " + ChatColor.BOLD + "Soul Cheque" + ChatColor.RESET + " in your hand to use this machine!");
+						RunicMessaging.sendMessage(p, RunicFormat.AFTERLIFE, "You must have a " + ChatColor.BOLD + "Soul Cheque" + ChatColor.RESET + " in your hand to use this machine!!");
 					}
 
 
