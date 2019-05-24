@@ -1699,15 +1699,8 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 
 			}
 
-
-				event.getPlayer().sendMessage(ChatColor.GOLD + "" + ChatColor.ITALIC
-						+ prayerBooks.get(event.getClickedBlock().getLocation())[2]);
-				event.getPlayer()
-						.sendMessage(ChatColor.GRAY + "" + ChatColor.ITALIC
-								+ "This prayer requires that you sacrifice: " + ChatColor.RESET + ChatColor.DARK_AQUA
-								+ prayerBooks.get(event.getClickedBlock().getLocation())[3]);
-			}
 		}
+	}
 
 	@EventHandler(priority = EventPriority.NORMAL)
 	public void onPlayerDamage(final EntityDamageEvent ede) {
