@@ -726,7 +726,18 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 	 * }
 	 */
 
-	@EventHandler
+	@EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+	public void toggleGlideEvent(EntityToggleGlideEvent event) {
+		if (event.getEntity().getLocation().getWorld().getName().equalsIgnoreCase("RunicSky") &&
+				event.getEntityType().equals(EntityType.PLAYER)) {
+			event.setCancelled(true);
+
+			RunicMessaging.sendMessage(((Player)event.getEntity()), RunicFormat.SYSTEM, "Gliding is not permitted here.");
+		}
+
+
+	}
+
 	public void onPlayerChat(AsyncPlayerChatEvent event) {
 		String playerRankColor;
 
