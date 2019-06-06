@@ -800,7 +800,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 		}
 
 		// //// HANDLE LORDS
-		if (perms.getPrimaryGroup(player).equals("Lord")) {
+		if (perms.getPrimaryGroup(player).equalsIgnoreCase("Lord")) {
 			String genderRank;
 			if (playerProfiles.get(event.getPlayer().getUniqueId()).getGender() == 'M') {
 				genderRank = "Lord";
@@ -812,7 +812,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 					" " + playerRankColor + event.getPlayer().getDisplayName() + ChatColor.WHITE + ": %2$s");
 		} else
 		// //// HANDLE COUNTS
-		if (perms.getPrimaryGroup(event.getPlayer()).equals("Count")) {
+		if (perms.getPrimaryGroup(event.getPlayer()).equalsIgnoreCase("Count")) {
 			String genderRank;
 			if (playerProfiles.get(event.getPlayer().getUniqueId()).getGender() == 'M') {
 				genderRank = "Count";
@@ -824,7 +824,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 					" " + playerRankColor + event.getPlayer().getDisplayName() + ChatColor.WHITE + ": %2$s");
 		} else
 		// //// HANDLE BARONS
-		if (perms.getPrimaryGroup(player).equals("Baron")) {
+		if (perms.getPrimaryGroup(player).equalsIgnoreCase("Baron")) {
 			String genderRank;
 			if (playerProfiles.get(player.getUniqueId()).getGender() == 'M') {
 				genderRank = "Baron";
@@ -836,7 +836,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 					" " + playerRankColor + event.getPlayer().getDisplayName() + ChatColor.WHITE + ": %2$s");
 		} else
 		// //// HANDLE DUKES
-		if (perms.getPrimaryGroup(player).equals("Duke")) {
+		if (perms.getPrimaryGroup(player).equalsIgnoreCase("Duke")) {
 			String genderRank;
 			if (playerProfiles.get(player.getUniqueId()).getGender() == 'M') {
 				genderRank = "Duke";
@@ -1688,12 +1688,12 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 						}
 
 					} else {
-						RunicMessaging.sendMessage(p, RunicFormat.AFTERLIFE, "You must have a " + ChatColor.BOLD + "Soul Cheque" + ChatColor.RESET + " in your hand to use this machine!!");
+						RunicMessaging.sendMessage(p, RunicFormat.AFTERLIFE, "You must have a " + ChatColor.BOLD + "Soul Cheque" + ChatColor.RESET + "" + ChatColor.GRAY + " in your hand to use this machine!!");
 					}
 
 
 				}  catch(NullPointerException e){
-						RunicMessaging.sendMessage(p, RunicFormat.AFTERLIFE, "You must have a " + ChatColor.BOLD + "Soul Cheque" + ChatColor.RESET + " in your hand to use this machine!");
+						RunicMessaging.sendMessage(p, RunicFormat.AFTERLIFE, "You must have a " + ChatColor.BOLD + "Soul Cheque" + ChatColor.RESET + "" + ChatColor.GRAY + " in your hand to use this machine!");
 				}
 
 
