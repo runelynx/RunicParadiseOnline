@@ -738,6 +738,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 
 	}
 
+	@EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
 	public void onPlayerChat(AsyncPlayerChatEvent event) {
 		String playerRankColor;
 

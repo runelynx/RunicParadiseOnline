@@ -661,53 +661,14 @@ public class Commands implements CommandExecutor {
 
 	private static void rpVoteCommand(CommandSender sender, String[] args) {
 		if (args[0].equals("reward") && args.length == 2) {
-			int votecount = 1;
-			if (Bukkit.getPlayer(args[1]).hasPermission("rp.xmas")) {
-				votecount = 2;
-			}
 
-			String command = "crate givekey " + args[1] + " RunicCrate 1";
-			Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command);
+			//String command = "crate givekey " + args[1] + " RunicCrate 1";
+			//Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command);
 
 			RunicPlayerBukkit targetPlayer = new RunicPlayerBukkit(args[1]);
 			targetPlayer.incrementPlayerVotes();
 
-			/*
-			 *
-			 * RunicParadise.economy.depositPlayer(Bukkit.getOfflinePlayer(
-			 * args[1]), 1000);
-			 *
-			 * // String command = "eco give " + args[1] + " 1000"; //
-			 * Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command);
-			 *
-			 * // command = "graves givesouls " + args[1] + " " + votecount;
-			 * // Bukkit.dispatchCommand(Bukkit.getConsoleSender(),
-			 * command);
-			 *
-			 * // targetPlayer.setPlayerSouls(targetPlayer.getPlayerSouls()
-			 * + // votecount); targetPlayer.addPlayerSouls(1);
-			 * RunicMessaging.sendMessage(Bukkit.getPlayer(args[1]),
-			 * RunicMessaging.RunicFormat.EMPTY, "You gained a soul!");
-			 *
-			 * targetPlayer.incrementPlayerVotes();
-			 * targetPlayer.adjustPlayerKarma(3); int newTokenBalance =
-			 * targetPlayer.getPlayerTokenBalance() + 2;
-			 * targetPlayer.setPlayerTokenBalance(newTokenBalance);
-			 *
-			 * rand = new Random(); // int randomNum = rand.nextInt((max -
-			 * min) + 1) + min; int randomNum = rand.nextInt((100 - 1) + 1)
-			 * + 1; if (randomNum <= 5) { String command =
-			 * "graves givesouls " + args[1] + " 7";
-			 * Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command);
-			 * command = "say §4L§cu§6c§ek§2y §av§bo§3t§1e§9!§d! " + args[1]
-			 * + " got 7 extra souls!";
-			 *
-			 * Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command);
-			 *
-			 * command = "say §4L§cu§6c§ek§2y §av§bo§3t§1e§9!§d! " + args[1]
-			 * + " got 10 extra karma!"; targetPlayer.adjustPlayerKarma(10);
-			 * Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command); }
-			 */
+
 		}
 	}
 
