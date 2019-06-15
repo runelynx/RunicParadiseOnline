@@ -1580,19 +1580,6 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 	public void onPlayerInteract(PlayerInteractEvent event) {
 		if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
 
-			//Can't remember why I put this in here but it lets anyone break skull/SF blocks with a book in hand. Eugh!
-			/*
-			if (event.getClickedBlock().getType() == Material.SKULL) {
-				if (event.getItem().getType().equals(Material.BOOK)) {
-					event.setCancelled(true);
-
-					event.getPlayer().getLocation().getWorld().createExplosion(event.getPlayer().getLocation(), 1);
-					RunicMessaging.sendMessage(event.getPlayer(), RunicFormat.ERROR, "You can't do that :(");
-
-					event.getPlayer().closeInventory();
-				}
-			} */
-
 			// process Spawn SKynet menu clicks -- right click
 			if (event.getClickedBlock().getWorld().getName().equals("RunicSky"))
 				if (((event.getClickedBlock().getType() == Material.PLAYER_HEAD) && (event.getClickedBlock().getLocation()
@@ -1604,26 +1591,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 					RunicParadise.showSpawnSkynetMenu(event.getPlayer());
 					event.setCancelled(true);
 				}
-// Old custom Runic Graves Logic
-/*
-			if (event.getClickedBlock().getType().equals(Material.BEDROCK)) {
 
-				String graveOwnerName = RunicDeathChest.checkLocForDeath(event.getClickedBlock().getLocation());
-
-				if (graveOwnerName.equals(event.getPlayer().getName()) || graveOwnerName.equals("Unlocked")) {
-					// Player at grave is owner... or grave is unlocked!
-					RunicDeathChest.restoreFromPlayerDeath_v19(new RunicPlayerBukkit(event.getPlayer().getUniqueId()),
-							event.getClickedBlock().getLocation());
-				} else if (!graveOwnerName.equals("NoGrave")) {
-					// player clicked a redstone lamp which is not a death chest
-					event.getPlayer().sendMessage(ChatColor.DARK_GRAY + "[RunicReaper] " + ChatColor.GRAY
-							+ "This grave belongs to " + ChatColor.DARK_RED + graveOwnerName + ChatColor.GRAY + ".");
-				} else {
-					// player clicked a redstone lamp which is not a grave
-					// do nothing
-
-				}
-			} else */
 			if (event.getClickedBlock().getType().equals(Material.SPAWNER)
 					&& event.getPlayer().getInventory().getItemInMainHand().getType().getId() == 383) {
 				event.setCancelled(true);
@@ -1671,7 +1639,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 							.getLocation().subtract(0, 1, 0).getBlock().getType() == Material.PURPLE_STAINED_GLASS_PANE) {
 				RunicParadise.showSpawnSkynetMenu(event.getPlayer());
 				event.setCancelled(true);
-			} else 	if (event.getClickedBlock().getType().equals(Material.CHISELED_STONE_BRICKS)
+			} else if (event.getClickedBlock().getType().equals(Material.CHISELED_STONE_BRICKS)
 					&& prayerBooks.containsKey(event.getClickedBlock().getLocation())) {
 				// player has left clicked a stone block and its a prayer book
 				// location!
@@ -1681,23 +1649,25 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 						.sendMessage(ChatColor.GRAY + "" + ChatColor.ITALIC
 								+ "This prayer requires that you sacrifice: " + ChatColor.RESET + ChatColor.DARK_AQUA
 								+ prayerBooks.get(event.getClickedBlock().getLocation())[3]);
-			} else 	if (event.getClickedBlock().getType().equals(Material.OBSERVER)) {
+			} else if (event.getClickedBlock().getType().equals(Material.OBSERVER)) {
 
 				Player p = event.getPlayer();
 				Integer currentSouls = playerProfiles.get(p.getUniqueId()).getSoulCount();
+				//RunicMessaging.sendMessage(p, RunicFormat.AFTERLIFE, "[DEBUG] You just left clicked an OBSERVER!");
+
 
 				try {
 					if (p.getInventory().getItemInMainHand().getItemMeta().getLore().toString().contains("Redeem")) {
-						 if (p.getInventory().getItemInMainHand().getItemMeta().getDisplayName().contains("4 Soul Cheque")) {
-							playerProfiles.get(p.getUniqueId()).setSoulCount(currentSouls + 4);
-							 p.getInventory().setItemInMainHand(null);
-						} else if (p.getInventory().getItemInMainHand().getItemMeta().getDisplayName().contains("16 Soul Cheque")) {
-							 playerProfiles.get(p.getUniqueId()).setSoulCount(currentSouls + 16);
-							 p.getInventory().setItemInMainHand(null);
-						} else if (p.getInventory().getItemInMainHand().getItemMeta().getDisplayName().contains("1 Soul Cheque")) {
-							 playerProfiles.get(p.getUniqueId()).setSoulCount(currentSouls + 1);
-							 p.getInventory().setItemInMainHand(null);
-						}
+						 if (p.getInventory().getItemInMainHand().getItemMeta().getDisplayName().contains("Soul Cheque")) {
+							 playerProfiles.get(p.getUniqueId()).grantCurrency("Souls", 1);
+
+							 p.getInventory().getItemInMainHand().setAmount(p.getInventory().getItemInMainHand().getAmount() - 1);
+
+							 //RunicMessaging.sendMessage(p, RunicFormat.AFTERLIFE, "[DEBUG] Found a cheque for 1 soul");
+
+						} else {
+							 RunicMessaging.sendMessage(p, RunicFormat.AFTERLIFE, "[DEBUG] Found a cheque but not sure what to do!");
+						 }
 
 					} else {
 						RunicMessaging.sendMessage(p, RunicFormat.AFTERLIFE, "You must have a " + ChatColor.BOLD + "Soul Cheque" + ChatColor.RESET + "" + ChatColor.GRAY + " in your hand to use this machine!!");
