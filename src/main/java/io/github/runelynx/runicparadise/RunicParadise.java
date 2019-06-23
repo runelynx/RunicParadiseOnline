@@ -175,23 +175,23 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 	}
 
 	private void defineRankColors() {
-		rankColors.put("Ghost", ChatColor.GRAY);
-		rankColors.put("Seeker", ChatColor.GREEN);
-		rankColors.put("Runner", ChatColor.DARK_GREEN);
-		rankColors.put("Singer", ChatColor.YELLOW);
-		rankColors.put("Brawler", ChatColor.GOLD);
-		rankColors.put("Keeper", ChatColor.AQUA);
-		rankColors.put("Guard", ChatColor.DARK_AQUA);
-		rankColors.put("Hunter", ChatColor.BLUE);
-		rankColors.put("Slayer", ChatColor.LIGHT_PURPLE);
-		rankColors.put("Warder", ChatColor.LIGHT_PURPLE);
-		rankColors.put("Champion", ChatColor.DARK_PURPLE);
-		rankColors.put("Master", ChatColor.RED);
-		rankColors.put("Duke", ChatColor.WHITE);
-		rankColors.put("Baron", ChatColor.WHITE);
-		rankColors.put("Count", ChatColor.WHITE);
-		rankColors.put("Lord", ChatColor.WHITE);
-		rankColors.put("God", ChatColor.DARK_BLUE);
+		rankColors.put("ghost", ChatColor.GRAY);
+		rankColors.put("seeker", ChatColor.GREEN);
+		rankColors.put("runner", ChatColor.DARK_GREEN);
+		rankColors.put("singer", ChatColor.YELLOW);
+		rankColors.put("brawler", ChatColor.GOLD);
+		rankColors.put("keeper", ChatColor.AQUA);
+		rankColors.put("guard", ChatColor.DARK_AQUA);
+		rankColors.put("hunter", ChatColor.BLUE);
+		rankColors.put("slayer", ChatColor.LIGHT_PURPLE);
+		rankColors.put("warder", ChatColor.LIGHT_PURPLE);
+		rankColors.put("champion", ChatColor.DARK_PURPLE);
+		rankColors.put("master", ChatColor.RED);
+		rankColors.put("duke", ChatColor.WHITE);
+		rankColors.put("baron", ChatColor.WHITE);
+		rankColors.put("count", ChatColor.WHITE);
+		rankColors.put("lord", ChatColor.WHITE);
+		rankColors.put("god", ChatColor.DARK_BLUE);
 	}
 
 	private boolean controlKeepInventory() {
@@ -199,14 +199,14 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 		Bukkit.dispatchCommand(Bukkit.getConsoleSender(), tempInvSetting);
 		tempInvSetting = "mvrule keepInventory true RunicSky";
 		Bukkit.dispatchCommand(Bukkit.getConsoleSender(), tempInvSetting);
-		tempInvSetting = "mvrule keepInventory true RunicKingdom";
-		Bukkit.dispatchCommand(Bukkit.getConsoleSender(), tempInvSetting);
-		tempInvSetting = "mvrule keepInventory true Mining";
-		Bukkit.dispatchCommand(Bukkit.getConsoleSender(), tempInvSetting);
-		tempInvSetting = "mvrule keepInventory true RunicKingdom_nether";
-		Bukkit.dispatchCommand(Bukkit.getConsoleSender(), tempInvSetting);
-		tempInvSetting = "mvrule keepInventory true RunicKingdom_the_end";
-		Bukkit.dispatchCommand(Bukkit.getConsoleSender(), tempInvSetting);
+//		tempInvSetting = "mvrule keepInventory true RunicKingdom";
+//		Bukkit.dispatchCommand(Bukkit.getConsoleSender(), tempInvSetting);
+//		tempInvSetting = "mvrule keepInventory true Mining";
+//		Bukkit.dispatchCommand(Bukkit.getConsoleSender(), tempInvSetting);
+//		tempInvSetting = "mvrule keepInventory true RunicKingdom_nether";
+//		Bukkit.dispatchCommand(Bukkit.getConsoleSender(), tempInvSetting);
+//		tempInvSetting = "mvrule keepInventory true RunicKingdom_the_end";
+//		Bukkit.dispatchCommand(Bukkit.getConsoleSender(), tempInvSetting);
 		return true;
 	}
 
@@ -1649,7 +1649,8 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 						.sendMessage(ChatColor.GRAY + "" + ChatColor.ITALIC
 								+ "This prayer requires that you sacrifice: " + ChatColor.RESET + ChatColor.DARK_AQUA
 								+ prayerBooks.get(event.getClickedBlock().getLocation())[3]);
-			} else if (event.getClickedBlock().getType().equals(Material.OBSERVER)) {
+			} else if (event.getClickedBlock().getType().equals(Material.OBSERVER)
+					&& event.getClickedBlock().getWorld().getName().equalsIgnoreCase("RunicSky")) {
 
 				Player p = event.getPlayer();
 				Integer currentSouls = playerProfiles.get(p.getUniqueId()).getSoulCount();
