@@ -2365,7 +2365,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 	@EventHandler(priority = EventPriority.NORMAL)
 	public void onPlayerDeath(PlayerDeathEvent event) {
 		if (event.getEntity() != null) {
-
+			/*
 			//Execute death XP logic if world is not Sky
 			if (!event.getEntity().getLocation().getWorld().toString().equalsIgnoreCase("RunicSky")) {
 				Player deadPlayer = event.getEntity();
@@ -2396,7 +2396,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 				if (pctExpToReturn > .01) {
 					RunicMessaging.sendMessage(deadPlayer, RunicFormat.AFTERLIFE, "Returning " + 100 * pctExpToReturn + "% of your experience levels to you!");
 				}
-			}
+			}*/
 
 			final PlayerDeathEvent innerEvent = event;
 
