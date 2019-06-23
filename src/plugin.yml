@@ -66,8 +66,6 @@ commands:
    raffle:
       description: "Runic Raffle"
       usage: /<command>
-      permission: rp.raffle
-      permission-message: "The raffle isn't open yet!"
    fixranks:
       description: "Fix rank problems."
       usage: /<command>

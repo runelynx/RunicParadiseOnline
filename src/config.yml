@@ -27,3 +27,8 @@ game4Detail: 0 0 0 0 0
 game5Name: "Coming soon"
 game5CmdType: unused
 game5Detail: 0 0 0 0 0
+
+## Raffle Controls
+currentRafflePrefix: abcdf
+currentRaffleID: 2019Summer
+raffleEnabled: false

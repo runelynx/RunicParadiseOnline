@@ -2568,9 +2568,18 @@ public class Commands implements CommandExecutor {
 		int tickets = 0;
 		int raffleCount = 0;
 		int totalRaffleCount = 0;
-		int ticketCost = 500;
-		int maxPurchaseTickets = 1000;
-		String raffleNameColor = "&aS&2p&er&ai&2n&eg &aR&2a&ef&af&2l&ee";
+
+		int ticketCost = instance.getConfig().getInt("currentRaffleTicketCost");
+		int maxPurchaseTickets = instance.getConfig().getInt("currentRaffleMaxTicketPurchase");
+		String raffleNameColor = instance.getConfig().getString("currentRafflePrefix");
+		String raffleID = instance.getConfig().getString("currentRaffleID");
+		Boolean raffleEnabled = instance.getConfig().getBoolean("raffleEnabled");
+
+		if (!raffleEnabled) {
+			RunicMessaging.sendMessage(rafflePlayer, RunicFormat.ERROR, "There is no active raffle at this time. Ask staff when the next raffle will be held!");
+
+			return;
+		}
 
 		// HANDLE PURCHASED TICKETS
 		if (args.length == 2 && args[0].equalsIgnoreCase("buy") && Integer.parseInt(args[1]) > 0
@@ -2618,7 +2627,7 @@ public class Commands implements CommandExecutor {
 								"INSERT INTO rp_RunicRaffleTickets (PlayerName, UUID, Timestamp, RaffleID, Source, Quantity) VALUES "
 										+ "('" + rafflePlayer.getName() + "', '"
 										+ rafflePlayer.getUniqueId().toString() + "', " + (new Date().getTime())
-										+ ", 1, 'Purchased', " + tickets + ");");
+										+ ", '"+ raffleID +"', 'Purchased', " + tickets + ");");
 						insertStmt.executeUpdate();
 
 					} else {
@@ -2650,7 +2659,7 @@ public class Commands implements CommandExecutor {
 							"INSERT INTO rpgame.rp_RunicRaffleTickets (PlayerName, UUID, Timestamp, RaffleID, Source, Quantity) VALUES "
 									+ "('" + Bukkit.getOfflinePlayer(args[2]).getName() + "', '"
 									+ Bukkit.getOfflinePlayer(args[2]).getUniqueId().toString() + "', "
-									+ (new Date().getTime()) + ", 1, 'Given', " + Integer.parseInt(args[1]) + ");");
+									+ (new Date().getTime()) + ", '"+ raffleID +"', 'Given', " + Integer.parseInt(args[1]) + ");");
 					insertStmt.executeUpdate();
 					d.close();
 					dStmt.close();
