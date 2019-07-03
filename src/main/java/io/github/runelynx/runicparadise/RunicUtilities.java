@@ -31,6 +31,11 @@ public class RunicUtilities {
 		}
 	}
 
+	static void fixMissingMcmmoProfile(String puuid) {
+
+
+	}
+
 	static void fixGroupManager() {
 
 		// save any pending changes

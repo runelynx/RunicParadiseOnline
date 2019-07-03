@@ -1518,6 +1518,13 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 
 		//RunicUtilities.convertGroupManager(pje.getPlayer());
 
+		RunicParadise.getInstance().getServer().getScheduler().scheduleAsyncDelayedTask(RunicParadise.getInstance(), new Runnable() {
+			public void run() {
+				checkMcmmoUserCreated(pje.getPlayer());
+			}
+		}, 100L);
+
+
 		updatePlayerInfoOnJoin(pje.getPlayer().getName(), pje.getPlayer().getUniqueId());
 
 		ranks.convertRanks(pje.getPlayer());
@@ -3094,6 +3101,31 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 			perms.playerAddGroup("", Bukkit.getOfflinePlayer(p.getUniqueId()), "Ghost");
 			Bukkit.getLogger().log(Level.INFO, "Found default group! Changing " + p.getName() + " to Ghost!");
 		}
+	}
+
+	private void checkMcmmoUserCreated (Player p) {
+		if (RunicDB.callSP_Count_McmmoUsers(p.getUniqueId().toString()) < 1) {
+			//No Mcmmo user found
+			RunicMessaging.sendMessage(p, RunicFormat.SYSTEM, "Could not find your McMMO profile. Trying to create one...");
+			Bukkit.getLogger().log(Level.SEVERE, "Could not find McMMO profile. Trying to create one via RunicParadise. " + p.getName());
+
+			int newID = RunicDB.callSP_Add_McmmoUser(p.getName(), p.getUniqueId().toString());
+			Bukkit.getLogger().log(Level.SEVERE, "New user ID " + newID);
+
+			if (newID != 0) {
+				if(RunicDB.callSP_Add_McmmoUserRecords(newID)) {
+					RunicMessaging.sendMessage(p, RunicFormat.SYSTEM, "McMMO profile successfully created. Please logout for 10 seconds and come back.");
+					Bukkit.getLogger().log(Level.SEVERE, "New McMMO profile created successfully. " + p.getName());
+				} else {
+					RunicMessaging.sendMessage(p, RunicFormat.SYSTEM, "McMMO profile creation failed. We'll try again next time. :(");
+					Bukkit.getLogger().log(Level.SEVERE, "New McMMO profile creation FAILED during AddMcmmoUserRecords. " + p.getName());
+				}
+			}
+
+
+
+		}
+
 	}
 
 
