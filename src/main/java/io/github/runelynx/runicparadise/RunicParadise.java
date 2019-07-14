@@ -5,6 +5,12 @@ import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
+import com.sk89q.worldguard.protection.ApplicableRegionSet;
+import com.sk89q.worldguard.protection.flags.Flags;
+import com.sk89q.worldguard.protection.flags.StateFlag;
+import com.sk89q.worldguard.protection.regions.ProtectedRegion;
+import com.sk89q.worldguard.protection.regions.RegionContainer;
+import com.sk89q.worldguard.protection.regions.RegionQuery;
 import io.github.runelynx.runicuniverse.RunicMessaging;
 import io.github.runelynx.runicuniverse.RunicMessaging.RunicFormat;
 import net.milkbowl.vault.economy.Economy;
@@ -35,6 +41,8 @@ import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitScheduler;
 import org.bukkit.util.Vector;
 import org.json.JSONException;
+import com.sk89q.worldguard.*;
+import com.sk89q.worldedit.*;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
@@ -481,8 +489,9 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 	@EventHandler(priority = EventPriority.HIGH)
 	public void onCreatureSpawn(CreatureSpawnEvent event) {
 
-		if (event.getLocation().getX() > 7500 || event.getLocation().getX() < -7500 || event.getLocation().getZ() > 7500
-				|| event.getLocation().getZ() < -7500) {
+		if ((event.getLocation().getX() > 7500 || event.getLocation().getX() < -7500 || event.getLocation().getZ() > 7500
+				|| event.getLocation().getZ() < -7500)
+		&& event.getLocation().getWorld().getName().equalsIgnoreCase("RunicKingdom")) {
 			// Confirmed spawn is in the borderlands!!
 
 			if (!event.getSpawnReason().equals(SpawnReason.SPAWNER)) {
@@ -502,6 +511,24 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 			if(event.getEntity().getType().toString().equalsIgnoreCase("phantom")) {
 				event.setCancelled(true);
 			}
+
+			//Force spawns to work in RunicSky
+			if (event.getLocation().getWorld().getName().equalsIgnoreCase("RunicSky")) {
+
+				RegionContainer container = WorldGuard.getInstance().getPlatform().getRegionContainer();
+				RegionQuery query = container.createQuery();
+				ApplicableRegionSet ars = query.getApplicableRegions(com.sk89q.worldedit.bukkit.BukkitAdapter.adapt(event.getLocation()));
+
+				if (ars.queryState(null, Flags.MOB_SPAWNING) == StateFlag.State.DENY) {
+					event.setCancelled(true);
+				} else {
+					event.setCancelled(false);
+				}
+
+			}
+
+
+
 
 			//			Bukkit.getLogger().log(Level.INFO, "MobSpawnLog: " + event.getLocation() + " " + event.getEntity().getType().toString() + " " + event.isCancelled());
 
