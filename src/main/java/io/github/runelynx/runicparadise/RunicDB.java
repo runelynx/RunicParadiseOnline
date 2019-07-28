@@ -40,10 +40,10 @@ public class RunicDB {
             String simpleProc = "{ call Count_McmmoUsers(?) }";
             CallableStatement cs = dbCon.prepareCall(simpleProc);
             cs.setString("userid", puuid);
-            cs.registerOutParameter(2, Types.SMALLINT);
+            cs.registerOutParameter(1, Types.SMALLINT);
             cs.execute();
 
-            int result = cs.getInt(2);
+            int result = cs.getInt(1);
 
             closeconnection(cs, dbCon);
 
@@ -52,6 +52,8 @@ public class RunicDB {
             Bukkit.getLogger().log(Level.SEVERE, "Failed RunicDB.callSP_Count_McmmoUsers - " + z.getMessage());
             return 2;
         }
+
+
     }
 
     static public int callSP_Add_McmmoUser(String userName, String puuid) {

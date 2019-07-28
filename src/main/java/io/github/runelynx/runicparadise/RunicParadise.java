@@ -1534,8 +1534,8 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 		}
 
 		if (pje.getPlayer().hasPermission("rp.chatfilterwarning1") && !pje.getPlayer().hasPermission("rp.admin")) {
-			RunicParadise.perms.playerRemove("", pje.getPlayer(), "rp.chatfilterwarning1");
-			RunicParadise.perms.playerRemove("", pje.getPlayer(), "-essentials.me");
+			RunicParadise.perms.playerRemove(pje.getPlayer(), "rp.chatfilterwarning1");
+			RunicParadise.perms.playerRemove(pje.getPlayer(), "-essentials.me");
 
 		}
 
@@ -1544,13 +1544,13 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 		}
 
 		//RunicUtilities.convertGroupManager(pje.getPlayer());
-
+/*
 		RunicParadise.getInstance().getServer().getScheduler().scheduleAsyncDelayedTask(RunicParadise.getInstance(), new Runnable() {
 			public void run() {
 				checkMcmmoUserCreated(pje.getPlayer());
 			}
 		}, 100L);
-
+*/
 
 		updatePlayerInfoOnJoin(pje.getPlayer().getName(), pje.getPlayer().getUniqueId());
 

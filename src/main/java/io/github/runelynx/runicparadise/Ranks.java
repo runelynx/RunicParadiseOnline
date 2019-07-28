@@ -1627,6 +1627,8 @@ class Ranks {
 							Borderlands.specialLootDrops("DukeRing4", p.getUniqueId()));
 				}
 
+				perms.playerAdd(p, "rp.ranks.dukering");
+
 				return true;
 
 			} else {
@@ -1684,6 +1686,9 @@ class Ranks {
 					Bukkit.getWorld(p.getLocation().getWorld().getUID()).dropItemNaturally(p.getLocation(),
 							Borderlands.specialLootDrops("BaronPendant2", p.getUniqueId()));
 				}
+
+				perms.playerAdd(p, "rp.ranks.baronpendant");
+
 				return true;
 			} else {
 				return false;
