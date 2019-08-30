@@ -2162,6 +2162,17 @@ public class Commands implements CommandExecutor {
 			// check for players in the maze or entry zone
 			for (Entity e : victim.getNearbyEntities(200, 100, 200)) {
 				if (e instanceof Player) {
+					if (args[1].equalsIgnoreCase("glitch")) {
+						if ((e.getLocation().getX() <= -842 && e.getLocation().getX() >= -1081)
+								&& (e.getLocation().getY() <= 34 && e.getLocation().getY() >= 1)
+								&& (e.getLocation().getZ() <= 40 && e.getLocation().getZ() >= -82)) {
+							// A player is in the maze!
+							victim.sendMessage(ChatColor.DARK_RED + "GlitchMaster Thing"
+									+ ChatColor.GRAY
+									+ ": Sorry, someone is already in the maze. Please wait for them to finish (or fail).");
+							problem = true;
+						}
+					}
 					if (args[1].equalsIgnoreCase("dungeon")) {
 						if ((e.getLocation().getX() <= -142 && e.getLocation().getX() >= -192)
 								&& (e.getLocation().getY() <= 121 && e.getLocation().getY() >= 107)
@@ -2244,6 +2255,13 @@ public class Commands implements CommandExecutor {
 					victim.sendMessage(ChatColor.DARK_RED + "DungeonMaster CrocodileHax"
 							+ ChatColor.GRAY
 							+ ": Welcome to the Anguish Maze! Only one person may be in the maze at a time. Potion effects are removed when you teleport in. You will not lose a soul if you die - but you will have to start over!");
+					Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "heal " +victim.getName());
+
+				} else if (args[1].equalsIgnoreCase("glitch")) {
+					victim.teleport(new Location(Bukkit.getWorld("RunicSky"), -843, 27, -27, 180.62622f, 1.7843645f));
+					victim.sendMessage(ChatColor.DARK_RED + "GlitchMaster Thing"
+							+ ChatColor.GRAY
+							+ ": Welcome to the Glitch Maze! Only one person may be in the maze at a time. Potion effects are removed when you teleport in.");
 					Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "heal " +victim.getName());
 
 				}

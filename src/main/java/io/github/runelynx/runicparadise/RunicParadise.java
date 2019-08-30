@@ -1773,7 +1773,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 				Player player = (Player) ede.getEntity();
 				player.setHealth(20);
 				// player.teleport(player.getWorld().getSpawnLocation());
-				String cmd = "sudo " + player.getName() + " warp spawn";
+				String cmd = "spawn " + player.getName();
 				Bukkit.dispatchCommand(Bukkit.getConsoleSender(), cmd);
 
 				player.sendMessage(
