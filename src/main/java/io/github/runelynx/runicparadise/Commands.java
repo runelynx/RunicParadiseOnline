@@ -5,6 +5,7 @@ import com.xxmicloxx.NoteBlockAPI.NBSDecoder;
 import com.xxmicloxx.NoteBlockAPI.RadioSongPlayer;
 import com.xxmicloxx.NoteBlockAPI.Song;
 import com.xxmicloxx.NoteBlockAPI.SongPlayer;
+import io.github.runelynx.runicparadise.faith.FaithCore;
 import io.github.runelynx.runicuniverse.RunicMessaging;
 import io.github.runelynx.runicuniverse.RunicMessaging.RunicFormat;
 import org.bukkit.*;
@@ -811,6 +812,7 @@ public class Commands implements CommandExecutor {
 				sender.sendMessage(
 						ChatColor.AQUA + "/punish <name>" + ChatColor.GRAY + " Tool to help with punish commands");
 				sender.sendMessage(ChatColor.AQUA + "/staff cf" + ChatColor.GRAY + " Check farming status");
+				sender.sendMessage(ChatColor.AQUA + "/staff rf" + ChatColor.GRAY + " Reload Faith 2.0 Config File");
 				if (sender.hasPermission("rp.staff.director")) {
 					sender.sendMessage(
 							ChatColor.AQUA + "/censor" + ChatColor.GRAY + " Chat censor for all servers");
@@ -931,6 +933,9 @@ public class Commands implements CommandExecutor {
 			} else if ((args[0].equals("NP") || args[0].equals("np")) && args.length == 2) {
 				RunicMessaging.sendMessage(((Player) sender), RunicMessaging.RunicFormat.SYSTEM,
 						whoIsNearPlayer(Bukkit.getPlayer(args[1])));
+			} else if ((args[0].equals("RF") || args[0].equals("rf")) && args.length == 1) {
+				FaithCore.shutdownFaithSystem();
+				new FaithCore();
 			} else if (args.length == 3 && args[0].equalsIgnoreCase("setplayercolor")) {
 				Player player = Bukkit.getPlayer(args[1]);
 				if (player == null) {

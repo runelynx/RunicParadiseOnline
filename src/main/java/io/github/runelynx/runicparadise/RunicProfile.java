@@ -989,7 +989,26 @@ public class RunicProfile {
 					for (Player q : Bukkit.getOnlinePlayers()) {
 						Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "cmi titlemsg all "+ ChatColor.DARK_PURPLE + "" + ChatColor.BOLD + p.getName() +" %subtitle% "+ ChatColor.GRAY + "has freed the Souls of Anguish!");
 					}
-				} else {
+				}  else 	if (mzResult.getInt("ID") == 32) {  //Glitch Maze
+					// Heart of Anguish
+					p.sendMessage(ChatColor.GOLD
+							+ "Congratulations! You've earned a special reward for this first-time completion!");
+					ItemStack[] rewards = Commands
+							.carnivalChestReward(new Location(Bukkit.getWorld("RunicSky"), -1043, 22, 14));
+
+					for (ItemStack i : rewards) {
+						if ( i != null && i.getType() != null && i.getType() != Material.AIR) {
+
+							p.getWorld().dropItemNaturally(p.getLocation(), i);
+						}
+					}
+
+					for (Player q : Bukkit.getOnlinePlayers()) {
+						Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "cmi titlemsg all "+ ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + p.getName() +" %subtitle% "+ ChatColor.YELLOW + "has debugged the Glitch Maz"+
+								ChatColor.MAGIC + ChatColor.DARK_RED
+								+"e!1234561"+ ChatColor.RESET +"" + ChatColor.YELLOW + "" + ChatColor.BOLD + "" + ChatColor.ITALIC + " Uh oh...");
+					}
+				}else {
 
 					for (Player q : Bukkit.getOnlinePlayers()) {
 						Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "cmi titlemsg all "+ ChatColor.DARK_PURPLE + "" + ChatColor.BOLD + p.getName() +" %subtitle% "+ ChatColor.GRAY

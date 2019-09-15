@@ -5,12 +5,13 @@ import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
+import com.sk89q.worldguard.WorldGuard;
 import com.sk89q.worldguard.protection.ApplicableRegionSet;
 import com.sk89q.worldguard.protection.flags.Flags;
 import com.sk89q.worldguard.protection.flags.StateFlag;
-import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import com.sk89q.worldguard.protection.regions.RegionContainer;
 import com.sk89q.worldguard.protection.regions.RegionQuery;
+import io.github.runelynx.runicparadise.faith.FaithCore;
 import io.github.runelynx.runicuniverse.RunicMessaging;
 import io.github.runelynx.runicuniverse.RunicMessaging.RunicFormat;
 import net.milkbowl.vault.economy.Economy;
@@ -41,8 +42,6 @@ import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitScheduler;
 import org.bukkit.util.Vector;
 import org.json.JSONException;
-import com.sk89q.worldguard.*;
-import com.sk89q.worldedit.*;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
@@ -50,13 +49,14 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.sql.*;
 import java.text.SimpleDateFormat;
-import java.util.*;
 import java.util.Date;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public final class RunicParadise extends JavaPlugin implements Listener, PluginMessageListener {
 
+	public static FaithCore faithSystem;
 	private static Plugin instance;
 	private static final Logger log = Bukkit.getLogger();
 	public static Permission perms = null;
@@ -82,10 +82,10 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 	public static HashMap<EntityType, Integer> trackableEntityKillsMap = new HashMap<>();
 
 	public static HashMap<UUID, HashMap<EntityType, Integer>> mobKillTracker = new HashMap<>();
-
 	public static HashMap<UUID, RunicProfile> playerProfiles = new HashMap<>();
 
 	public static Random randomSeed = new Random();
+
 
 	Ranks ranks = new Ranks();
 
@@ -420,6 +420,8 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 		return true;
 	}
 
+
+
 	public void onEnable() {
 		instance = this;
 		getLogger().info("[RunicParadise] Enabling plugin...");
@@ -434,6 +436,10 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 		} catch (Exception e) {
 			getLogger().log(Level.WARNING, "Exception happened", e);
 		}
+
+		FaithCore faithSystem = new FaithCore();
+
+
 
 		//TODO Move this to its own method and link to init method. Maybe just kill it for RP 5.0.
 		/*

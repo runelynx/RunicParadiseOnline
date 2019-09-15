@@ -1,0 +1,39 @@
+Faith:
+  Weapons:
+    Sword1:
+      DisplayName: "SWORD OF LOVE"
+      Lore1:
+      Lore2:
+      Lore3:
+      ChanceToLevelUp:
+      ChanceToConsumeCharge:
+      Charges:
+      KarmaRequiredToCraft:
+      Type: "DIAMOND_SWORD"
+      Recipe:
+        - "GOLDEN_SWORD;1"
+        - "GOLD_NUGGET;1"
+  MobSettings:
+    ZOMBIE:
+      Multiplier: 1
+      Drops:
+        - "DERMIS_GELATINOUS;0.005"
+  SummoningSystem:
+    Items:
+      DERMIS_GELATINOUS:
+        Type: "SLIME_BLOCK"
+    Mobs:
+      1:
+        Name: "Reanimated Frosty"
+        Type: SNOWMAN
+        Health: 10
+        Enchantments:
+          - "STRENGTH;2"
+        FaithLevels: 3
+        Recipe:
+          - "CUSTOM;ENSOULED_BEING;1"
+          - "STANDARD;SNOWBALL;1"
+        Weapon:
+            Type: "STONE_AXE"
+            Enchantments:
+              - "POWER;2"
