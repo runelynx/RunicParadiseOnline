@@ -354,7 +354,7 @@ public class Borderlands {
 			Location start = event.getProjectile().getLocation();
 
 			double speed = 2.0;
-			TippedArrow arrow = (TippedArrow) start.getWorld().spawnEntity(start, EntityType.TIPPED_ARROW);
+			Arrow arrow = (Arrow) start.getWorld().spawnEntity(start, EntityType.ARROW);
 			arrow.addCustomEffect(new PotionEffect(PotionEffectType.POISON, 100, 0), true);
 			Vector direction = event.getProjectile().getVelocity();
 
@@ -369,7 +369,7 @@ public class Borderlands {
 			Location start = event.getProjectile().getLocation();
 
 			double speed = 2.0;
-			TippedArrow arrow = (TippedArrow) start.getWorld().spawnEntity(start, EntityType.TIPPED_ARROW);
+			Arrow arrow = (Arrow) start.getWorld().spawnEntity(start, EntityType.ARROW);
 			arrow.addCustomEffect(new PotionEffect(PotionEffectType.BLINDNESS, 60, 1), true);
 			Vector direction = event.getProjectile().getVelocity();
 
@@ -384,7 +384,7 @@ public class Borderlands {
 			Location start = event.getProjectile().getLocation();
 
 			double speed = 2.0;
-			TippedArrow arrow = (TippedArrow) start.getWorld().spawnEntity(start, EntityType.TIPPED_ARROW);
+			Arrow arrow = (Arrow) start.getWorld().spawnEntity(start, EntityType.ARROW);
 			arrow.addCustomEffect(new PotionEffect(PotionEffectType.CONFUSION, 140, 1), true);
 			Vector direction = event.getProjectile().getVelocity();
 
@@ -399,7 +399,7 @@ public class Borderlands {
 			Location start = event.getProjectile().getLocation();
 
 			double speed = 2.0;
-			TippedArrow arrow = (TippedArrow) start.getWorld().spawnEntity(start, EntityType.TIPPED_ARROW);
+			Arrow arrow = (Arrow) start.getWorld().spawnEntity(start, EntityType.ARROW);
 			arrow.addCustomEffect(new PotionEffect(PotionEffectType.SLOW_DIGGING, 80, 1), true);
 			Vector direction = event.getProjectile().getVelocity();
 

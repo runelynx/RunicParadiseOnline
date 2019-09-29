@@ -11,6 +11,8 @@ import io.github.runelynx.runicuniverse.RunicMessaging.RunicFormat;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.command.*;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -36,6 +38,8 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
+import static org.bukkit.Bukkit.getServer;
+
 public class Commands implements CommandExecutor {
 
 	Ranks rank = new Ranks();
@@ -48,6 +52,7 @@ public class Commands implements CommandExecutor {
         int targetID = 0;
         int distance = -1;
         boolean noneFound = false;
+        int counter = 1;
 
         int greenWarmthMultiplier = 2;
         int yellowWarmthMultiplier = 4;
@@ -63,7 +68,7 @@ public class Commands implements CommandExecutor {
             if (l == null || l.getWorld() == null || l.getWorld().getName() == null) {
                 Commands.syncExplorerLocations();
                 Bukkit.getLogger().log(Level.WARNING,
-                        "RunicWarning - Runic Explorers League - Someone tried to use /explore and I encountered a null location in the explorerLocations hashmap. Therefore, resyncing the location maps now.");
+                        "RunicWarning - Runic Explorers League - Someone tried to use /explore and I encountered a null location in the explorerLocations hashmap. Therefore, resyncing the location maps now. Debug: " + counter);
             }
             if (l.getWorld().getName().equals(loc.getWorld().getName())) {
                 // Make sure worlds match before taking distance
@@ -75,6 +80,7 @@ public class Commands implements CommandExecutor {
                     targetID = RunicParadise.explorerLocationsReversed.get(l);
                 }
             }
+            counter++;
         }
 
         if (targetID != 0) {
@@ -812,6 +818,7 @@ public class Commands implements CommandExecutor {
 				sender.sendMessage(
 						ChatColor.AQUA + "/punish <name>" + ChatColor.GRAY + " Tool to help with punish commands");
 				sender.sendMessage(ChatColor.AQUA + "/staff cf" + ChatColor.GRAY + " Check farming status");
+				sender.sendMessage(ChatColor.AQUA + "/staff rr" + ChatColor.GRAY + " Reload Raffle Config File");
 				sender.sendMessage(ChatColor.AQUA + "/staff rf" + ChatColor.GRAY + " Reload Faith 2.0 Config File");
 				if (sender.hasPermission("rp.staff.director")) {
 					sender.sendMessage(
@@ -936,6 +943,9 @@ public class Commands implements CommandExecutor {
 			} else if ((args[0].equals("RF") || args[0].equals("rf")) && args.length == 1) {
 				FaithCore.shutdownFaithSystem();
 				new FaithCore();
+			} else if ((args[0].equals("RR") || args[0].equals("rr")) && args.length == 1) {
+				Raffle.shutdownRaffleSystem();
+				new Raffle();
 			} else if (args.length == 3 && args[0].equalsIgnoreCase("setplayercolor")) {
 				Player player = Bukkit.getPlayer(args[1]);
 				if (player == null) {
@@ -2453,7 +2463,7 @@ public class Commands implements CommandExecutor {
 			// CREATE NEW LOCATION
 
 			try {
-				Bukkit.getLogger().log(Level.INFO, "Creating new explorer's league location: " + args[0]
+				Bukkit.getLogger().log(Level.INFO, "Creating new explorer's league location: " + args[1]
 						+ ", Tokens: " + args[2] + ", Proximity: " + args[3] + ", Creator: " + sender.getName());
 
 				String locationName = args[1].replace('_', ' ').replace("'", "");
@@ -2592,14 +2602,14 @@ public class Commands implements CommandExecutor {
 		int raffleCount = 0;
 		int totalRaffleCount = 0;
 
-		int ticketCost = instance.getConfig().getInt("currentRaffleTicketCost");
-		int maxPurchaseTickets = instance.getConfig().getInt("currentRaffleMaxTicketPurchase");
-		String raffleNameColor = instance.getConfig().getString("currentRafflePrefix");
-		String raffleID = instance.getConfig().getString("currentRaffleID");
-		Boolean raffleEnabled = instance.getConfig().getBoolean("raffleEnabled");
+		int ticketCost = Integer.parseInt(Raffle.raffleSettingsMap.get("TicketCost"));
+		int maxPurchaseTickets = Integer.parseInt(Raffle.raffleSettingsMap.get("MaxPurchaseTickets"));
+		String raffleNameColor = Raffle.raffleSettingsMap.get("RaffleName");
+		String raffleID = Raffle.raffleSettingsMap.get("CurrentRaffleID");
+		Boolean raffleEnabled = Boolean.parseBoolean(Raffle.raffleSettingsMap.get("Enabled"));
 
 		if (!raffleEnabled) {
-			RunicMessaging.sendMessage(rafflePlayer, RunicFormat.ERROR, "There is no active raffle at this time. Ask staff when the next raffle will be held!");
+			RunicMessaging.sendMessage(rafflePlayer, RunicFormat.ERROR, Raffle.raffleSettingsMap.get("RaffleDisabledMessage"));
 
 			return;
 		}

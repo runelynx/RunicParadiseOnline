@@ -277,7 +277,6 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 		trackableEntityKillsMap.put(EntityType.ARMOR_STAND, 0);
 		trackableEntityKillsMap.put(EntityType.ARROW, 0);
 		trackableEntityKillsMap.put(EntityType.BOAT, 0);
-		trackableEntityKillsMap.put(EntityType.COMPLEX_PART, 0);
 		trackableEntityKillsMap.put(EntityType.DRAGON_FIREBALL, 0);
 		trackableEntityKillsMap.put(EntityType.DROPPED_ITEM, 0);
 		trackableEntityKillsMap.put(EntityType.EGG, 0);
@@ -293,7 +292,6 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 		trackableEntityKillsMap.put(EntityType.ITEM_FRAME, 0);
 		trackableEntityKillsMap.put(EntityType.LEASH_HITCH, 0);
 		trackableEntityKillsMap.put(EntityType.LIGHTNING, 0);
-		trackableEntityKillsMap.put(EntityType.LINGERING_POTION, 0);
 		trackableEntityKillsMap.put(EntityType.LLAMA_SPIT, 0);
 		trackableEntityKillsMap.put(EntityType.MINECART, 0);
 		trackableEntityKillsMap.put(EntityType.MINECART_CHEST, 0);
@@ -310,9 +308,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 		trackableEntityKillsMap.put(EntityType.SPECTRAL_ARROW, 0);
 		trackableEntityKillsMap.put(EntityType.SPLASH_POTION, 0);
 		trackableEntityKillsMap.put(EntityType.THROWN_EXP_BOTTLE, 0);
-		trackableEntityKillsMap.put(EntityType.TIPPED_ARROW, 0);
 		trackableEntityKillsMap.put(EntityType.UNKNOWN, 0);
-		trackableEntityKillsMap.put(EntityType.WEATHER, 0);
 		trackableEntityKillsMap.put(EntityType.WITHER_SKULL, 0);
 		return true;
 	}
@@ -438,6 +434,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 		}
 
 		FaithCore faithSystem = new FaithCore();
+		new Raffle();
 
 
 
@@ -1079,7 +1076,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 	public void onInventoryClick(InventoryClickEvent event) {
 
 		// Runic Profile - Main Menu
-		if (event.getInventory().getTitle().contains("Profile :: Main Menu")) {
+		if (event.getView().getTitle().contains("Profile :: Main Menu")) {
 			if (event.getSlot() == 10) {
 				// Player wants to open Kill Counts menu
 				// Close the inventory screen
@@ -1101,7 +1098,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 
 		} else
 		// Runic Profile - Kill Counts
-		if (event.getInventory().getTitle().contains("Profile :: Kill Counts")) {
+		if (event.getView().getTitle().contains("Profile :: Kill Counts")) {
 
 			if (event.getSlot() == 53) {
 				// Player is returning to main menu
@@ -1117,7 +1114,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 
 		} else
 		// Runic Profile - Chat Options
-		if (event.getInventory().getTitle().contains("Profile :: Chat Options")) {
+		if (event.getView().getTitle().contains("Profile :: Chat Options")) {
 
 			if (event.getSlot() == 12) {
 				// Player is toggling their gender setting
@@ -1192,7 +1189,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 
 		} else
 		// Skynet Spawn Menu
-		if (event.getInventory().getTitle().contains("SkyNet Warp Orb")) {
+		if (event.getView().getTitle().contains("SkyNet Warp Orb")) {
 			switch (event.getSlot()) {
 
 			case 30:
@@ -1272,7 +1269,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 			event.setCancelled(true);
 		} else
 		// Carnival menu - MAZES
-		if (event.getInventory().getTitle().contains("Runic Carnival - Mazes")) {
+		if (event.getView().getTitle().contains("Runic Carnival - Mazes")) {
 			switch (event.getSlot()) {
 			case 8:
 				// teleport to puzzle Kiosk
@@ -1286,7 +1283,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 			event.setCancelled(true);
 		} else
 		// Carnival menu - EXPLORERS
-		if (event.getInventory().getTitle().contains("Explorer's League")) {
+		if (event.getView().getTitle().contains("Explorer's League")) {
 			switch (event.getSlot()) {
 			case 47:
 			case 51:
@@ -1304,7 +1301,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 			event.setCancelled(true);
 		} else
 		// Carnival menu - PARKOURS
-		if (event.getInventory().getTitle().contains("Runic Carnival - Parkours")) {
+		if (event.getView().getTitle().contains("Runic Carnival - Parkours")) {
 			switch (event.getSlot()) {
 			case 17:
 				// teleport to puzzle Kiosk
@@ -1317,7 +1314,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 			event.setCancelled(true);
 		} else
 		// Carnival menu - ARENAS
-		if (event.getInventory().getTitle().contains("Runic Carnival - Arenas")) {
+		if (event.getView().getTitle().contains("Runic Carnival - Arenas")) {
 			switch (event.getSlot()) {
 			case 20:
 				// teleport to paintball entry
@@ -1360,7 +1357,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 			event.setCancelled(true);
 		} else
 		// Carnival menu
-		if (event.getInventory().getTitle().contains("Runic Carnival Menu")) {
+		if (event.getView().getTitle().contains("Runic Carnival Menu")) {
 			switch (event.getSlot()) {
 			case 19:
 				// teleport to info center
@@ -1405,13 +1402,13 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 
 		// handle Slimefun inventory; initial 1.9 allows players to take the
 		// items, so stop them!
-		if (event.getInventory().getTitle().contains("Slimefun") && event.getInventory().getTitle().contains("Guide")) {
+		if (event.getView().getTitle().contains("Slimefun") && event.getView().getTitle().contains("Guide")) {
 
 			event.setCancelled(true);
 		} else
 
 		// handle faith inventory
-		if (event.getInventory().getTitle().contains("Runic") && event.getInventory().getTitle().contains("Faith")) {
+		if (event.getView().getTitle().contains("Runic") && event.getView().getTitle().contains("Faith")) {
 
 			event.setCancelled(true);
 
@@ -1765,6 +1762,16 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 						ede.getEntity().sendMessage(ChatColor.DARK_RED + "MachineMaster Tardip" + ChatColor.GRAY
 								+ ": Machines win every time!!");
 						ede.getEntity().teleport(new Location(Bukkit.getWorld("RunicSky"), 326.007, 55.000, 543.292, 64.890015f, -9.449995f));
+
+						((Player) ede.getEntity()).setGameMode(GameMode.SURVIVAL);
+					} else if ((deathLoc.getX() <= 83 && deathLoc.getX() >= 5)
+							&& (deathLoc.getY() <= 138 && deathLoc.getY() >= 75)
+							&& (deathLoc.getZ() <= 1365 && deathLoc.getZ() >= 1287)) {
+						((Player) ede.getEntity()).setHealth(((Player) ede.getEntity()).getMaxHealth());
+						ede.setCancelled(true);
+						ede.getEntity().sendMessage(ChatColor.DARK_RED + "Foreman IcyPenguin" + ChatColor.GRAY
+								+ ": You fell victim to the mines... but you can retry your escape!");
+						ede.getEntity().teleport(new Location(Bukkit.getWorld("RunicSky"), 73, 85, 1326, -269.94138f, 0.90029997f));
 
 						((Player) ede.getEntity()).setGameMode(GameMode.SURVIVAL);
 					}
@@ -2405,38 +2412,6 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 	@EventHandler(priority = EventPriority.NORMAL)
 	public void onPlayerDeath(PlayerDeathEvent event) {
 		if (event.getEntity() != null) {
-			/*
-			//Execute death XP logic if world is not Sky
-			if (!event.getEntity().getLocation().getWorld().toString().equalsIgnoreCase("RunicSky")) {
-				Player deadPlayer = event.getEntity();
-				double pctExpToReturn = 0.000;
-
-				if (deadPlayer.hasPermission("rp.xpreturn.25")) {
-					pctExpToReturn = .25;
-				} else if (deadPlayer.hasPermission("rp.xpreturn.20")) {
-					pctExpToReturn = .20;
-				} else if (deadPlayer.hasPermission("rp.xpreturn.15")) {
-					pctExpToReturn = .15;
-				} else if (deadPlayer.hasPermission("rp.xpreturn.10")) {
-					pctExpToReturn = .10;
-				} else if (deadPlayer.hasPermission("rp.xpreturn.5")) {
-					pctExpToReturn = .05;
-				}
-
-
-				getLogger().log(Level.INFO, deadPlayer.getName() + " died. Returning xp " + getPlayerExp(deadPlayer) + " * pctToKeep " + pctExpToReturn);
-				float expLost = getPlayerExp(deadPlayer);
-
-				deadPlayer.setLevel(0);
-				deadPlayer.setExp(0);
-
-				deadPlayer.giveExp((int)(expLost * pctExpToReturn));
-				getLogger().log(Level.INFO, deadPlayer.getName() + " new exp after death is " + deadPlayer.getLevel() + " level; " + deadPlayer.getExp() + " exp");
-
-				if (pctExpToReturn > .01) {
-					RunicMessaging.sendMessage(deadPlayer, RunicFormat.AFTERLIFE, "Returning " + 100 * pctExpToReturn + "% of your experience levels to you!");
-				}
-			}*/
 
 			final PlayerDeathEvent innerEvent = event;
 

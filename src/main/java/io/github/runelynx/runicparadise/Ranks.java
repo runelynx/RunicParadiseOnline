@@ -1832,7 +1832,7 @@ class Ranks {
 				"PRISMATIC_CITRINE", RecipeType.MAGIC_WORKBENCH,
 				new ItemStack[] { SlimefunItem.getItem("ANCIENT_RUNE_RAINBOW"),
 						SlimefunItem.getItem("LAVA_INFUSED_EMERALD"), SlimefunItem.getItem("ANCIENT_RUNE_RAINBOW"),
-						null, new ItemStack(Material.DANDELION_YELLOW, 1), null,
+						null, new ItemStack(Material.YELLOW_DYE, 1), null,
 						SlimefunItem.getItem("LAVA_INFUSED_DIAMOND"), SlimefunItem.getItem("ANCIENT_RUNE_RAINBOW"),
 						SlimefunItem.getItem("LAVA_INFUSED_SAPPHIRE") });
 		baronMistyCitrine.register();
