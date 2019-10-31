@@ -167,10 +167,10 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 
 	private void scheduleFaithTasks(BukkitScheduler scheduler) {
 		// Check for spirit of wolf spellcast every 3 minutes
-		scheduler.runTaskTimer(this, () -> {
-			RunicParadise.loadRunicEyes();
-			RunicParadise.loadPrayerBooks();
-		}, 0L, 3600L);
+//		scheduler.runTaskTimer(this, () -> {
+//			RunicParadise.loadRunicEyes();
+//			RunicParadise.loadPrayerBooks();
+//		}, 0L, 3600L);
 
 		scheduler.runTaskTimer(this, () -> {
 			for (Player p : Bukkit.getWorld("RunicKingdom_nether").getPlayers()) {
