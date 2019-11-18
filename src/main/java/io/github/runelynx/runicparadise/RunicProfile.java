@@ -351,11 +351,30 @@ public class RunicProfile {
 	}
 
 	public void setSoulCount(int newSouls) {
+		// Plajer's DeathChest plugin uses this!! Don't change name or parameters.
 		this.soulCount = newSouls;
+
+		MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
+
+		try {
+			Connection connection = MySQL.openConnection();
+
+			PreparedStatement statement = connection.prepareStatement("UPDATE rp_PlayerInfo SET SoulCount =" + newSouls + " WHERE UUID = ?");
+			statement.setString(1, this.getPlayerID().toString());
+			statement.executeUpdate();
+
+			connection.close();
+		} catch (SQLException e) {
+			getLogger().log(Level.SEVERE, "Failed setSoulCount because: " + e.getMessage());
+		}
+		Bukkit.getLogger().log(Level.INFO, "RunicProfile: Updated soul count to " + newSouls + " for player " + this.getPlayerName(false));
+
 	}
 
     public int getSoulCount() {
+		// Plajer's DeathChest plugin uses this!! Don't change name or parameters.
 		return this.soulCount;
+
 	}
 
 	private void setVoteCount(int newVotes) {

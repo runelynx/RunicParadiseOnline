@@ -863,13 +863,13 @@ public class Borderlands {
 	private static void setMonsterEquipment(LivingEntity monster, Mobs mob) {
 		if (mob.hasArmor) {
 			monster.getEquipment().setHelmet(Borderlands.mobArmory(mob.justTextName + "Helm"));
-			monster.getEquipment().setHelmetDropChance(0.075F);
+			monster.getEquipment().setHelmetDropChance(0.025F);
 			monster.getEquipment().setBoots(Borderlands.mobArmory(mob.justTextName + "Boots"));
-			monster.getEquipment().setBootsDropChance(0.0075F);
+			monster.getEquipment().setBootsDropChance(0.0025F);
 			monster.getEquipment().setChestplate(Borderlands.mobArmory(mob.justTextName + "Chest"));
-			monster.getEquipment().setChestplateDropChance(0.075F);
+			monster.getEquipment().setChestplateDropChance(0.025F);
 			monster.getEquipment().setLeggings(Borderlands.mobArmory(mob.justTextName + "Legs"));
-			monster.getEquipment().setLeggingsDropChance(0.075F);
+			monster.getEquipment().setLeggingsDropChance(0.025F);
 		}
 	}
 
@@ -884,7 +884,7 @@ public class Borderlands {
 		setMonsterEquipment(monster, mob);
 		if (mob.hasWeapon) {
 			monster.getEquipment().setItemInMainHand(Borderlands.mobArmory(mob.justTextName + "Weapon"));
-			monster.getEquipment().setItemInMainHandDropChance(0.075F);
+			monster.getEquipment().setItemInMainHandDropChance(0.025F);
 		}
 
 		// Initially only using up to 2 effects on mobs
@@ -904,7 +904,7 @@ public class Borderlands {
 		setMonsterEquipment(monster, mob);
 		if (mob.hasWeapon) {
 			monster.getEquipment().setItemInMainHand(Borderlands.mobArmory(mob.justTextName + "Weapon"));
-			monster.getEquipment().setItemInMainHandDropChance(0.075F);
+			monster.getEquipment().setItemInMainHandDropChance(0.025F);
 		}
 
 		// Initially only using up to 2 effects on mobs
