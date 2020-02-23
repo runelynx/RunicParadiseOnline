@@ -622,8 +622,8 @@ public class Commands implements CommandExecutor {
 
 	private static void wildCommand(CommandSender sender) {
 		((Player) sender).teleport(
-				new Location(Bukkit.getWorld("RunicSky"), -493.195, 64.50, 302.930, 212.86743F, -1.3499908F));
-		sender.sendMessage(ChatColor.YELLOW + "There are portals to different areas of the wilderness here - look for a biome you like and head into the portal.\n"
+				new Location(Bukkit.getWorld("RunicSky"), -308.516, 126.000, -411.427, 271.7571F, 2.6532788F));
+		sender.sendMessage(ChatColor.YELLOW + "There are portals to different areas of the wilderness here - look for glass doorways and enter them to travel.\n"
 				+ ChatColor.DARK_RED + ChatColor.BOLD + "Borderlands" + ChatColor.RESET + ChatColor.YELLOW + " areas have VERY tough monsters!");
 	}
 
@@ -997,10 +997,10 @@ public class Commands implements CommandExecutor {
 				RunicMessaging.sendMessage(p, RunicMessaging.RunicFormat.EMPTY,
 						"Say hello on our forums! " + ChatColor.AQUA + "www.runic-paradise.com");
 
-				RunicParadise.perms.playerAddGroup("", p, "Seeker");
-				RunicParadise.perms.playerRemoveGroup("", p, "Ghost");
-
-
+				Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "lp user " + p.getName() + " parent add Seeker");
+				Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "lp user " + p.getName() + " parent remove Ghost");
+				Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "faith enable " + p.getName() + " Sun");
+				Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "cmi rankset " + p.getName() + " Seeker");
 
 				for (Player a : Bukkit.getOnlinePlayers()) {
 					RunicMessaging.sendMessage(a, RunicMessaging.RunicFormat.EMPTY,
@@ -1009,8 +1009,7 @@ public class Commands implements CommandExecutor {
 									+ ChatColor.GRAY + "!");
 
 				}
-				Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "faith enable " + p.getName() + " Sun");
-				Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "cmi rankset " + p.getName() + " Seeker");
+
 
 				RunicParadise.playerProfiles.get(p.getUniqueId()).setChatColor(ChatColor.GREEN, true);
 				Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "pex reload");
