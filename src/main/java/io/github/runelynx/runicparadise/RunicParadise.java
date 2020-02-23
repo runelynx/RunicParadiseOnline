@@ -17,6 +17,7 @@ import io.github.runelynx.runicuniverse.RunicMessaging.RunicFormat;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.permission.Permission;
 import org.bukkit.*;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -30,6 +31,7 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.PrepareItemCraftEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
@@ -1075,6 +1077,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 	@EventHandler
 	public void onInventoryClick(InventoryClickEvent event) {
 
+
 		// Runic Profile - Main Menu
 		if (event.getView().getTitle().contains("Profile :: Main Menu")) {
 			if (event.getSlot() == 10) {
@@ -1355,9 +1358,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 
 			}
 			event.setCancelled(true);
-		} else
-		// Carnival menu
-		if (event.getView().getTitle().contains("Runic Carnival Menu")) {
+		} else if (event.getView().getTitle().contains("Runic Carnival Menu")) {
 			switch (event.getSlot()) {
 			case 19:
 				// teleport to info center
@@ -1558,6 +1559,8 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 		updatePlayerInfoOnJoin(pje.getPlayer().getName(), pje.getPlayer().getUniqueId());
 
 		ranks.convertRanks(pje.getPlayer());
+
+		updatePlayerCMIRank(pje.getPlayer());
 
 		faithMap.put(pje.getPlayer().getUniqueId(), new Faith(pje.getPlayer().getUniqueId()));
 
@@ -3027,6 +3030,11 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 		 */
 		p.openInventory(skynetMenu);
 
+	}
+
+	private void updatePlayerCMIRank(Player p) {
+		String primaryGroup = perms.getPrimaryGroup(p);
+		Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "cmi rankset " +p.getName() + " " + primaryGroup);
 	}
 
 	static ItemStack createHead(String name, String data) {

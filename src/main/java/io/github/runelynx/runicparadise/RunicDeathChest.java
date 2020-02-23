@@ -952,7 +952,7 @@ public class RunicDeathChest implements Serializable {
 
 			loc.getBlock().setType(Material.BEDROCK);
 			Block b = loc.add(0, 1, 0).getBlock();
-			b.setType(Material.SPRUCE_SIGN);
+			//b.setType(Material.SPRUCE_SIGN);
 			BlockState state = b.getState();
 			Sign sign = (Sign) state;
 

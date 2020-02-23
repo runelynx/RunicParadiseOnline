@@ -652,7 +652,7 @@ public class Faith {
 		}
 
 		if (this.primaryFaithName != null) {
-			resetFaithSlimefunPermissions(nUUID, this.primaryFaithName);
+			//resetFaithSlimefunPermissions(nUUID, this.primaryFaithName);
 		}
 
 	}

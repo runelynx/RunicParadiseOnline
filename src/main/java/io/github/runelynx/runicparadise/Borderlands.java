@@ -2,7 +2,6 @@ package io.github.runelynx.runicparadise;
 
 import io.github.runelynx.runicuniverse.RunicMessaging;
 import io.github.runelynx.runicuniverse.RunicMessaging.RunicFormat;
-import io.netty.channel.local.LocalEventLoopGroup;
 import org.bukkit.*;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.*;
@@ -22,7 +21,6 @@ import java.util.ArrayList;
 import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.logging.Level;
 
 public class Borderlands {
     public static boolean initializeBorderlands() {
@@ -119,16 +117,16 @@ public class Borderlands {
 
 			switch (t) {
 			case 1:
-				this.customName = ChatColor.GOLD + "☠ " + name;
+				this.customName = ChatColor.GOLD + name;
 				break;
 			case 2:
-				this.customName = ChatColor.RED + "☠ " + name;
+				this.customName = ChatColor.RED + name;
 				break;
 			case 3:
-				this.customName = ChatColor.DARK_RED + "☠ " + name;
+				this.customName = ChatColor.DARK_RED + name;
 				break;
 			case 4:
-				this.customName = ChatColor.DARK_PURPLE + "☠ " + name;
+				this.customName = ChatColor.DARK_PURPLE + name;
 				break;
 			default:
 				break;
@@ -214,36 +212,32 @@ public class Borderlands {
 		String playerCurrentRank = RunicParadise.perms.getPrimaryGroup(p);
 
 		double percentChanceForSpecialRankDrop = 0;
-		//Bukkit.getLogger().log(Level.INFO, p.getDisplayName() + " adjustRewardsforBLMobs. " + playerCurrentRank);
 
 		// Check if player qualifies to get special rank drops
-		if (playerCurrentRank.equalsIgnoreCase("Master") || playerCurrentRank.equalsIgnoreCase("Duke") || playerCurrentRank.equalsIgnoreCase("Baron")
-				|| playerCurrentRank.equalsIgnoreCase("Count")) {
-
+		if (playerCurrentRank.equals("Master") || playerCurrentRank.equals("Duke") || playerCurrentRank.equals("Baron")
+				|| playerCurrentRank.equals("Count")) {
 
 			// Check how many special rank drops the player has already received
 			if (RunicParadise.playerProfiles.get(p.getUniqueId()).rankDropCountLast24Hours >= 10
 					&& !RunicParadise.playerProfiles.get(p.getUniqueId()).isFarming) {
-				percentChanceForSpecialRankDrop = .05;
+				percentChanceForSpecialRankDrop = .02;
 			} else if (RunicParadise.playerProfiles.get(p.getUniqueId()).rankDropCountLast24Hours >= 5
 					&& !RunicParadise.playerProfiles.get(p.getUniqueId()).isFarming) {
-				percentChanceForSpecialRankDrop = .09;
+				percentChanceForSpecialRankDrop = .04;
 			} else if (RunicParadise.playerProfiles.get(p.getUniqueId()).rankDropCountLast24Hours >= 4
 					&& !RunicParadise.playerProfiles.get(p.getUniqueId()).isFarming) {
-				percentChanceForSpecialRankDrop = .17;
+				percentChanceForSpecialRankDrop = .13;
 			} else if (RunicParadise.playerProfiles.get(p.getUniqueId()).rankDropCountLast24Hours >= 3
 					&& !RunicParadise.playerProfiles.get(p.getUniqueId()).isFarming) {
-				percentChanceForSpecialRankDrop = .25;
+				percentChanceForSpecialRankDrop = .21;
 			} else if (RunicParadise.playerProfiles.get(p.getUniqueId()).rankDropCountLast24Hours >= 2
 					&& !RunicParadise.playerProfiles.get(p.getUniqueId()).isFarming) {
-				percentChanceForSpecialRankDrop = .33;
+				percentChanceForSpecialRankDrop = .29;
 			} else if (RunicParadise.playerProfiles.get(p.getUniqueId()).rankDropCountLast24Hours <= 1
 					&& !RunicParadise.playerProfiles.get(p.getUniqueId()).isFarming) {
-				percentChanceForSpecialRankDrop = .41;
+				percentChanceForSpecialRankDrop = .37;
 			}  // player is farming
 
-			Bukkit.getLogger().log(Level.INFO, p.getDisplayName() + " adjustRewardsforBLMobs. Valid rank found! " + playerCurrentRank + ". Drop chance " + percentChanceForSpecialRankDrop + "Random Number " + value + ". Farming " +
-					RunicParadise.playerProfiles.get(p.getUniqueId()).isFarming);
 
 		}
 
@@ -251,7 +245,7 @@ public class Borderlands {
 		if (event.getEntity().getCustomName() != null
 				&& event.getEntity().getCustomName().contains("Fallen Knight Zombie")) {
 
-			if (playerCurrentRank.equalsIgnoreCase("Master")) {
+			if (playerCurrentRank.equals("Master")) {
 				if (value >= 100 && value <= (100 + (1000 * percentChanceForSpecialRankDrop))) {
 					p.getLocation().getWorld().dropItemNaturally(p.getLocation(),
 							specialLootDrops("DukeGem", p.getUniqueId()));
@@ -267,7 +261,7 @@ public class Borderlands {
 		} else if (event.getEntity().getCustomName() != null
 				&& event.getEntity().getCustomName().contains("Marauder Zombie")) {
 
-			if (playerCurrentRank.equalsIgnoreCase("Master")) {
+			if (playerCurrentRank.equals("Master")) {
 				if (value >= 100 && value <= (100 + (1000 * percentChanceForSpecialRankDrop))) {
 					p.getLocation().getWorld().dropItemNaturally(p.getLocation(),
 							specialLootDrops("DukeGem", p.getUniqueId()));
@@ -281,7 +275,7 @@ public class Borderlands {
 		} else if (event.getEntity().getCustomName() != null
 				&& event.getEntity().getCustomName().contains("Goliath Zombie")) {
 
-			if (playerCurrentRank.equalsIgnoreCase("Master")) {
+			if (playerCurrentRank.equals("Master")) {
 				if (value >= 100 && value <= (100 + (1000 * (percentChanceForSpecialRankDrop * 2)))) {
 					p.getLocation().getWorld().dropItemNaturally(p.getLocation(),
 							specialLootDrops("DukeGem", p.getUniqueId()));
@@ -295,7 +289,7 @@ public class Borderlands {
 		} else if (event.getEntity().getCustomName() != null
 				&& event.getEntity().getCustomName().contains("Zombie Shaman")) {
 
-			if (playerCurrentRank.equalsIgnoreCase("Master")) {
+			if (playerCurrentRank.equals("Master")) {
 				if (value >= 100 && value <= (100 + (1000 * percentChanceForSpecialRankDrop))) {
 					p.getLocation().getWorld().dropItemNaturally(p.getLocation(),
 							specialLootDrops("DukeGem", p.getUniqueId()));
@@ -331,18 +325,13 @@ public class Borderlands {
 
 			event.setDroppedExp((int) (event.getDroppedExp() * Mobs.CREEPER_CRAZED.expModifier));
 			isBL = true;
-		} else if (event.getEntity().getType().toString().equalsIgnoreCase("phantom")) {
-
-			//event.setDroppedExp((int) (event.getDroppedExp() * Mobs.CREEPER_CRAZED.expModifier));
-			event.getEntity().getLocation().getWorld().dropItemNaturally(event.getEntity().getLocation(), new ItemStack(Material.SPECTRAL_ARROW, 2));
-			isBL = true;
 		}
 
 		if (value >= 500 && value <= 530 && isBL) { // 5.0% chance (50 out of
 													// 1000)
-			Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "crate give to " + p.getName() + " FoodPack 1");
+			Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "crate givekey " + p.getName() + " SlimefunCrate 1");
 			RunicMessaging.sendMessage(p, RunicFormat.BORDERLANDS,
-					"You found a pack left behind by the " + event.getEntity().getCustomName());
+					"You found a key left behind by the " + event.getEntity().getCustomName());
 		}
 
 	}
@@ -352,29 +341,25 @@ public class Borderlands {
 			event.setCancelled(true);
 
 			Location start = event.getProjectile().getLocation();
-
-			double speed = 2.0;
-			Arrow arrow = (Arrow) start.getWorld().spawnEntity(start, EntityType.ARROW);
-			arrow.addCustomEffect(new PotionEffect(PotionEffectType.POISON, 100, 0), true);
 			Vector direction = event.getProjectile().getVelocity();
+			float speed = 2.0f;
 
+			Arrow arrow = event.getEntity().getLocation().getWorld().spawnArrow(start, direction, speed, 1);
 			arrow.setShooter(event.getEntity());
-			arrow.setVelocity(direction);
+			arrow.addCustomEffect(new PotionEffect(PotionEffectType.POISON, 100, 0), true);
+
 
 		} else if (event.getEntity().getCustomName() != null
 				&& event.getEntity().getCustomName().contains("Shade Skeleton")) {
-
 			event.setCancelled(true);
 
 			Location start = event.getProjectile().getLocation();
-
-			double speed = 2.0;
-			Arrow arrow = (Arrow) start.getWorld().spawnEntity(start, EntityType.ARROW);
-			arrow.addCustomEffect(new PotionEffect(PotionEffectType.BLINDNESS, 60, 1), true);
 			Vector direction = event.getProjectile().getVelocity();
+			float speed = 2.0f;
 
+			Arrow arrow = event.getEntity().getLocation().getWorld().spawnArrow(start, direction, speed, 1);
 			arrow.setShooter(event.getEntity());
-			arrow.setVelocity(direction);
+			arrow.addCustomEffect(new PotionEffect(PotionEffectType.BLINDNESS, 60, 1), true);
 
 		} else if (event.getEntity().getCustomName() != null
 				&& event.getEntity().getCustomName().contains("Drunken Skeleton")) {
@@ -382,14 +367,12 @@ public class Borderlands {
 			event.setCancelled(true);
 
 			Location start = event.getProjectile().getLocation();
-
-			double speed = 2.0;
-			Arrow arrow = (Arrow) start.getWorld().spawnEntity(start, EntityType.ARROW);
-			arrow.addCustomEffect(new PotionEffect(PotionEffectType.CONFUSION, 140, 1), true);
 			Vector direction = event.getProjectile().getVelocity();
+			float speed = 2.0f;
 
+			Arrow arrow = event.getEntity().getLocation().getWorld().spawnArrow(start, direction, speed, 1);
 			arrow.setShooter(event.getEntity());
-			arrow.setVelocity(direction);
+			arrow.addCustomEffect(new PotionEffect(PotionEffectType.CONFUSION, 140, 1), true);
 
 		} else if (event.getEntity().getCustomName() != null
 				&& event.getEntity().getCustomName().contains("Granite Skeleton")) {
@@ -397,14 +380,12 @@ public class Borderlands {
 			event.setCancelled(true);
 
 			Location start = event.getProjectile().getLocation();
-
-			double speed = 2.0;
-			Arrow arrow = (Arrow) start.getWorld().spawnEntity(start, EntityType.ARROW);
-			arrow.addCustomEffect(new PotionEffect(PotionEffectType.SLOW_DIGGING, 80, 1), true);
 			Vector direction = event.getProjectile().getVelocity();
+			float speed = 2.0f;
 
+			Arrow arrow = event.getEntity().getLocation().getWorld().spawnArrow(start, direction, speed, 1);
 			arrow.setShooter(event.getEntity());
-			arrow.setVelocity(direction);
+			arrow.addCustomEffect(new PotionEffect(PotionEffectType.SLOW_DIGGING, 80, 1), true);
 
 		}
 
@@ -879,7 +860,6 @@ public class Borderlands {
 		monster.setCustomNameVisible(true);
 		monster.setRemoveWhenFarAway(true);
 		monster.setBaby(false);
-
 
 		setMonsterEquipment(monster, mob);
 		if (mob.hasWeapon) {
