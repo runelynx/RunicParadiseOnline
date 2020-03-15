@@ -214,8 +214,8 @@ public class Borderlands {
 		double percentChanceForSpecialRankDrop = 0;
 
 		// Check if player qualifies to get special rank drops
-		if (playerCurrentRank.equals("Master") || playerCurrentRank.equals("Duke") || playerCurrentRank.equals("Baron")
-				|| playerCurrentRank.equals("Count")) {
+		if (playerCurrentRank.equalsIgnoreCase("Master") || playerCurrentRank.equalsIgnoreCase("Duke") || playerCurrentRank.equalsIgnoreCase("Baron")
+				|| playerCurrentRank.equalsIgnoreCase("Count")) {
 
 			// Check how many special rank drops the player has already received
 			if (RunicParadise.playerProfiles.get(p.getUniqueId()).rankDropCountLast24Hours >= 10
@@ -245,7 +245,7 @@ public class Borderlands {
 		if (event.getEntity().getCustomName() != null
 				&& event.getEntity().getCustomName().contains("Fallen Knight Zombie")) {
 
-			if (playerCurrentRank.equals("Master")) {
+			if (playerCurrentRank.equalsIgnoreCase("Master")) {
 				if (value >= 100 && value <= (100 + (1000 * percentChanceForSpecialRankDrop))) {
 					p.getLocation().getWorld().dropItemNaturally(p.getLocation(),
 							specialLootDrops("DukeGem", p.getUniqueId()));
@@ -261,7 +261,7 @@ public class Borderlands {
 		} else if (event.getEntity().getCustomName() != null
 				&& event.getEntity().getCustomName().contains("Marauder Zombie")) {
 
-			if (playerCurrentRank.equals("Master")) {
+			if (playerCurrentRank.equalsIgnoreCase("Master")) {
 				if (value >= 100 && value <= (100 + (1000 * percentChanceForSpecialRankDrop))) {
 					p.getLocation().getWorld().dropItemNaturally(p.getLocation(),
 							specialLootDrops("DukeGem", p.getUniqueId()));
@@ -275,7 +275,7 @@ public class Borderlands {
 		} else if (event.getEntity().getCustomName() != null
 				&& event.getEntity().getCustomName().contains("Goliath Zombie")) {
 
-			if (playerCurrentRank.equals("Master")) {
+			if (playerCurrentRank.equalsIgnoreCase("Master")) {
 				if (value >= 100 && value <= (100 + (1000 * (percentChanceForSpecialRankDrop * 2)))) {
 					p.getLocation().getWorld().dropItemNaturally(p.getLocation(),
 							specialLootDrops("DukeGem", p.getUniqueId()));
@@ -289,7 +289,7 @@ public class Borderlands {
 		} else if (event.getEntity().getCustomName() != null
 				&& event.getEntity().getCustomName().contains("Zombie Shaman")) {
 
-			if (playerCurrentRank.equals("Master")) {
+			if (playerCurrentRank.equalsIgnoreCase("Master")) {
 				if (value >= 100 && value <= (100 + (1000 * percentChanceForSpecialRankDrop))) {
 					p.getLocation().getWorld().dropItemNaturally(p.getLocation(),
 							specialLootDrops("DukeGem", p.getUniqueId()));
@@ -329,7 +329,7 @@ public class Borderlands {
 
 		if (value >= 500 && value <= 530 && isBL) { // 5.0% chance (50 out of
 													// 1000)
-			Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "crate givekey " + p.getName() + " SlimefunCrate 1");
+			Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "crate give to " + p.getName() + " SlimefunCrate 1");
 			RunicMessaging.sendMessage(p, RunicFormat.BORDERLANDS,
 					"You found a key left behind by the " + event.getEntity().getCustomName());
 		}

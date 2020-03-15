@@ -1907,9 +1907,14 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 
 			} else {
 				// end run()
+
+				if (RunicParadise.playerProfiles.get(monsterEnt.getKiller().getUniqueId()) == null) {
+					Bukkit.getLogger().log(Level.SEVERE, monsterEnt.getKiller().getDisplayName() + " is not in the playerProfiles array! :(");
+				}
+
 				Bukkit.getServer().getScheduler().runTaskAsynchronously(instance, () -> {
-					RunicParadise.playerProfiles.get(monsterEnt.getKiller().getUniqueId())
-							.trackMobKill(ede);
+							RunicParadise.playerProfiles.get(monsterEnt.getKiller().getUniqueId())
+									.trackMobKill(ede);
 
 					String mobType = "";
 					boolean attemptPowersSkillUp = false;
@@ -3167,7 +3172,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 
 	public void registerSlimefunItems() {
 
-		NamespacedKey categoryId = new NamespacedKey(RunicParadise.getInstance(), "&4Runic Specialties");
+		NamespacedKey categoryId = new NamespacedKey(RunicParadise.getInstance(), "RunicSpecialties");
 		me.mrCookieSlime.Slimefun.cscorelib2.item.CustomItem categoryItem =
 				new me.mrCookieSlime.Slimefun.cscorelib2.item.CustomItem(
 						Material.ANVIL, "&4Runic Specialties", "", "&a> Click to open");
