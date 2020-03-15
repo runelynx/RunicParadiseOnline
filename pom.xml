@@ -72,16 +72,16 @@
 		<dependency>
 			<groupId>me.mrCookieSlime</groupId>
 			<artifactId>Slimefun</artifactId>
-			<version>DEV - 65 (git 81dc3e4a)</version>
+			<version>DEV - 460 (git 910cb939)</version>
 			<scope>system</scope>
-			<systemPath>${project.basedir}/src/main/resources/Slimefun4-65.jar</systemPath>
+			<systemPath>${project.basedir}/src/main/resources/Slimefun4 - DEV 460 (git 910cb).jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>me.mrCookieSlime</groupId>
-			<artifactId>CSCoreLibPlugin</artifactId>
-			<version>DEV - 29 (git 84518e3c)</version>
+			<artifactId>CS-CoreLib</artifactId>
+			<version>DEV - 83 (git 8081bb4f)</version>
 			<scope>system</scope>
-			<systemPath>${project.basedir}/src/main/resources/CS-CoreLib-29.jar</systemPath>
+			<systemPath>${project.basedir}/src/main/resources/CS-CoreLib - DEV 83 (git 8081b).jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>com.github.koca2000</groupId>

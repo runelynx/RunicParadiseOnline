@@ -14,10 +14,15 @@ import com.sk89q.worldguard.protection.regions.RegionQuery;
 import io.github.runelynx.runicparadise.faith.FaithCore;
 import io.github.runelynx.runicuniverse.RunicMessaging;
 import io.github.runelynx.runicuniverse.RunicMessaging.RunicFormat;
+import io.github.thebusybiscuit.slimefun4.api.SlimefunAddon;
+import me.mrCookieSlime.Slimefun.Lists.RecipeType;
+import me.mrCookieSlime.Slimefun.Lists.SlimefunItems;
+import me.mrCookieSlime.Slimefun.Objects.Category;
+import me.mrCookieSlime.Slimefun.Objects.SlimefunItem.SlimefunItem;
+import me.mrCookieSlime.Slimefun.api.SlimefunItemStack;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.permission.Permission;
 import org.bukkit.*;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -31,7 +36,6 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.PrepareItemCraftEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
@@ -56,7 +60,7 @@ import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public final class RunicParadise extends JavaPlugin implements Listener, PluginMessageListener {
+public final class RunicParadise extends JavaPlugin implements Listener, PluginMessageListener, SlimefunAddon {
 
 	public static FaithCore faithSystem;
 	private static Plugin instance;
@@ -96,6 +100,23 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 	}
 
 	@Override
+	public JavaPlugin getJavaPlugin() {
+		// This is a method that links your SlimefunAddon to your Plugin.
+		// Just return "this" in this case, so they are linked
+		return this;
+	}
+
+	@Override
+	public String getBugTrackerURL() {
+		// Here you can return a link to your Bug Tracker.
+		// This link will be displayed to Server Owners if there is an issue
+		// with this Addon. Return null if you have no bug tracker.
+		// Normally you can just use GitHub's Issues tab:
+		// https://github.com/YOURNAME/YOURPROJECT/issues
+		return "https://github.com/runelynx/RunicParadiseOnline/issues";
+	}
+
+	@Override
 	public void onPluginMessageReceived(String channel, Player player, byte[] message) {
 		if (!channel.equals("BungeeCord")) {
 			return;
@@ -112,7 +133,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 		RunicMessaging.initializeAnnouncements(instance);
 
 
-		Ranks.registerSlimefunItems();
+		registerSlimefunItems();
 
 
 		if (setupPermissions()) {
@@ -3144,5 +3165,138 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 
 	}
 
+	public void registerSlimefunItems() {
+
+		NamespacedKey categoryId = new NamespacedKey(RunicParadise.getInstance(), "&4Runic Specialties");
+		me.mrCookieSlime.Slimefun.cscorelib2.item.CustomItem categoryItem =
+				new me.mrCookieSlime.Slimefun.cscorelib2.item.CustomItem(
+						Material.ANVIL, "&4Runic Specialties", "", "&a> Click to open");
+
+		Category category = new Category(categoryId, categoryItem);
+
+		category.register();
+
+		SlimefunItem baronDiamondPart = new SlimefunItem(
+				category,
+				new SlimefunItemStack("MIST_INFUSED_DIAMOND", Material.DIAMOND, "&eMist-Infused Diamond"),
+				RecipeType.ANCIENT_ALTAR,
+				new ItemStack[] {
+						SlimefunItems.RUNE_WATER,    SlimefunItems.SYNTHETIC_DIAMOND,    SlimefunItems.RUNE_AIR,
+						SlimefunItems.SILVER_DUST,          new ItemStack(Material.LIGHT_BLUE_DYE, 1),    SlimefunItems.SILVER_DUST,
+						SlimefunItems.RUNE_AIR,    SlimefunItems.SYNTHETIC_DIAMOND,        SlimefunItems.RUNE_WATER
+				});
+		baronDiamondPart.register(this);
+
+		SlimefunItem baronDiamond2Part = new SlimefunItem(
+				category,
+				new SlimefunItemStack("LAVA_INFUSED_DIAMOND", Material.DIAMOND, "&eLava-Infused Diamond"),
+				RecipeType.ANCIENT_ALTAR,
+				new ItemStack[] {
+						SlimefunItems.RUNE_FIRE,    SlimefunItems.SYNTHETIC_DIAMOND,    SlimefunItems.RUNE_EARTH,
+						SlimefunItems.SILVER_DUST,          new ItemStack(Material.ORANGE_DYE, 1),    SlimefunItems.SILVER_DUST,
+						SlimefunItems.RUNE_EARTH,    SlimefunItems.SYNTHETIC_DIAMOND,        SlimefunItems.RUNE_FIRE
+				});
+		baronDiamond2Part.register(this);
+
+		SlimefunItem baronEmeraldPart = new SlimefunItem(
+				category,
+				new SlimefunItemStack("MIST_INFUSED_EMERALD", Material.EMERALD, "&eMist-Infused Emerald"),
+				RecipeType.ANCIENT_ALTAR,
+				new ItemStack[] {
+						SlimefunItems.RUNE_WATER,    SlimefunItems.SYNTHETIC_EMERALD,    SlimefunItems.RUNE_AIR,
+						SlimefunItems.ZINC_DUST,          new ItemStack(Material.LIGHT_BLUE_DYE, 1),    SlimefunItems.ZINC_DUST,
+						SlimefunItems.RUNE_AIR,    SlimefunItems.SYNTHETIC_EMERALD,        SlimefunItems.RUNE_WATER
+				});
+		baronEmeraldPart.register(this);
+
+		SlimefunItem baronEmerald2Part = new SlimefunItem(
+				category,
+				new SlimefunItemStack("LAVA_INFUSED_EMERALD", Material.EMERALD, "&eLava-Infused Emerald"),
+				RecipeType.ANCIENT_ALTAR,
+				new ItemStack[] {
+						SlimefunItems.RUNE_FIRE,    SlimefunItems.SYNTHETIC_EMERALD,    SlimefunItems.RUNE_EARTH,
+						SlimefunItems.ZINC_DUST,          new ItemStack(Material.ORANGE_DYE, 1),    SlimefunItems.ZINC_DUST,
+						SlimefunItems.RUNE_EARTH,    SlimefunItems.SYNTHETIC_EMERALD,        SlimefunItems.RUNE_FIRE
+				});
+		baronEmerald2Part.register(this);
+
+		SlimefunItem baronSapphirePart = new SlimefunItem(
+				category,
+				new SlimefunItemStack("MIST_INFUSED_SAPPHIRE", Material.LIGHT_BLUE_DYE, "&eMist-Infused Sapphire"),
+				RecipeType.ANCIENT_ALTAR,
+				new ItemStack[] {
+						SlimefunItems.RUNE_WATER,    SlimefunItems.SYNTHETIC_SAPPHIRE,    SlimefunItems.RUNE_AIR,
+						SlimefunItems.ALUMINUM_DUST,          new ItemStack(Material.LIGHT_BLUE_DYE, 1),    SlimefunItems.ALUMINUM_DUST,
+						SlimefunItems.RUNE_AIR,    SlimefunItems.SYNTHETIC_SAPPHIRE,        SlimefunItems.RUNE_WATER
+				});
+		baronSapphirePart.register(this);
+
+		SlimefunItem baronSapphire2Part = new SlimefunItem(
+				category,
+				new SlimefunItemStack("LAVA_INFUSED_SAPPHIRE", Material.LAPIS_LAZULI, "&eLava-Infused Sapphire"),
+				RecipeType.ANCIENT_ALTAR,
+				new ItemStack[] {
+						SlimefunItems.RUNE_FIRE,    SlimefunItems.SYNTHETIC_SAPPHIRE,    SlimefunItems.RUNE_EARTH,
+						SlimefunItems.ALUMINUM_DUST,          new ItemStack(Material.ORANGE_DYE, 1),    SlimefunItems.ALUMINUM_DUST,
+						SlimefunItems.RUNE_EARTH,    SlimefunItems.SYNTHETIC_SAPPHIRE,        SlimefunItems.RUNE_FIRE
+				});
+		baronSapphire2Part.register(this);
+
+		SlimefunItem baronMistyTopaz = new SlimefunItem(
+				category,
+				new SlimefunItemStack("PRISMATIC_TOPAZ", Material.LIGHT_BLUE_DYE, "&ePrismatic Topaz"),
+				RecipeType.MAGIC_WORKBENCH,
+				new ItemStack[] {
+						SlimefunItems.RUNE_RAINBOW,    SlimefunItem.getItem("MIST_INFUSED_EMERALD"),    SlimefunItems.RUNE_RAINBOW,
+						null,          new ItemStack(Material.LIGHT_BLUE_DYE, 1),   null,
+						SlimefunItem.getItem("MIST_INFUSED_DIAMOND"),    SlimefunItems.RUNE_RAINBOW,   SlimefunItem.getItem("MIST_INFUSED_SAPPHIRE")
+				});
+		baronMistyTopaz.register(this);
+
+		SlimefunItem baronMistyCitrine = new SlimefunItem(
+				category,
+				new SlimefunItemStack("PRISMATIC_CITRINE", Material.ORANGE_DYE, "&ePrismatic Citrine"),
+				RecipeType.MAGIC_WORKBENCH,
+				new ItemStack[] {
+						SlimefunItems.RUNE_RAINBOW,    SlimefunItem.getItem("LAVA_INFUSED_EMERALD"),    SlimefunItems.RUNE_RAINBOW,
+						null,          new ItemStack(Material.YELLOW_DYE, 1),   null,
+						SlimefunItem.getItem("LAVA_INFUSED_DIAMOND"),    SlimefunItems.RUNE_RAINBOW,   SlimefunItem.getItem("LAVA_INFUSED_SAPPHIRE")
+				});
+		baronMistyCitrine.register(this);
+
+		SlimefunItem baronJewel = new SlimefunItem(
+				category,
+				new SlimefunItemStack("BARON_JEWEL", Borderlands.specialLootDrops("BaronGem", null)),
+				RecipeType.MAGIC_WORKBENCH,
+				new ItemStack[] {
+						new ItemStack(Material.NETHER_STAR),   SlimefunItem.getItem("PRISMATIC_CITRINE"),    new ItemStack(Material.NETHER_STAR),
+						SlimefunItems.RUNE_ENDER,          new ItemStack(Material.LIGHT_BLUE_DYE, 1),   SlimefunItems.RUNE_ENDER,
+						new ItemStack(Material.NETHER_STAR),   SlimefunItem.getItem("PRISMATIC_TOPAZ"),   new ItemStack(Material.NETHER_STAR)
+				});
+		baronJewel.register(this);
+
+		SlimefunItem baronIngot1 = new SlimefunItem(
+				category,
+				new SlimefunItemStack("EMPOWERED_SILVER_INGOT", Borderlands.specialLootDrops("BaronIngot1", null)),
+				RecipeType.SMELTERY,
+				new ItemStack[] {
+						Borderlands.specialLootDrops("BaronMetal", null), Borderlands.specialLootDrops("BaronMetal", null),   Borderlands.specialLootDrops("BaronMetal", null),
+						SlimefunItems.NETHER_ICE,   SlimefunItems.NETHER_ICE,   SlimefunItems.NETHER_ICE,
+						Borderlands.specialLootDrops("BaronMetal", null), Borderlands.specialLootDrops("BaronMetal", null),   Borderlands.specialLootDrops("BaronMetal", null)
+				});
+		baronIngot1.register(this);
+
+		SlimefunItem baronIngot2 = new SlimefunItem(
+				category,
+				new SlimefunItemStack("CARVED_SILVER_INGOT", Borderlands.specialLootDrops("BaronIngot2", null)),
+				RecipeType.SMELTERY,
+				new ItemStack[] {
+						SlimefunItem.getItem("BLISTERING_INGOT_2"), null, SlimefunItem.getItem("BLISTERING_INGOT_2"),
+						SlimefunItem.getItem("ENRICHED_NETHER_ICE"),SlimefunItem.getItem("ENRICHED_NETHER_ICE"), SlimefunItem.getItem("ENRICHED_NETHER_ICE"),
+						SlimefunItem.getItem("BLISTERING_INGOT_2"), null, SlimefunItem.getItem("BLISTERING_INGOT_2")
+				});
+		baronIngot2.register(this);
+
+	}
 
 }
