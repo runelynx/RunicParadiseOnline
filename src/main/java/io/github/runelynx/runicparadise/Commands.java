@@ -1488,7 +1488,7 @@ public class Commands implements CommandExecutor {
 
 	private boolean rpJobsCommandMastery (Player p, String jobName){
 
-		if(p.hasPermission("rp.jobs.max." + jobName) && !p.hasPermission("rp.jobs.mastery." + jobName)){
+		if(p.hasPermission("rp_jobs_max_" + jobName) && !p.hasPermission("rp.jobs.mastery." + jobName)){
 			RunicMessaging.sendMessage(p, RunicFormat.SYSTEM, "Congrats! You've mastered the "+ jobName +" job!");
 			RunicParadise.perms.playerAdd("", p, "rp.jobs.mastery." + jobName);
 
