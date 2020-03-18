@@ -1,6 +1,8 @@
 package io.github.runelynx.runicparadise;
 
 import com.connorlinfoot.titleapi.TitleAPI;
+import com.gamingmesh.jobs.Jobs;
+import com.gamingmesh.jobs.container.JobProgression;
 import com.xxmicloxx.NoteBlockAPI.NBSDecoder;
 import com.xxmicloxx.NoteBlockAPI.RadioSongPlayer;
 import com.xxmicloxx.NoteBlockAPI.Song;
@@ -1488,9 +1490,21 @@ public class Commands implements CommandExecutor {
 
 	private boolean rpJobsCommandMastery (Player p, String jobName){
 
-		if(p.hasPermission("rp_jobs_max_" + jobName) && !p.hasPermission("rp.jobs.mastery." + jobName)){
+    	int jobLevel = -1;
+
+		List<JobProgression> jobs = Jobs.getPlayerManager().getJobsPlayer(p).getJobProgression();
+		for (JobProgression oneJob : jobs) {
+			if (oneJob.getJob().getName().equalsIgnoreCase(jobName)) {
+				jobLevel = oneJob.getLevel();
+				Bukkit.getLogger().log(Level.INFO, "Mastery attempt from " + p.getName() +
+						": Attempting " + jobName + ", found L" + jobLevel + " " + oneJob.getJob().getName());
+			}
+		}
+
+		if(jobLevel == 30 && !p.hasPermission("rp.jobs.mastery." + jobName)){
 			RunicMessaging.sendMessage(p, RunicFormat.SYSTEM, "Congrats! You've mastered the "+ jobName +" job!");
-			RunicParadise.perms.playerAdd("", p, "rp.jobs.mastery." + jobName);
+			Bukkit.getLogger().log(Level.INFO, "Dispatching hardcoded command: lp user " + p.getName() + " permission set rp.jobs.mastery." + jobName);
+			Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "lp user " + p.getName() + " permission set rp.jobs.mastery." + jobName);
 
 			RunicParadise.playerProfiles.get(p.getUniqueId()).setJobMasteryCount(RunicParadise.playerProfiles.get(p.getUniqueId()).getJobMasteryCount()+1);
 
@@ -1500,8 +1514,10 @@ public class Commands implements CommandExecutor {
 				RunicParadise.playerProfiles.get(p.getUniqueId()).setJobMasteryString(RunicParadise.playerProfiles.get(p.getUniqueId()).getJobMasteryString() + ", " + jobName);
 			}
 
-		} else if (p.hasPermission("rp.jobs.max." + jobName)) {
+		} else if (jobLevel == 30) {
 			RunicMessaging.sendMessage(p, RunicFormat.ERROR, "Oops! You already mastered the "+ jobName +" job.");
+		} else if (jobLevel == -1) {
+			RunicMessaging.sendMessage(p, RunicFormat.ERROR, "Please leave your current job, join the "+ jobName +" job, and try again.");
 		} else {
 			RunicMessaging.sendMessage(p, RunicFormat.ERROR, "You need to be job level 30 and have the "+ jobName +" job active to master it.");
 		}

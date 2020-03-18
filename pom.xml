@@ -77,6 +77,13 @@
 			<systemPath>${project.basedir}/src/main/resources/Slimefun4 - DEV 460 (git 910cb).jar</systemPath>
 		</dependency>
 		<dependency>
+			<groupId>com.gamingmesh.jobs</groupId>
+			<artifactId>Jobs</artifactId>
+			<version>4.15.5</version>
+			<scope>system</scope>
+			<systemPath>${project.basedir}/src/main/resources/Jobs4.15.5.jar</systemPath>
+		</dependency>
+		<dependency>
 			<groupId>me.mrCookieSlime</groupId>
 			<artifactId>CS-CoreLib</artifactId>
 			<version>DEV - 83 (git 8081bb4f)</version>
