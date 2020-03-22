@@ -10,7 +10,9 @@ import com.xxmicloxx.NoteBlockAPI.SongPlayer;
 import io.github.runelynx.runicparadise.faith.FaithCore;
 import io.github.runelynx.runicuniverse.RunicMessaging;
 import io.github.runelynx.runicuniverse.RunicMessaging.RunicFormat;
+import net.minecraft.server.v1_15_R1.AdvancementFrameType;
 import org.bukkit.*;
+import org.bukkit.advancement.Advancement;
 import org.bukkit.block.Block;
 import org.bukkit.command.*;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -1514,6 +1516,8 @@ public class Commands implements CommandExecutor {
 				RunicParadise.playerProfiles.get(p.getUniqueId()).setJobMasteryString(RunicParadise.playerProfiles.get(p.getUniqueId()).getJobMasteryString() + ", " + jobName);
 			}
 
+			rpJobsCommandQualify(p, true);
+
 		} else if (jobLevel == 30) {
 			RunicMessaging.sendMessage(p, RunicFormat.ERROR, "Oops! You already mastered the "+ jobName +" job.");
 		} else if (jobLevel == -1) {
@@ -1571,10 +1575,18 @@ public class Commands implements CommandExecutor {
 
 	private boolean rpJobsCommandQualifyLogic2 (Player p, String jobName, String prereqA, String prereqB) {
 
+
+
+
 		if (RunicParadise.playerProfiles.get(p.getUniqueId()).getJobMasteryString().contains(prereqA) &&
 				RunicParadise.playerProfiles.get(p.getUniqueId()).getJobMasteryString().contains(prereqB) &&
 				!p.hasPermission("jobs.join." + jobName)) {
-			RunicParadise.perms.playerAdd("", p, "jobs.join." + jobName);
+			Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "lp user " + p.getName() + " permission set jobs.join." + jobName);
+			//RunicParadise.perms.playerAdd("", p, "jobs.join." + jobName);
+
+			Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "cmi toast " + p.getName() + " -t:challenge -icon:stone_pickaxe &a" + jobName + " &ejob unlocked!");
+
+
 			return true;
 		} else if (p.hasPermission("jobs.join." + jobName)) {
 			return true;
@@ -1589,7 +1601,11 @@ public class Commands implements CommandExecutor {
 				RunicParadise.playerProfiles.get(p.getUniqueId()).getJobMasteryString().contains(prereqB) &&
 				RunicParadise.playerProfiles.get(p.getUniqueId()).getJobMasteryString().contains(prereqC) &&
 				!p.hasPermission("jobs.join." + jobName)) {
-			RunicParadise.perms.playerAdd("", p, "jobs.join." + jobName);
+			Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "lp user " + p.getName() + " permission set jobs.join." + jobName);
+			//RunicParadise.perms.playerAdd("", p, "jobs.join." + jobName);
+
+			Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "cmi toast " + p.getName() + " -t:challenge -icon:stone_pickaxe &a" + jobName + " &ejob unlocked!");
+
 			return true;
 		} else if (p.hasPermission("jobs.join." + jobName)) {
 			return true;
