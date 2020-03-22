@@ -77,17 +77,17 @@ public class Borderlands {
     }
 
 	public enum Mobs {
-		ZOMBIE_FALLENKNIGHT(2.0, "Fallen Knight Zombie", EntityType.ZOMBIE, "Loot", true, true, 0, 2),
+		ZOMBIE_FALLENKNIGHT(4.0, "Fallen Knight Zombie", EntityType.ZOMBIE, "Loot", true, true, 0, 2),
 		//
-		ZOMBIE_MARAUDER(2.0, "Marauder Zombie", EntityType.ZOMBIE, "Loot", true, true, 0, 2),
+		ZOMBIE_MARAUDER(3.0, "Marauder Zombie", EntityType.ZOMBIE, "Loot", true, true, 0, 2),
 		//
-		ZOMBIE_GOLIATH(3.0, "Goliath Zombie", EntityType.ZOMBIE, "Loot", true, true, 1, 3),
+		ZOMBIE_GOLIATH(5.0, "Goliath Zombie", EntityType.ZOMBIE, "Loot", true, true, 1, 3),
 		//
-		ZOMBIE_SHAMAN(1.5, "Shaman Zombie", EntityType.ZOMBIE, "Loot", true, true, 2, 1),
+		ZOMBIE_SHAMAN(2.5, "Shaman Zombie", EntityType.ZOMBIE, "Loot", true, true, 2, 1),
 		//
-		SKELETON_TOXIC(1.5, "Toxic Skeleton", EntityType.SKELETON, "Loot", true, true, 1, 1),
+		SKELETON_TOXIC(2.0, "Toxic Skeleton", EntityType.SKELETON, "Loot", true, true, 1, 1),
 		//
-		SKELETON_SHADE(1.75, "Shade Skeleton", EntityType.SKELETON, "Loot", true, true, 0, 1),
+		SKELETON_SHADE(2.25, "Shade Skeleton", EntityType.SKELETON, "Loot", true, true, 0, 1),
 		//
 		SKELETON_DRUNKEN(1.75, "Drunken Skeleton", EntityType.SKELETON, "Loot", true, true, 0, 1),
 		//
