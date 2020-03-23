@@ -520,7 +520,8 @@ public class Commands implements CommandExecutor {
 		if(args[0].equalsIgnoreCase("user") &&
 				args[2].equalsIgnoreCase("add")) {
 			// adding perm to a user
-			RunicParadise.perms.playerAdd("", Bukkit.getOfflinePlayer(args[1]), args[3]);
+			Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "lp user " + Bukkit.getOfflinePlayer(args[1]) + " permission set " + args[3]);
+
 
 			if ((sender instanceof Player)) {
 				RunicMessaging.sendMessage(((Player)sender),RunicFormat.SYSTEM, ChatColor.GREEN + "Added " + args[3] + " perm to " + args[1]);
@@ -530,7 +531,7 @@ public class Commands implements CommandExecutor {
 		} else if(args[0].equalsIgnoreCase("user") &&
 				args[2].equalsIgnoreCase("remove")) {
 			// removing perm from a user
-			RunicParadise.perms.playerRemove("", Bukkit.getOfflinePlayer(args[1]), args[3]);
+			Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "lp user " + Bukkit.getOfflinePlayer(args[1]) + " permission unset " + args[3]);
 
 			if ((sender instanceof Player)) {
 				RunicMessaging.sendMessage(((Player)sender),RunicFormat.SYSTEM, ChatColor.RED + "Removed " + args[3] + " perm from " + args[1]);
@@ -541,7 +542,7 @@ public class Commands implements CommandExecutor {
 				args[2].equalsIgnoreCase("group") &&
 				args[3].equalsIgnoreCase("add")) {
 			// adding group to a user
-			RunicParadise.perms.playerAddGroup(Bukkit.getPlayer(args[1]), args[4]);
+			Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "lp user " + Bukkit.getOfflinePlayer(args[1]) + " parent add " + args[4]);
 
 			if ((sender instanceof Player)) {
 				RunicMessaging.sendMessage(((Player)sender),RunicFormat.SYSTEM, ChatColor.RED + "Added " + args[4] + " group to " + args[1]);
@@ -553,7 +554,7 @@ public class Commands implements CommandExecutor {
 				args[2].equalsIgnoreCase("group") &&
 				args[3].equalsIgnoreCase("remove")) {
 			// removing group from a user
-			RunicParadise.perms.playerRemoveGroup("", Bukkit.getPlayer(args[1]), args[4]);
+			Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "lp user " + Bukkit.getOfflinePlayer(args[1]) + " parent remove " + args[4]);
 
 			if ((sender instanceof Player)) {
 				RunicMessaging.sendMessage(((Player)sender),RunicFormat.SYSTEM, ChatColor.RED + "Removed " + args[4] + " group from " + args[1]);
@@ -1028,9 +1029,9 @@ public class Commands implements CommandExecutor {
 		if (Bukkit.getPlayer(args[0]).hasPermission("rp.ready")
 				&& checkAttemptedPromotion(args[0], sender.getName()) == 0) {
 
-			RunicParadise.perms.playerAddGroup("", Bukkit.getPlayer(args[0]), "Seeker");
 
-			RunicParadise.perms.playerRemove("", Bukkit.getPlayer(args[0]), "rp.ready");
+			Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "lp user " + Bukkit.getOfflinePlayer(args[1]) + " parent add Seeker");
+			Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "lp user " + Bukkit.getOfflinePlayer(args[1]) + " permission unset rp.ready");
 
 			Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "faith enable " + args[0] + " Sun");
 
@@ -1065,8 +1066,8 @@ public class Commands implements CommandExecutor {
 
 	private static void consoleSeekerCommand(CommandSender sender, String[] args) {
 		if (Bukkit.getPlayer(args[0]).hasPermission("rp.ready")) {
-			RunicParadise.perms.playerAddGroup("", Bukkit.getPlayer(args[0]), "Seeker");
-			RunicParadise.perms.playerRemove("", Bukkit.getPlayer(args[0]), "rp.ready");
+			Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "lp user " + Bukkit.getOfflinePlayer(args[1]) + " parent add Seeker");
+			Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "lp user " + Bukkit.getOfflinePlayer(args[1]) + " permission unset rp.ready");
 
 			Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "faith setlevel " + args[0] + " Sun 0");
 			Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "faith enable " + args[0] + " Sun");
@@ -1679,8 +1680,10 @@ public class Commands implements CommandExecutor {
 					TitleAPI.sendTitle(Bukkit.getPlayer(args[1]), 2, 8, 2, ChatColor.GREEN + "",
 							ChatColor.GREEN + "You have access to this faith!");
 
-					RunicParadise.perms.playerAdd("", Bukkit.getPlayer(args[1]), "rp.faith.nether");
-					RunicParadise.perms.playerAdd("", Bukkit.getPlayer(args[1]), "rp.faith.aether");
+					Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "lp user " + Bukkit.getPlayer(args[1]) + " permission set rp.faith.nether");
+					Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "lp user " + Bukkit.getPlayer(args[1]) + " permission set rp.faith.aether");
+					Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "cmi toast " + Bukkit.getPlayer(args[1]) + " -t:challenge -icon:book Aether/Nether unlocked!");
+
 				} else {
 					TitleAPI.sendTitle(Bukkit.getPlayer(args[1]), 2, 3, 2, ChatColor.RED + "",
 							ChatColor.RED + "You do not have access to this faith! Need 600 faith levels but have "
@@ -1691,8 +1694,9 @@ public class Commands implements CommandExecutor {
 
 					TitleAPI.sendTitle(Bukkit.getPlayer(args[1]), 2, 8, 2, ChatColor.GREEN + "",
 							ChatColor.GREEN + "You have access to this faith!");
-					RunicParadise.perms.playerAdd("", Bukkit.getPlayer(args[1]), "rp.faith.air");
-					RunicParadise.perms.playerAdd("", Bukkit.getPlayer(args[1]), "rp.faith.earth");
+					Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "lp user " + Bukkit.getPlayer(args[1]) + " permission set rp.faith.air");
+					Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "lp user " + Bukkit.getPlayer(args[1]) + " permission set rp.faith.earth");
+					Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "cmi toast " + Bukkit.getPlayer(args[1]) + " -t:challenge -icon:book Air/Earth unlocked!");
 
 				} else {
 					TitleAPI.sendTitle(Bukkit.getPlayer(args[1]), 2, 3, 2, ChatColor.RED + "",
@@ -1704,8 +1708,9 @@ public class Commands implements CommandExecutor {
 
 					TitleAPI.sendTitle(Bukkit.getPlayer(args[1]), 2, 8, 2, ChatColor.GREEN + "",
 							ChatColor.GREEN + "You have access to this faith!");
-					RunicParadise.perms.playerAdd("", Bukkit.getPlayer(args[1]), "rp.faith.tech");
-					RunicParadise.perms.playerAdd("", Bukkit.getPlayer(args[1]), "rp.faith.nature");
+					Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "lp user " + Bukkit.getPlayer(args[1]) + " permission set rp.faith.tech");
+					Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "lp user " + Bukkit.getPlayer(args[1]) + " permission set rp.faith.nature");
+					Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "cmi toast " + Bukkit.getPlayer(args[1]) + " -t:challenge -icon:book Tech/Nature unlocked!");
 
 				} else {
 					TitleAPI.sendTitle(Bukkit.getPlayer(args[1]), 2, 3, 2, ChatColor.RED + "",
@@ -1717,8 +1722,9 @@ public class Commands implements CommandExecutor {
 
 					TitleAPI.sendTitle(Bukkit.getPlayer(args[1]), 2, 8, 2, ChatColor.GREEN + "",
 							ChatColor.GREEN + "You have access to this faith!");
-					RunicParadise.perms.playerAdd("", Bukkit.getPlayer(args[1]), "rp.faith.fire");
-					RunicParadise.perms.playerAdd("", Bukkit.getPlayer(args[1]), "rp.faith.water");
+					Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "lp user " + Bukkit.getPlayer(args[1]) + " permission set rp.faith.fire");
+					Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "lp user " + Bukkit.getPlayer(args[1]) + " permission set rp.faith.water");
+					Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "cmi toast " + Bukkit.getPlayer(args[1]) + " -t:challenge -icon:book Fire/Water unlocked!");
 
 				} else {
 					TitleAPI.sendTitle(Bukkit.getPlayer(args[1]), 2, 3, 2, ChatColor.RED + "",
