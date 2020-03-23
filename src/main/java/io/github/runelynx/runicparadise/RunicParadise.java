@@ -1590,13 +1590,13 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 		refreshCMIRank(pje.getPlayer());
 		eliminateDefaultGroup(pje.getPlayer());
 
-		Bukkit.getServer().getScheduler().scheduleAsyncDelayedTask(instance, () -> {
+
 			if (!pje.getPlayer().hasPermission("rp.slimefun.smallbackpack")
 					&& !pje.getPlayer().getWorld().getName().equalsIgnoreCase("plotworld")) {
 
 				RunicPlayerBukkit target = new RunicPlayerBukkit(pje.getPlayer().getUniqueId());
 
-				if (target.getPlayerVoteCount() > 125) {
+				if (target.getPlayerVoteCount() >= 125) {
 					Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "lp user " + pje.getPlayer() + " permission set rp.slimefun.smallbackpack");
 					Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "cmi toast " + pje.getPlayer() + " -t:challenge -icon:chest Small backpack unlocked!");
 
@@ -1607,15 +1607,15 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 					}
 				}
 			}
-		}, 120);
 
-		Bukkit.getServer().getScheduler().scheduleAsyncDelayedTask(instance, () -> {
+
+
 			if (!pje.getPlayer().hasPermission("rp.slimefun.mediumbackpack")
 					&& !pje.getPlayer().getWorld().getName().equalsIgnoreCase("plotworld")) {
 
 				RunicPlayerBukkit target = new RunicPlayerBukkit(pje.getPlayer().getUniqueId());
 
-				if (target.getPlayerVoteCount() > 250) {
+				if (target.getPlayerVoteCount() >= 250) {
 					perms.playerAdd("", pje.getPlayer(), "rp.slimefun.mediumbackpack");
 					Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "lp user " + pje.getPlayer() + " permission set rp.slimefun.mediumbackpack");
 					Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "cmi toast " + pje.getPlayer() + " -t:challenge -icon:chest Medium backpack unlocked!");
@@ -1627,7 +1627,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 					}
 				}
 			}
-		}, 120);
+
 	}
 
 	@EventHandler
