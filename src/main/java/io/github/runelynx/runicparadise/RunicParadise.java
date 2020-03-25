@@ -1559,15 +1559,15 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 		}
 
 		if (pje.getPlayer().hasPermission("rp.chatfilterwarning1") && !pje.getPlayer().hasPermission("rp.admin")) {
-			Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "lp user " + pje.getPlayer() + " permission unset rp.chatfilterwarning1");
-			Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "lp user " + pje.getPlayer() + " permission unset -essentials.me");
+			Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "lp user " + pje.getPlayer().getName() + " permission unset rp.chatfilterwarning1");
+			Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "lp user " + pje.getPlayer().getName() + " permission unset -essentials.me");
 
 
 
 		}
 
 		if (pje.getPlayer().hasPermission("rp.chatfilterwarning2") && !pje.getPlayer().hasPermission("rp.admin")) {
-			Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "lp user " + pje.getPlayer() + " permission unset rp.chatfilterwarning2");
+			Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "lp user " + pje.getPlayer().getName() + " permission unset rp.chatfilterwarning2");
 		}
 
 		//RunicUtilities.convertGroupManager(pje.getPlayer());
@@ -1597,8 +1597,8 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 				RunicPlayerBukkit target = new RunicPlayerBukkit(pje.getPlayer().getUniqueId());
 
 				if (target.getPlayerVoteCount() >= 125) {
-					Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "lp user " + pje.getPlayer() + " permission set rp.slimefun.smallbackpack");
-					Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "cmi toast " + pje.getPlayer() + " -t:challenge -icon:chest Small backpack unlocked!");
+					Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "lp user " + pje.getPlayer().getName() + " permission set rp.slimefun.smallbackpack");
+					Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "cmi toast " + pje.getPlayer().getName() + " -t:challenge -icon:chest Small backpack unlocked!");
 
 					for (Player p : Bukkit.getOnlinePlayers()) {
 						p.sendMessage(ChatColor.DARK_PURPLE + "" + pje.getPlayer().getDisplayName()
@@ -1617,8 +1617,8 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 
 				if (target.getPlayerVoteCount() >= 250) {
 					perms.playerAdd("", pje.getPlayer(), "rp.slimefun.mediumbackpack");
-					Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "lp user " + pje.getPlayer() + " permission set rp.slimefun.mediumbackpack");
-					Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "cmi toast " + pje.getPlayer() + " -t:challenge -icon:chest Medium backpack unlocked!");
+					Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "lp user " + pje.getPlayer().getName() + " permission set rp.slimefun.mediumbackpack");
+					Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "cmi toast " + pje.getPlayer().getName() + " -t:challenge -icon:chest Medium backpack unlocked!");
 
 					for (Player p : Bukkit.getOnlinePlayers()) {
 						p.sendMessage(ChatColor.LIGHT_PURPLE + "" + pje.getPlayer().getDisplayName()
