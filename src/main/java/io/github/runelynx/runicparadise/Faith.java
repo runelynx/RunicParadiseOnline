@@ -4,6 +4,8 @@ import io.github.runelynx.runicuniverse.RunicMessaging;
 import io.github.runelynx.runicuniverse.RunicMessaging.RunicFormat;
 import org.bukkit.*;
 import org.bukkit.block.Block;
+import org.bukkit.command.Command;
+import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.*;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockGrowEvent;
@@ -652,7 +654,7 @@ public class Faith {
 		}
 
 		if (this.primaryFaithName != null) {
-			//resetFaithSlimefunPermissions(nUUID, this.primaryFaithName);
+			resetFaithSlimefunPermissions(nUUID, this.primaryFaithName);
 		}
 
 	}
@@ -1889,85 +1891,91 @@ public class Faith {
 		if (activeFaith != null && this.faithLevels.get(activeFaith) != null) {
 			Player p = Bukkit.getPlayer(pUUID);
 
-			RunicParadise.perms.playerRemove("", p, "rp.slimefun.sun100");
-			RunicParadise.perms.playerRemove("", p, "rp.slimefun.sun250");
-			RunicParadise.perms.playerRemove("", p, "rp.slimefun.moon100");
-			RunicParadise.perms.playerRemove("", p, "rp.slimefun.moon250");
-			RunicParadise.perms.playerRemove("", p, "rp.slimefun.earth150");
-			RunicParadise.perms.playerRemove("", p, "rp.slimefun.earth250");
-			RunicParadise.perms.playerRemove("", p, "rp.slimefun.earth375");
-			RunicParadise.perms.playerRemove("", p, "rp.slimefun.nether300");
-			RunicParadise.perms.playerRemove("", p, "rp.slimefun.nether375");
-			RunicParadise.perms.playerRemove("", p, "rp.slimefun.water300");
-			RunicParadise.perms.playerRemove("", p, "rp.slimefun.water375");
-			RunicParadise.perms.playerRemove("", p, "rp.slimefun.fire275");
-			RunicParadise.perms.playerRemove("", p, "rp.slimefun.fire350");
-			RunicParadise.perms.playerRemove("", p, "rp.slimefun.air275");
-			RunicParadise.perms.playerRemove("", p, "rp.slimefun.nature75");
-			RunicParadise.perms.playerRemove("", p, "rp.slimefun.tech100");
-			RunicParadise.perms.playerRemove("", p, "rp.slimefun.tech200");
-			RunicParadise.perms.playerRemove("", p, "rp.slimefun.tech300");
-			RunicParadise.perms.playerRemove("", p, "rp.slimefun.tech400");
-			RunicParadise.perms.playerRemove("", p, "rp.slimefun.aether300");
+			Bukkit.dispatchCommand(Bukkit.getConsoleSender(),"lp user "+ Bukkit.getPlayer(pUUID).getName() +" permission unset rp.slimefun.sun100");
+			Bukkit.dispatchCommand(Bukkit.getConsoleSender(),"lp user "+ Bukkit.getPlayer(pUUID).getName() +" permission unset rp.slimefun.sun250");
+			Bukkit.dispatchCommand(Bukkit.getConsoleSender(),"lp user "+ Bukkit.getPlayer(pUUID).getName() +" permission unset rp.slimefun.moon100");
+			Bukkit.dispatchCommand(Bukkit.getConsoleSender(),"lp user "+ Bukkit.getPlayer(pUUID).getName() +" permission unset rp.slimefun.moon250");
+			Bukkit.dispatchCommand(Bukkit.getConsoleSender(),"lp user "+ Bukkit.getPlayer(pUUID).getName() +" permission unset rp.slimefun.earth150");
+			Bukkit.dispatchCommand(Bukkit.getConsoleSender(),"lp user "+ Bukkit.getPlayer(pUUID).getName() +" permission unset rp.slimefun.earth250");
+			Bukkit.dispatchCommand(Bukkit.getConsoleSender(),"lp user "+ Bukkit.getPlayer(pUUID).getName() +" permission unset rp.slimefun.earth375");
+			Bukkit.dispatchCommand(Bukkit.getConsoleSender(),"lp user "+ Bukkit.getPlayer(pUUID).getName() +" permission unset rp.slimefun.nether300");
+			Bukkit.dispatchCommand(Bukkit.getConsoleSender(),"lp user "+ Bukkit.getPlayer(pUUID).getName() +" permission unset rp.slimefun.nether375");
+			Bukkit.dispatchCommand(Bukkit.getConsoleSender(),"lp user "+ Bukkit.getPlayer(pUUID).getName() +" permission unset rp.slimefun.water300");
+			Bukkit.dispatchCommand(Bukkit.getConsoleSender(),"lp user "+ Bukkit.getPlayer(pUUID).getName() +" permission unset rp.slimefun.water375");
+			Bukkit.dispatchCommand(Bukkit.getConsoleSender(),"lp user "+ Bukkit.getPlayer(pUUID).getName() +" permission unset rp.slimefun.fire275");
+			Bukkit.dispatchCommand(Bukkit.getConsoleSender(),"lp user "+ Bukkit.getPlayer(pUUID).getName() +" permission unset rp.slimefun.fire350");
+			Bukkit.dispatchCommand(Bukkit.getConsoleSender(),"lp user "+ Bukkit.getPlayer(pUUID).getName() +" permission unset rp.slimefun.air275");
+			Bukkit.dispatchCommand(Bukkit.getConsoleSender(),"lp user "+ Bukkit.getPlayer(pUUID).getName() +" permission unset rp.slimefun.nature75");
+			Bukkit.dispatchCommand(Bukkit.getConsoleSender(),"lp user "+ Bukkit.getPlayer(pUUID).getName() +" permission unset rp.slimefun.tech100");
+			Bukkit.dispatchCommand(Bukkit.getConsoleSender(),"lp user "+ Bukkit.getPlayer(pUUID).getName() +" permission unset rp.slimefun.tech200");
+			Bukkit.dispatchCommand(Bukkit.getConsoleSender(),"lp user "+ Bukkit.getPlayer(pUUID).getName() +" permission unset rp.slimefun.tech300");
+			Bukkit.dispatchCommand(Bukkit.getConsoleSender(),"lp user "+ Bukkit.getPlayer(pUUID).getName() +" permission unset rp.slimefun.tech400");
+			Bukkit.dispatchCommand(Bukkit.getConsoleSender(),"lp user "+ Bukkit.getPlayer(pUUID).getName() +" permission unset rp.slimefun.aether300");
+
 
 			if (this.faithLevels.get(activeFaith) >= 100 && activeFaith.equals("Sun")) {
-				RunicParadise.perms.playerAdd("", p, "rp.slimefun.sun100");
+				Bukkit.dispatchCommand(Bukkit.getConsoleSender(),"lp user "+ Bukkit.getPlayer(pUUID).getName() +" permission set rp.slimefun.sun100");
 
 				if (this.faithLevels.get(activeFaith) >= 250) {
-					RunicParadise.perms.playerAdd("", p, "rp.slimefun.sun250");
+					Bukkit.dispatchCommand(Bukkit.getConsoleSender(),"lp user "+ Bukkit.getPlayer(pUUID).getName() +" permission set rp.slimefun.sun250");
 				}
 			} else if (this.faithLevels.get(activeFaith) >= 100 && activeFaith.equals("Moon")) {
-				RunicParadise.perms.playerAdd("", p, "rp.slimefun.moon100");
+				Bukkit.dispatchCommand(Bukkit.getConsoleSender(),"lp user "+ Bukkit.getPlayer(pUUID).getName() +" permission set rp.slimefun.moon100");
 
 				if (this.faithLevels.get(activeFaith) >= 250) {
-					RunicParadise.perms.playerAdd("", p, "rp.slimefun.moon250");
+					Bukkit.dispatchCommand(Bukkit.getConsoleSender(),"lp user "+ Bukkit.getPlayer(pUUID).getName() +" permission set rp.slimefun.moon250");
 				}
 			} else if (this.faithLevels.get(activeFaith) >= 150 && activeFaith.equals("Earth")) {
-				RunicParadise.perms.playerAdd("", p, "rp.slimefun.earth150");
+				Bukkit.dispatchCommand(Bukkit.getConsoleSender(),"lp user "+ Bukkit.getPlayer(pUUID).getName() +" permission set rp.slimefun.earth150");
 
 				if (this.faithLevels.get(activeFaith) >= 250) {
-					RunicParadise.perms.playerAdd("", p, "rp.slimefun.earth250");
+					Bukkit.dispatchCommand(Bukkit.getConsoleSender(),"lp user "+ Bukkit.getPlayer(pUUID).getName() +" permission set rp.slimefun.earth250");
 				}
 				if (this.faithLevels.get(activeFaith) >= 375) {
-					RunicParadise.perms.playerAdd("", p, "rp.slimefun.earth375");
+					Bukkit.dispatchCommand(Bukkit.getConsoleSender(),"lp user "+ Bukkit.getPlayer(pUUID).getName() +" permission set rp.slimefun.earth375");
 				}
 
 			} else if (this.faithLevels.get(activeFaith) >= 300 && activeFaith.equals("Nether")) {
-				RunicParadise.perms.playerAdd("", p, "rp.slimefun.nether300");
+				Bukkit.dispatchCommand(Bukkit.getConsoleSender(),"lp user "+ Bukkit.getPlayer(pUUID).getName() +" permission set rp.slimefun.nether300");
 
 				if (this.faithLevels.get(activeFaith) >= 375) {
-					RunicParadise.perms.playerAdd("", p, "rp.slimefun.nether375");
+					Bukkit.dispatchCommand(Bukkit.getConsoleSender(),"lp user "+ Bukkit.getPlayer(pUUID).getName() +" permission set rp.slimefun.nether375");
 				}
 			} else if (this.faithLevels.get(activeFaith) >= 300 && activeFaith.equals("Water")) {
-				RunicParadise.perms.playerAdd("", p, "rp.slimefun.water300");
+				Bukkit.dispatchCommand(Bukkit.getConsoleSender(),"lp user "+ Bukkit.getPlayer(pUUID).getName() +" permission set rp.slimefun.water300");
 
 				if (this.faithLevels.get(activeFaith) >= 375) {
-					RunicParadise.perms.playerAdd("", p, "rp.slimefun.water375");
+					Bukkit.dispatchCommand(Bukkit.getConsoleSender(),"lp user "+ Bukkit.getPlayer(pUUID).getName() +" permission set rp.slimefun.water375");
 				}
 			} else if (this.faithLevels.get(activeFaith) >= 275 && activeFaith.equals("Fire")) {
-				RunicParadise.perms.playerAdd("", p, "rp.slimefun.fire275");
+				Bukkit.dispatchCommand(Bukkit.getConsoleSender(),"lp user "+ Bukkit.getPlayer(pUUID).getName() +" permission set rp.slimefun.fire275");
 
 				if (this.faithLevels.get(activeFaith) >= 350) {
-					RunicParadise.perms.playerAdd("", p, "rp.slimefun.fire350");
+					Bukkit.dispatchCommand(Bukkit.getConsoleSender(),"lp user "+ Bukkit.getPlayer(pUUID).getName() +" permission set rp.slimefun.fire350");
 				}
 			} else if (this.faithLevels.get(activeFaith) >= 275 && activeFaith.equals("Air")) {
-				RunicParadise.perms.playerAdd("", p, "rp.slimefun.air275");
+				Bukkit.dispatchCommand(Bukkit.getConsoleSender(),"lp user "+ Bukkit.getPlayer(pUUID).getName() +" permission set rp.slimefun.air275");
 			} else if (this.faithLevels.get(activeFaith) >= 75 && activeFaith.equals("Nature")) {
-				RunicParadise.perms.playerAdd("", p, "rp.slimefun.nature75");
+				Bukkit.dispatchCommand(Bukkit.getConsoleSender(),"lp user "+ Bukkit.getPlayer(pUUID).getName() +" permission set rp.slimefun.nature75");
+
 			} else if (this.faithLevels.get(activeFaith) >= 100 && activeFaith.equals("Tech")) {
-				RunicParadise.perms.playerAdd("", p, "rp.slimefun.tech100");
+				Bukkit.dispatchCommand(Bukkit.getConsoleSender(),"lp user "+ Bukkit.getPlayer(pUUID).getName() +" permission set rp.slimefun.tech100");
+
 
 				if (this.faithLevels.get(activeFaith) >= 200) {
-					RunicParadise.perms.playerAdd("", p, "rp.slimefun.tech200");
+					Bukkit.dispatchCommand(Bukkit.getConsoleSender(),"lp user "+ Bukkit.getPlayer(pUUID).getName() +" permission set rp.slimefun.tech200");
+
 				}
 				if (this.faithLevels.get(activeFaith) >= 300) {
-					RunicParadise.perms.playerAdd("", p, "rp.slimefun.tech300");
+					Bukkit.dispatchCommand(Bukkit.getConsoleSender(),"lp user "+ Bukkit.getPlayer(pUUID).getName() +" permission set rp.slimefun.tech300");
+
 				}
 				if (this.faithLevels.get(activeFaith) >= 400) {
-					RunicParadise.perms.playerAdd("", p, "rp.slimefun.tech400");
+					Bukkit.dispatchCommand(Bukkit.getConsoleSender(),"lp user "+ Bukkit.getPlayer(pUUID).getName() +" permission set rp.slimefun.tech400");
+
 				}
 			} else if (this.faithLevels.get(activeFaith) >= 300 && activeFaith.equals("Aether")) {
-				RunicParadise.perms.playerAdd("", p, "rp.slimefun.aether300");
+				Bukkit.dispatchCommand(Bukkit.getConsoleSender(),"lp user "+ Bukkit.getPlayer(pUUID).getName() +" permission set rp.slimefun.aether300");
 			}
 		}
 	}

@@ -72,7 +72,7 @@
 		<dependency>
 			<groupId>me.mrCookieSlime</groupId>
 			<artifactId>Slimefun</artifactId>
-			<version>DEV - 460 (git 910cb939)</version>
+			<version>DEV - 471 (git aa5ab658)</version>
 			<scope>system</scope>
 			<systemPath>${project.basedir}/src/main/resources/Slimefun4 - DEV 460 (git 910cb).jar</systemPath>
 		</dependency>
