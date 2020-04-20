@@ -623,8 +623,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 			event.getInventory().setResult(result);
 		}
 
-
-		if (event.getRecipe().getResult().getItemMeta() != null) {
+		if (event.getRecipe() != null && event.getRecipe().getResult() !=null && event.getRecipe().getResult().getItemMeta() != null) {
 			//meta.getPersistentDataContainer().set(FaithCore.faithCoreItemDataKeys.get("KarmaRequiredToCraft"), PersistentDataType.INTEGER, karmaRequired);
 			ItemMeta meta = event.getRecipe().getResult().getItemMeta();
 			PersistentDataContainer container = meta.getPersistentDataContainer();
@@ -1987,12 +1986,12 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 	public void onRaidFinishEvent (RaidFinishEvent event) {
 		List<Player> players = event.getWinners();
 		int omenLevel = event.getRaid().getBadOmenLevel();
-		int chance = 8 - omenLevel;
+		int chance = 7 - omenLevel;
 		float target = ((float)1/chance) * 1000;
 
 		for (Player p : players) {
 			p.sendMessage(ChatColor.GRAY + "" + ChatColor.ITALIC + "You find some loose tokens in the pockets of the pillagers");
-			playerProfiles.get(p.getUniqueId()).grantCurrency("Token", (2*(omenLevel+1)));
+			playerProfiles.get(p.getUniqueId()).grantCurrency("Tokens", (2*(omenLevel+1)));
 
 			Random rand = new Random();
 			// Obtain a number between [0 - 999].
