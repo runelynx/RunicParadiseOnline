@@ -40,6 +40,7 @@ import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.PrepareItemCraftEvent;
 import org.bukkit.event.player.*;
+import org.bukkit.event.raid.RaidFinishEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -622,28 +623,31 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 			event.getInventory().setResult(result);
 		}
 
-		//meta.getPersistentDataContainer().set(FaithCore.faithCoreItemDataKeys.get("KarmaRequiredToCraft"), PersistentDataType.INTEGER, karmaRequired);
-		ItemMeta meta = event.getRecipe().getResult().getItemMeta();
-		PersistentDataContainer container = meta.getPersistentDataContainer();
 
-		if(container.has(FaithCore.faithCoreItemDataKeys.get("KarmaRequiredToCraft"), PersistentDataType.INTEGER)) {
-			//This is a Faith weapon if we've made it this far
-			int karmaRequired = container.get(FaithCore.faithCoreItemDataKeys.get("KarmaRequiredToCraft"), PersistentDataType.INTEGER);
+		if (event.getRecipe().getResult().getItemMeta() != null) {
+			//meta.getPersistentDataContainer().set(FaithCore.faithCoreItemDataKeys.get("KarmaRequiredToCraft"), PersistentDataType.INTEGER, karmaRequired);
+			ItemMeta meta = event.getRecipe().getResult().getItemMeta();
+			PersistentDataContainer container = meta.getPersistentDataContainer();
 
-			if (karmaRequired > 0) {
-				//This is a Faith weapon that requires at least 1 karma to craft
-				for (HumanEntity human : event.getViewers()) {
-					if (human instanceof Player) {
-						Player player = (Player) human;
-						if (playerProfiles.get(player.getUniqueId()).getKarmaBalance() >= karmaRequired) {
-							RunicMessaging.sendMessage(player, RunicFormat.FAITH, "This weapon will cost " + karmaRequired + " to craft!");
-						} else {
-							RunicMessaging.sendMessage(player, RunicFormat.FAITH, "This weapon costs " + karmaRequired + " to craft and you don't have enough.");
+			if (container.has(FaithCore.faithCoreItemDataKeys.get("KarmaRequiredToCraft"), PersistentDataType.INTEGER)) {
+				//This is a Faith weapon if we've made it this far
+				int karmaRequired = container.get(FaithCore.faithCoreItemDataKeys.get("KarmaRequiredToCraft"), PersistentDataType.INTEGER);
+
+				if (karmaRequired > 0) {
+					//This is a Faith weapon that requires at least 1 karma to craft
+					for (HumanEntity human : event.getViewers()) {
+						if (human instanceof Player) {
+							Player player = (Player) human;
+							if (playerProfiles.get(player.getUniqueId()).getKarmaBalance() >= karmaRequired) {
+								RunicMessaging.sendMessage(player, RunicFormat.FAITH, "This weapon will cost " + karmaRequired + " to craft!");
+							} else {
+								RunicMessaging.sendMessage(player, RunicFormat.FAITH, "This weapon costs " + karmaRequired + " to craft and you don't have enough.");
+							}
 						}
 					}
 				}
-			}
 
+			}
 		}
 
 	}
@@ -1980,6 +1984,29 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 	}
 
 	@EventHandler
+	public void onRaidFinishEvent (RaidFinishEvent event) {
+		List<Player> players = event.getWinners();
+		int omenLevel = event.getRaid().getBadOmenLevel();
+		int chance = 8 - omenLevel;
+		float target = ((float)1/chance) * 1000;
+
+		for (Player p : players) {
+			p.sendMessage(ChatColor.GRAY + "" + ChatColor.ITALIC + "You find some loose tokens in the pockets of the pillagers");
+			playerProfiles.get(p.getUniqueId()).grantCurrency("Token", (2*(omenLevel+1)));
+
+			Random rand = new Random();
+			// Obtain a number between [0 - 999].
+			int n = rand.nextInt(1000);
+			Bukkit.getLogger().log(Level.INFO, "DEBUG: LairKey raid attempt! Rolled a " + n + " - Target result is < " + target + ". Omen Level = " + omenLevel );
+			if (n <= target) {
+				Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "cr give to " + p.getName() + " LairKey 1");
+				Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "cmi mail send CrocodileHax " + p.getName() + " got a lair key from a raid!");
+				p.sendMessage(ChatColor.YELLOW + "" + ChatColor.ITALIC + "The last pillager seems to have been holding something of value...");
+			}
+		}
+	}
+
+	@EventHandler
 	public void onEntityDeath(EntityDeathEvent ede) {
 		boolean farming = false;
 
@@ -2009,14 +2036,15 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 					PersistentDataContainer container = ede.getEntity().getPersistentDataContainer();
 
 					if(container.has(key , PersistentDataType.STRING)) {
-						if (nEvent.getEntityType() == EntityType.ZOMBIE) {
+						if (nEvent.getEntityType() == EntityType.ZOMBIE || nEvent.getEntityType() == EntityType.SKELETON) {
 							Random rand = new Random();
 							// Obtain a number between [0 - 899].
 							int n = rand.nextInt(900);
 							Bukkit.getLogger().log(Level.INFO, "DEBUG: LairKey attempt! Rolled a " + n + " - Target result is 0, 1, or 2");
 							if (n >= 0 && n <= 2) {
 								Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "cr give to "+ ((Player) nEvent.getDamager()).getName() +" LairKey 1");
-								Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "mail send CrocodileHax "+ ((Player) nEvent.getDamager()).getName() +" got a lair key!");
+								Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "cmi mail send CrocodileHax "+ ((Player) nEvent.getDamager()).getName() +" got a lair key!");
+								((Player) nEvent.getDamager()).sendMessage(ChatColor.YELLOW + "" + ChatColor.ITALIC + "The fallen monster has dropped a key!");
 							}
 						}
 					}
