@@ -255,6 +255,65 @@ public class RunicProfile {
 		new RunicPlayerBukkit(this.getPlayerID()).refreshPlayerObject(Bukkit.getOfflinePlayer(this.getPlayerID()));
 	}
 
+	public void reduceCurrency(String type, int amount) {
+		boolean error = false;
+		String column = "";
+		String plural = "";
+
+		if (amount > 1) {
+			plural = "s";
+		}
+
+		switch (type) {
+
+			case "Souls":
+				column = "SoulCount";
+				this.setSoulCount(this.getSoulCount() - amount);
+
+				RunicMessaging.sendMessage(Bukkit.getPlayer(this.getPlayerID()), RunicMessaging.RunicFormat.AFTERLIFE,
+						"Lost " + amount + " soul" + plural);
+
+				break;
+			case "Karma":
+				column = "Karma";
+				this.setKarmaBalance(this.getKarmaBalance() - amount);
+
+				RunicMessaging.sendMessage(Bukkit.getPlayer(this.getPlayerID()), RunicMessaging.RunicFormat.FAITH,
+						"Lost " + amount + " karma");
+
+				break;
+			case "Tokens":
+				column = "Tokens";
+				this.setTokenBalance(this.getTokenBalance() - amount);
+
+				RunicMessaging.sendMessage(Bukkit.getPlayer(this.getPlayerID()), RunicMessaging.RunicFormat.CASINO,
+						"Lost " + amount + " token" + plural);
+
+				break;
+			default:
+				error = true;
+				break;
+		}
+
+		MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
+
+		try {
+			Connection connection = MySQL.openConnection();
+			Statement statement = connection.createStatement();
+			statement.executeUpdate("UPDATE `rp_PlayerInfo` SET " + column + " = " + column + " - " + amount
+					+ " WHERE UUID= '" + this.getPlayerID() + "';");
+
+			connection.close();
+
+		} catch (SQLException e) {
+			getLogger().log(Level.SEVERE,
+					"Failed reduceCurrency update (change " + this.playerName + "  because: " + e.getMessage());
+		}
+
+		// Sync up old profile method ... for now ...
+		new RunicPlayerBukkit(this.getPlayerID()).refreshPlayerObject(Bukkit.getOfflinePlayer(this.getPlayerID()));
+	}
+
 	private void setKarmaBalance(int newKarma) {
 		this.karmaBalance = newKarma;
 	}
@@ -275,7 +334,7 @@ public class RunicProfile {
 		this.skyblockRank = newRank;
 	}
 
-	private int getKarmaBalance() {
+	public int getKarmaBalance() {
 		return this.karmaBalance;
 	}
 

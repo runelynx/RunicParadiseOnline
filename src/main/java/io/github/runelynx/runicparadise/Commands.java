@@ -946,7 +946,7 @@ public class Commands implements CommandExecutor {
 				RunicMessaging.sendMessage(((Player) sender), RunicMessaging.RunicFormat.SYSTEM,
 						whoIsNearPlayer(Bukkit.getPlayer(args[1])));
 			} else if ((args[0].equals("RF") || args[0].equals("rf")) && args.length == 1) {
-				FaithCore.shutdownFaithSystem();
+				RunicParadise.faithSystem.shutdownFaithSystem();
 				new FaithCore();
 			} else if ((args[0].equals("RR") || args[0].equals("rr")) && args.length == 1) {
 				Raffle.shutdownRaffleSystem();

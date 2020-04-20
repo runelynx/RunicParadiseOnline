@@ -1,5 +1,6 @@
 package io.github.runelynx.runicparadise;
 
+import com.gamingmesh.jobs.api.JobsPaymentEvent;
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
@@ -23,15 +24,19 @@ import me.mrCookieSlime.Slimefun.api.SlimefunItemStack;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.permission.Permission;
 import org.bukkit.*;
+import org.bukkit.command.ConsoleCommandSender;
+import org.bukkit.craftbukkit.v1_15_R1.metadata.EntityMetadataStore;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.enchantment.EnchantItemEvent;
 import org.bukkit.event.entity.*;
 import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
+import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.PrepareItemCraftEvent;
 import org.bukkit.event.player.*;
@@ -39,6 +44,8 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
+import org.bukkit.persistence.PersistentDataContainer;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -132,9 +139,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 
 		RunicMessaging.initializeAnnouncements(instance);
 
-
 		registerSlimefunItems();
-
 
 		if (setupPermissions()) {
 			getLogger().info("[RunicParadise] Hooked into Vault Permissions");
@@ -456,7 +461,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 			getLogger().log(Level.WARNING, "Exception happened", e);
 		}
 
-		FaithCore faithSystem = new FaithCore();
+		faithSystem = new FaithCore();
 		new Raffle();
 
 
@@ -486,6 +491,9 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 		// TODO Insert logic to be performed when the plugin is disabled
 		RunicMessaging.cancelRepeatingTask();
 		Faith.deactivateFaiths();
+
+		faithSystem.shutdownFaithSystem();
+
 		rankColors.clear();
 		// Dispose of the EffectManager
 		for (Player p : Bukkit.getOnlinePlayers()) {
@@ -506,14 +514,60 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 	}
 
 	@EventHandler
+	public void JobsPaymentEvent(JobsPaymentEvent event) {
+		//TODO Log Jobs payments to a DB so we can report on it
+
+	}
+
+	@EventHandler
+	public void onEnchantItemEvent(EnchantItemEvent event) {
+		ItemStack itemToEnchant = event.getItem();
+		ItemMeta meta = itemToEnchant.getItemMeta();
+		PersistentDataContainer container = meta.getPersistentDataContainer();
+
+		if(container.has(FaithCore.faithCoreItemDataKeys.get("FaithWeapon"), PersistentDataType.INTEGER)) {
+			RunicMessaging.sendMessage(event.getEnchanter(), RunicFormat.FAITH, "You cannot enchant Faith-imbued weapons!");
+			event.setCancelled(true);
+		}
+	}
+
+
+
+	@EventHandler
 	public void onEntityShootBow(EntityShootBowEvent event) {
 		if (event.getEntityType() == EntityType.SKELETON) {
 			Borderlands.processSkeletonArrows(event);
 		}
+
+		if (event.getEntityType() == EntityType.PLAYER) {
+			Player player = (Player) event.getEntity();
+			ItemStack bow = player.getEquipment().getItemInMainHand();
+
+			ItemMeta itemMeta = bow.getItemMeta();
+			PersistentDataContainer container = itemMeta.getPersistentDataContainer();
+
+			if(container.has(FaithCore.faithCoreItemDataKeys.get("FaithWeapon"), PersistentDataType.INTEGER)) {
+				// This is a Faith bow!
+				if (event.getProjectile().getType() == EntityType.SPECTRAL_ARROW) {
+					// Player is shooting a spectral arrow with their faith bow - good!
+				} else {
+					// Player not using a spectral arrow with their faith bow - bad!
+					event.setCancelled(true);
+					RunicMessaging.sendMessage(player, RunicFormat.FAITH, "You can only shoot spectral arrows with a Faith-imbued bow");
+				}
+			}
+		}
+
 	}
 
 	@EventHandler(priority = EventPriority.HIGH)
 	public void onCreatureSpawn(CreatureSpawnEvent event) {
+
+		if (event.getSpawnReason() != SpawnReason.SPAWNER) {
+			Entity e = event.getEntity();
+			NamespacedKey key = new NamespacedKey(this, "NotFromSpawner");
+			e.getPersistentDataContainer().set(key, PersistentDataType.STRING, "No");
+		}
 
 		if ((event.getLocation().getX() > 7500 || event.getLocation().getX() < -7500 || event.getLocation().getZ() > 7500
 				|| event.getLocation().getZ() < -7500)
@@ -567,6 +621,61 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 		if (result != null) {
 			event.getInventory().setResult(result);
 		}
+
+		//meta.getPersistentDataContainer().set(FaithCore.faithCoreItemDataKeys.get("KarmaRequiredToCraft"), PersistentDataType.INTEGER, karmaRequired);
+		ItemMeta meta = event.getRecipe().getResult().getItemMeta();
+		PersistentDataContainer container = meta.getPersistentDataContainer();
+
+		if(container.has(FaithCore.faithCoreItemDataKeys.get("KarmaRequiredToCraft"), PersistentDataType.INTEGER)) {
+			//This is a Faith weapon if we've made it this far
+			int karmaRequired = container.get(FaithCore.faithCoreItemDataKeys.get("KarmaRequiredToCraft"), PersistentDataType.INTEGER);
+
+			if (karmaRequired > 0) {
+				//This is a Faith weapon that requires at least 1 karma to craft
+				for (HumanEntity human : event.getViewers()) {
+					if (human instanceof Player) {
+						Player player = (Player) human;
+						if (playerProfiles.get(player.getUniqueId()).getKarmaBalance() >= karmaRequired) {
+							RunicMessaging.sendMessage(player, RunicFormat.FAITH, "This weapon will cost " + karmaRequired + " to craft!");
+						} else {
+							RunicMessaging.sendMessage(player, RunicFormat.FAITH, "This weapon costs " + karmaRequired + " to craft and you don't have enough.");
+						}
+					}
+				}
+			}
+
+		}
+
+	}
+
+	@EventHandler
+	public void onCraftItemEvent(CraftItemEvent event) {
+		//meta.getPersistentDataContainer().set(FaithCore.faithCoreItemDataKeys.get("KarmaRequiredToCraft"), PersistentDataType.INTEGER, karmaRequired);
+		ItemMeta meta = event.getRecipe().getResult().getItemMeta();
+		PersistentDataContainer container = meta.getPersistentDataContainer();
+
+		if(container.has(FaithCore.faithCoreItemDataKeys.get("KarmaRequiredToCraft"), PersistentDataType.INTEGER)) {
+			//This is a Faith weapon if we've made it this far
+			int karmaRequired = container.get(FaithCore.faithCoreItemDataKeys.get("KarmaRequiredToCraft"), PersistentDataType.INTEGER);
+
+			if (karmaRequired > 0) {
+				//This is a Faith weapon that requires at least 1 karma to craft
+				for (HumanEntity human : event.getViewers()) {
+					if (human instanceof Player) {
+						Player player = (Player) human;
+						if (playerProfiles.get(player.getUniqueId()).getKarmaBalance() >= karmaRequired) {
+							//RunicMessaging.sendMessage(player, RunicFormat.FAITH, "You spent " + karmaRequired + " karma to craft this weapon");
+							playerProfiles.get(player.getUniqueId()).reduceCurrency("Karma", karmaRequired);
+						} else {
+							RunicMessaging.sendMessage(player, RunicFormat.FAITH, "You can't craft this weapon until you have at least " + karmaRequired + " karma");
+							event.setCancelled(true);
+						}
+					}
+				}
+			}
+
+		}
+
 	}
 
 	private static void putGlassOnInventory(Inventory inventory, ItemStack main) {
@@ -1895,6 +2004,24 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 				} else {
 					//Bukkit.getLogger().log(Level.INFO, ((Player) nEvent.getDamager()).getDisplayName() + " has triggered a BL loot logic check; farming = false!");
 					Borderlands.adjustRewardsforBLMobs(ede, ((Player) nEvent.getDamager()));
+
+					NamespacedKey key = new NamespacedKey(this, "NotFromSpawner");
+					PersistentDataContainer container = ede.getEntity().getPersistentDataContainer();
+
+					if(container.has(key , PersistentDataType.STRING)) {
+						if (nEvent.getEntityType() == EntityType.ZOMBIE) {
+							Random rand = new Random();
+							// Obtain a number between [0 - 899].
+							int n = rand.nextInt(900);
+							Bukkit.getLogger().log(Level.INFO, "DEBUG: LairKey attempt! Rolled a " + n + " - Target result is 0, 1, or 2");
+							if (n >= 0 && n <= 2) {
+								Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "cr give to "+ ((Player) nEvent.getDamager()).getName() +" LairKey 1");
+								Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "mail send CrocodileHax "+ ((Player) nEvent.getDamager()).getName() +" got a lair key!");
+							}
+						}
+					}
+
+
 				}
 
 			}

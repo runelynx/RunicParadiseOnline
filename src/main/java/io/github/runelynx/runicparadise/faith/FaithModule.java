@@ -8,8 +8,12 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.inventory.*;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.persistence.PersistentDataType;
 
 import java.util.*;
 import java.util.logging.Level;
@@ -159,6 +163,7 @@ public class FaithModule {
                     weaponSection.getInt(weaponKey + ".KarmaRequiredToCraft"),
                     weaponSection.getString(weaponKey + ".Type"),
                     weaponSection.getStringList(weaponKey + ".Recipe"),
+                    weaponSection.getStringList(weaponKey + ".Enchants"),
                     weaponSection.getInt(weaponKey + ".AddDamage"));
 
         }
@@ -212,12 +217,31 @@ public class FaithModule {
 
     private Boolean activateModule_FaithSummonItems() {
 
-        return false;
+        Bukkit.getLogger().log(Level.INFO, "~~~ Activating faith module - faithsummonitems ~~~");
+
+        ConfigurationSection summonItemSection = FaithCore.getFaithConfig().getConfigurationSection("Faith.SummoningSystem.Items");
+        Set<String> summonItemConfigList = summonItemSection.getKeys(false);
+
+        for (String summonItemKey : summonItemConfigList) {
+
+            ItemStack item = new ItemStack(Material.valueOf(summonItemSection.getString(summonItemKey + ".Type")));
+
+            addSummoningItem(summonItemKey,
+                    summonItemSection.getString(summonItemKey + ".DisplayName"),
+                    summonItemSection.getString(summonItemKey + ".Lore1"),
+                    summonItemSection.getString(summonItemKey + ".Lore2"),
+                    summonItemSection.getString(summonItemKey + ".Lore3"),
+                    summonItemSection.getString(summonItemKey + ".Type"),
+                    summonItemSection.getStringList(summonItemKey + ".Drops"));
+        }
+
+        return true;
     }
 
     private Boolean deactivateModule_FaithSummonItems() {
-
-        return false;
+        FaithCore.faithCoreSummoningComponents.clear();
+        FaithCore.faithCoreSummoningDrops.clear();
+        return true;
     }
 
     private Boolean activateModule_FaithSummonMobs() {
@@ -233,42 +257,36 @@ public class FaithModule {
     private String detectWeaponType(String type) {
 
         if(type.contains("SWORD")) {
-            return "SWD";
+            return "SWORD";
         } else if(type.contains("AXE")) {
             return "AXE";
         } else if(type.contains("BOW")) {
             return "BOW";
+        } else if(type.contains("TRIDENT")) {
+            return "TRIDENT";
+        } else if(type.contains("SHOVEL")) {
+            return "SHOVEL";
         } else {
             return "INVALID!";
         }
+
     }
 
     private Boolean addFaithWeaponRecipe(String id, String name, String lore1, String lore2, String lore3,
                                          Double levelUpChance, Double consumeChargeChance, int charges,
-                                         int karmaRequired, String itemType, List<String> craftList, int addDamage) {
+                                         int karmaRequired, String itemType, List<String> craftList, List<String> enchantList, int addDamage) {
 
         int levelUpChancePretty = (int)(levelUpChance * 100);
         int consumeChargeChancePretty = (int)(consumeChargeChance * 100);
-        ArrayList<String> loreList = new ArrayList<String>();
-        loreList.add(ChatColor.translateAlternateColorCodes('&', lore1));
+        ArrayList<String> loreList = processLore(lore1, lore2, lore3);
 
-        if (lore2 != null) {
-            loreList.add(ChatColor.translateAlternateColorCodes('&', lore2));
-        } else {
-            loreList.add(" ");
-        }
+        String lore4 = "" + ChatColor.LIGHT_PURPLE + charges + " Charges";
 
-        if (lore3 != null) {
-            loreList.add(ChatColor.translateAlternateColorCodes('&', lore3));
-        } else {
-            loreList.add(" ");
-        }
-
-        String lore4 = ChatColor.DARK_GRAY + "Faith|" + ChatColor.YELLOW + detectWeaponType(itemType) +
-                ChatColor.DARK_GRAY + "|" + ChatColor.GREEN + levelUpChancePretty + "%LU" +
-                ChatColor.DARK_GRAY + "|" + ChatColor.AQUA + consumeChargeChancePretty + "%CC" +
-                ChatColor.DARK_GRAY + "|" + ChatColor.RED + karmaRequired + "KR" +
-                ChatColor.DARK_GRAY + "|" + ChatColor.LIGHT_PURPLE + charges + " Charges";
+//        String lore4 = ChatColor.DARK_GRAY + "Faith|" + ChatColor.YELLOW + detectWeaponType(itemType) +
+//                ChatColor.DARK_GRAY + "|" + ChatColor.GREEN + levelUpChancePretty + "%LU" +
+//                ChatColor.DARK_GRAY + "|" + ChatColor.AQUA + consumeChargeChancePretty + "%CC" +
+//                ChatColor.DARK_GRAY + "|" + ChatColor.RED + karmaRequired + "KR" +
+//                ChatColor.DARK_GRAY + "|" + ChatColor.LIGHT_PURPLE + charges + " Charges";
 
         loreList.add(lore4);
 
@@ -279,8 +297,23 @@ public class FaithModule {
         meta.setLore(loreList);
         meta.setUnbreakable(true);
 
+        meta.getPersistentDataContainer().set(FaithCore.faithCoreItemDataKeys.get("ChanceToLevelUp"), PersistentDataType.DOUBLE, levelUpChance);
+        meta.getPersistentDataContainer().set(FaithCore.faithCoreItemDataKeys.get("ChanceToConsumeCharge"), PersistentDataType.DOUBLE, consumeChargeChance);
+        meta.getPersistentDataContainer().set(FaithCore.faithCoreItemDataKeys.get("Charges"), PersistentDataType.INTEGER, charges);
+        meta.getPersistentDataContainer().set(FaithCore.faithCoreItemDataKeys.get("KarmaRequiredToCraft"), PersistentDataType.INTEGER, karmaRequired);
+        meta.getPersistentDataContainer().set(FaithCore.faithCoreItemDataKeys.get("FaithWeapon"), PersistentDataType.INTEGER, 1);
+
         AttributeModifier modifier = new AttributeModifier(UUID.randomUUID(), "generic.attackdamage", addDamage, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.HAND);
         meta.addAttributeModifier(Attribute.GENERIC_ATTACK_DAMAGE, modifier);
+
+        for (String itemStr : enchantList) {
+            String[] strings = itemStr.split(";");
+            //Debug
+            Bukkit.getLogger().log(Level.INFO, strings[0] + " " + strings[1]);
+
+            meta.addEnchant(Enchantment.getByKey(NamespacedKey.minecraft(strings[0])), Integer.parseInt(strings[1]), true);
+
+        }
 
         weapon.setItemMeta(meta);
 
@@ -300,11 +333,62 @@ public class FaithModule {
 
         // Finally, add the recipe to the bukkit recipes
         Bukkit.addRecipe(recipe);
+
         Bukkit.getLogger().log(Level.INFO, "    Adding custom recipe from faith config: "
                 + itemType + " - "
                 + name);
 
         return true;
+    }
+
+    private Boolean addSummoningItem(String id, String name, String lore1, String lore2, String lore3,
+                                       String itemType, List<String> dropList) {
+
+        ArrayList<String> loreList = processLore(lore1, lore2, lore3);
+
+        ItemStack item = new ItemStack(Material.valueOf(itemType));
+        ItemMeta meta = item.getItemMeta();
+
+        meta.setDisplayName(ChatColor.translateAlternateColorCodes('&', name));
+        meta.setLore(loreList);
+
+        if (FaithCore.faithCoreItemDataKeys.get("SummoningItem") == null) {
+            Bukkit.getLogger().log(Level.INFO, "SummoningItem key is indeed null. :(");
+        }
+
+        meta.getPersistentDataContainer().set(FaithCore.faithCoreItemDataKeys.get("SummoningItem"), PersistentDataType.STRING, "TRUE");
+
+        item.setItemMeta(meta);
+
+        for (String itemStr : dropList) {
+            String[] strings = itemStr.split(";");
+            //Debug
+            Bukkit.getLogger().log(Level.INFO, strings[0] + " " + strings[1]);
+
+            FaithCore.faithCoreSummoningComponents.put(id, item);
+            FaithCore.faithCoreSummoningDrops.put(EntityType.valueOf(strings[0]), new SummoningDropChance(id, Double.parseDouble(strings[1])));
+        }
+
+        return true;
+    }
+
+    private ArrayList<String> processLore(String lore1, String lore2, String lore3) {
+        ArrayList<String> loreList = new ArrayList<String>();
+        loreList.add(ChatColor.translateAlternateColorCodes('&', lore1));
+
+        if (lore2 != null) {
+            loreList.add(ChatColor.translateAlternateColorCodes('&', lore2));
+        } else {
+            loreList.add(" ");
+        }
+
+        if (lore3 != null) {
+            loreList.add(ChatColor.translateAlternateColorCodes('&', lore3));
+        } else {
+            loreList.add(" ");
+        }
+
+        return loreList;
     }
 
 }
