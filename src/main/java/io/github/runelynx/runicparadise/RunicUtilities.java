@@ -31,9 +31,23 @@ public class RunicUtilities {
 		}
 	}
 
-	static void fixMissingMcmmoProfile(String puuid) {
+	public static ArrayList<String> processLoreStringsToArray(String lore1, String lore2, String lore3) {
+		ArrayList<String> loreList = new ArrayList<String>();
+		loreList.add(ChatColor.translateAlternateColorCodes('&', lore1));
 
+		if (lore2 != null) {
+			loreList.add(ChatColor.translateAlternateColorCodes('&', lore2));
+		} else {
+			loreList.add(" ");
+		}
 
+		if (lore3 != null) {
+			loreList.add(ChatColor.translateAlternateColorCodes('&', lore3));
+		} else {
+			loreList.add(" ");
+		}
+
+		return loreList;
 	}
 
 	static void fixGroupManager() {

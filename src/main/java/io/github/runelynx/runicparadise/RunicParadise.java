@@ -71,7 +71,8 @@ import java.util.logging.Logger;
 public final class RunicParadise extends JavaPlugin implements Listener, PluginMessageListener, SlimefunAddon {
 
 	public static FaithCore faithSystem;
-	private static Plugin instance;
+	private static RunicParadise instance;
+
 	private static final Logger log = Bukkit.getLogger();
 	public static Permission perms = null;
 	public static Economy economy = null;
@@ -103,12 +104,13 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 
 	Ranks ranks = new Ranks();
 
-	public static Plugin getInstance() {
+	public static RunicParadise getInstance() {
 		return instance;
 	}
 
+
 	@Override
-	public JavaPlugin getJavaPlugin() {
+	public  JavaPlugin getJavaPlugin() {
 		// This is a method that links your SlimefunAddon to your Plugin.
 		// Just return "this" in this case, so they are linked
 		return this;
@@ -3328,6 +3330,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 		}
 
 	}
+
 
 	public void registerSlimefunItems() {
 

@@ -1,7 +1,5 @@
 package io.github.runelynx.runicparadise;
 
-import io.github.runelynx.runicparadise.faith.FaithCore;
-import io.github.runelynx.runicparadise.faith.FaithModule;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -9,7 +7,6 @@ import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
 import java.util.HashMap;
-import java.util.Set;
 import java.util.logging.Level;
 
 import static org.bukkit.Bukkit.getServer;

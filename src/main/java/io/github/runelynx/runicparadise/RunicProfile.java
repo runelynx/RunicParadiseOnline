@@ -26,6 +26,8 @@ public class RunicProfile {
 	final static int FARMING_COUNT_THRESHOLD = 7;
 
 	int karmaBalance;
+	int zealBalance;
+	int lifetimeZeal;
 	int currentIP;
 	int voteTotal;
 	String masteredJobsString;
@@ -190,6 +192,45 @@ public class RunicProfile {
 		return this.faithPowerLevel;
 	}
 
+	public void setLifetimeCount(String type, int amount) {
+		boolean error = false;
+
+		switch (type) {
+			case "Tokens":
+				this.lifetimeTokens = amount;
+				break;
+			case "Zeal":
+				this.lifetimeZeal = amount;
+				break;
+			default:
+				error = true;
+				break;
+		}
+	}
+
+	public void setCurrency(String type, int amount) {
+		boolean error = false;
+
+		switch (type) {
+
+			case "Souls":
+				this.soulCount = amount;
+				break;
+			case "Karma":
+				this.karmaBalance = amount;
+				break;
+			case "Tokens":
+				this.tokenBalance = amount;
+				break;
+			case "Zeal":
+				this.zealBalance = amount;
+				break;
+			default:
+				error = true;
+				break;
+		}
+	}
+
 	public void grantCurrency(String type, int amount) {
 		boolean error = false;
 		String column = "";
@@ -203,7 +244,7 @@ public class RunicProfile {
 
 		case "Souls":
 			column = "SoulCount";
-			this.setSoulCount(this.getSoulCount() + amount);
+			this.soulCount = this.getSoulCount() + amount;
 
 			RunicMessaging.sendMessage(Bukkit.getPlayer(this.getPlayerID()), RunicMessaging.RunicFormat.AFTERLIFE,
 					"Gained " + amount + " soul" + plural);
@@ -211,7 +252,7 @@ public class RunicProfile {
 			break;
 		case "Karma":
 			column = "Karma";
-			this.setKarmaBalance(this.getKarmaBalance() + amount);
+			this.karmaBalance = this.getKarmaBalance() + amount;
 
 			RunicMessaging.sendMessage(Bukkit.getPlayer(this.getPlayerID()), RunicMessaging.RunicFormat.FAITH,
 					"Gained " + amount + " karma");
@@ -219,11 +260,19 @@ public class RunicProfile {
 			break;
 		case "Tokens":
 			column = "Tokens";
-			this.setTokenBalance(this.getTokenBalance() + amount);
-			this.setLifetimeToken(this.getLifetimeToken() + amount);
+			this.tokenBalance = this.getTokenBalance() + amount;
+			this.setLifetimeCount("Tokens", this.lifetimeTokens + amount);
 
 			RunicMessaging.sendMessage(Bukkit.getPlayer(this.getPlayerID()), RunicMessaging.RunicFormat.CASINO,
 					"Gained " + amount + " token" + plural);
+			break;
+		case "Zeal":
+			column = "Zeal";
+			this.zealBalance = this.zealBalance + amount;
+			this.setLifetimeCount("Zeal", this.lifetimeZeal + amount);
+
+			RunicMessaging.sendMessage(Bukkit.getPlayer(this.getPlayerID()), RunicMessaging.RunicFormat.FAITH,
+					"Gained " + amount + " zeal");
 
 			break;
 		default:
@@ -268,7 +317,7 @@ public class RunicProfile {
 
 			case "Souls":
 				column = "SoulCount";
-				this.setSoulCount(this.getSoulCount() - amount);
+				this.setCurrency("Souls", this.soulCount - amount);
 
 				RunicMessaging.sendMessage(Bukkit.getPlayer(this.getPlayerID()), RunicMessaging.RunicFormat.AFTERLIFE,
 						"Lost " + amount + " soul" + plural);
@@ -276,7 +325,7 @@ public class RunicProfile {
 				break;
 			case "Karma":
 				column = "Karma";
-				this.setKarmaBalance(this.getKarmaBalance() - amount);
+				this.setCurrency("Karma", this.karmaBalance - amount);
 
 				RunicMessaging.sendMessage(Bukkit.getPlayer(this.getPlayerID()), RunicMessaging.RunicFormat.FAITH,
 						"Lost " + amount + " karma");
@@ -284,10 +333,18 @@ public class RunicProfile {
 				break;
 			case "Tokens":
 				column = "Tokens";
-				this.setTokenBalance(this.getTokenBalance() - amount);
+				this.setCurrency("Tokens", this.tokenBalance - amount);
 
 				RunicMessaging.sendMessage(Bukkit.getPlayer(this.getPlayerID()), RunicMessaging.RunicFormat.CASINO,
 						"Lost " + amount + " token" + plural);
+
+				break;
+			case "Zeal":
+				column = "Zeal";
+				this.setCurrency("Zeal", this.zealBalance - amount);
+
+				RunicMessaging.sendMessage(Bukkit.getPlayer(this.getPlayerID()), RunicMessaging.RunicFormat.FAITH,
+						"Lost " + amount + " zeal");
 
 				break;
 			default:
@@ -314,9 +371,9 @@ public class RunicProfile {
 		new RunicPlayerBukkit(this.getPlayerID()).refreshPlayerObject(Bukkit.getOfflinePlayer(this.getPlayerID()));
 	}
 
-	private void setKarmaBalance(int newKarma) {
-		this.karmaBalance = newKarma;
-	}
+//	private void setKarmaBalance(int newKarma) {
+//		this.karmaBalance = newKarma;
+//	}
 
 	public int getSkyblockRankNum() {
 		return this.skyblockRankNum;
@@ -338,17 +395,17 @@ public class RunicProfile {
 		return this.karmaBalance;
 	}
 
-	public void setTokenBalance(int newToken) {
-		this.tokenBalance = newToken;
-	}
+//	public void setTokenBalance(int newToken) {
+//		this.tokenBalance = newToken;
+//	}
 
     public int getTokenBalance() {
 		return this.tokenBalance;
 	}
 
-	private void setLifetimeToken(int lifetimeTokens) {
-		this.lifetimeTokens = lifetimeTokens;
-	}
+//	private void setLifetimeToken(int lifetimeTokens) {
+//		this.lifetimeTokens = lifetimeTokens;
+//	}
 
 	private int getLifetimeToken() {
 		return this.lifetimeTokens;
@@ -409,26 +466,26 @@ public class RunicProfile {
 		return this.masteredJobsString;
 	}
 
-	public void setSoulCount(int newSouls) {
-		// Plajer's DeathChest plugin uses this!! Don't change name or parameters.
-		this.soulCount = newSouls;
-
-		MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
-
-		try {
-			Connection connection = MySQL.openConnection();
-
-			PreparedStatement statement = connection.prepareStatement("UPDATE rp_PlayerInfo SET SoulCount =" + newSouls + " WHERE UUID = ?");
-			statement.setString(1, this.getPlayerID().toString());
-			statement.executeUpdate();
-
-			connection.close();
-		} catch (SQLException e) {
-			getLogger().log(Level.SEVERE, "Failed setSoulCount because: " + e.getMessage());
-		}
-		Bukkit.getLogger().log(Level.INFO, "RunicProfile: Updated soul count to " + newSouls + " for player " + this.getPlayerName(false));
-
-	}
+//	public void setSoulCount(int newSouls) {
+//		// Plajer's DeathChest plugin uses this!! Don't change name or parameters.
+//		this.soulCount = newSouls;
+//
+//		MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
+//
+//		try {
+//			Connection connection = MySQL.openConnection();
+//
+//			PreparedStatement statement = connection.prepareStatement("UPDATE rp_PlayerInfo SET SoulCount =" + newSouls + " WHERE UUID = ?");
+//			statement.setString(1, this.getPlayerID().toString());
+//			statement.executeUpdate();
+//
+//			connection.close();
+//		} catch (SQLException e) {
+//			getLogger().log(Level.SEVERE, "Failed setSoulCount because: " + e.getMessage());
+//		}
+//		Bukkit.getLogger().log(Level.INFO, "RunicProfile: Updated soul count to " + newSouls + " for player " + this.getPlayerName(false));
+//
+//	}
 
     public int getSoulCount() {
 		// Plajer's DeathChest plugin uses this!! Don't change name or parameters.
@@ -686,10 +743,12 @@ public class RunicProfile {
 				// Player does exist in the DB
 				playerData.next();
 				this.setPlayerIP(playerData.getString("LastIP"));
-				this.setKarmaBalance(playerData.getInt("Karma"));
-				this.setTokenBalance(playerData.getInt("Tokens"));
-				this.setSoulCount(playerData.getInt("SoulCount"));
-				this.setLifetimeToken(playerData.getInt("LifetimeTokens"));
+				this.setCurrency("Karma", (playerData.getInt("Karma")));
+				this.setCurrency("Tokens", (playerData.getInt("Tokens")));
+				this.setCurrency("Souls", (playerData.getInt("Souls")));
+				this.setCurrency("Zeal", (playerData.getInt("Zeal")));
+				this.setLifetimeCount("Tokens", playerData.getInt("LifetimeTokens"));
+				this.setLifetimeCount("Zeal", playerData.getInt("LifetimeZeal"));
 				this.setJobMasteryString(playerData.getString("JobsMastered"));
 				this.setJobMasteryCount(playerData.getInt("JobsMasteredCount"));
 				this.setJoinDate(new Date(playerData.getLong("FirstSeen")));
