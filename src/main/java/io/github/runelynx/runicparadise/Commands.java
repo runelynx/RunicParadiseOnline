@@ -8,6 +8,7 @@ import com.xxmicloxx.NoteBlockAPI.RadioSongPlayer;
 import com.xxmicloxx.NoteBlockAPI.Song;
 import com.xxmicloxx.NoteBlockAPI.SongPlayer;
 import io.github.runelynx.runicparadise.faith.FaithCore;
+import io.github.runelynx.runicparadise.faith.modules.SummoningSystem;
 import io.github.runelynx.runicuniverse.RunicMessaging;
 import io.github.runelynx.runicuniverse.RunicMessaging.RunicFormat;
 import net.minecraft.server.v1_15_R1.AdvancementFrameType;
@@ -337,6 +338,9 @@ public class Commands implements CommandExecutor {
 				break;
 		case "rpversion":
 			handleRpVersion(sender);
+			break;
+		case "faithitems":
+			SummoningSystem.givePlayerSummoningComponents((Player)sender);
 			break;
 		case "fixranks":
 			RunicUtilities.fixGroupManager();

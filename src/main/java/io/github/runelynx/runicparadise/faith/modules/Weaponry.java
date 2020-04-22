@@ -155,6 +155,7 @@ public class Weaponry {
         meta.getPersistentDataContainer().set(FaithCore.faithCoreItemDataKeys.get("FaithWeapon"), PersistentDataType.INTEGER, 1);
 
         AttributeModifier modifier = new AttributeModifier(UUID.randomUUID(), "generic.attackdamage", addDamage, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.HAND);
+
         meta.addAttributeModifier(Attribute.GENERIC_ATTACK_DAMAGE, modifier);
 
         for (String itemStr : enchantList) {

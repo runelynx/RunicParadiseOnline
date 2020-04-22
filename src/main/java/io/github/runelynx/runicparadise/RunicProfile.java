@@ -745,7 +745,7 @@ public class RunicProfile {
 				this.setPlayerIP(playerData.getString("LastIP"));
 				this.setCurrency("Karma", (playerData.getInt("Karma")));
 				this.setCurrency("Tokens", (playerData.getInt("Tokens")));
-				this.setCurrency("Souls", (playerData.getInt("Souls")));
+				this.setCurrency("Souls", (playerData.getInt("SoulCount")));
 				this.setCurrency("Zeal", (playerData.getInt("Zeal")));
 				this.setLifetimeCount("Tokens", playerData.getInt("LifetimeTokens"));
 				this.setLifetimeCount("Zeal", playerData.getInt("LifetimeZeal"));

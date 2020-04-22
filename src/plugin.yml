@@ -48,6 +48,11 @@ commands:
       usage: /<command>
       permission: rp.machinemaze
       permission-message: "Not for player usage!"
+   faithitems:
+      description: "Gives all faith summoning components"
+      usage: /<command>
+      permission: rp.staff.faithitems
+      permission-message: "Not for player usage!"
    faithweapons:
       description: "Gives user all faith weapons"
       usage: /<command>

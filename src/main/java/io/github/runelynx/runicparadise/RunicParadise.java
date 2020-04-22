@@ -398,6 +398,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 		getCommand("souls").setExecutor(new Commands());
 		getCommand("freezemob").setExecutor(new Commands());
 		getCommand("unfreezemob").setExecutor(new Commands());
+		getCommand("faithitems").setExecutor(new Commands());
 		getCommand("runiceye").setExecutor(new Commands());
 		getCommand("holotest").setExecutor(new HologramCommand(getDataFolder(), getLogger()));
 		getCommand("runicspawntravel").setExecutor(new Commands());
