@@ -1,5 +1,6 @@
 package io.github.runelynx.runicparadise;
 
+import io.github.runelynx.runicparadise.faith.FaithCore;
 import io.github.runelynx.runicuniverse.RunicMessaging;
 import io.github.runelynx.runicuniverse.RunicMessaging.RunicFormat;
 import org.bukkit.*;
@@ -13,6 +14,7 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
@@ -1222,6 +1224,10 @@ public class Borderlands {
 			// loreText.add(ChatColor.GRAY + "");
 			// loreText.add(ChatColor.DARK_GRAY + playerUUID.toString());
 			meta.setLore(loreText);
+			meta.getPersistentDataContainer().set(
+					new NamespacedKey(RunicParadise.getInstance(), "BaronPendantGem"),
+					PersistentDataType.INTEGER,
+					1);
 			item.setItemMeta(meta);
 
 			return item;
@@ -1237,6 +1243,10 @@ public class Borderlands {
 			// loreText.add(ChatColor.GRAY + "");
 			// loreText.add(ChatColor.DARK_GRAY + playerUUID.toString());
 			meta.setLore(loreText);
+			meta.getPersistentDataContainer().set(
+					new NamespacedKey(RunicParadise.getInstance(), "BaronPendantIngot1"),
+					PersistentDataType.INTEGER,
+					1);
 			item.setItemMeta(meta);
 
 			return item;
@@ -1252,6 +1262,10 @@ public class Borderlands {
 			// loreText.add(ChatColor.GRAY + "");
 			// loreText.add(ChatColor.DARK_GRAY + playerUUID.toString());
 			meta.setLore(loreText);
+			meta.getPersistentDataContainer().set(
+					new NamespacedKey(RunicParadise.getInstance(), "BaronPendantIngot2"),
+					PersistentDataType.INTEGER,
+					1);
 			item.setItemMeta(meta);
 
 			return item;

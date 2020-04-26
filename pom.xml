@@ -72,9 +72,9 @@
 		<dependency>
 			<groupId>me.mrCookieSlime</groupId>
 			<artifactId>Slimefun</artifactId>
-			<version>DEV - 485 (git 16e23766)</version>
+			<version>DEV - 493 (git 4cc6a028)</version>
 			<scope>system</scope>
-			<systemPath>${project.basedir}/src/main/resources/Slimefun4 - DEV 485 (git 16e23).jar</systemPath>
+			<systemPath>${project.basedir}/src/main/resources/Slimefun4 - DEV 493 (git 4cc6a).jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>com.gamingmesh.jobs</groupId>

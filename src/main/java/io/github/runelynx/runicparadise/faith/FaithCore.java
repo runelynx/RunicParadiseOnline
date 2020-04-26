@@ -1,10 +1,12 @@
 package io.github.runelynx.runicparadise.faith;
 
 import io.github.runelynx.runicparadise.RunicParadise;
+import io.github.runelynx.runicparadise.faith.modules.SacrificialPit;
 import io.github.runelynx.runicparadise.faith.modules.SummoningSystem;
 import io.github.runelynx.runicparadise.faith.modules.Weaponry;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -21,19 +23,23 @@ public class FaithCore {
 
     Weaponry weaponryModule;
     SummoningSystem summoningSystemModule;
+    SacrificialPit sacrificialPitModule;
 
-    public static HashMap<String, NamespacedKey> faithCoreItemDataKeys = new HashMap<String, NamespacedKey>();
-    public static HashMap<String, ItemStack> faithCoreSummoningComponents = new HashMap<String, ItemStack>();
-    public static HashMap<EntityType, SummoningDropChance> faithCoreSummoningDrops = new HashMap<EntityType, SummoningDropChance>();
-    public static HashMap<String, Location> faithCoreSummoningLocations = new HashMap<String, Location>();
-    public static HashMap<String, SummonableMob> faithCoreSummonableMobs = new HashMap<String, SummonableMob>();
-    public static HashMap<String, ItemStack> faithCoreSummoningBalls = new HashMap<String, ItemStack>();
+    public static HashMap<String, NamespacedKey> faithCoreItemDataKeys = new HashMap<>();
+    public static HashMap<String, ItemStack> faithCoreSummoningComponents = new HashMap<>();
+    public static HashMap<EntityType, SummoningDropChance> faithCoreSummoningDrops = new HashMap<>();
+    public static HashMap<String, Location> faithCoreSummoningLocations = new HashMap<>();
+    public static HashMap<String, Location> faithCorePitLocations = new HashMap<>();
+    public static HashMap<String, SummonableMob> faithCoreSummonableMobs = new HashMap<>();
+    public static HashMap<Material, Integer> faithCorePitItems = new HashMap<>();
+    public static HashMap<Material, String> faithCorePitItemCategories = new HashMap<>();
 
     public FaithCore (){
         initializeFaithSystem();
 
         weaponryModule = new Weaponry();
-        summoningSystemModule= new SummoningSystem();
+        summoningSystemModule = new SummoningSystem();
+        sacrificialPitModule = new SacrificialPit();
 
     }
 
@@ -41,12 +47,14 @@ public class FaithCore {
 
         summoningSystemModule.reactivate();
         weaponryModule.reactivate();
+        sacrificialPitModule.reactivate();
 
     }
 
     public void shutdownFaithSystem() {
         summoningSystemModule.deactivate();
         weaponryModule.deactivate();
+        sacrificialPitModule.deactivate();
 
         faithCoreItemDataKeys.clear();
     }

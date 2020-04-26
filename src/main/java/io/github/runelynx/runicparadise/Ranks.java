@@ -1,6 +1,7 @@
 package io.github.runelynx.runicparadise;
 
 import com.connorlinfoot.titleapi.TitleAPI;
+import io.github.runelynx.runicparadise.faith.FaithCore;
 import io.github.runelynx.runicuniverse.RunicMessaging;
 import io.github.runelynx.runicuniverse.RunicMessaging.RunicFormat;
 import io.github.thebusybiscuit.slimefun4.api.SlimefunAddon;
@@ -11,8 +12,12 @@ import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.persistence.PersistentDataContainer;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.Plugin;
 
 import java.sql.Connection;
@@ -1639,45 +1644,63 @@ class Ranks {
 				return false;
 			}
 		} else if (rank.equalsIgnoreCase("Baron")) {
-			if (p.getInventory().containsAtLeast(Borderlands.specialLootDrops("BaronGem", null), 1)) {
-				checkGem = true;
-				messages.add(ChatColor.GREEN + "You have the jewel!");
-			} else {
-				messages.add(ChatColor.RED
-						+ "You don't have the prismatic jewel! Check the slimefun guide in the anvil category.");
-			}
-			if (p.getInventory().containsAtLeast(Borderlands.specialLootDrops("BaronIngot1", null), 1)) {
-				checkMetal = true;
-				messages.add(ChatColor.GREEN + "You have the empowered ingot!");
-			} else {
-				messages.add(ChatColor.RED
-						+ "You don't have the empowered ingot. Check the slimefun guide in the anvil category.");
-			}
-			if (p.getInventory().containsAtLeast(Borderlands.specialLootDrops("BaronIngot2", null), 1)) {
-				checkEssence = true;
-				messages.add(ChatColor.GREEN + "You have the unstable ingot!");
-			} else {
-				messages.add(ChatColor.RED
-						+ "You don't have the unstable ingot. Check the slimefun guide in the anvil category.");
+
+			Bukkit.getLogger().log(Level.INFO, "Checking if " + p.getName() + " has required pieces to craft Baron Pendant...");
+
+			ItemStack invGem = null;
+			ItemStack invMetal1 = null;
+			ItemStack invMetal2 = null;
+
+
+			for (ItemStack i : p.getInventory().getContents()) {
+				if (i.getItemMeta() != null) {
+					ItemMeta meta = i.getItemMeta();
+					PersistentDataContainer container = meta.getPersistentDataContainer();
+
+					if (container.has(new NamespacedKey(RunicParadise.getInstance(), "BaronPendantIngot1"), PersistentDataType.INTEGER)) {
+						Bukkit.getLogger().log(Level.INFO, "Found ingot 1!");
+						checkMetal = true;
+						invMetal1 = i;
+						messages.add(ChatColor.GREEN + "You have the empowered ingot!");
+					}
+
+					if (container.has(new NamespacedKey(RunicParadise.getInstance(), "BaronPendantGem"), PersistentDataType.INTEGER)) {
+						Bukkit.getLogger().log(Level.INFO, "Found gem!");
+						checkGem = true;
+						invGem = i;
+						messages.add(ChatColor.GREEN + "You have the jewel!");
+					}
+
+					if (container.has(new NamespacedKey(RunicParadise.getInstance(), "BaronPendantIngot2"), PersistentDataType.INTEGER)) {
+						Bukkit.getLogger().log(Level.INFO, "Found ingot 2!");
+						checkEssence = true;
+						invMetal2 = i;
+						messages.add(ChatColor.GREEN + "You have the unstable ingot!");
+					}
+
+				}
 			}
 
-			for (String s : messages) {
-				p.sendMessage(s);
-			}
+			Bukkit.getLogger().log(Level.INFO, "For loop complete... " +
+					invGem.getType().toString() + "..." + invMetal1.getType().toString() + "..." + invMetal2.getType().toString() + "...");
 
-			if (checkGem && checkMetal && checkEssence) {
+			Bukkit.getLogger().log(Level.INFO, "For loop complete... " +
+					checkGem + "..." + checkMetal + "..." + checkEssence + "...");
+
+			if ((checkGem && checkMetal && checkEssence) ||
+					(invMetal1 != null && invMetal2 != null && invGem != null)) {
 				// player has all needed materials!
 
-				ItemStack essence = Borderlands.specialLootDrops("BaronGem", null);
-				essence.setAmount(1);
-				ItemStack metal = Borderlands.specialLootDrops("BaronIngot1", null);
-				metal.setAmount(1);
-				ItemStack gem = Borderlands.specialLootDrops("BaronIngot2", null);
-				gem.setAmount(1);
+				Bukkit.getLogger().log(Level.INFO, "Setting itemstack amounts for... " +
+						invGem.getType().toString() + "..." + invMetal1.getType().toString() + "..." + invMetal2.getType().toString() + "...");
 
-				p.getInventory().removeItem(essence);
-				p.getInventory().removeItem(metal);
-				p.getInventory().removeItem(gem);
+				invGem.setAmount(1);
+				invMetal1.setAmount(1);
+				invMetal2.setAmount(1);
+
+				p.getInventory().removeItem(invGem);
+				p.getInventory().removeItem(invMetal1);
+				p.getInventory().removeItem(invMetal2);
 
 				p.updateInventory();
 
@@ -1695,6 +1718,7 @@ class Ranks {
 
 				return true;
 			} else {
+				RunicMessaging.sendMessage(p, RunicFormat.ERROR, "You are missing at least one of the items! If you actually have all three, ask a member of staff to replace them for you and try again.");
 				return false;
 			}
 		}

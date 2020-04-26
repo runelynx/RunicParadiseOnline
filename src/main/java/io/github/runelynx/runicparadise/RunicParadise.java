@@ -571,6 +571,20 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 			Entity e = event.getEntity();
 			NamespacedKey key = new NamespacedKey(this, "NotFromSpawner");
 			e.getPersistentDataContainer().set(key, PersistentDataType.STRING, "No");
+
+			// If there's a raffle running, chance to spawn a lucky creeper
+			if (Boolean.parseBoolean(Raffle.raffleSettingsMap.get("Enabled"))) {
+				if (event.getEntity().getType() == EntityType.CREEPER) {
+					Random rand = new Random();
+					int randomNum = rand.nextInt((100 - 1) + 1) + 1;
+					if (randomNum <= 5) {
+
+						event.getEntity().setCustomName("✿ Lucky Creeper ✿");
+						event.getEntity().setCustomNameVisible(true);
+						((Creeper) event.getEntity()).setPowered(true);
+					}
+				}
+			}
 		}
 
 		if ((event.getLocation().getX() > 7500 || event.getLocation().getX() < -7500 || event.getLocation().getZ() > 7500
@@ -660,28 +674,30 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 		ItemMeta meta = event.getRecipe().getResult().getItemMeta();
 		PersistentDataContainer container = meta.getPersistentDataContainer();
 
-		if(container.has(FaithCore.faithCoreItemDataKeys.get("KarmaRequiredToCraft"), PersistentDataType.INTEGER)) {
-			//This is a Faith weapon if we've made it this far
-			int karmaRequired = container.get(FaithCore.faithCoreItemDataKeys.get("KarmaRequiredToCraft"), PersistentDataType.INTEGER);
 
-			if (karmaRequired > 0) {
-				//This is a Faith weapon that requires at least 1 karma to craft
-				for (HumanEntity human : event.getViewers()) {
-					if (human instanceof Player) {
-						Player player = (Player) human;
-						if (playerProfiles.get(player.getUniqueId()).getKarmaBalance() >= karmaRequired) {
-							//RunicMessaging.sendMessage(player, RunicFormat.FAITH, "You spent " + karmaRequired + " karma to craft this weapon");
-							playerProfiles.get(player.getUniqueId()).reduceCurrency("Karma", karmaRequired);
-						} else {
-							RunicMessaging.sendMessage(player, RunicFormat.FAITH, "You can't craft this weapon until you have at least " + karmaRequired + " karma");
-							event.setCancelled(true);
+		if (event.getRecipe() != null && event.getRecipe().getResult() !=null && event.getRecipe().getResult().getItemMeta() != null) {
+			if (container.has(FaithCore.faithCoreItemDataKeys.get("KarmaRequiredToCraft"), PersistentDataType.INTEGER)) {
+				//This is a Faith weapon if we've made it this far
+				int karmaRequired = container.get(FaithCore.faithCoreItemDataKeys.get("KarmaRequiredToCraft"), PersistentDataType.INTEGER);
+
+				if (karmaRequired > 0) {
+					//This is a Faith weapon that requires at least 1 karma to craft
+					for (HumanEntity human : event.getViewers()) {
+						if (human instanceof Player) {
+							Player player = (Player) human;
+							if (playerProfiles.get(player.getUniqueId()).getKarmaBalance() >= karmaRequired) {
+								//RunicMessaging.sendMessage(player, RunicFormat.FAITH, "You spent " + karmaRequired + " karma to craft this weapon");
+								playerProfiles.get(player.getUniqueId()).reduceCurrency("Karma", karmaRequired);
+							} else {
+								RunicMessaging.sendMessage(player, RunicFormat.FAITH, "You can't craft this weapon until you have at least " + karmaRequired + " karma");
+								event.setCancelled(true);
+							}
 						}
 					}
 				}
+
 			}
-
 		}
-
 	}
 
 	private static void putGlassOnInventory(Inventory inventory, ItemStack main) {
@@ -2022,6 +2038,15 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 					&& ((EntityDamageByEntityEvent) monsterEnt.getLastDamageCause()).getDamager() instanceof Player) {
 
 				EntityDamageByEntityEvent nEvent = (EntityDamageByEntityEvent) monsterEnt.getLastDamageCause();
+				Player q = (Player)nEvent.getDamager();
+
+				if (ede.getEntity().getCustomName() != null && ede.getEntity().getCustomName().contains("Lucky Creeper")) {
+					Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "raffle give 5 " + q.getName());
+					for (Player a : Bukkit.getOnlinePlayers()) {
+						RunicMessaging.sendMessage(a, RunicFormat.RAFFLE, q.getDisplayName() + ChatColor.GOLD + " just got 5 raffle tickets from a lucky creeper!");
+					}
+				}
+
 
 				Faith.tryCast_PlayerKilledMonster(ede, (Player) nEvent.getDamager());
 
@@ -3415,9 +3440,9 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 				new SlimefunItemStack("PRISMATIC_TOPAZ", Material.LIGHT_BLUE_DYE, "&ePrismatic Topaz"),
 				RecipeType.MAGIC_WORKBENCH,
 				new ItemStack[] {
-						SlimefunItems.RUNE_RAINBOW,    SlimefunItem.getItem("MIST_INFUSED_EMERALD"),    SlimefunItems.RUNE_RAINBOW,
+						SlimefunItems.RUNE_RAINBOW,    new SlimefunItemStack("MIST_INFUSED_EMERALD", Material.EMERALD, "&eMist-Infused Emerald"),    SlimefunItems.RUNE_RAINBOW,
 						null,          new ItemStack(Material.LIGHT_BLUE_DYE, 1),   null,
-						SlimefunItem.getItem("MIST_INFUSED_DIAMOND"),    SlimefunItems.RUNE_RAINBOW,   SlimefunItem.getItem("MIST_INFUSED_SAPPHIRE")
+						new SlimefunItemStack("MIST_INFUSED_DIAMOND", Material.DIAMOND, "&eMist-Infused Diamond"),    SlimefunItems.RUNE_RAINBOW,   new SlimefunItemStack("MIST_INFUSED_SAPPHIRE", Material.LIGHT_BLUE_DYE, "&eMist-Infused Sapphire")
 				});
 		baronMistyTopaz.register(this);
 
@@ -3426,9 +3451,9 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 				new SlimefunItemStack("PRISMATIC_CITRINE", Material.ORANGE_DYE, "&ePrismatic Citrine"),
 				RecipeType.MAGIC_WORKBENCH,
 				new ItemStack[] {
-						SlimefunItems.RUNE_RAINBOW,    SlimefunItem.getItem("LAVA_INFUSED_EMERALD"),    SlimefunItems.RUNE_RAINBOW,
+						SlimefunItems.RUNE_RAINBOW,    new SlimefunItemStack("LAVA_INFUSED_EMERALD", Material.EMERALD, "&eLava-Infused Emerald"),    SlimefunItems.RUNE_RAINBOW,
 						null,          new ItemStack(Material.YELLOW_DYE, 1),   null,
-						SlimefunItem.getItem("LAVA_INFUSED_DIAMOND"),    SlimefunItems.RUNE_RAINBOW,   SlimefunItem.getItem("LAVA_INFUSED_SAPPHIRE")
+						new SlimefunItemStack("LAVA_INFUSED_DIAMOND", Material.DIAMOND, "&eLava-Infused Diamond"),    SlimefunItems.RUNE_RAINBOW,   new SlimefunItemStack("LAVA_INFUSED_SAPPHIRE", Material.LAPIS_LAZULI, "&eLava-Infused Sapphire")
 				});
 		baronMistyCitrine.register(this);
 
@@ -3437,9 +3462,9 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 				new SlimefunItemStack("BARON_JEWEL", Borderlands.specialLootDrops("BaronGem", null)),
 				RecipeType.MAGIC_WORKBENCH,
 				new ItemStack[] {
-						new ItemStack(Material.NETHER_STAR),   SlimefunItem.getItem("PRISMATIC_CITRINE"),    new ItemStack(Material.NETHER_STAR),
+						new ItemStack(Material.NETHER_STAR),   new SlimefunItemStack("PRISMATIC_CITRINE", Material.ORANGE_DYE, "&ePrismatic Citrine"),    new ItemStack(Material.NETHER_STAR),
 						SlimefunItems.RUNE_ENDER,          new ItemStack(Material.LIGHT_BLUE_DYE, 1),   SlimefunItems.RUNE_ENDER,
-						new ItemStack(Material.NETHER_STAR),   SlimefunItem.getItem("PRISMATIC_TOPAZ"),   new ItemStack(Material.NETHER_STAR)
+						new ItemStack(Material.NETHER_STAR),   new SlimefunItemStack("PRISMATIC_TOPAZ", Material.LIGHT_BLUE_DYE, "&ePrismatic Topaz"),   new ItemStack(Material.NETHER_STAR)
 				});
 		baronJewel.register(this);
 
@@ -3459,9 +3484,9 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 				new SlimefunItemStack("CARVED_SILVER_INGOT", Borderlands.specialLootDrops("BaronIngot2", null)),
 				RecipeType.SMELTERY,
 				new ItemStack[] {
-						SlimefunItem.getItem("BLISTERING_INGOT_2"), null, SlimefunItem.getItem("BLISTERING_INGOT_2"),
-						SlimefunItem.getItem("ENRICHED_NETHER_ICE"),SlimefunItem.getItem("ENRICHED_NETHER_ICE"), SlimefunItem.getItem("ENRICHED_NETHER_ICE"),
-						SlimefunItem.getItem("BLISTERING_INGOT_2"), null, SlimefunItem.getItem("BLISTERING_INGOT_2")
+						SlimefunItems.BLISTERING_INGOT_2, null, SlimefunItems.BLISTERING_INGOT_2,
+						SlimefunItems.ENRICHED_NETHER_ICE, SlimefunItems.ENRICHED_NETHER_ICE, SlimefunItems.ENRICHED_NETHER_ICE,
+						SlimefunItems.BLISTERING_INGOT_2, null, SlimefunItems.BLISTERING_INGOT_2
 				});
 		baronIngot2.register(this);
 

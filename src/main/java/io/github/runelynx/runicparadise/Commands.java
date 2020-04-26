@@ -2722,9 +2722,17 @@ public class Commands implements CommandExecutor {
 			} catch (SQLException e) {
 				Bukkit.getLogger().log(Level.SEVERE, "Failed raffle ticket check" + e.getMessage());
 			}
-		} else if (args.length == 3 && args[0].equalsIgnoreCase("give") && Integer.parseInt(args[1]) > 0) {
+		} else if (args.length >= 3 && args[0].equalsIgnoreCase("give") && Integer.parseInt(args[1]) > 0) {
 			if (rafflePlayer.hasPermission("rp.rafflestaff")) {
 				// STAFF GIVING TICKETS -- OR CMD BLOCK
+				// /raffle give 1 runelynx
+				String source = "";
+				if (args.length == 3) {
+					source = "Given";
+				} else {
+					source = "Creeper";
+				}
+
 				try {
 					final Connection d = MySQL.openConnection();
 					Statement dStmt = d.createStatement();
@@ -2733,7 +2741,7 @@ public class Commands implements CommandExecutor {
 							"INSERT INTO rpgame.rp_RunicRaffleTickets (PlayerName, UUID, Timestamp, RaffleID, Source, Quantity) VALUES "
 									+ "('" + Bukkit.getOfflinePlayer(args[2]).getName() + "', '"
 									+ Bukkit.getOfflinePlayer(args[2]).getUniqueId().toString() + "', "
-									+ (new Date().getTime()) + ", '"+ raffleID +"', 'Given', " + Integer.parseInt(args[1]) + ");");
+									+ (new Date().getTime()) + ", '"+ raffleID +"', '"+ source +"', " + Integer.parseInt(args[1]) + ");");
 					insertStmt.executeUpdate();
 					d.close();
 					dStmt.close();
@@ -3179,42 +3187,6 @@ public class Commands implements CommandExecutor {
 
 		player.sendMessage(player.getMaximumAir() + " max air ticks. " + player.getRemainingAir() + " remaining air ticks.");
 
-		/*
-		 * sender.sendMessage(EntityType.ARROW.name() + " ... " +
-		 * EntityType.HUSK.name());
-		 *
-		 * Player shooter = ((Player) sender);
-		 *
-		 * Location pTop = shooter.getLocation().add(0, 2, 0); Location
-		 * pLeft = shooter.getLocation().add(1, 2, 0); Location pRight =
-		 * shooter.getLocation().add(0, 2, 1);
-		 *
-		 * Location targetLoc = shooter.getTargetBlock((HashSet<Byte>) null,
-		 * 256).getLocation();
-		 *
-		 * Vector vectorT = targetLoc.toVector().subtract(pTop.toVector());
-		 * vectorT.normalize(); vectorT.multiply(2); Vector vectorL =
-		 * targetLoc.toVector().subtract(pLeft.toVector());
-		 * vectorL.normalize(); vectorL.multiply(2); Vector vectorR =
-		 * targetLoc.toVector().subtract(pRight.toVector());
-		 * vectorR.normalize(); vectorR.multiply(2);
-		 *
-		 * shooter.getWorld().spawnArrow(pTop, vectorT, 3,
-		 * 3).setShooter(shooter); shooter.getWorld().spawnArrow(pLeft,
-		 * vectorL, 3, 3).setShooter(shooter);
-		 * shooter.getWorld().spawnArrow(pRight, vectorR, 3,
-		 * 3).setShooter(shooter);
-		 *
-		 * if (args.length > 0) {
-		 * sender.sendMessage("Totals stored for checks: " + ChatColor.GRAY
-		 * + RunicParadise.playerProfiles.get(Bukkit.getPlayer(args[0]).
-		 * getUniqueId()).mobKillCountsMap .toString());
-		 * sender.sendMessage("Incrementals for DB save: " + ChatColor.GOLD
-		 * + RunicParadise.mobKillTracker.get(Bukkit.getPlayer(args[0]).
-		 * getUniqueId()).toString());
-		 *
-		 * }
-		 */
 	}
 
 
