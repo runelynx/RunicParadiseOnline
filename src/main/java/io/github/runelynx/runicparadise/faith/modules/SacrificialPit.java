@@ -1,8 +1,10 @@
 package io.github.runelynx.runicparadise.faith.modules;
 
+import io.github.runelynx.runicparadise.RunicParadise;
 import io.github.runelynx.runicparadise.RunicUtilities;
 import io.github.runelynx.runicparadise.faith.FaithCore;
 import io.github.runelynx.runicparadise.faith.SummoningDropChance;
+import io.github.runelynx.runicuniverse.RunicMessaging;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -10,6 +12,7 @@ import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.craftbukkit.v1_15_R1.generator.InternalChunkGenerator;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -45,6 +48,7 @@ public class SacrificialPit {
 
         registerPitLocations();
         registerPitItems();
+        registerPitSettings();
 
         if (faithCorePitLocations.size() != 2) {
             Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', "&4Could not register all 2 Pit Locations"));
@@ -75,6 +79,9 @@ public class SacrificialPit {
     public Boolean deactivate() {
 
         faithCorePitLocations.clear();
+        faithCorePitSettings.clear();
+        faithCorePitItems.clear();
+        faithCorePitItemCategories.clear();
         this.active = false;
         return true;
     }
@@ -93,6 +100,26 @@ public class SacrificialPit {
                 summonLocSection.getInt("X2"),
                 summonLocSection.getInt("Y2"),
                 summonLocSection.getInt("Z2")));
+    }
+
+    private Boolean registerPitSettings() {
+        ConfigurationSection pitSettingsSection = FaithCore.getFaithConfig().getConfigurationSection("Faith.SacrificialPit.Settings");
+        Set<String> pitSettingsConfigList = pitSettingsSection.getKeys(false);
+
+        // Loop thru items
+        for (String pitSettingsKey : pitSettingsConfigList) {
+            faithCorePitSettings.put(
+                    pitSettingsKey,
+                    pitSettingsSection.getString(pitSettingsKey));
+
+            //Debug
+            Bukkit.getLogger().log(
+                    Level.INFO,
+                    "Adding Pit Setting: " + pitSettingsKey + ": " + pitSettingsSection.getString(pitSettingsKey)
+            );
+        }
+
+        return true;
     }
 
     private Boolean registerPitItems() {
@@ -140,8 +167,39 @@ public class SacrificialPit {
                 && loc.getY() > faithCorePitLocations.get("PitPos2").getY()
                 && loc.getZ() > faithCorePitLocations.get("PitPos2").getZ()) {
 
-        }
+
+            Player p = event.getPlayer();
+
             // Player has dropped an item in the sacrificial pit!
+            if (!faithCorePitItems.containsKey(event.getItemDrop().getItemStack().getType())) {
+                // Player has dropped an item that is not in the Pit's list
+                RunicMessaging.sendMessage(
+                        p,
+                        RunicMessaging.RunicFormat.EMPTY,
+                        ChatColor.translateAlternateColorCodes('&', faithCorePitSettings.get("SacrificeRefusalMessage"))
+                );
+
+                event.setCancelled(true);
+            } else if (event.getItemDrop().getItemStack().getItemMeta() != null
+                    && event.getItemDrop().getItemStack().getItemMeta().getLore() != null) {
+                // Player has dropped an item that has lore
+                RunicMessaging.sendMessage(
+                        p,
+                        RunicMessaging.RunicFormat.EMPTY,
+                        ChatColor.translateAlternateColorCodes('&', faithCorePitSettings.get("SacrificeRefusalLoreMessage"))
+                );
+            } else {
+                // Player has dropped an item that IS on the Pit's list
+
+                Material mat = event.getItemDrop().getItemStack().getType();
+                int amount = event.getItemDrop().getItemStack().getAmount();
+
+                RunicParadise.playerProfiles.get(p.getUniqueId()).processPitContribution(
+                        faithCorePitItems.get(mat) * amount
+                );
+
+            }
+        }
 
             //
         return true;

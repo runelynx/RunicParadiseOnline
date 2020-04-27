@@ -56,6 +56,7 @@ public class RunicProfile {
 	int explorerLocsFound;
 	int mazesAndParkoursCompletedFirstTime;
 	int rankDropCountLast24Hours;
+	int activePitContribution, lifetimePitContribution;
 	HashMap<EntityType, Integer> mobKillCountsMap = new HashMap<EntityType, Integer>();
 
 	Location farmKillLoc;
@@ -112,6 +113,15 @@ public class RunicProfile {
 
 	public String getChatColor() {
 		return this.chatColor;
+	}
+
+	// This should only be set by the the retrieve function (this method doesn't update the DB!!)
+	private void setSacrificeContribution(int amount, boolean lifetime) {
+		if (lifetime) {
+			this.lifetimePitContribution = amount;
+		} else {
+			this.activePitContribution = amount;
+		}
 	}
 
 	public void changeGender(String T_toggle_M_male_F_female, boolean updateDB) {
@@ -229,6 +239,51 @@ public class RunicProfile {
 				error = true;
 				break;
 		}
+	}
+
+	public void processPitContribution (int amount) {
+		int previousActiveContribution = this.activePitContribution;
+		int previousLifetimeContribution = this.lifetimePitContribution;
+
+		int interimContrib = previousActiveContribution + amount;
+
+		if (interimContrib >= 500) {
+			// Zeal is owed to the player!
+			int zealToGrant = 0;
+
+			while (interimContrib >= 500) {
+				zealToGrant++;
+				interimContrib = interimContrib - 500;
+			}
+
+			grantCurrency("Zeal", zealToGrant);
+			this.activePitContribution = interimContrib;
+			this.lifetimePitContribution = previousLifetimeContribution + amount;
+
+			MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
+
+			try {
+				Connection connection = MySQL.openConnection();
+				Statement statement = connection.createStatement();
+				statement.executeUpdate("UPDATE `rp_Faith_PlayerSacrifices` SET `LifetimeContribution`  = " + this.lifetimePitContribution
+						+ " WHERE UUID= '" + this.getPlayerID() + "';");
+
+				statement.executeUpdate("UPDATE `rp_Faith_PlayerSacrifices` SET `ActiveContribution`  = " + this.activePitContribution
+						+ " WHERE UUID= '" + this.getPlayerID() + "';");
+
+				statement.executeUpdate("UPDATE `rp_Faith_PlayerSacrifices` SET `LastContribution`  = " + (new Date().getTime())
+						+ " WHERE UUID= '" + this.getPlayerID() + "';");
+
+				connection.close();
+
+			} catch (SQLException e) {
+				getLogger().log(Level.SEVERE,
+						"Failed processPitContribution update (change " + this.playerName + "  because: " + e.getMessage());
+			}
+
+
+		}
+
 	}
 
 	public void grantCurrency(String type, int amount) {
@@ -724,12 +779,24 @@ public class RunicProfile {
 			PreparedStatement dStmt3 = connection
 					.prepareStatement("SELECT SUM(Level) AS FPL FROM rp_PlayerFaiths WHERE UUID = ?;");
 			dStmt3.setString(1, this.getPlayerID().toString());
-
 			ResultSet faithData = dStmt3.executeQuery();
+
+			PreparedStatement dStmt4 = connection
+					.prepareStatement("SELECT ActiveContribution, LifetimeContribution FROM rp_Faith_PlayerSacrifices WHERE UUID = ?;");
+			dStmt4.setString(1, this.getPlayerID().toString());
+			ResultSet sacrificeData = dStmt4.executeQuery();
 
 			if (faithData.isBeforeFirst()) {
 				faithData.next();
 				this.setFaithPowerLevel(faithData.getInt("FPL"));
+			} else {
+				this.setFaithPowerLevel(0);
+			}
+
+			if (sacrificeData.isBeforeFirst()) {
+				sacrificeData.next();
+				this.setSacrificeContribution(sacrificeData.getInt("ActiveContribution"), false);
+				this.setSacrificeContribution(sacrificeData.getInt("LifetimeContribution"), true);
 			} else {
 				this.setFaithPowerLevel(0);
 			}

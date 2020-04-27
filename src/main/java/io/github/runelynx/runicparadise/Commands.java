@@ -2637,7 +2637,15 @@ public class Commands implements CommandExecutor {
 
 	private void raffleCommand(CommandSender sender, String[] args) {
     	MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
-		Player rafflePlayer = ((Player) sender);
+
+		CommandSender raffleSender = sender;
+		Player rafflePlayer = null;
+		boolean senderIsPlayer = false;
+
+    	if (sender instanceof Player) {
+			raffleSender = ((Player) sender);
+			senderIsPlayer = true;
+    	}
 
 		int tickets = 0;
 		int raffleCount = 0;
@@ -2649,7 +2657,7 @@ public class Commands implements CommandExecutor {
 		String raffleID = Raffle.raffleSettingsMap.get("CurrentRaffleID");
 		Boolean raffleEnabled = Boolean.parseBoolean(Raffle.raffleSettingsMap.get("Enabled"));
 
-		if (!raffleEnabled) {
+		if (!raffleEnabled && senderIsPlayer) {
 			RunicMessaging.sendMessage(rafflePlayer, RunicFormat.ERROR, Raffle.raffleSettingsMap.get("RaffleDisabledMessage"));
 
 			return;
@@ -2723,7 +2731,7 @@ public class Commands implements CommandExecutor {
 				Bukkit.getLogger().log(Level.SEVERE, "Failed raffle ticket check" + e.getMessage());
 			}
 		} else if (args.length >= 3 && args[0].equalsIgnoreCase("give") && Integer.parseInt(args[1]) > 0) {
-			if (rafflePlayer.hasPermission("rp.rafflestaff")) {
+			if ((senderIsPlayer && rafflePlayer.hasPermission("rp.rafflestaff")) || !senderIsPlayer) {
 				// STAFF GIVING TICKETS -- OR CMD BLOCK
 				// /raffle give 1 runelynx
 				String source = "";
@@ -2746,9 +2754,12 @@ public class Commands implements CommandExecutor {
 					d.close();
 					dStmt.close();
 
-					RunicMessaging.sendMessage(rafflePlayer, RunicMessaging.RunicFormat.RAFFLE,
+					if (senderIsPlayer) {
+						RunicMessaging.sendMessage(rafflePlayer, RunicMessaging.RunicFormat.RAFFLE,
 							"You gave " + Integer.parseInt(args[1]) + " tickets to "
 									+ Bukkit.getOfflinePlayer(args[2]).getName());
+					}
+
 					RunicMessaging.sendMessage(Bukkit.getPlayer(args[2]), RunicMessaging.RunicFormat.RAFFLE,
 							"You just received " + Integer.parseInt(args[1]) + " "
 									+ ChatColor.translateAlternateColorCodes('&', raffleNameColor) + " tickets!");

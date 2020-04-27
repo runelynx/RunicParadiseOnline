@@ -1882,6 +1882,12 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 		}
 	}
 
+	@EventHandler
+	public void onPlayerDropItemEvent (PlayerDropItemEvent event) {
+		// Process Sacrifical Pit
+		io.github.runelynx.runicparadise.faith.modules.SacrificialPit.handlePlayerDropItemEvent(event);
+	}
+
 	@EventHandler(priority = EventPriority.NORMAL)
 	public void onPlayerDamage(final EntityDamageEvent ede) {
 		boolean daytime = (Bukkit.getWorld("RunicKingdom").getTime() <= 14000 || Bukkit.getWorld("RunicKingdom").getTime() >= 23000);
@@ -2041,7 +2047,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 				Player q = (Player)nEvent.getDamager();
 
 				if (ede.getEntity().getCustomName() != null && ede.getEntity().getCustomName().contains("Lucky Creeper")) {
-					Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "raffle give 5 " + q.getName());
+					Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "raffle give 5 " + q.getName() + " creeper");
 					for (Player a : Bukkit.getOnlinePlayers()) {
 						RunicMessaging.sendMessage(a, RunicFormat.RAFFLE, q.getDisplayName() + ChatColor.GOLD + " just got 5 raffle tickets from a lucky creeper!");
 					}

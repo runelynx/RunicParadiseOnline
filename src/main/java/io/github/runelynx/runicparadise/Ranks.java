@@ -1636,7 +1636,8 @@ class Ranks {
 							Borderlands.specialLootDrops("DukeRing4", p.getUniqueId()));
 				}
 
-				perms.playerAdd(p, "rp.ranks.dukering");
+				Bukkit.dispatchCommand(Bukkit.getConsoleSender(),
+						"lp user " + p.getName() + " permission set rp.ranks.dukering");
 
 				return true;
 
@@ -1647,13 +1648,15 @@ class Ranks {
 
 			Bukkit.getLogger().log(Level.INFO, "Checking if " + p.getName() + " has required pieces to craft Baron Pendant...");
 
-			ItemStack invGem = null;
-			ItemStack invMetal1 = null;
-			ItemStack invMetal2 = null;
+			ItemStack invGem = new ItemStack(Material.COAL, 1);
+			ItemStack invMetal1 = new ItemStack(Material.COAL, 1);
+			ItemStack invMetal2 = new ItemStack(Material.COAL, 1);
 
+			int counter = 0;
+			while(counter < 36) {
+				ItemStack i = p.getInventory().getItem(counter);
 
-			for (ItemStack i : p.getInventory().getContents()) {
-				if (i.getItemMeta() != null) {
+				if (i != null && i.getItemMeta() != null) {
 					ItemMeta meta = i.getItemMeta();
 					PersistentDataContainer container = meta.getPersistentDataContainer();
 
@@ -1677,18 +1680,14 @@ class Ranks {
 						invMetal2 = i;
 						messages.add(ChatColor.GREEN + "You have the unstable ingot!");
 					}
-
 				}
+				counter++;
 			}
-
-			Bukkit.getLogger().log(Level.INFO, "For loop complete... " +
-					invGem.getType().toString() + "..." + invMetal1.getType().toString() + "..." + invMetal2.getType().toString() + "...");
 
 			Bukkit.getLogger().log(Level.INFO, "For loop complete... " +
 					checkGem + "..." + checkMetal + "..." + checkEssence + "...");
 
-			if ((checkGem && checkMetal && checkEssence) ||
-					(invMetal1 != null && invMetal2 != null && invGem != null)) {
+			if (checkGem && checkMetal && checkEssence) {
 				// player has all needed materials!
 
 				Bukkit.getLogger().log(Level.INFO, "Setting itemstack amounts for... " +
@@ -1714,7 +1713,10 @@ class Ranks {
 							Borderlands.specialLootDrops("BaronPendant2", p.getUniqueId()));
 				}
 
-				perms.playerAdd(p, "rp.ranks.baronpendant");
+
+				Bukkit.dispatchCommand(Bukkit.getConsoleSender(),
+						"lp user " + p.getName() + " permission set rp.ranks.baronpendant");
+				RunicMessaging.sendMessage(p, RunicFormat.RANKS, "Congrats! You have crafted the Baron's Pendant!");
 
 				return true;
 			} else {

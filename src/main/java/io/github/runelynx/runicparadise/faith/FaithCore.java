@@ -33,6 +33,7 @@ public class FaithCore {
     public static HashMap<String, SummonableMob> faithCoreSummonableMobs = new HashMap<>();
     public static HashMap<Material, Integer> faithCorePitItems = new HashMap<>();
     public static HashMap<Material, String> faithCorePitItemCategories = new HashMap<>();
+    public static HashMap<String, String> faithCorePitSettings = new HashMap<>();
 
     public FaithCore (){
         initializeFaithSystem();
