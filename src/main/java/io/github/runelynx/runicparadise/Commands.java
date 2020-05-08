@@ -2644,6 +2644,7 @@ public class Commands implements CommandExecutor {
 
     	if (sender instanceof Player) {
 			raffleSender = ((Player) sender);
+			rafflePlayer = ((Player) sender);
 			senderIsPlayer = true;
     	}
 

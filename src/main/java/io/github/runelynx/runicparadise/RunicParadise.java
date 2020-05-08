@@ -1065,48 +1065,25 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 	@EventHandler(priority = EventPriority.LOWEST)
 	public void onBreakBlock(final BlockBreakEvent event) {
 
-// Old custom Runic Graves Logic
-/*
-		if ((event.getBlock().getType() == Material.REDSTONE_LAMP_ON
-				|| event.getBlock().getType() == Material.REDSTONE_LAMP_OFF)
-				&& !RunicDeathChest.checkHashmapForDeathLoc(event.getBlock().getLocation()).equals("NoGrave")) {
-
-			event.setCancelled(true);
-			event.getPlayer().sendMessage(ChatColor.DARK_GRAY + "[RunicReaper] " + ChatColor.GRAY
-					+ "Knocking over graves is bad luck! Right click the bottom!");
-			getServer().dispatchCommand(getServer().getConsoleSender(),
-					"effect " + event.getPlayer().getName() + " 9 10 10");
-		} else if ((event.getBlock().getType() == Material.SIGN || event.getBlock().getType() == Material.SIGN_POST)
-				&& !RunicDeathChest.checkHashmapForDeathLoc(event.getBlock().getLocation().subtract(0, 1, 0))
-						.equals("NoGrave")) {
-			event.setCancelled(true);
-			event.getPlayer().sendMessage(ChatColor.DARK_GRAY + "[RunicReaper] " + ChatColor.GRAY
-					+ "Knocking over graves is bad luck! Right click the bottom!");
-			getServer().dispatchCommand(getServer().getConsoleSender(),
-					"effect " + event.getPlayer().getName() + " 15 3 5");
-						} else */
-
 		if (event.getBlock().getType() == Material.SPAWNER && !event.getPlayer().hasPermission("rp.staff")) {
 			event.setCancelled(true);
 			event.getPlayer().sendMessage(ChatColor.DARK_RED + "Hey put that back! Only staff can break that.");
 			// ATTEMPT CASTING BEAST-POWER / SPIRIT OF BEAVER
 		}
-		/*
-		 * Bukkit.getServer().getScheduler() .runTaskAsynchronously(instance,
-		 * new Runnable() { public void run() {
-		 *
-		 * if ((event.getBlock().getType() == Material.DIRT || event
-		 * .getBlock().getType() == Material.STONE) &&
-		 * RunicParadise.powersMap.get( event.getPlayer().getUniqueId())
-		 * .getSkillBeasts() >= 400) { // Player broke dirt/stone AND has
-		 * sufficient skill, // so attempt cast
-		 * Powers.spellSpiritOfTheMole(event.getPlayer() .getUniqueId(),
-		 * event.getPlayer() .getLocation());
-		 *
-		 * }
-		 *
-		 * } // end run() }); // delay // end task method
-		 */
+
+		if (event.getPlayer().getEquipment().getItemInMainHand().hasItemMeta() &&
+			event.getPlayer().getEquipment().getItemInMainHand().getItemMeta().hasLore()) {
+
+			List<String> lore = event.getPlayer().getEquipment().getItemInMainHand().getItemMeta().getLore();
+			for (String s : lore) {
+				if (s.contains("Charges:")) {
+					event.setCancelled(true);
+					RunicMessaging.sendMessage(event.getPlayer(), RunicFormat.FAITH, "You can only use Faith weaponry to slay monsters in the name of your faith!");
+				}
+			}
+
+		}
+
 	}
 
 	@EventHandler
@@ -1118,38 +1095,6 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 		}
 	}
 
-	/*
-	 * @EventHandler public void onPlayerPickupItem(PlayerPickupItemEvent event)
-	 * { if (runicEyes.containsKey(event.getItem().getUniqueId())) {
-	 * event.getPlayer().sendMessage( ChatColor.GREEN +
-	 * "Hey don't poke Rune in the eye!!"); event.setCancelled(true); } }
-	 */
-
-	/*
-	 * @SuppressWarnings("deprecation")
-	 *
-	 * @EventHandler public void onEntityShootBowEvent(EntityShootBowEvent
-	 * event) { if (event.getEntity() instanceof Player &&
-	 * event.getEntity().getName().equals("runelynx")) {
-	 *
-	 * Projectile proj = (Projectile) event.getProjectile();
-	 *
-	 * ((Player) event.getEntity()).launchProjectile(Fireball.class,
-	 * proj.getVelocity()); ((Player)
-	 * event.getEntity()).launchProjectile(Snowball.class, proj.getVelocity());
-	 * ((Player) event.getEntity()).launchProjectile(Arrow.class,
-	 * proj.getVelocity()); ((Player)
-	 * event.getEntity()).launchProjectile(Arrow.class, proj.getVelocity());
-	 * ((Player) event.getEntity()).launchProjectile(Arrow.class,
-	 * proj.getVelocity()); ((Player)
-	 * event.getEntity()).launchProjectile(Arrow.class, proj.getVelocity());
-	 * ((Player) event.getEntity()).launchProjectile(Fireball.class,
-	 * proj.getVelocity()); ((Player)
-	 * event.getEntity()).launchProjectile(Fireball.class, proj.getVelocity());
-	 * }
-	 * 
-	 * }
-	 */
 
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onPlayerTeleport(PlayerTeleportEvent event) {

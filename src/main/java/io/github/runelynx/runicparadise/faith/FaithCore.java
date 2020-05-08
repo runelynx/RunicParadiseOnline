@@ -65,7 +65,7 @@ public class FaithCore {
         faithCoreItemDataKeys.put("ChanceToLevelUp", new NamespacedKey(RunicParadise.getInstance(), "ChanceToLevelUp"));
         faithCoreItemDataKeys.put("ChanceToConsumeCharge", new NamespacedKey(RunicParadise.getInstance(), "ChanceToConsumeCharge"));
         faithCoreItemDataKeys.put("Charges", new NamespacedKey(RunicParadise.getInstance(), "Charges"));
-        faithCoreItemDataKeys.put("ZealRequiredToCraft", new NamespacedKey(RunicParadise.getInstance(), "KarmaRequiredToCraft"));
+        faithCoreItemDataKeys.put("ZealRequiredToCraft", new NamespacedKey(RunicParadise.getInstance(), "ZealRequiredToCraft"));
         faithCoreItemDataKeys.put("FaithWeapon", new NamespacedKey(RunicParadise.getInstance(), "FaithWeapon"));
         faithCoreItemDataKeys.put("SummoningItem", new NamespacedKey(RunicParadise.getInstance(), "SummoningItem"));
         faithCoreItemDataKeys.put("FaithBallMobId", new NamespacedKey(RunicParadise.getInstance(), "FaithBallMobId"));
