@@ -31,20 +31,24 @@ public class RunicUtilities {
 		}
 	}
 
-	public static ArrayList<String> processLoreStringsToArray(String lore1, String lore2, String lore3) {
+	public static ArrayList<String> processLoreStringsToArray(String lore1, String lore2, String lore3, String lore4, String lore5) {
 		ArrayList<String> loreList = new ArrayList<String>();
 		loreList.add(ChatColor.translateAlternateColorCodes('&', lore1));
 
 		if (lore2 != null) {
 			loreList.add(ChatColor.translateAlternateColorCodes('&', lore2));
-		} else {
-			loreList.add(" ");
 		}
 
 		if (lore3 != null) {
 			loreList.add(ChatColor.translateAlternateColorCodes('&', lore3));
-		} else {
-			loreList.add(" ");
+		}
+
+		if (lore4 != null) {
+			loreList.add(ChatColor.translateAlternateColorCodes('&', lore4));
+		}
+
+		if (lore5 != null) {
+			loreList.add(ChatColor.translateAlternateColorCodes('&', lore5));
 		}
 
 		return loreList;

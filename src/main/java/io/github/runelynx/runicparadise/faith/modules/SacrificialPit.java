@@ -12,18 +12,21 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerDropItemEvent;
 
 import java.util.Set;
-import java.util.logging.Level;
 
 import static io.github.runelynx.runicparadise.faith.FaithCore.*;
+import static org.bukkit.Bukkit.getServer;
 
 public class SacrificialPit {
 
     private Boolean active = false;
 
     public SacrificialPit() {
+        getServer().getConsoleSender().sendMessage(ChatColor.RED + "[FAITH STARTUP] PIT: Activating ...");
         if (activate()) {
             this.active = true;
+            getServer().getConsoleSender().sendMessage(ChatColor.RED + "[FAITH STARTUP] PIT: Activation complete!");
         } else {
+            getServer().getConsoleSender().sendMessage(ChatColor.RED + "[FAITH STARTUP] PIT: *FAILURE* Unknown issue loading sacrificial pit data");
             Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', "&4Failed to load Faith Module: Sacrificial Pit"));
         }
     }
@@ -35,16 +38,16 @@ public class SacrificialPit {
             return true;
         }
 
-        Bukkit.getLogger().log(Level.INFO, "~~~ Activating faith module - sacrificial pit ~~~");
-
         registerPitLocations();
         registerPitItems();
         registerPitSettings();
 
         if (faithCorePitLocations.size() != 2) {
-            Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', "&4Could not register all 2 Pit Locations"));
+            getServer().getConsoleSender().sendMessage(ChatColor.RED + "[FAITH STARTUP] PIT: *FAILURE* Could not load the 2 pit locations from config");
             return false;
         }
+
+        getServer().getConsoleSender().sendMessage(ChatColor.RED + "[FAITH STARTUP] PIT: Successfully loaded pit locations");
 
         this.active = true;
         return true;
@@ -69,10 +72,6 @@ public class SacrificialPit {
 
     public Boolean deactivate() {
 
-        faithCorePitLocations.clear();
-        faithCorePitSettings.clear();
-        faithCorePitItems.clear();
-        faithCorePitItemCategories.clear();
         this.active = false;
         return true;
     }
@@ -104,10 +103,7 @@ public class SacrificialPit {
                     pitSettingsSection.getString(pitSettingsKey));
 
             //Debug
-            Bukkit.getLogger().log(
-                    Level.INFO,
-                    "Adding Pit Setting: " + pitSettingsKey + ": " + pitSettingsSection.getString(pitSettingsKey)
-            );
+            getServer().getConsoleSender().sendMessage(ChatColor.RED + "[FAITH STARTUP] PIT: Adding Pit Setting: " + pitSettingsKey + ": " + pitSettingsSection.getString(pitSettingsKey));
         }
 
         return true;
@@ -116,6 +112,8 @@ public class SacrificialPit {
     private Boolean registerPitItems() {
         ConfigurationSection pitDropRewardsSection = FaithCore.getFaithConfig().getConfigurationSection("Faith.SacrificialPit.DropRewards");
         Set<String> pitDropRewardsConfigList = pitDropRewardsSection.getKeys(false);
+        int catCount =0;
+        int itemCount =0;
 
         // Loop thru list of categories underneath DropRewards section
         for (String pitCategoryKey : pitDropRewardsConfigList) {
@@ -136,15 +134,19 @@ public class SacrificialPit {
                 );
 
                 //Debug
-                Bukkit.getLogger().log(
-                        Level.INFO,
-                        "Adding Pit Item: " + pitCategoryKey + ": " + pitItemKey + ": " + pitItemSection.getInt(pitItemKey)
-                );
+                getServer().getConsoleSender().sendMessage(ChatColor.RED + "[FAITH STARTUP] PIT: Adding Pit item: " +
+                                pitCategoryKey + ": " + pitItemKey + ": " + pitItemSection.getInt(pitItemKey));
+
+                itemCount++;
             }
+
+            catCount++;
 
         }
 
+        getServer().getConsoleSender().sendMessage(ChatColor.RED + "[FAITH STARTUP] PIT: Loaded " + catCount + " item categories and " + itemCount + " items");
         return true;
+
     }
 
     public static boolean handlePlayerDropItemEvent (PlayerDropItemEvent event) {

@@ -25,6 +25,7 @@ import java.util.Set;
 import java.util.logging.Level;
 
 import static io.github.runelynx.runicparadise.faith.FaithCore.*;
+import static org.bukkit.Bukkit.getServer;
 
 public class SummoningSystem {
 
@@ -45,17 +46,20 @@ public class SummoningSystem {
             return true;
         }
 
-        Bukkit.getLogger().log(Level.INFO, "~~~ Activating faith module - faithsummonarena ~~~");
+        getServer().getConsoleSender().sendMessage(ChatColor.RED + "[FAITH STARTUP] SUMMONING: Activating ...");
         registerArenaLocations();
         if (faithCoreSummoningLocations.size() != 3) {
-            Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', "&4Could not register all 3 Summoning System Arena Locations"));
+            getServer().getConsoleSender().sendMessage(ChatColor.RED + "[FAITH STARTUP] SUMMONING: *FAILURE* Could not register all 3 summoning system locations!");
             return false;
         }
+
+        getServer().getConsoleSender().sendMessage(ChatColor.RED + "[FAITH STARTUP] SUMMONING: Successfully parsed summoning system locations");
+
         // Components must be registered before Mobs !!
         registerSummoningComponents();
         registerSummoningMobs();
 
-
+        getServer().getConsoleSender().sendMessage(ChatColor.RED + "[FAITH STARTUP] SUMMONING: Activation complete!");
         this.active = true;
         return true;
     }
@@ -78,10 +82,7 @@ public class SummoningSystem {
     }
 
     public Boolean deactivate() {
-        FaithCore.faithCoreSummoningComponents.clear();
-        FaithCore.faithCoreSummoningDrops.clear();
-        FaithCore.faithCoreSummoningLocations.clear();
-        FaithCore.faithCoreSummonableMobs.clear();
+
         this.active = false;
         return true;
     }
@@ -116,7 +117,7 @@ public class SummoningSystem {
     private Boolean addSummoningItem(String id, String name, String lore1, String lore2, String lore3,
                                      String itemType, List<String> dropList) {
 
-        ArrayList<String> loreList = RunicUtilities.processLoreStringsToArray(lore1, lore2, lore3);
+        ArrayList<String> loreList = RunicUtilities.processLoreStringsToArray(lore1, lore2, lore3, null, null);
 
         ItemStack item = new ItemStack(Material.valueOf(itemType));
         ItemMeta meta = item.getItemMeta();
@@ -146,11 +147,9 @@ public class SummoningSystem {
 
     private Boolean registerSummoningComponents() {
 
-        Bukkit.getLogger().log(Level.INFO, "~~~ Activating faith module - faithsummonitems ~~~");
-        Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', "&4RED WORDS!"));
-
         ConfigurationSection summonItemSection = FaithCore.getFaithConfig().getConfigurationSection("Faith.SummoningSystem.Items");
         Set<String> summonItemConfigList = summonItemSection.getKeys(false);
+        int count = 0;
 
         for (String summonItemKey : summonItemConfigList) {
 
@@ -163,8 +162,11 @@ public class SummoningSystem {
                     summonItemSection.getString(summonItemKey + ".Lore3"),
                     summonItemSection.getString(summonItemKey + ".Type"),
                     summonItemSection.getStringList(summonItemKey + ".Drops"));
+
+            count++;
         }
 
+        getServer().getConsoleSender().sendMessage(ChatColor.RED + "[FAITH STARTUP] SUMMONING: Successfully parsed "+ count +" summoning components");
         return true;
     }
 
@@ -176,6 +178,7 @@ public class SummoningSystem {
         ConfigurationSection summonMobsSection = FaithCore.getFaithConfig()
                 .getConfigurationSection("Faith.SummoningSystem.Mobs");
         Set<String> summonMobsConfigList = summonMobsSection.getKeys(false);
+        int count = 0;
 
         for (String summonMobsKey : summonMobsConfigList) {
 
@@ -232,7 +235,11 @@ public class SummoningSystem {
                             items.get(3), items.get(4), items.get(5),
                             items.get(6), items.get(7), items.get(8)}
             );
+
+            count++;
         }
+
+        getServer().getConsoleSender().sendMessage(ChatColor.RED + "[FAITH STARTUP] SUMMONING: Successfully parsed "+ count +" summoning mobs; mobs & SF faith ball recipes are registered!");
 
         return true;
     }

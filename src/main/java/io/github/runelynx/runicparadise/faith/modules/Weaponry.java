@@ -42,7 +42,7 @@ public class Weaponry {
             return true;
         }
 
-        Bukkit.getLogger().log(Level.INFO, "~~~ Activating faith module - faithweapons ~~~");
+        getServer().getConsoleSender().sendMessage(ChatColor.RED + "[FAITH STARTUP] WEAPONRY: Activating ...");
 
         ConfigurationSection weaponSection = FaithCore.getFaithConfig().getConfigurationSection("Faith.Weapons");
         Set<String> weaponConfigList = weaponSection.getKeys(false);
@@ -56,6 +56,8 @@ public class Weaponry {
                     weaponSection.getString(weaponKey + ".Lore1"),
                     weaponSection.getString(weaponKey + ".Lore2"),
                     weaponSection.getString(weaponKey + ".Lore3"),
+                    weaponSection.getString(weaponKey + ".Lore4"),
+                    weaponSection.getString(weaponKey + ".Lore5"),
                     weaponSection.getDouble(weaponKey + ".ChanceToLevelUp"),
                     weaponSection.getDouble(weaponKey + ".ChanceToConsumeCharge"),
                     weaponSection.getInt(weaponKey + ".Charges"),
@@ -67,6 +69,7 @@ public class Weaponry {
 
         }
 
+        getServer().getConsoleSender().sendMessage(ChatColor.RED + "[FAITH STARTUP] WEAPONRY: Activation complete!");
         return true;
     }
 
@@ -89,13 +92,10 @@ public class Weaponry {
 
     public Boolean deactivate(){
 
-        List<Material> materialsToRemove = new ArrayList<>();
-        materialsToRemove.add(Material.DIAMOND_SWORD);
-        materialsToRemove.add(Material.DIAMOND_AXE);
-        materialsToRemove.add(Material.BOW);
+        List<Material> materialsToRemove = FaithCore.faithCoreWeaponryMaterials;
 
-        getServer().getConsoleSender().sendMessage(ChatColor.RED + "~~~ Removing custom recipes from RunicParadise to reload Faith config ~~~");
-        getServer().getConsoleSender().sendMessage(ChatColor.GRAY + "    > Targeting recipes that create: (list controlled in deactivateModule_FaithWeapons)");
+
+        getServer().getConsoleSender().sendMessage(ChatColor.RED + "[FAITH SHUTDOWN] WEAPONRY: Removing custom recipes from RunicParadise to reload Faith config");
 
         for (Material m : materialsToRemove) {
             getServer().getConsoleSender().sendMessage(ChatColor.GOLD + "        . " + m.toString());
@@ -110,30 +110,30 @@ public class Weaponry {
             if (itRecipe != null
                     && materialsToRemove.contains(itRecipe.getResult().getType())
                     && itRecipe instanceof ShapelessRecipe) {
-                getServer().getConsoleSender().sendMessage(ChatColor.RED + "    > "
-                        + ChatColor.GRAY + "        Removing "
-                        + ChatColor.RESET + "" + ChatColor.LIGHT_PURPLE + itRecipe.getResult().getItemMeta().getDisplayName());
+                getServer().getConsoleSender().sendMessage("[FAITH SHUTDOWN] WEAPONRY: Removing recipe for... " +
+                        itRecipe.getResult().getItemMeta().getDisplayName());
                 it.remove();
                 count++;
             }
 
         }
-        getServer().getConsoleSender().sendMessage(ChatColor.RED + "~~~ Recipe removal complete; removed " + count + " recipes ~~~");
+        getServer().getConsoleSender().sendMessage("[FAITH SHUTDOWN] WEAPONRY: Recipe removal complete; removed " + count + " recipes");
         this.active = false;
         return true;
     }
 
-    private Boolean addFaithWeaponRecipe(String id, String name, String lore1, String lore2, String lore3,
+    private Boolean addFaithWeaponRecipe(String id, String name, String lore1, String lore2, String lore3, String lore4, String lore5,
                                          Double levelUpChance, Double consumeChargeChance, int charges,
                                          int zealRequired, String itemType, List<String> craftList, List<String> enchantList, int addDamage) {
 
         int levelUpChancePretty = (int)(levelUpChance * 100);
         int consumeChargeChancePretty = (int)(consumeChargeChance * 100);
-        ArrayList<String> loreList = RunicUtilities.processLoreStringsToArray(lore1, lore2, lore3);
+        ArrayList<String> loreList = RunicUtilities.processLoreStringsToArray(lore1, lore2, lore3, lore4, lore5);
 
-        String lore4 = "" + ChatColor.LIGHT_PURPLE + charges + " Charges";
+        // TODO - Need to visually ensure some data elements are shown (like remaining charges)
 
-        loreList.add(lore4);
+        // Add this item type to the list so we can safely remove recipes on a reload
+        FaithCore.faithCoreWeaponryMaterials.add(Material.valueOf(itemType));
 
         ItemStack weapon = new ItemStack(Material.valueOf(itemType));
         ItemMeta meta = weapon.getItemMeta();
@@ -180,9 +180,7 @@ public class Weaponry {
         // Finally, add the recipe to the bukkit recipes
         Bukkit.addRecipe(recipe);
 
-        Bukkit.getLogger().log(Level.INFO, "    Adding custom recipe from faith config: "
-                + itemType + " - "
-                + name);
+        getServer().getConsoleSender().sendMessage("[FAITH STARTUP] WEAPONRY: Adding custom recipe... " + itemType + " | " + name);
 
         return true;
     }

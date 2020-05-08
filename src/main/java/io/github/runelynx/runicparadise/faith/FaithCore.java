@@ -14,6 +14,7 @@ import org.bukkit.inventory.ItemStack;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.List;
 
 import static org.bukkit.Bukkit.getServer;
 
@@ -32,6 +33,7 @@ public class FaithCore {
     public static HashMap<Material, Integer> faithCorePitItems = new HashMap<>();
     public static HashMap<Material, String> faithCorePitItemCategories = new HashMap<>();
     public static HashMap<String, String> faithCorePitSettings = new HashMap<>();
+    public static List<Material> faithCoreWeaponryMaterials;
 
     public FaithCore (){
         initializeFaithSystem();
@@ -54,8 +56,22 @@ public class FaithCore {
         summoningSystemModule.deactivate();
         weaponryModule.deactivate();
         sacrificialPitModule.deactivate();
+        getServer().getConsoleSender().sendMessage( "[FAITH SHUTDOWN] CORE: Modules have been deactivated");
+
+        faithCoreSummoningComponents.clear();
+        faithCoreSummoningDrops.clear();
+        faithCoreSummoningLocations.clear();
+        faithCoreSummonableMobs.clear();
+
+        faithCorePitLocations.clear();
+        faithCorePitItems.clear();
+        faithCorePitItemCategories.clear();
+        faithCorePitSettings.clear();
+
+        faithCoreWeaponryMaterials.clear();
 
         faithCoreItemDataKeys.clear();
+        getServer().getConsoleSender().sendMessage( "[FAITH SHUTDOWN] CORE: Hashmaps have been purged");
     }
 
     private void initializeFaithSystem() {

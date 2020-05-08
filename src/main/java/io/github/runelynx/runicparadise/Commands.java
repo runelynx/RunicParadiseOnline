@@ -11,13 +11,9 @@ import io.github.runelynx.runicparadise.faith.FaithCore;
 import io.github.runelynx.runicparadise.faith.modules.SummoningSystem;
 import io.github.runelynx.runicuniverse.RunicMessaging;
 import io.github.runelynx.runicuniverse.RunicMessaging.RunicFormat;
-import net.minecraft.server.v1_15_R1.AdvancementFrameType;
 import org.bukkit.*;
-import org.bukkit.advancement.Advancement;
 import org.bukkit.block.Block;
 import org.bukkit.command.*;
-import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -30,20 +26,17 @@ import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.plugin.Plugin;
 import org.json.JSONObject;
 import org.json.JSONTokener;
-import net.md_5.bungee.api.chat.TextComponent;
 
 import java.io.File;
 import java.io.InputStream;
 import java.sql.*;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
-import java.util.*;
 import java.util.Date;
+import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
-
-import static org.bukkit.Bukkit.getServer;
 
 public class Commands implements CommandExecutor {
 
@@ -951,7 +944,9 @@ public class Commands implements CommandExecutor {
 						whoIsNearPlayer(Bukkit.getPlayer(args[1])));
 			} else if ((args[0].equals("RF") || args[0].equals("rf")) && args.length == 1) {
 				RunicParadise.faithSystem.shutdownFaithSystem();
-				new FaithCore();
+				// Not sure this needs to be done, but seems like a decent way to ensure the data is reset
+				RunicParadise.faithSystem = null;
+				RunicParadise.faithSystem = new FaithCore();
 			} else if ((args[0].equals("RR") || args[0].equals("rr")) && args.length == 1) {
 				Raffle.shutdownRaffleSystem();
 				new Raffle();
