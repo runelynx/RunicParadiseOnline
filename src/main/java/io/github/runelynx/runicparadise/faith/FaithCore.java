@@ -4,7 +4,6 @@ import io.github.runelynx.runicparadise.RunicParadise;
 import io.github.runelynx.runicparadise.faith.modules.SacrificialPit;
 import io.github.runelynx.runicparadise.faith.modules.SummoningSystem;
 import io.github.runelynx.runicparadise.faith.modules.Weaponry;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -15,7 +14,6 @@ import org.bukkit.inventory.ItemStack;
 
 import java.io.File;
 import java.util.HashMap;
-import java.util.logging.Level;
 
 import static org.bukkit.Bukkit.getServer;
 

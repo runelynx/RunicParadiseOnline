@@ -133,12 +133,6 @@ public class Weaponry {
 
         String lore4 = "" + ChatColor.LIGHT_PURPLE + charges + " Charges";
 
-//        String lore4 = ChatColor.DARK_GRAY + "Faith|" + ChatColor.YELLOW + detectWeaponType(itemType) +
-//                ChatColor.DARK_GRAY + "|" + ChatColor.GREEN + levelUpChancePretty + "%LU" +
-//                ChatColor.DARK_GRAY + "|" + ChatColor.AQUA + consumeChargeChancePretty + "%CC" +
-//                ChatColor.DARK_GRAY + "|" + ChatColor.RED + karmaRequired + "KR" +
-//                ChatColor.DARK_GRAY + "|" + ChatColor.LIGHT_PURPLE + charges + " Charges";
-
         loreList.add(lore4);
 
         ItemStack weapon = new ItemStack(Material.valueOf(itemType));

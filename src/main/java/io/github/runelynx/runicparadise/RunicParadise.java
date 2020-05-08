@@ -24,8 +24,6 @@ import me.mrCookieSlime.Slimefun.api.SlimefunItemStack;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.permission.Permission;
 import org.bukkit.*;
-import org.bukkit.command.ConsoleCommandSender;
-import org.bukkit.craftbukkit.v1_15_R1.metadata.EntityMetadataStore;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -47,7 +45,6 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.messaging.PluginMessageListener;
@@ -641,13 +638,13 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 		}
 
 		if (event.getRecipe() != null && event.getRecipe().getResult() !=null && event.getRecipe().getResult().getItemMeta() != null) {
-			//meta.getPersistentDataContainer().set(FaithCore.faithCoreItemDataKeys.get("KarmaRequiredToCraft"), PersistentDataType.INTEGER, karmaRequired);
+
 			ItemMeta meta = event.getRecipe().getResult().getItemMeta();
 			PersistentDataContainer container = meta.getPersistentDataContainer();
 
-			if (container.has(FaithCore.faithCoreItemDataKeys.get("KarmaRequiredToCraft"), PersistentDataType.INTEGER)) {
+			if (container.has(FaithCore.faithCoreItemDataKeys.get("ZealRequiredToCraft"), PersistentDataType.INTEGER)) {
 				//This is a Faith weapon if we've made it this far
-				int karmaRequired = container.get(FaithCore.faithCoreItemDataKeys.get("KarmaRequiredToCraft"), PersistentDataType.INTEGER);
+				int karmaRequired = container.get(FaithCore.faithCoreItemDataKeys.get("ZealRequiredToCraft"), PersistentDataType.INTEGER);
 
 				if (karmaRequired > 0) {
 					//This is a Faith weapon that requires at least 1 karma to craft
@@ -655,9 +652,9 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 						if (human instanceof Player) {
 							Player player = (Player) human;
 							if (playerProfiles.get(player.getUniqueId()).getKarmaBalance() >= karmaRequired) {
-								RunicMessaging.sendMessage(player, RunicFormat.FAITH, "This weapon will cost " + karmaRequired + " to craft!");
+								RunicMessaging.sendMessage(player, RunicFormat.FAITH, "This weapon will cost " + karmaRequired + "zeal to craft!");
 							} else {
-								RunicMessaging.sendMessage(player, RunicFormat.FAITH, "This weapon costs " + karmaRequired + " to craft and you don't have enough.");
+								RunicMessaging.sendMessage(player, RunicFormat.FAITH, "This weapon costs " + karmaRequired + " zeal to craft and you don't have enough.");
 							}
 						}
 					}
@@ -676,9 +673,9 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 
 
 		if (event.getRecipe() != null && event.getRecipe().getResult() !=null && event.getRecipe().getResult().getItemMeta() != null) {
-			if (container.has(FaithCore.faithCoreItemDataKeys.get("KarmaRequiredToCraft"), PersistentDataType.INTEGER)) {
+			if (container.has(FaithCore.faithCoreItemDataKeys.get("ZealRequiredToCraft"), PersistentDataType.INTEGER)) {
 				//This is a Faith weapon if we've made it this far
-				int karmaRequired = container.get(FaithCore.faithCoreItemDataKeys.get("KarmaRequiredToCraft"), PersistentDataType.INTEGER);
+				int karmaRequired = container.get(FaithCore.faithCoreItemDataKeys.get("ZealRequiredToCraft"), PersistentDataType.INTEGER);
 
 				if (karmaRequired > 0) {
 					//This is a Faith weapon that requires at least 1 karma to craft
@@ -687,9 +684,9 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 							Player player = (Player) human;
 							if (playerProfiles.get(player.getUniqueId()).getKarmaBalance() >= karmaRequired) {
 								//RunicMessaging.sendMessage(player, RunicFormat.FAITH, "You spent " + karmaRequired + " karma to craft this weapon");
-								playerProfiles.get(player.getUniqueId()).reduceCurrency("Karma", karmaRequired);
+								playerProfiles.get(player.getUniqueId()).reduceCurrency("Zeal", karmaRequired);
 							} else {
-								RunicMessaging.sendMessage(player, RunicFormat.FAITH, "You can't craft this weapon until you have at least " + karmaRequired + " karma");
+								RunicMessaging.sendMessage(player, RunicFormat.FAITH, "You can't craft this weapon until you have at least " + karmaRequired + " zeeal");
 								event.setCancelled(true);
 							}
 						}
@@ -954,23 +951,10 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 		}
 
 		// //// HANDLE STAFF
-		if (player.hasPermission("rp.staff")) {
+		if (playerProfiles.get(player.getUniqueId()).getStaffRank() != "None") {
 			staffPrefix += ChatColor.DARK_RED;
-			if (player.hasPermission("rp.staff.admin")) {
-				staffPrefix += "<Admin> ";
-			} else if (player.hasPermission("rp.staff.mod+")) {
-				staffPrefix += "<Mod+> ";
-			} else if (player.hasPermission("rp.staff.mod")) {
-				staffPrefix += "<Mod> ";
-			} else if (player.hasPermission("rp.staff.director")) {
-				staffPrefix += "<Director> ";
-			} else if (player.hasPermission("rp.staff.architect")) {
-				staffPrefix += "<Architect> ";
-			} else if (player.hasPermission("rp.staff.enforcer")) {
-				staffPrefix += "<Enforcer> ";
-			} else if (player.hasPermission("rp.staff.helper")) {
-				staffPrefix += "<Helper> ";
-			}
+
+			staffPrefix += "<" + playerProfiles.get(player.getUniqueId()).getStaffRank() + ">";
 
 			// //// HANDLE LEGENDS
 		} else if (player.hasPermission("rp.guardian")) {

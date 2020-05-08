@@ -25,15 +25,8 @@ import static org.bukkit.Bukkit.getLogger;
 public class RunicProfile {
 	final static int FARMING_COUNT_THRESHOLD = 7;
 
-	int karmaBalance;
-	int zealBalance;
-	int lifetimeZeal;
-	int currentIP;
-	int voteTotal;
-	String masteredJobsString;
-	int masteredJobCount;
-	String currentJob;
-	int currentJobLevel;
+	int karmaBalance, zealBalance, lifetimeZeal, voteTotal, masteredJobCount, currentJobLevel;
+	String masteredJobsString, currentJob, staffRank;
 	Date joinDate;
 	String playerName;
 	String playerDisplayName;
@@ -109,6 +102,14 @@ public class RunicProfile {
 			}
 		}
 		setChatColor(color, updateDB);
+	}
+
+	private void setStaffRank(String rank) {
+		this.staffRank = rank;
+	}
+
+	public String getStaffRank() {
+		return this.staffRank;
 	}
 
 	public String getChatColor() {
@@ -809,6 +810,7 @@ public class RunicProfile {
 			} else {
 				// Player does exist in the DB
 				playerData.next();
+				this.setStaffRank(playerData.getString("StaffRank"));
 				this.setPlayerIP(playerData.getString("LastIP"));
 				this.setCurrency("Karma", (playerData.getInt("Karma")));
 				this.setCurrency("Tokens", (playerData.getInt("Tokens")));
