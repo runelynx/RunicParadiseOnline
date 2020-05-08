@@ -25,14 +25,18 @@ public class FaithCore {
     SacrificialPit sacrificialPitModule;
 
     public static HashMap<String, NamespacedKey> faithCoreItemDataKeys = new HashMap<>();
+
     public static HashMap<String, ItemStack> faithCoreSummoningComponents = new HashMap<>();
     public static HashMap<EntityType, SummoningDropChance> faithCoreSummoningDrops = new HashMap<>();
     public static HashMap<String, Location> faithCoreSummoningLocations = new HashMap<>();
-    public static HashMap<String, Location> faithCorePitLocations = new HashMap<>();
     public static HashMap<String, SummonableMob> faithCoreSummonableMobs = new HashMap<>();
+
+    public static HashMap<String, Location> faithCorePitLocations = new HashMap<>();
     public static HashMap<Material, Integer> faithCorePitItems = new HashMap<>();
     public static HashMap<Material, String> faithCorePitItemCategories = new HashMap<>();
+    public static HashMap<Material, Integer> faithCorePitItemMultipliers = new HashMap<>();
     public static HashMap<String, String> faithCorePitSettings = new HashMap<>();
+
     public static List<Material> faithCoreWeaponryMaterials;
 
     public FaithCore (){
@@ -67,6 +71,7 @@ public class FaithCore {
         faithCorePitItems.clear();
         faithCorePitItemCategories.clear();
         faithCorePitSettings.clear();
+        faithCorePitItemMultipliers.clear();
 
         faithCoreWeaponryMaterials.clear();
 

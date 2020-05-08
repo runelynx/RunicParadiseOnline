@@ -124,18 +124,35 @@ public class SacrificialPit {
 
             // Loop thru items
             for (String pitItemKey : pitItemConfigList) {
-                faithCorePitItems.put(
-                        Material.valueOf(pitItemKey),
-                        Integer.valueOf(pitItemSection.getInt(pitItemKey)));
+                if (pitCategoryKey == "Equipment") {
+                    // Item is Equipment, so process an enchant multiplier
+                    faithCorePitItems.put(
+                            Material.valueOf(pitItemKey),
+                            Integer.valueOf(pitItemSection.getInt(pitItemKey + ".Points")));
+                    faithCorePitItemMultipliers.put(
+                            Material.valueOf(pitItemKey),
+                            Integer.valueOf(pitItemSection.getInt(pitItemKey + ".EnchantLevelMultiplier")));
+                    faithCorePitItemCategories.put(
+                            Material.valueOf(pitItemKey),
+                            pitCategoryKey);
+                    getServer().getConsoleSender().sendMessage("[FAITH STARTUP] PIT: Adding Pit item: " +
+                            pitCategoryKey + ": " + pitItemKey + ": " + pitItemSection.getInt(pitItemKey) + " | ELM: " +
+                            Integer.valueOf(pitItemSection.getInt(pitItemKey + ".EnchantLevelMultiplier")));
 
-                faithCorePitItemCategories.put(
-                        Material.valueOf(pitItemKey),
-                        pitCategoryKey
-                );
+                } else {
+                    // Item is not equipment, so do NOT process an enchant multiplier
+                    faithCorePitItems.put(
+                            Material.valueOf(pitItemKey),
+                            Integer.valueOf(pitItemSection.getInt(pitItemKey)));
+                    faithCorePitItemCategories.put(
+                            Material.valueOf(pitItemKey),
+                            pitCategoryKey);
+                    getServer().getConsoleSender().sendMessage("[FAITH STARTUP] PIT: Adding Pit item: " +
+                            pitCategoryKey + ": " + pitItemKey + ": " + pitItemSection.getInt(pitItemKey));
+                }
 
                 //Debug
-                getServer().getConsoleSender().sendMessage(ChatColor.RED + "[FAITH STARTUP] PIT: Adding Pit item: " +
-                                pitCategoryKey + ": " + pitItemKey + ": " + pitItemSection.getInt(pitItemKey));
+
 
                 itemCount++;
             }
