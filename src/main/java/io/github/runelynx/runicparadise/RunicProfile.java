@@ -799,7 +799,7 @@ public class RunicProfile {
 				this.setSacrificeContribution(sacrificeData.getInt("ActiveContribution"), false);
 				this.setSacrificeContribution(sacrificeData.getInt("LifetimeContribution"), true);
 			} else {
-				this.setFaithPowerLevel(0);
+				//  ???
 			}
 
 			if (!playerData.isBeforeFirst()) {
@@ -904,7 +904,7 @@ public class RunicProfile {
 				this.mobKillCountsMap.put(EntityType.GIANT, playerData.getInt("GIANT"));
 				this.mobKillCountsMap.put(EntityType.GUARDIAN, playerData.getInt("GUARDIAN"));
 				this.mobKillCountsMap.put(EntityType.MAGMA_CUBE, playerData.getInt("MAGMA_CUBE"));
-				this.mobKillCountsMap.put(EntityType.PIG_ZOMBIE, playerData.getInt("PIG_ZOMBIE"));
+				this.mobKillCountsMap.put(EntityType.PIGLIN, playerData.getInt("PIG_ZOMBIE"));
 				this.mobKillCountsMap.put(EntityType.SHULKER, playerData.getInt("SHULKER"));
 				this.mobKillCountsMap.put(EntityType.SILVERFISH, playerData.getInt("SILVERFISH"));
 				this.mobKillCountsMap.put(EntityType.SLIME, playerData.getInt("SLIME"));
@@ -1596,7 +1596,7 @@ public class RunicProfile {
 		netherLore.add(
 				ChatColor.BLUE + "Magma Cubes: " + ChatColor.WHITE + this.mobKillCountsMap.get(EntityType.MAGMA_CUBE));
 		netherLore.add(
-				ChatColor.BLUE + "Pig Zombies: " + ChatColor.WHITE + this.mobKillCountsMap.get(EntityType.PIG_ZOMBIE));
+				ChatColor.BLUE + "Piglins: " + ChatColor.WHITE + this.mobKillCountsMap.get(EntityType.PIGLIN));
 		netherLore.add(ChatColor.BLUE + "Withers: " + ChatColor.WHITE + this.mobKillCountsMap.get(EntityType.WITHER));
 
 		ItemStack netherAnimals = RunicParadise.createHead(ChatColor.GOLD + "Nether Demons",

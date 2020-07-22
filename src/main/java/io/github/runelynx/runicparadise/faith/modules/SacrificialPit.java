@@ -3,11 +3,14 @@ package io.github.runelynx.runicparadise.faith.modules;
 import io.github.runelynx.runicparadise.RunicParadise;
 import io.github.runelynx.runicparadise.faith.FaithCore;
 import io.github.runelynx.runicuniverse.RunicMessaging;
+import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerDropItemEvent;
 
@@ -124,7 +127,7 @@ public class SacrificialPit {
 
             // Loop thru items
             for (String pitItemKey : pitItemConfigList) {
-                if (pitCategoryKey == "Equipment") {
+                if (pitCategoryKey.equalsIgnoreCase("Equipment")) {
                     // Item is Equipment, so process an enchant multiplier
                     faithCorePitItems.put(
                             Material.valueOf(pitItemKey),
@@ -170,12 +173,12 @@ public class SacrificialPit {
 
         Location loc = event.getPlayer().getLocation();
         if (loc.getWorld().equals(faithCorePitLocations.get("PitPos1").getWorld())
-                && loc.getX() > faithCorePitLocations.get("PitPos1").getX()
-                && loc.getY() > faithCorePitLocations.get("PitPos1").getY()
-                && loc.getZ() > faithCorePitLocations.get("PitPos1").getZ()
-                && loc.getX() > faithCorePitLocations.get("PitPos2").getX()
-                && loc.getY() > faithCorePitLocations.get("PitPos2").getY()
-                && loc.getZ() > faithCorePitLocations.get("PitPos2").getZ()) {
+                && loc.getX() >= faithCorePitLocations.get("PitPos1").getX()
+                && loc.getY() >= faithCorePitLocations.get("PitPos1").getY()
+                && loc.getZ() >= faithCorePitLocations.get("PitPos1").getZ()
+                && loc.getX() <= faithCorePitLocations.get("PitPos2").getX()
+                && loc.getY() <= faithCorePitLocations.get("PitPos2").getY()
+                && loc.getZ() <= faithCorePitLocations.get("PitPos2").getZ()) {
 
 
             Player p = event.getPlayer();
@@ -204,9 +207,39 @@ public class SacrificialPit {
                 Material mat = event.getItemDrop().getItemStack().getType();
                 int amount = event.getItemDrop().getItemStack().getAmount();
 
-                RunicParadise.playerProfiles.get(p.getUniqueId()).processPitContribution(
-                        faithCorePitItems.get(mat) * amount
-                );
+                if (faithCorePitItemMultipliers.containsKey(mat)) {
+                    // Material has an enchant level multiplier attached to it
+                    int cont = faithCorePitItems.get(mat) * amount;
+                    int enchantCont = 0;
+                    int totalCont = 0;
+
+                    if (event.getItemDrop().getItemStack().getEnchantments() != null) {
+                        for (Enchantment e : event.getItemDrop().getItemStack().getEnchantments().keySet()) {
+                            int level = event.getItemDrop().getItemStack().getEnchantments().get(e);
+                            enchantCont += level * 10;
+                        }
+                    }
+
+                    totalCont = enchantCont + cont;
+
+                    RunicParadise.playerProfiles.get(p.getUniqueId()).processPitContribution(totalCont);
+
+                    p.spigot().sendMessage(ChatMessageType.ACTION_BAR,
+                            TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&',
+                                    "&3You have gained &b" + cont + " &3+ &a" + enchantCont + "&3 points of favor with the gods!" )
+                            )
+                    );
+
+
+                } else {
+                    int cont = faithCorePitItems.get(mat) * amount;
+                    RunicParadise.playerProfiles.get(p.getUniqueId()).processPitContribution(cont);
+                    p.spigot().sendMessage(ChatMessageType.ACTION_BAR,
+                            TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&',
+                                    "&3You have gained &b" + cont + "&3 points of favor with the gods!" )
+                            ));
+                }
+
 
             }
         }

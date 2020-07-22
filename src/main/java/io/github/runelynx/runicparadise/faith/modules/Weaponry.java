@@ -11,10 +11,7 @@ import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.inventory.EquipmentSlot;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.Recipe;
-import org.bukkit.inventory.ShapelessRecipe;
+import org.bukkit.inventory.*;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 
@@ -65,7 +62,12 @@ public class Weaponry {
                     weaponSection.getString(weaponKey + ".Type"),
                     weaponSection.getStringList(weaponKey + ".Recipe"),
                     weaponSection.getStringList(weaponKey + ".Enchants"),
-                    weaponSection.getInt(weaponKey + ".AddDamage"));
+                    weaponSection.getDouble(weaponKey + ".AddDamage"),
+                    weaponSection.getInt(weaponKey + ".AddAttackSpeed"),
+                    weaponSection.getInt(weaponKey + ".AddMoveSpeed"),
+                    weaponSection.getInt(weaponKey + ".AddHealth"),
+                    weaponSection.getInt(weaponKey + ".AddArmor"),
+                    weaponSection.getInt(weaponKey + ".AddLuck"));
 
         }
 
@@ -92,14 +94,7 @@ public class Weaponry {
 
     public Boolean deactivate(){
 
-        List<Material> materialsToRemove = FaithCore.faithCoreWeaponryMaterials;
-
-
-        getServer().getConsoleSender().sendMessage(ChatColor.RED + "[FAITH SHUTDOWN] WEAPONRY: Removing custom recipes from RunicParadise to reload Faith config");
-
-        for (Material m : materialsToRemove) {
-            getServer().getConsoleSender().sendMessage(ChatColor.GOLD + "        . " + m.toString());
-        }
+        Bukkit.getLogger().log(Level.OFF, "[FAITH SHUTDOWN] WEAPONRY: Removing custom recipes from RunicParadise to reload Faith config");
 
         Iterator<Recipe> it = getServer().recipeIterator();
         int count = 0;
@@ -108,7 +103,7 @@ public class Weaponry {
 
             Recipe itRecipe = it.next();
             if (itRecipe != null
-                    && materialsToRemove.contains(itRecipe.getResult().getType())
+                    && FaithCore.faithCoreWeaponryMaterials.containsKey(itRecipe.getResult().getType())
                     && itRecipe instanceof ShapelessRecipe) {
                 getServer().getConsoleSender().sendMessage("[FAITH SHUTDOWN] WEAPONRY: Removing recipe for... " +
                         itRecipe.getResult().getItemMeta().getDisplayName());
@@ -124,16 +119,15 @@ public class Weaponry {
 
     private Boolean addFaithWeaponRecipe(String id, String name, String lore1, String lore2, String lore3, String lore4, String lore5,
                                          Double levelUpChance, Double consumeChargeChance, int charges,
-                                         int zealRequired, String itemType, List<String> craftList, List<String> enchantList, int addDamage) {
+                                         int zealRequired, String itemType, List<String> craftList, List<String> enchantList, Double addDamage, Integer addAtkSpeed,
+                                         Integer addMoveSpeed, Integer addHealth, Integer addArmor, Integer addLuck) {
 
-        int levelUpChancePretty = (int)(levelUpChance * 100);
-        int consumeChargeChancePretty = (int)(consumeChargeChance * 100);
         ArrayList<String> loreList = RunicUtilities.processLoreStringsToArray(lore1, lore2, lore3, lore4, lore5);
 
         // TODO - Need to visually ensure some data elements are shown (like remaining charges)
 
         // Add this item type to the list so we can safely remove recipes on a reload
-        FaithCore.faithCoreWeaponryMaterials.add(Material.valueOf(itemType));
+        FaithCore.faithCoreWeaponryMaterials.put(Material.valueOf(itemType), 1);
 
         ItemStack weapon = new ItemStack(Material.valueOf(itemType));
         ItemMeta meta = weapon.getItemMeta();
@@ -141,6 +135,9 @@ public class Weaponry {
         meta.setDisplayName(ChatColor.translateAlternateColorCodes('&', name));
         meta.setLore(loreList);
         meta.setUnbreakable(true);
+        meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
+        meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+        meta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
 
         meta.getPersistentDataContainer().set(FaithCore.faithCoreItemDataKeys.get("ChanceToLevelUp"), PersistentDataType.DOUBLE, levelUpChance);
         meta.getPersistentDataContainer().set(FaithCore.faithCoreItemDataKeys.get("ChanceToConsumeCharge"), PersistentDataType.DOUBLE, consumeChargeChance);
@@ -148,15 +145,38 @@ public class Weaponry {
         meta.getPersistentDataContainer().set(FaithCore.faithCoreItemDataKeys.get("ZealRequiredToCraft"), PersistentDataType.INTEGER, zealRequired);
         meta.getPersistentDataContainer().set(FaithCore.faithCoreItemDataKeys.get("FaithWeapon"), PersistentDataType.INTEGER, 1);
 
-        AttributeModifier modifier = new AttributeModifier(UUID.randomUUID(), "generic.attackdamage", addDamage, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.HAND);
+        if (addDamage != null || addDamage == 0) {
+            AttributeModifier atkdmgModifier = new AttributeModifier(UUID.randomUUID(), "generic.attackdamage", addDamage, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.HAND);
+            meta.addAttributeModifier(Attribute.GENERIC_ATTACK_DAMAGE, atkdmgModifier);
+        }
 
-        meta.addAttributeModifier(Attribute.GENERIC_ATTACK_DAMAGE, modifier);
+        if (addAtkSpeed != null || addAtkSpeed == 0) {
+            AttributeModifier atkspdModifier = new AttributeModifier(UUID.randomUUID(), "generic.attackspeed", addAtkSpeed, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlot.HAND);
+            meta.addAttributeModifier(Attribute.GENERIC_ATTACK_SPEED, atkspdModifier);
+        }
+
+        if (addMoveSpeed != null || addMoveSpeed == 0) {
+            AttributeModifier movespdModifier = new AttributeModifier(UUID.randomUUID(), "generic.movementspeed", addMoveSpeed, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.HAND);
+            meta.addAttributeModifier(Attribute.GENERIC_MOVEMENT_SPEED, movespdModifier);
+        }
+
+        if (addHealth != null || addHealth == 0) {
+            AttributeModifier healthModifier = new AttributeModifier(UUID.randomUUID(), "generic.maxhealth", addHealth, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.HAND);
+            meta.addAttributeModifier(Attribute.GENERIC_MAX_HEALTH, healthModifier);
+        }
+
+        if (addLuck != null || addLuck == 0) {
+            AttributeModifier luckModifier = new AttributeModifier(UUID.randomUUID(), "generic.luck", addLuck, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.HAND);
+            meta.addAttributeModifier(Attribute.GENERIC_LUCK, luckModifier);
+        }
+
+        if (addArmor != null || addArmor == 0) {
+            AttributeModifier armorModifier = new AttributeModifier(UUID.randomUUID(), "generic.armor", addArmor, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.HAND);
+            meta.addAttributeModifier(Attribute.GENERIC_ARMOR, armorModifier);
+        }
 
         for (String itemStr : enchantList) {
             String[] strings = itemStr.split(";");
-            //Debug
-            Bukkit.getLogger().log(Level.INFO, strings[0] + " " + strings[1]);
-
             meta.addEnchant(Enchantment.getByKey(NamespacedKey.minecraft(strings[0])), Integer.parseInt(strings[1]), true);
 
         }
@@ -171,8 +191,6 @@ public class Weaponry {
 
         for (String itemStr : craftList) {
             String[] strings = itemStr.split(";");
-            //Debug
-            Bukkit.getLogger().log(Level.INFO, strings[0] + " " + strings[1]);
 
             recipe.addIngredient(Integer.valueOf(strings[1]),Material.valueOf(strings[0]));
         }

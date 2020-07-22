@@ -943,10 +943,13 @@ public class Commands implements CommandExecutor {
 				RunicMessaging.sendMessage(((Player) sender), RunicMessaging.RunicFormat.SYSTEM,
 						whoIsNearPlayer(Bukkit.getPlayer(args[1])));
 			} else if ((args[0].equals("RF") || args[0].equals("rf")) && args.length == 1) {
+
 				RunicParadise.faithSystem.shutdownFaithSystem();
+
 				// Not sure this needs to be done, but seems like a decent way to ensure the data is reset
 				RunicParadise.faithSystem = null;
 				RunicParadise.faithSystem = new FaithCore();
+
 			} else if ((args[0].equals("RR") || args[0].equals("rr")) && args.length == 1) {
 				Raffle.shutdownRaffleSystem();
 				new Raffle();
@@ -961,6 +964,17 @@ public class Commands implements CommandExecutor {
 			} else {
 				RunicMessaging.sendMessage(((Player) sender), RunicMessaging.RunicFormat.SYSTEM,
 						ChatColor.LIGHT_PURPLE + "Hmm... please check your command usage with /staff");
+			}
+		} else {
+			// sender is console
+			if (args.length == 3 && args[0].equalsIgnoreCase("spc")) {
+				Player player = Bukkit.getPlayer(args[1]);
+				if (player == null) {
+					sender.sendMessage("No player found with that name");
+					return;
+				}
+				RunicProfile profile = RunicParadise.playerProfiles.get(player.getUniqueId());
+				profile.setChatColor(args[2].toUpperCase(), true);
 			}
 		}
 	}
@@ -1005,6 +1019,11 @@ public class Commands implements CommandExecutor {
 				Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "lp user " + p.getName() + " parent remove Ghost");
 				Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "faith enable " + p.getName() + " Sun");
 				Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "cmi rankset " + p.getName() + " Seeker");
+				Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "staff spc " + p.getName() + " GREEN");
+
+				if (!RunicParadise.playerProfiles.containsKey(p.getUniqueId())) {
+					RunicParadise.playerProfiles.put(p.getUniqueId(), new RunicProfile(p.getUniqueId()));
+				}
 
 				for (Player a : Bukkit.getOnlinePlayers()) {
 					RunicMessaging.sendMessage(a, RunicMessaging.RunicFormat.EMPTY,

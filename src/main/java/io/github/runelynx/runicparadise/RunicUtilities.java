@@ -1,5 +1,6 @@
 package io.github.runelynx.runicparadise;
 
+import io.github.runelynx.runicuniverse.RunicMessaging;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -29,6 +30,17 @@ public class RunicUtilities {
 		} catch (NumberFormatException e) {
 			return false;
 		}
+	}
+
+	public static void sendDebugMessages (String type, String message) {
+		// playerjoin
+
+		for (Player p : Bukkit.getOnlinePlayers()) {
+			if (p.hasPermission("rp.staff.debug." + type)) {
+				RunicMessaging.sendMessage(p, RunicMessaging.RunicFormat.SYSTEM, message + ChatColor.DARK_GRAY + "rp.staff.debug." + type);
+			}
+		}
+
 	}
 
 	public static ArrayList<String> processLoreStringsToArray(String lore1, String lore2, String lore3, String lore4, String lore5) {

@@ -14,7 +14,6 @@ import org.bukkit.inventory.ItemStack;
 
 import java.io.File;
 import java.util.HashMap;
-import java.util.List;
 
 import static org.bukkit.Bukkit.getServer;
 
@@ -37,7 +36,7 @@ public class FaithCore {
     public static HashMap<Material, Integer> faithCorePitItemMultipliers = new HashMap<>();
     public static HashMap<String, String> faithCorePitSettings = new HashMap<>();
 
-    public static List<Material> faithCoreWeaponryMaterials;
+    public static HashMap<Material, Integer> faithCoreWeaponryMaterials = new HashMap<>();
 
     public FaithCore (){
         initializeFaithSystem();
@@ -87,7 +86,9 @@ public class FaithCore {
         faithCoreItemDataKeys.put("ZealRequiredToCraft", new NamespacedKey(RunicParadise.getInstance(), "ZealRequiredToCraft"));
         faithCoreItemDataKeys.put("FaithWeapon", new NamespacedKey(RunicParadise.getInstance(), "FaithWeapon"));
         faithCoreItemDataKeys.put("SummoningItem", new NamespacedKey(RunicParadise.getInstance(), "SummoningItem"));
-        faithCoreItemDataKeys.put("FaithBallMobId", new NamespacedKey(RunicParadise.getInstance(), "FaithBallMobId"));
+        faithCoreItemDataKeys.put("FaithBall", new NamespacedKey(RunicParadise.getInstance(), "FaithBall"));
+        faithCoreItemDataKeys.put("SummonedKillFaithReward", new NamespacedKey(RunicParadise.getInstance(), "SummonedKillFaithReward"));
+        faithCoreItemDataKeys.put("SummonedKillZealReward", new NamespacedKey(RunicParadise.getInstance(), "SummonedKillZealReward"));
 
 
 //        faithModuleMap.put("FaithWeapons", new FaithModule("FaithWeapons", "Defines and manages faith weaponry"));

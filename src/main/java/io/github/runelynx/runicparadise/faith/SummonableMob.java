@@ -1,9 +1,8 @@
 package io.github.runelynx.runicparadise.faith;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.bukkit.entity.EntityType;
+
+import java.util.List;
 
 public class SummonableMob {
     String id;
@@ -15,12 +14,13 @@ public class SummonableMob {
     Boolean invisibility;
     int faith;
     int zeal;
+    int difficulty;
 
 
     public SummonableMob(String id, String name, EntityType type, int health,
                           List<String> effects,
                          Boolean glowing, Boolean invisibility,
-                          int faith, int zeal) {
+                          int faith, int difficulty, int zeal) {
         this.id = id;
         this.name = name;
         this.type = type;
@@ -30,6 +30,7 @@ public class SummonableMob {
         this.invisibility = invisibility;
         this.faith = faith;
         this.zeal = zeal;
+        this.difficulty = difficulty;
     }
 
     public String getName() {
@@ -50,6 +51,7 @@ public class SummonableMob {
     public int getFaith() {
         return this.faith;
     }
+    public int getDifficulty() { return this.difficulty; }
 }
 
 

@@ -1,18 +1,13 @@
 package io.github.runelynx.runicparadise;
 
 import com.connorlinfoot.titleapi.TitleAPI;
-import io.github.runelynx.runicparadise.faith.FaithCore;
 import io.github.runelynx.runicuniverse.RunicMessaging;
 import io.github.runelynx.runicuniverse.RunicMessaging.RunicFormat;
-import io.github.thebusybiscuit.slimefun4.api.SlimefunAddon;
-import me.mrCookieSlime.Slimefun.Lists.SlimefunItems;
-import me.mrCookieSlime.Slimefun.api.SlimefunItemStack;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.EntityType;
-import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -35,11 +30,6 @@ import java.util.logging.Level;
 import static io.github.runelynx.runicparadise.RunicParadise.economy;
 import static io.github.runelynx.runicparadise.RunicParadise.perms;
 import static org.bukkit.Bukkit.getLogger;
-
-import me.mrCookieSlime.CSCoreLibPlugin.general.Inventory.Item.CustomItem;
-import me.mrCookieSlime.Slimefun.Lists.RecipeType;
-import me.mrCookieSlime.Slimefun.Objects.Category;
-import me.mrCookieSlime.Slimefun.Objects.SlimefunItem.SlimefunItem;
 
 class Ranks {
 	private Plugin instance = RunicParadise.getInstance();
@@ -415,7 +405,7 @@ class Ranks {
 			killsArray[3] = RunicParadise.playerProfiles.get(user.getUniqueId()).mobKillCountsMap.get(EntityType.SQUID);
 			killsArray[4] = RunicParadise.playerProfiles.get(user.getUniqueId()).mobKillCountsMap.get(EntityType.BLAZE);
 			killsArray[5] = RunicParadise.playerProfiles.get(user.getUniqueId()).mobKillCountsMap
-					.get(EntityType.PIG_ZOMBIE);
+					.get(EntityType.PIGLIN);
 			killsArray[6] = RunicParadise.playerProfiles.get(user.getUniqueId()).mobKillCountsMap.get(EntityType.GHAST);
 			killsArray[7] = RunicParadise.playerProfiles.get(user.getUniqueId()).mobKillCountsMap
 					.get(EntityType.WITHER);

@@ -13,6 +13,7 @@ import com.sk89q.worldguard.protection.flags.StateFlag;
 import com.sk89q.worldguard.protection.regions.RegionContainer;
 import com.sk89q.worldguard.protection.regions.RegionQuery;
 import io.github.runelynx.runicparadise.faith.FaithCore;
+import io.github.runelynx.runicparadise.faith.modules.SummoningSystem;
 import io.github.runelynx.runicuniverse.RunicMessaging;
 import io.github.runelynx.runicuniverse.RunicMessaging.RunicFormat;
 import io.github.thebusybiscuit.slimefun4.api.SlimefunAddon;
@@ -275,7 +276,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 		trackableEntityKillsMap.put(EntityType.MUSHROOM_COW, 2);
 		trackableEntityKillsMap.put(EntityType.OCELOT, 2);
 		trackableEntityKillsMap.put(EntityType.PIG, 2);
-		trackableEntityKillsMap.put(EntityType.PIG_ZOMBIE, 1);
+		trackableEntityKillsMap.put(EntityType.PIGLIN, 1);
 		trackableEntityKillsMap.put(EntityType.WITCH, 1);
 		trackableEntityKillsMap.put(EntityType.WITHER, 1);
 		trackableEntityKillsMap.put(EntityType.WITHER_SKELETON, 1);
@@ -951,10 +952,10 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 		}
 
 		// //// HANDLE STAFF
-		if (playerProfiles.get(player.getUniqueId()).getStaffRank() != "None") {
+		if (!playerProfiles.get(player.getUniqueId()).getStaffRank().equalsIgnoreCase("None")) {
 			staffPrefix += ChatColor.DARK_RED;
 
-			staffPrefix += "<" + playerProfiles.get(player.getUniqueId()).getStaffRank() + ">";
+			staffPrefix += "<" + playerProfiles.get(player.getUniqueId()).getStaffRank() + "> ";
 
 			// //// HANDLE LEGENDS
 		} else if (player.hasPermission("rp.guardian")) {
@@ -1614,41 +1615,36 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 	@SuppressWarnings("deprecation")
 	@EventHandler
 	public void onPlayerJoin(final PlayerJoinEvent pje) {
-		if (!playerProfiles.containsKey(pje.getPlayer().getUniqueId())) {
-			playerProfiles.put(pje.getPlayer().getUniqueId(), new RunicProfile(pje.getPlayer().getUniqueId()));
-		}
 
 		if (pje.getPlayer().hasPermission("rp.chatfilterwarning1") && !pje.getPlayer().hasPermission("rp.admin")) {
 			Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "lp user " + pje.getPlayer().getName() + " permission unset rp.chatfilterwarning1");
 			Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "lp user " + pje.getPlayer().getName() + " permission unset -essentials.me");
-
-
-
 		}
 
 		if (pje.getPlayer().hasPermission("rp.chatfilterwarning2") && !pje.getPlayer().hasPermission("rp.admin")) {
 			Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "lp user " + pje.getPlayer().getName() + " permission unset rp.chatfilterwarning2");
 		}
 
-		//RunicUtilities.convertGroupManager(pje.getPlayer());
-/*
-		RunicParadise.getInstance().getServer().getScheduler().scheduleAsyncDelayedTask(RunicParadise.getInstance(), new Runnable() {
-			public void run() {
-				checkMcmmoUserCreated(pje.getPlayer());
-			}
-		}, 100L);
-*/
-
 		updatePlayerInfoOnJoin(pje.getPlayer().getName(), pje.getPlayer().getUniqueId());
-
-		ranks.convertRanks(pje.getPlayer());
-
-		updatePlayerCMIRank(pje.getPlayer());
 
 		faithMap.put(pje.getPlayer().getUniqueId(), new Faith(pje.getPlayer().getUniqueId()));
 
+		updatePlayerCMIRank(pje.getPlayer());
 		refreshCMIRank(pje.getPlayer());
 		eliminateDefaultGroup(pje.getPlayer());
+
+		if (!playerProfiles.containsKey(pje.getPlayer().getUniqueId())) {
+			playerProfiles.put(pje.getPlayer().getUniqueId(), new RunicProfile(pje.getPlayer().getUniqueId()));
+		}
+
+		// Just foe debugging
+		if (!playerProfiles.containsKey(pje.getPlayer().getUniqueId())) {
+			RunicUtilities.sendDebugMessages("playerjoin", pje.getPlayer().getDisplayName() + " should have their RunicProfile loaded by now, but it's not. If a relog doesn't fix it, notify Rune.");
+		}
+
+		//ranks.convertRanks(pje.getPlayer());
+
+
 
 
 			if (!pje.getPlayer().hasPermission("rp.slimefun.smallbackpack")
@@ -1688,6 +1684,8 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 				}
 			}
 
+
+
 	}
 
 	@EventHandler
@@ -1705,6 +1703,9 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 	@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
 	public void onPlayerInteract(PlayerInteractEvent event) {
 		if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
+
+			// Run FaithBall summoning logic
+			SummoningSystem.spawnSummoningMob(event);
 
 			// process Spawn SKynet menu clicks -- right click
 			if (event.getClickedBlock().getWorld().getName().equals("RunicSky"))
@@ -2135,6 +2136,8 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 
 			if (rowCount == 0) {
 
+				RunicUtilities.sendDebugMessages("playerjoin", playerName + " not found in our database - hopefully they're new!");
+
 				Bukkit.getServer().getScheduler().scheduleAsyncDelayedTask(instance, () -> {
 					// tell the other server this one is reconnected
 					// to the universe
@@ -2191,6 +2194,8 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 				pStmt.close();
 				dStmt.close();
 
+				RunicUtilities.sendDebugMessages("playerjoin", playerName + " has been added to our database!");
+
 				// if this player has 1 row in the table
 			} else if (rowCount == 1) {
 				PreparedStatement dStmt = connection.prepareStatement(
@@ -2206,6 +2211,8 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 				// if this player has MORE than 1 row in the
 				// table
 			} else if (rowCount > 1) {
+				RunicUtilities.sendDebugMessages("playerjoin", playerName + " has more than 1 record in our database. That seems like a problem!");
+
 				int counter = 1;
 				PreparedStatement zStmt = connection
 						.prepareStatement("SELECT * FROM rp_PlayerInfo WHERE UUID = ? ORDER BY ID ASC;");
@@ -2225,6 +2232,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 
 						Bukkit.getLogger().log(Level.INFO,
 								"[RP] PlayerInfo data [row " + zResult.getInt("ID") + "] updated for " + playerName);
+						RunicUtilities.sendDebugMessages("playerjoin", playerName + "'s good record has been updated.");
 						// All further rows are invalid, delete
 						// them!
 					} else if (counter > 1) {
@@ -2235,6 +2243,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 						dStmt.close();
 						Bukkit.getLogger().log(Level.INFO,
 								"[RP] PlayerInfo dupe row cleanup (name change?)! Deleted row " + zResult.getInt("ID"));
+						RunicUtilities.sendDebugMessages("playerjoin", playerName + "'s bad record has been deleted.");
 					}
 
 					counter++;

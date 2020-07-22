@@ -2,10 +2,10 @@ package io.github.runelynx.runicparadise;
 
 import io.github.runelynx.runicuniverse.RunicMessaging;
 import io.github.runelynx.runicuniverse.RunicMessaging.RunicFormat;
+import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.*;
 import org.bukkit.block.Block;
-import org.bukkit.command.Command;
-import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.*;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockGrowEvent;
@@ -26,8 +26,8 @@ import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
 import java.sql.*;
-import java.util.*;
 import java.util.Date;
+import java.util.*;
 import java.util.Map.Entry;
 import java.util.logging.Level;
 
@@ -730,10 +730,11 @@ public class Faith {
 
 			connection.close();
 
-			p.sendMessage(ChatColor.GRAY + "[" + ChatColor.BLUE + "Runic" + ChatColor.DARK_AQUA + "Faith"
+			String msg1 = ChatColor.GRAY + "[" + ChatColor.BLUE + "Runic" + ChatColor.DARK_AQUA + "Faith"
 					+ ChatColor.GRAY + "] " + ChatColor.BLUE + "Your " + faithName + ChatColor.BLUE
 					+ " faith grows stronger! " + ChatColor.GREEN + this.faithLevels.get(faithName) + ChatColor.GRAY
-					+ "/" + RunicParadise.faithSettingsMap.get(faithName)[4]);
+					+ "/" + RunicParadise.faithSettingsMap.get(faithName)[4];
+			p.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&', msg1)));
 
 			if (this.checkEquippedFaithLevel(faithName,
 					Integer.parseInt(RunicParadise.faithSettingsMap.get(faithName)[4]))) {
