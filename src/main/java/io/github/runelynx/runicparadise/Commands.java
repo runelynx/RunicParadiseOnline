@@ -457,6 +457,7 @@ public class Commands implements CommandExecutor {
 			staffCommand(sender, args);
 			break;
 		case "rp":
+		case "paradise":
 			rpCommand(sender, args);
 			break;
 		case "rptest":
