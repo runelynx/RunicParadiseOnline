@@ -24,7 +24,7 @@
 		<dependency>
 			<groupId>org.spigotmc</groupId>
 			<artifactId>spigot</artifactId>
-			<version>1.16.1-R0.1-SNAPSHOT</version>
+			<version>1.16.3-R0.1-SNAPSHOT</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
@@ -72,9 +72,9 @@
 		<dependency>
 			<groupId>me.mrCookieSlime</groupId>
 			<artifactId>Slimefun</artifactId>
-			<version>DEV - 493 (git 4cc6a028)</version>
+			<version>DEV - 677 (git 917bcce6)</version>
 			<scope>system</scope>
-			<systemPath>${project.basedir}/src/main/resources/Slimefun4 - DEV 493 (git 4cc6a).jar</systemPath>
+			<systemPath>${project.basedir}/src/main/resources/Slimefun4 - DEV 677 (git 917bc).jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>com.gamingmesh.jobs</groupId>
@@ -88,7 +88,7 @@
 			<artifactId>CS-CoreLib</artifactId>
 			<version>DEV - 83 (git 8081bb4f)</version>
 			<scope>system</scope>
-			<systemPath>${project.basedir}/src/main/resources/CS-CoreLib - DEV 83 (git 8081b).jar</systemPath>
+			<systemPath>${project.basedir}/src/main/resources/CS-CoreLib - DEV 91 (git e42a0).jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>com.github.koca2000</groupId>
