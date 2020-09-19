@@ -17,8 +17,8 @@ import io.github.runelynx.runicparadise.faith.modules.SummoningSystem;
 import io.github.runelynx.runicuniverse.RunicMessaging;
 import io.github.runelynx.runicuniverse.RunicMessaging.RunicFormat;
 import io.github.thebusybiscuit.slimefun4.api.SlimefunAddon;
+import io.github.thebusybiscuit.slimefun4.implementation.SlimefunItems;
 import me.mrCookieSlime.Slimefun.Lists.RecipeType;
-import me.mrCookieSlime.Slimefun.Lists.SlimefunItems;
 import me.mrCookieSlime.Slimefun.Objects.Category;
 import me.mrCookieSlime.Slimefun.Objects.SlimefunItem.SlimefunItem;
 import me.mrCookieSlime.Slimefun.api.SlimefunItemStack;
@@ -3318,9 +3318,9 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 				new SlimefunItemStack("MIST_INFUSED_DIAMOND", Material.DIAMOND, "&eMist-Infused Diamond"),
 				RecipeType.ANCIENT_ALTAR,
 				new ItemStack[] {
-						SlimefunItems.RUNE_WATER,    SlimefunItems.SYNTHETIC_DIAMOND,    SlimefunItems.RUNE_AIR,
+						SlimefunItems.WATER_RUNE,    SlimefunItems.SYNTHETIC_DIAMOND,    SlimefunItems.AIR_RUNE,
 						SlimefunItems.SILVER_DUST,          new ItemStack(Material.LIGHT_BLUE_DYE, 1),    SlimefunItems.SILVER_DUST,
-						SlimefunItems.RUNE_AIR,    SlimefunItems.SYNTHETIC_DIAMOND,        SlimefunItems.RUNE_WATER
+						SlimefunItems.AIR_RUNE,    SlimefunItems.SYNTHETIC_DIAMOND,        SlimefunItems.WATER_RUNE
 				});
 		baronDiamondPart.register(this);
 
@@ -3329,9 +3329,9 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 				new SlimefunItemStack("LAVA_INFUSED_DIAMOND", Material.DIAMOND, "&eLava-Infused Diamond"),
 				RecipeType.ANCIENT_ALTAR,
 				new ItemStack[] {
-						SlimefunItems.RUNE_FIRE,    SlimefunItems.SYNTHETIC_DIAMOND,    SlimefunItems.RUNE_EARTH,
+						SlimefunItems.FIRE_RUNE,    SlimefunItems.SYNTHETIC_DIAMOND,    SlimefunItems.EARTH_RUNE,
 						SlimefunItems.SILVER_DUST,          new ItemStack(Material.ORANGE_DYE, 1),    SlimefunItems.SILVER_DUST,
-						SlimefunItems.RUNE_EARTH,    SlimefunItems.SYNTHETIC_DIAMOND,        SlimefunItems.RUNE_FIRE
+						SlimefunItems.EARTH_RUNE,    SlimefunItems.SYNTHETIC_DIAMOND,        SlimefunItems.FIRE_RUNE
 				});
 		baronDiamond2Part.register(this);
 
@@ -3340,9 +3340,9 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 				new SlimefunItemStack("MIST_INFUSED_EMERALD", Material.EMERALD, "&eMist-Infused Emerald"),
 				RecipeType.ANCIENT_ALTAR,
 				new ItemStack[] {
-						SlimefunItems.RUNE_WATER,    SlimefunItems.SYNTHETIC_EMERALD,    SlimefunItems.RUNE_AIR,
+						SlimefunItems.WATER_RUNE,    SlimefunItems.SYNTHETIC_EMERALD,    SlimefunItems.AIR_RUNE,
 						SlimefunItems.ZINC_DUST,          new ItemStack(Material.LIGHT_BLUE_DYE, 1),    SlimefunItems.ZINC_DUST,
-						SlimefunItems.RUNE_AIR,    SlimefunItems.SYNTHETIC_EMERALD,        SlimefunItems.RUNE_WATER
+						SlimefunItems.AIR_RUNE,    SlimefunItems.SYNTHETIC_EMERALD,        SlimefunItems.WATER_RUNE
 				});
 		baronEmeraldPart.register(this);
 
@@ -3351,9 +3351,9 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 				new SlimefunItemStack("LAVA_INFUSED_EMERALD", Material.EMERALD, "&eLava-Infused Emerald"),
 				RecipeType.ANCIENT_ALTAR,
 				new ItemStack[] {
-						SlimefunItems.RUNE_FIRE,    SlimefunItems.SYNTHETIC_EMERALD,    SlimefunItems.RUNE_EARTH,
+						SlimefunItems.FIRE_RUNE,    SlimefunItems.SYNTHETIC_EMERALD,    SlimefunItems.EARTH_RUNE,
 						SlimefunItems.ZINC_DUST,          new ItemStack(Material.ORANGE_DYE, 1),    SlimefunItems.ZINC_DUST,
-						SlimefunItems.RUNE_EARTH,    SlimefunItems.SYNTHETIC_EMERALD,        SlimefunItems.RUNE_FIRE
+						SlimefunItems.EARTH_RUNE,    SlimefunItems.SYNTHETIC_EMERALD,        SlimefunItems.FIRE_RUNE
 				});
 		baronEmerald2Part.register(this);
 
@@ -3362,9 +3362,9 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 				new SlimefunItemStack("MIST_INFUSED_SAPPHIRE", Material.LIGHT_BLUE_DYE, "&eMist-Infused Sapphire"),
 				RecipeType.ANCIENT_ALTAR,
 				new ItemStack[] {
-						SlimefunItems.RUNE_WATER,    SlimefunItems.SYNTHETIC_SAPPHIRE,    SlimefunItems.RUNE_AIR,
+						SlimefunItems.WATER_RUNE,    SlimefunItems.SYNTHETIC_SAPPHIRE,    SlimefunItems.AIR_RUNE,
 						SlimefunItems.ALUMINUM_DUST,          new ItemStack(Material.LIGHT_BLUE_DYE, 1),    SlimefunItems.ALUMINUM_DUST,
-						SlimefunItems.RUNE_AIR,    SlimefunItems.SYNTHETIC_SAPPHIRE,        SlimefunItems.RUNE_WATER
+						SlimefunItems.AIR_RUNE,    SlimefunItems.SYNTHETIC_SAPPHIRE,        SlimefunItems.WATER_RUNE
 				});
 		baronSapphirePart.register(this);
 
@@ -3373,9 +3373,9 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 				new SlimefunItemStack("LAVA_INFUSED_SAPPHIRE", Material.LAPIS_LAZULI, "&eLava-Infused Sapphire"),
 				RecipeType.ANCIENT_ALTAR,
 				new ItemStack[] {
-						SlimefunItems.RUNE_FIRE,    SlimefunItems.SYNTHETIC_SAPPHIRE,    SlimefunItems.RUNE_EARTH,
+						SlimefunItems.FIRE_RUNE,    SlimefunItems.SYNTHETIC_SAPPHIRE,    SlimefunItems.EARTH_RUNE,
 						SlimefunItems.ALUMINUM_DUST,          new ItemStack(Material.ORANGE_DYE, 1),    SlimefunItems.ALUMINUM_DUST,
-						SlimefunItems.RUNE_EARTH,    SlimefunItems.SYNTHETIC_SAPPHIRE,        SlimefunItems.RUNE_FIRE
+						SlimefunItems.EARTH_RUNE,    SlimefunItems.SYNTHETIC_SAPPHIRE,        SlimefunItems.FIRE_RUNE
 				});
 		baronSapphire2Part.register(this);
 
@@ -3384,9 +3384,9 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 				new SlimefunItemStack("PRISMATIC_TOPAZ", Material.LIGHT_BLUE_DYE, "&ePrismatic Topaz"),
 				RecipeType.MAGIC_WORKBENCH,
 				new ItemStack[] {
-						SlimefunItems.RUNE_RAINBOW,    new SlimefunItemStack("MIST_INFUSED_EMERALD", Material.EMERALD, "&eMist-Infused Emerald"),    SlimefunItems.RUNE_RAINBOW,
+						SlimefunItems.RAINBOW_RUNE,    new SlimefunItemStack("MIST_INFUSED_EMERALD", Material.EMERALD, "&eMist-Infused Emerald"),    SlimefunItems.RAINBOW_RUNE,
 						null,          new ItemStack(Material.LIGHT_BLUE_DYE, 1),   null,
-						new SlimefunItemStack("MIST_INFUSED_DIAMOND", Material.DIAMOND, "&eMist-Infused Diamond"),    SlimefunItems.RUNE_RAINBOW,   new SlimefunItemStack("MIST_INFUSED_SAPPHIRE", Material.LIGHT_BLUE_DYE, "&eMist-Infused Sapphire")
+						new SlimefunItemStack("MIST_INFUSED_DIAMOND", Material.DIAMOND, "&eMist-Infused Diamond"),    SlimefunItems.RAINBOW_RUNE,   new SlimefunItemStack("MIST_INFUSED_SAPPHIRE", Material.LIGHT_BLUE_DYE, "&eMist-Infused Sapphire")
 				});
 		baronMistyTopaz.register(this);
 
@@ -3395,9 +3395,9 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 				new SlimefunItemStack("PRISMATIC_CITRINE", Material.ORANGE_DYE, "&ePrismatic Citrine"),
 				RecipeType.MAGIC_WORKBENCH,
 				new ItemStack[] {
-						SlimefunItems.RUNE_RAINBOW,    new SlimefunItemStack("LAVA_INFUSED_EMERALD", Material.EMERALD, "&eLava-Infused Emerald"),    SlimefunItems.RUNE_RAINBOW,
+						SlimefunItems.RAINBOW_RUNE,    new SlimefunItemStack("LAVA_INFUSED_EMERALD", Material.EMERALD, "&eLava-Infused Emerald"),    SlimefunItems.RAINBOW_RUNE,
 						null,          new ItemStack(Material.YELLOW_DYE, 1),   null,
-						new SlimefunItemStack("LAVA_INFUSED_DIAMOND", Material.DIAMOND, "&eLava-Infused Diamond"),    SlimefunItems.RUNE_RAINBOW,   new SlimefunItemStack("LAVA_INFUSED_SAPPHIRE", Material.LAPIS_LAZULI, "&eLava-Infused Sapphire")
+						new SlimefunItemStack("LAVA_INFUSED_DIAMOND", Material.DIAMOND, "&eLava-Infused Diamond"),    SlimefunItems.RAINBOW_RUNE,   new SlimefunItemStack("LAVA_INFUSED_SAPPHIRE", Material.LAPIS_LAZULI, "&eLava-Infused Sapphire")
 				});
 		baronMistyCitrine.register(this);
 
@@ -3407,7 +3407,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 				RecipeType.MAGIC_WORKBENCH,
 				new ItemStack[] {
 						new ItemStack(Material.NETHER_STAR),   new SlimefunItemStack("PRISMATIC_CITRINE", Material.ORANGE_DYE, "&ePrismatic Citrine"),    new ItemStack(Material.NETHER_STAR),
-						SlimefunItems.RUNE_ENDER,          new ItemStack(Material.LIGHT_BLUE_DYE, 1),   SlimefunItems.RUNE_ENDER,
+						SlimefunItems.ENDER_RUNE,          new ItemStack(Material.LIGHT_BLUE_DYE, 1),   SlimefunItems.ENDER_RUNE,
 						new ItemStack(Material.NETHER_STAR),   new SlimefunItemStack("PRISMATIC_TOPAZ", Material.LIGHT_BLUE_DYE, "&ePrismatic Topaz"),   new ItemStack(Material.NETHER_STAR)
 				});
 		baronJewel.register(this);
