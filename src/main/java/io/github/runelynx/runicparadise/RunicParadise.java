@@ -3311,7 +3311,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 
 		Category category = new Category(categoryId, categoryItem);
 
-		category.register();
+		category.register(this);
 
 		SlimefunItem baronDiamondPart = new SlimefunItem(
 				category,

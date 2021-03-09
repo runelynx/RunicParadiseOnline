@@ -258,7 +258,7 @@ public class SummoningSystem {
 
         Category category = new Category(categoryId, categoryItem);
 
-        category.register();
+        category.register(RunicParadise.getInstance());
 
         return category;
     }

@@ -22,9 +22,9 @@
 	<dependencies>
 		<!-- https://mvnrepository.com/artifact/com.sendgrid/sendgrid-java -->
 		<dependency>
-			<groupId>org.spigotmc</groupId>
-			<artifactId>spigot</artifactId>
-			<version>1.16.3-R0.1-SNAPSHOT</version>
+			<groupId>com.destroystokyo.paper</groupId>
+			<artifactId>paper-api</artifactId>
+			<version>1.16.4-R0.1-SNAPSHOT</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
@@ -57,12 +57,6 @@
 			<version>9.5.0-SNAPSHOT</version>
 			<scope>provided</scope>
 		</dependency>
-		<!--<dependency>-->
-			<!--<groupId>io.github.runelynx.runicuniverse</groupId>-->
-			<!--<artifactId>runicuniverse</artifactId>-->
-			<!--<version>1.0</version>-->
-			<!--<scope>provided</scope>-->
-		<!--</dependency>-->
 		<dependency>
 			<groupId>com.comphenix.protocol</groupId>
 			<artifactId>ProtocolLib-API</artifactId>
@@ -72,9 +66,9 @@
 		<dependency>
 			<groupId>me.mrCookieSlime</groupId>
 			<artifactId>Slimefun</artifactId>
-			<version>DEV - 677 (git 917bcce6)</version>
+			<version>DEV - 826 (git d33dc965)</version>
 			<scope>system</scope>
-			<systemPath>${project.basedir}/src/main/resources/Slimefun4 - DEV 677 (git 917bc).jar</systemPath>
+			<systemPath>${project.basedir}/src/main/resources/Slimefun4 - DEV 739 (git 3170f).jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>com.gamingmesh.jobs</groupId>
@@ -192,8 +186,8 @@
 
 	<repositories>
 		<repository>
-			<id>spigot-repo</id>
-			<url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
+			<id>papermc</id>
+			<url>https://papermc.io/repo/repository/maven-public/</url>
 		</repository>
 		<repository>
 			<id>dmulloy2-repo</id>
