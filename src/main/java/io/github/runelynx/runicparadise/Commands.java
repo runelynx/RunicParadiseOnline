@@ -330,9 +330,13 @@ public class Commands implements CommandExecutor {
 			// /rpisinvempty runelynx world 0 0 0 0 0
 			RunicPlayerBukkit rpb = new RunicPlayerBukkit(args[0]);
 			if (isInvEmpty(rpb)) {
+				//rpb.sendMessageToPlayer("DEBUG Verified inventory is empty");
 				Player p = Bukkit.getPlayer(rpb.getPlayerName());
+				//rpb.sendMessageToPlayer("DEBUG Established Player object for " + p.getName() + " " + p.getUniqueId().toString());
 				World w = Bukkit.getWorld(args[1]);
+				//rpb.sendMessageToPlayer("DEBUG Established World object for " + w.getName() + " " + w.getUID().toString());
 				Location loc = new Location(w, Double.valueOf(args[2]), Double.valueOf(args[3]), Double.valueOf(args[4]), Float.valueOf(args[5]), Float.valueOf(args[6]));
+				p.teleport(loc);
 			}
 			break;
 		case "pex":
