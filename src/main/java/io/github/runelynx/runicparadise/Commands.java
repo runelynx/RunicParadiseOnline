@@ -330,7 +330,7 @@ public class Commands implements CommandExecutor {
 			// /rpisinvempty runelynx world 0 0 0 0 0
 			RunicPlayerBukkit rpb = new RunicPlayerBukkit(args[0]);
 			if (isInvEmpty(rpb)) {
-				Player p = Bukkit.getPlayer(rpb.getPlayerUUID());
+				Player p = Bukkit.getPlayer(rpb.getPlayerName());
 				World w = Bukkit.getWorld(args[1]);
 				Location loc = new Location(w, Double.valueOf(args[2]), Double.valueOf(args[3]), Double.valueOf(args[4]), Float.valueOf(args[5]), Float.valueOf(args[6]));
 			}
