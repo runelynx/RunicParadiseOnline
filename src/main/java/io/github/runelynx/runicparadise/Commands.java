@@ -326,6 +326,15 @@ public class Commands implements CommandExecutor {
 		// general approach is that errors will return immediately;
 		// successful runs will return after the switch completes
 		switch (cmd.getName()) {
+		case "rpisinvempty":
+			// /rpisinvempty runelynx world 0 0 0 0 0
+			RunicPlayerBukkit rpb = new RunicPlayerBukkit(args[0]);
+			if (isInvEmpty(rpb)) {
+				Player p = Bukkit.getPlayer(rpb.getPlayerUUID());
+				World w = Bukkit.getWorld(args[1]);
+				Location loc = new Location(w, Double.valueOf(args[2]), Double.valueOf(args[3]), Double.valueOf(args[4]), Float.valueOf(args[5]), Float.valueOf(args[6]));
+			}
+			break;
 		case "pex":
 				pexCommand(sender, args);
 				break;
@@ -3255,5 +3264,20 @@ public class Commands implements CommandExecutor {
 				.collect(Collectors.joining(", "));
 		String formatString = ChatColor.GRAY + "Players near %s" + ChatColor.GRAY + ": %s";
 		return String.format(formatString, p.getDisplayName(), result.isEmpty() ? "None" : result);
+	}
+
+	private static boolean isInvEmpty(RunicPlayerBukkit rpb) {
+
+    	if (rpb.checkPlayerInventoryItemstackCount() == 0 &&
+				rpb.checkPlayerWearingArmor() == false) {
+    		// Player's inv and armor is empty!
+			return true;
+		} else {
+    		// Player's inv or armor is NOT empty!
+			rpb.sendMessageToPlayer(ChatColor.RED + "Please remove all armor and items to continue");
+			return false;
+		}
+
+
 	}
 }
