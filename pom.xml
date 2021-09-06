@@ -22,9 +22,9 @@
 	<dependencies>
 		<!-- https://mvnrepository.com/artifact/com.sendgrid/sendgrid-java -->
 		<dependency>
-			<groupId>com.destroystokyo.paper</groupId>
+			<groupId>io.papermc.paper</groupId>
 			<artifactId>paper-api</artifactId>
-			<version>1.16.4-R0.1-SNAPSHOT</version>
+			<version>1.17.1-R0.1-SNAPSHOT</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
@@ -66,9 +66,9 @@
 		<dependency>
 			<groupId>me.mrCookieSlime</groupId>
 			<artifactId>Slimefun</artifactId>
-			<version>DEV - 826 (git d33dc965)</version>
+			<version>DEV - 966 (git ab8f20f0)</version>
 			<scope>system</scope>
-			<systemPath>${project.basedir}/src/main/resources/Slimefun4 - DEV 739 (git 3170f).jar</systemPath>
+			<systemPath>${project.basedir}/src/main/resources/Slimefun4 RC-28.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>com.gamingmesh.jobs</groupId>

@@ -17,11 +17,12 @@ import io.github.runelynx.runicparadise.faith.modules.SummoningSystem;
 import io.github.runelynx.runicuniverse.RunicMessaging;
 import io.github.runelynx.runicuniverse.RunicMessaging.RunicFormat;
 import io.github.thebusybiscuit.slimefun4.api.SlimefunAddon;
+import io.github.thebusybiscuit.slimefun4.api.items.ItemGroup;
+import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItem;
+import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItemStack;
+import io.github.thebusybiscuit.slimefun4.api.recipes.RecipeType;
 import io.github.thebusybiscuit.slimefun4.implementation.SlimefunItems;
-import me.mrCookieSlime.Slimefun.Lists.RecipeType;
-import me.mrCookieSlime.Slimefun.Objects.Category;
-import me.mrCookieSlime.Slimefun.Objects.SlimefunItem.SlimefunItem;
-import me.mrCookieSlime.Slimefun.api.SlimefunItemStack;
+import io.github.thebusybiscuit.slimefun4.libraries.dough.items.CustomItemStack;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.permission.Permission;
 import org.bukkit.*;
@@ -3306,11 +3307,11 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 	public void registerSlimefunItems() {
 
 		NamespacedKey categoryId = new NamespacedKey(RunicParadise.getInstance(), "RunicSpecialties");
-		me.mrCookieSlime.Slimefun.cscorelib2.item.CustomItem categoryItem =
-				new me.mrCookieSlime.Slimefun.cscorelib2.item.CustomItem(
+		CustomItemStack categoryItem =
+				new CustomItemStack(
 						Material.ANVIL, "&4Runic Specialties", "", "&a> Click to open");
 
-		Category category = new Category(categoryId, categoryItem);
+		ItemGroup category = new ItemGroup(categoryId, categoryItem);
 
 		category.register(this);
 

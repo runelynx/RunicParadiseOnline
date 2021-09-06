@@ -6,10 +6,11 @@ import io.github.runelynx.runicparadise.faith.FaithCore;
 import io.github.runelynx.runicparadise.faith.SummonableMob;
 import io.github.runelynx.runicparadise.faith.SummoningDropChance;
 import io.github.runelynx.runicuniverse.RunicMessaging;
-import me.mrCookieSlime.Slimefun.Lists.RecipeType;
-import me.mrCookieSlime.Slimefun.Objects.Category;
-import me.mrCookieSlime.Slimefun.Objects.SlimefunItem.SlimefunItem;
-import me.mrCookieSlime.Slimefun.api.SlimefunItemStack;
+import io.github.thebusybiscuit.slimefun4.api.items.ItemGroup;
+import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItem;
+import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItemStack;
+import io.github.thebusybiscuit.slimefun4.api.recipes.RecipeType;
+import io.github.thebusybiscuit.slimefun4.libraries.dough.items.CustomItemStack;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.*;
@@ -182,7 +183,7 @@ public class SummoningSystem {
     private Boolean registerSummoningMobs() {
 
         // Register SF category that's needed for registering the summon ball recipes
-        Category category = registerSlimefunCategoryForFaith();
+        ItemGroup category = registerSlimefunCategoryForFaith();
 
         ConfigurationSection summonMobsSection = FaithCore.getFaithConfig()
                 .getConfigurationSection("Faith.SummoningSystem.Mobs");
@@ -249,14 +250,14 @@ public class SummoningSystem {
         return true;
     }
 
-    private static Category registerSlimefunCategoryForFaith() {
+    private static ItemGroup registerSlimefunCategoryForFaith() {
 
         NamespacedKey categoryId = new NamespacedKey(RunicParadise.getInstance(), "RunicFaith");
-        me.mrCookieSlime.Slimefun.cscorelib2.item.CustomItem categoryItem =
-                new me.mrCookieSlime.Slimefun.cscorelib2.item.CustomItem(
+        CustomItemStack categoryItem =
+                new CustomItemStack(
                         Material.HEART_OF_THE_SEA, "&9Faith&3Balls", "", "&a> Click to open");
 
-        Category category = new Category(categoryId, categoryItem);
+        ItemGroup category = new ItemGroup(categoryId, categoryItem);
 
         category.register(RunicParadise.getInstance());
 
@@ -275,7 +276,7 @@ public class SummoningSystem {
 
     }
 
-    public static void registerSlimefunItemsForFaith(Category category, String mobId, String ballName, ItemStack[] items,  int diff) {
+    public static void registerSlimefunItemsForFaith(ItemGroup category, String mobId, String ballName, ItemStack[] items,  int diff) {
 
         SlimefunItemStack sfis =  new SlimefunItemStack(mobId, Material.HEART_OF_THE_SEA, ballName);
         ItemMeta sfisMeta = sfis.getItemMeta();
