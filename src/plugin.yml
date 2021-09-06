@@ -5,8 +5,8 @@ description: "Bukkit plugin for Runic Paradise server."
 main: io.github.runelynx.runicparadise.RunicParadise
 version: 1.1
 #depend: [NoteBlockAPI, WorldGuard, RunicUniverse, CS-CoreLib, Slimefun]
-depend: [NoteBlockAPI, RunicUniverse, CS-CoreLib, Slimefun, WorldGuard]
-api-version: 1.16
+depend: [NoteBlockAPI, RunicUniverse, Slimefun, WorldGuard]
+api-version: 1.17
 commands:
    rpisinvempty:
       description: "Command block command to check if player's inventory is empty (and teleport them if it is)"
