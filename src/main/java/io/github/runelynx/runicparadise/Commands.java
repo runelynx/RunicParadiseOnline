@@ -1565,7 +1565,7 @@ public class Commands implements CommandExecutor {
     	String jobTally = "";
 
     	if (!silent) {
-			RunicMessaging.sendMessage(p, RunicFormat.EMPTY, ChatColor.BLUE + "*** Tier 2 Jobs ***");
+			RunicMessaging.sendMessage(p, RunicFormat.EMPTY, ChatColor.YELLOW + "*** Tier 2 Jobs ***");
 		}
 
 		jobTally += (rpJobsCommandQualifyLogic2(p, "Ranger", "Woodsman", "Rancher") ? ChatColor.GREEN + "Ranger "  : ChatColor.RED + "Ranger ");
@@ -1580,7 +1580,7 @@ public class Commands implements CommandExecutor {
 		if (!silent) {
 			RunicMessaging.sendMessage(p, RunicFormat.EMPTY, jobTally);
 			jobTally = "";
-			RunicMessaging.sendMessage(p, RunicFormat.EMPTY, ChatColor.YELLOW + "*** Tier 3 Jobs ***");
+			RunicMessaging.sendMessage(p, RunicFormat.EMPTY, ChatColor.RED + "*** Tier 3 Jobs ***");
 		}
 
 		jobTally += (rpJobsCommandQualifyLogic2(p, "Warlock", "Conjurer", "Biologist") ? ChatColor.GREEN + "Warlock "  : ChatColor.RED + "Warlock ");
@@ -1591,7 +1591,7 @@ public class Commands implements CommandExecutor {
 		if (!silent) {
 			RunicMessaging.sendMessage(p, RunicFormat.EMPTY, jobTally);
 			jobTally = "";
-			RunicMessaging.sendMessage(p, RunicFormat.EMPTY, ChatColor.YELLOW + "*** Tier 4 Jobs ***");
+			RunicMessaging.sendMessage(p, RunicFormat.EMPTY, ChatColor.AQUA + "*** Tier 4 Jobs ***");
 		}
 
 		jobTally += (rpJobsCommandQualifyLogic4(p, "Farmer", "Warlock", "Shaman", "Journeyman", "Settler") ? ChatColor.GREEN + "Farmer "  : ChatColor.RED + "Farmer ");
