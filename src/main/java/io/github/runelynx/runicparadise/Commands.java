@@ -1569,14 +1569,13 @@ public class Commands implements CommandExecutor {
 		}
 
 		jobTally += (rpJobsCommandQualifyLogic2(p, "Ranger", "Woodsman", "Rancher") ? ChatColor.GREEN + "Ranger "  : ChatColor.RED + "Ranger ");
-		jobTally += (rpJobsCommandQualifyLogic2(p, "ForgeMaster", "Blacksmith", "Miner") ? ChatColor.GREEN + "ForgeMaster "  : ChatColor.RED + "ForgeMaster ");
+		jobTally += (rpJobsCommandQualifyLogic2(p, "ForgeMaster", "Blacksmith", "Miner") ? ChatColor.GREEN + "Forgemaster "  : ChatColor.RED + "Forgemaster ");
 		jobTally += (rpJobsCommandQualifyLogic2(p, "Biologist", "Scientist", "Rancher") ? ChatColor.GREEN + "Biologist "  : ChatColor.RED + "Biologist ");
-		jobTally += (rpJobsCommandQualifyLogic2(p, "Alchemist", "Wizard", "Chef") ? ChatColor.GREEN + "Alchemist "  : ChatColor.RED + "Alchemist ");
-		jobTally += (rpJobsCommandQualifyLogic2(p, "Nomad", "Chef", "Rancher") ? ChatColor.GREEN + "Nomad "  : ChatColor.RED + "Nomad ");
-		jobTally += (rpJobsCommandQualifyLogic2(p, "Geomancer", "Wizard", "Miner") ? ChatColor.GREEN + "Geomancer "  : ChatColor.RED + "Geomancer ");
+		jobTally += (rpJobsCommandQualifyLogic2(p, "Nomad", "Chef", "Gatherer") ? ChatColor.GREEN + "Nomad "  : ChatColor.RED + "Nomad ");
 		jobTally += (rpJobsCommandQualifyLogic2(p, "Conjurer", "Wizard", "Blacksmith") ? ChatColor.GREEN + "Conjurer "  : ChatColor.RED + "Conjurer ");
-		jobTally += (rpJobsCommandQualifyLogic2(p, "Druid", "Wizard", "Woodsman") ? ChatColor.GREEN + "Druid "  : ChatColor.RED + "Druid ");
+		jobTally += (rpJobsCommandQualifyLogic2(p, "Druid", "Gatherer", "Woodsman") ? ChatColor.GREEN + "Druid "  : ChatColor.RED + "Druid ");
 		jobTally += (rpJobsCommandQualifyLogic2(p, "Engineer", "Scientist", "Miner") ? ChatColor.GREEN + "Engineer "  : ChatColor.RED + "Engineer ");
+		jobTally += (rpJobsCommandQualifyLogic2(p, "Sage", "Wizard", "Chef") ? ChatColor.GREEN + "Sage "  : ChatColor.RED + "Sage ");
 
 		if (!silent) {
 			RunicMessaging.sendMessage(p, RunicFormat.EMPTY, jobTally);
@@ -1584,10 +1583,10 @@ public class Commands implements CommandExecutor {
 			RunicMessaging.sendMessage(p, RunicFormat.EMPTY, ChatColor.YELLOW + "*** Tier 3 Jobs ***");
 		}
 
-		jobTally += (rpJobsCommandQualifyLogic3(p, "BeastMaster", "Druid", "Tamer", "Nomad") ? ChatColor.GREEN + "BeastMaster "  : ChatColor.RED + "BeastMaster ");
-		jobTally += (rpJobsCommandQualifyLogic3(p, "Sorcerer", "Alchemist", "Geomancer", "Conjurer") ? ChatColor.GREEN + "Sorcerer "  : ChatColor.RED + "Sorcerer ");
-		jobTally += (rpJobsCommandQualifyLogic3(p, "Geneticist", "Ranger", "Nomad", "Biologist") ? ChatColor.GREEN + "Geneticist "  : ChatColor.RED + "Geneticist ");
-		jobTally += (rpJobsCommandQualifyLogic3(p, "Artificer", "Engineer", "ForgeMaster", "Geomancer") ? ChatColor.GREEN + "Artificer "  : ChatColor.RED + "Artificer ");
+		jobTally += (rpJobsCommandQualifyLogic2(p, "Warlock", "Conjurer", "Biologist") ? ChatColor.GREEN + "Warlock "  : ChatColor.RED + "Warlock ");
+		jobTally += (rpJobsCommandQualifyLogic2(p, "Shaman", "Sage", "Druid") ? ChatColor.GREEN + "Shaman "  : ChatColor.RED + "Shaman ");
+		jobTally += (rpJobsCommandQualifyLogic2(p, "Journeyman", "Ranger", "Engineer") ? ChatColor.GREEN + "Journeyman "  : ChatColor.RED + "Journeyman ");
+		jobTally += (rpJobsCommandQualifyLogic2(p, "Settler", "Nomad", "ForgeMaster") ? ChatColor.GREEN + "Settler "  : ChatColor.RED + "Settler ");
 
 		if (!silent) {
 			RunicMessaging.sendMessage(p, RunicFormat.EMPTY, jobTally);
@@ -1595,8 +1594,10 @@ public class Commands implements CommandExecutor {
 			RunicMessaging.sendMessage(p, RunicFormat.EMPTY, ChatColor.YELLOW + "*** Tier 4 Jobs ***");
 		}
 
-		jobTally += (rpJobsCommandQualifyLogic2(p, "Craftsman", "Artificer", "Sorcerer") ? ChatColor.GREEN + "Craftsman "  : ChatColor.RED + "Craftsman ");
-		jobTally += (rpJobsCommandQualifyLogic2(p, "Seafarer", "Geneticist", "BeastMaster") ? ChatColor.GREEN + "Seafarer "  : ChatColor.RED + "Seafarer ");
+		jobTally += (rpJobsCommandQualifyLogic4(p, "Farmer", "Warlock", "Shaman", "Journeyman", "Settler") ? ChatColor.GREEN + "Farmer "  : ChatColor.RED + "Farmer ");
+		jobTally += (rpJobsCommandQualifyLogic4(p, "Forager", "Warlock", "Shaman", "Journeyman", "Settler") ? ChatColor.GREEN + "Forager "  : ChatColor.RED + "Forager ");
+		jobTally += (rpJobsCommandQualifyLogic4(p, "Tinkerer", "Warlock", "Shaman", "Journeyman", "Settler") ? ChatColor.GREEN + "Tinkerer "  : ChatColor.RED + "Tinkerer ");
+		jobTally += (rpJobsCommandQualifyLogic4(p, "Voyager", "Warlock", "Shaman", "Journeyman", "Settler") ? ChatColor.GREEN + "Voyager "  : ChatColor.RED + "Voyager ");
 
 		if (!silent) {
 			RunicMessaging.sendMessage(p, RunicFormat.EMPTY, jobTally);
@@ -1604,6 +1605,26 @@ public class Commands implements CommandExecutor {
 
     	return true;
 	}
+
+	private boolean rpJobsCommandQualifyLogic4 (Player p, String jobName, String prereqA, String prereqB, String prereqC, String prereqD) {
+
+		if (RunicParadise.playerProfiles.get(p.getUniqueId()).getJobMasteryString().contains(prereqA) &&
+				RunicParadise.playerProfiles.get(p.getUniqueId()).getJobMasteryString().contains(prereqB) &&
+				RunicParadise.playerProfiles.get(p.getUniqueId()).getJobMasteryString().contains(prereqC) &&
+				RunicParadise.playerProfiles.get(p.getUniqueId()).getJobMasteryString().contains(prereqD) &&
+				!p.hasPermission("jobs.join." + jobName)) {
+			Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "lp user " + p.getName() + " permission set jobs.join." + jobName);
+
+			Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "cmi toast " + p.getName() + " -t:challenge -icon:stone_pickaxe &a" + jobName + " &ejob unlocked!");
+
+			return true;
+		} else if (p.hasPermission("jobs.join." + jobName)) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
 
 	private boolean rpJobsCommandQualifyLogic2 (Player p, String jobName, String prereqA, String prereqB) {
 
