@@ -922,6 +922,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 
 	}
 
+
 	@EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
 	public void onPlayerChat(AsyncPlayerChatEvent event) {
 		String playerRankColor;
@@ -935,7 +936,24 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 		String staffPrefix = ChatColor.DARK_GRAY + "" + ChatColor.ITALIC + "SV ";
 		String donatorPrefix = "";
 		String newbiePrefix = "";
+		String kingdomPrefix = "";
 		Player player = event.getPlayer();
+
+
+		// Croc's fancy kingdom tag logic handling
+		if (player.hasPermission("rpchat.kingdoms.blue")) {
+			kingdomPrefix = "" + ChatColor.BLUE + "[W] ";
+		} else if (player.hasPermission("rpchat.kingdoms.red")) {
+			kingdomPrefix = "" + ChatColor.RED + "[E] ";
+		} else if (player.hasPermission("rpchat.kingdoms.yellow")) {
+			kingdomPrefix = "" + ChatColor.YELLOW + "[D] ";
+		} else if (player.hasPermission("rpchat.kingdoms.green")) {
+			kingdomPrefix = "" + ChatColor.GREEN + "[?] ";
+		}
+
+
+
+
 
 		// HANDLE DONATORS
 		if (player.hasPermission("rp.donator.diamond")) {
@@ -991,63 +1009,64 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 				genderRank = "Lady";
 			}
 
-			event.setFormat(staffPrefix + donatorPrefix + playerRankColor + faithPrefix + playerRankColor + genderRank.toLowerCase() +
+			event.setFormat(staffPrefix + kingdomPrefix +  donatorPrefix + playerRankColor + faithPrefix + playerRankColor + genderRank.toLowerCase() +
 					" " + playerRankColor + event.getPlayer().getDisplayName() + ChatColor.WHITE + ": %2$s");
 		} else
-		// //// HANDLE COUNTS
-		if (perms.getPrimaryGroup(event.getPlayer()).equalsIgnoreCase("Count")) {
-			String genderRank;
-			if (playerProfiles.get(event.getPlayer().getUniqueId()).getGender() == 'M') {
-				genderRank = "Count";
-			} else {
-				genderRank = "Countess";
-			}
+			// //// HANDLE COUNTS
+			if (perms.getPrimaryGroup(event.getPlayer()).equalsIgnoreCase("Count")) {
+				String genderRank;
+				if (playerProfiles.get(event.getPlayer().getUniqueId()).getGender() == 'M') {
+					genderRank = "Count";
+				} else {
+					genderRank = "Countess";
+				}
 
-			event.setFormat(staffPrefix + donatorPrefix + playerRankColor + faithPrefix + playerRankColor + genderRank.toLowerCase() +
-					" " + playerRankColor + event.getPlayer().getDisplayName() + ChatColor.WHITE + ": %2$s");
-		} else
-		// //// HANDLE BARONS
-		if (perms.getPrimaryGroup(player).equalsIgnoreCase("Baron")) {
-			String genderRank;
-			if (playerProfiles.get(player.getUniqueId()).getGender() == 'M') {
-				genderRank = "Baron";
-			} else {
-				genderRank = "Baroness";
-			}
+				event.setFormat(staffPrefix + kingdomPrefix + donatorPrefix + playerRankColor + faithPrefix + playerRankColor + genderRank.toLowerCase() +
+						" " + playerRankColor + event.getPlayer().getDisplayName() + ChatColor.WHITE + ": %2$s");
+			} else
+				// //// HANDLE BARONS
+				if (perms.getPrimaryGroup(player).equalsIgnoreCase("Baron")) {
+					String genderRank;
+					if (playerProfiles.get(player.getUniqueId()).getGender() == 'M') {
+						genderRank = "Baron";
+					} else {
+						genderRank = "Baroness";
+					}
 
-			event.setFormat(staffPrefix + donatorPrefix + playerRankColor + faithPrefix + playerRankColor + genderRank.toLowerCase() +
-					" " + playerRankColor + event.getPlayer().getDisplayName() + ChatColor.WHITE + ": %2$s");
-		} else
-		// //// HANDLE DUKES
-		if (perms.getPrimaryGroup(player).equalsIgnoreCase("Duke")) {
-			String genderRank;
-			if (playerProfiles.get(player.getUniqueId()).getGender() == 'M') {
-				genderRank = "Duke";
-			} else {
-				genderRank = "Duchess";
-			}
+					event.setFormat(staffPrefix + kingdomPrefix + donatorPrefix + playerRankColor + faithPrefix + playerRankColor + genderRank.toLowerCase() +
+							" " + playerRankColor + event.getPlayer().getDisplayName() + ChatColor.WHITE + ": %2$s");
+				} else
+					// //// HANDLE DUKES
+					if (perms.getPrimaryGroup(player).equalsIgnoreCase("Duke")) {
+						String genderRank;
+						if (playerProfiles.get(player.getUniqueId()).getGender() == 'M') {
+							genderRank = "Duke";
+						} else {
+							genderRank = "Duchess";
+						}
 
-			event.setFormat(staffPrefix + donatorPrefix + playerRankColor + faithPrefix + playerRankColor + genderRank.toLowerCase() +
-					" " + playerRankColor + event.getPlayer().getDisplayName() + ChatColor.WHITE + ": %2$s");
+						event.setFormat(staffPrefix + kingdomPrefix + donatorPrefix + playerRankColor + faithPrefix + playerRankColor + genderRank.toLowerCase() +
+								" " + playerRankColor + event.getPlayer().getDisplayName() + ChatColor.WHITE + ": %2$s");
 
-			// //// HANDLE MULTICOLORED SLAYER TITLE
-		} else if (perms.getPrimaryGroup(event.getPlayer()).equals("Slayer")) {
-			event.setFormat(staffPrefix + donatorPrefix + ChatColor.BLUE + faithPrefix
-					+ RunicParadise.rankColors.get(perms.getPrimaryGroup(event.getPlayer()))
-					+ perms.getPrimaryGroup(event.getPlayer()).toLowerCase() + " "
-					+ ChatColor.BLUE + event.getPlayer().getDisplayName() + ChatColor.WHITE + ": %2$s");
-			// //// HANDLE FAITHS FOR ALL BUT GHOSTS SLAYERS
-		} else if (!event.getPlayer().hasPermission("rp.GHOST")) {
-			event.setFormat(staffPrefix + donatorPrefix + newbiePrefix + playerRankColor + faithPrefix
-					+ perms.getPrimaryGroup(event.getPlayer()).toLowerCase() + ChatColor.GRAY + " "
-					+ playerRankColor + event.getPlayer().getDisplayName() + ChatColor.WHITE + ": %2$s");
-		} else {
-			// //// HANDLE GHOSTS
-			event.setFormat(staffPrefix + donatorPrefix + playerRankColor + perms.getPrimaryGroup(event.getPlayer())
-					+ ChatColor.GRAY + " "
-					+ playerRankColor + event.getPlayer().getDisplayName() + ChatColor.WHITE + ": %2$s");
-		}
+						// //// HANDLE MULTICOLORED SLAYER TITLE
+					} else if (perms.getPrimaryGroup(event.getPlayer()).equals("Slayer")) {
+						event.setFormat(staffPrefix + kingdomPrefix + donatorPrefix + ChatColor.BLUE + faithPrefix
+								+ RunicParadise.rankColors.get(perms.getPrimaryGroup(event.getPlayer()))
+								+ perms.getPrimaryGroup(event.getPlayer()).toLowerCase() + " "
+								+ ChatColor.BLUE + event.getPlayer().getDisplayName() + ChatColor.WHITE + ": %2$s");
+						// //// HANDLE FAITHS FOR ALL BUT GHOSTS SLAYERS
+					} else if (!event.getPlayer().hasPermission("rp.GHOST")) {
+						event.setFormat(staffPrefix + kingdomPrefix + donatorPrefix + newbiePrefix + playerRankColor + faithPrefix
+								+ perms.getPrimaryGroup(event.getPlayer()).toLowerCase() + ChatColor.GRAY + " "
+								+ playerRankColor + event.getPlayer().getDisplayName() + ChatColor.WHITE + ": %2$s");
+					} else {
+						// //// HANDLE GHOSTS
+						event.setFormat(staffPrefix + kingdomPrefix + donatorPrefix + playerRankColor + perms.getPrimaryGroup(event.getPlayer())
+								+ ChatColor.GRAY + " "
+								+ playerRankColor + event.getPlayer().getDisplayName() + ChatColor.WHITE + ": %2$s");
+					}
 	}
+
 
 	@EventHandler(priority = EventPriority.LOWEST)
 	public void onBreakBlock(final BlockBreakEvent event) {
