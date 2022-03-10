@@ -1522,6 +1522,28 @@ public class Commands implements CommandExecutor {
 		}
 	}
 
+	private void rpJobsCommandMasteryPerms (Player p) {
+		//tier 4 cannot be mastered as their levels are not capped
+		String[] validJobs = {"Miner", "Chef", "Scientist", "Blacksmith", "Gatherer", "Rancher", "Wizard", "Woodsman", "Ranger", "ForgeMaster", "Biologist", "Nomad", "Conjurer", "Druid", "Engineer", "Sage", "Warlock", "Shaman", "Journeyman", "Settler"};
+		int masteryCount = 0;
+		for (int i = 0; i<validJobs.length; i++) {
+			if (p.hasPermission("rp.jobs.mastery."+validJobs[i])) {
+				masteryCount++;
+			}
+		}
+		for (int a = 1; a<=masteryCount ;a++) {
+			String permissionToSet = "rp.jobmastery." + a;
+			if (!p.hasPermission(permissionToSet)) {
+				// Only grant the new permission if the player doesn't already have it
+				// This just prevents unnecessary spam
+				Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "lp user " + p.getName() + " permission set " + permissionToSet);
+			}
+		}
+		RunicMessaging.sendMessage(p, RunicFormat.EMPTY, ChatColor.YELLOW + "Mastery count updated!");
+
+
+	}
+
 	private boolean rpJobsCommandMastery (Player p, String jobName){
 
     	int jobLevel = -1;
@@ -1674,7 +1696,13 @@ public class Commands implements CommandExecutor {
 
 			rpJobsCommandMastery(q, args[1]);
 
-		} else if (args[0].equals("qualify") && args.length >= 2 && !(sender instanceof Player)) {
+		} else if (args[0].equals("masteryperms")) {
+			// Convert mastery to perms. /rpjobs masteryperms <playername>
+			Player q = Bukkit.getPlayer(args[1]);
+
+			rpJobsCommandMasteryPerms(q);
+
+		}else if (args[0].equals("qualify") && args.length >= 2 && !(sender instanceof Player)) {
 			// Qualify for an upper tier job
 			if (args.length >= 3){
 				rpJobsCommandQualify(Bukkit.getPlayer(args[1]), true);
