@@ -30,7 +30,7 @@
 		<dependency>
 			<groupId>com.sk89q.worldguard</groupId>
 			<artifactId>worldguard-bukkit</artifactId>
-			<version>7.0.6-SNAPSHOT</version>
+			<version>7.0.7-SNAPSHOT</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
@@ -63,13 +63,13 @@
 			<version>4.3.0</version>
 			<scope>provided</scope>
 		</dependency>
-		<dependency>
-			<groupId>me.mrCookieSlime</groupId>
-			<artifactId>Slimefun</artifactId>
-			<version>DEV - 966 (git ab8f20f0)</version>
-			<scope>system</scope>
-			<systemPath>${project.basedir}/src/main/resources/Slimefun4 RC-28.jar</systemPath>
-		</dependency>
+
+			<dependency>
+				<groupId>com.github.Slimefun</groupId>
+				<artifactId>Slimefun4</artifactId>
+				<version>RC-31</version>
+			</dependency>
+
 		<dependency>
 			<groupId>com.gamingmesh.jobs</groupId>
 			<artifactId>Jobs</artifactId>
