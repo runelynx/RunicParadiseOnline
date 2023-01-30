@@ -40,12 +40,6 @@
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
-			<groupId>de.slikey</groupId>
-			<artifactId>EffectLib</artifactId>
-			<version>5.3-SNAPSHOT</version>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
 			<groupId>com.mojang</groupId>
 			<artifactId>authlib</artifactId>
 			<version>1.5.21</version>
@@ -63,13 +57,13 @@
 			<version>4.3.0</version>
 			<scope>provided</scope>
 		</dependency>
-
 			<dependency>
 				<groupId>com.github.Slimefun</groupId>
 				<artifactId>Slimefun4</artifactId>
-				<version>RC-31</version>
+				<version>4.9-UNOFFICIAL</version>
+				<scope>system</scope>
+				<systemPath>${project.basedir}/src/main/resources/Slimefun4 - DEV 1041 (git 84aaa).jar</systemPath>
 			</dependency>
-
 		<dependency>
 			<groupId>com.gamingmesh.jobs</groupId>
 			<artifactId>Jobs</artifactId>
@@ -198,14 +192,6 @@
 		<repository>
 			<id>sk89q-repo</id>
 			<url>https://maven.enginehub.org/repo</url>
-		</repository>
-		<repository>
-			<id>elmakers-repo-EffectLib</id>
-			<url>https://maven.elmakers.com/repository/de/slikey/EffectLib/</url>
-		</repository>
-		<repository>
-			<id>elmakers-repo</id>
-			<url>https://maven.elmakers.com/repository/</url>
 		</repository>
 		<repository>
 			<id>jitpack.io</id>
