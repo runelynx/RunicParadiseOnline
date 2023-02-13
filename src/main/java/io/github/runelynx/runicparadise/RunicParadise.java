@@ -448,8 +448,6 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 		return true;
 	}
 
-
-
 	public void onEnable() {
 		instance = this;
 		getLogger().info("[RunicParadise] Enabling plugin...");
@@ -467,6 +465,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 
 		faithSystem = new FaithCore();
 		new Raffle();
+		new Ranks();
 
 
 
@@ -497,6 +496,8 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 		Faith.deactivateFaiths();
 
 		faithSystem.shutdownFaithSystem();
+		Raffle.shutdownRaffleSystem();
+		Ranks.shutdownRoyalRankDropSystem();
 
 		rankColors.clear();
 		// Dispose of the EffectManager
@@ -2020,6 +2021,9 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 					PersistentDataContainer container = ede.getEntity().getPersistentDataContainer();
 
 					if(container.has(key , PersistentDataType.STRING)) {
+
+						attemptRoyalRankItemDrop(ede.getEntityType(), ((Player) nEvent.getDamager()));
+
 						if (nEvent.getEntityType() == EntityType.ZOMBIE || nEvent.getEntityType() == EntityType.SKELETON) {
 							Random rand = new Random();
 							// Obtain a number between [0 - 899].
@@ -2107,6 +2111,103 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 			} // end else
 		} // end LivingEntity check (if)
 	} // end method
+
+	void attemptRoyalRankItemDrop(EntityType killedEntity, Player player){
+		int chancePool = 10000;
+		int dropChance = 0;
+		Random r = new Random();
+
+		switch(killedEntity) {
+			case ZOMBIE:
+				dropChance = 50;
+				break;
+			case HUSK:
+				dropChance = 50;
+				break;
+			case DROWNED:
+				dropChance = 75;
+				break;
+			case STRAY:
+				dropChance = 100;
+				break;
+			case SPIDER:
+				dropChance = 50;
+				break;
+			case SKELETON:
+				dropChance = 75;
+				break;
+			case CREEPER:
+				dropChance = 75;
+				break;
+			case PHANTOM:
+				dropChance = 150;
+				break;
+			case SHULKER:
+				dropChance = 200;
+				break;
+			case ZOMBIFIED_PIGLIN:
+				dropChance = 35;
+				break;
+
+			case MAGMA_CUBE:
+				dropChance = 35;
+				break;
+			case WITHER_SKELETON:R:
+				dropChance = 125;
+				break;
+			case GHAST:
+				dropChance = 500;
+				break;
+			case BLAZE:
+				dropChance = 50;
+				break;
+			case PIGLIN:
+				dropChance = 100;
+				break;
+			case PIGLIN_BRUTE:
+				dropChance = 250;
+				break;
+			case VINDICATOR:
+				dropChance = 200;
+				break;
+			case EVOKER:
+				dropChance = 300;
+				break;
+			case RAVAGER:
+				dropChance = 500;
+				break;
+			default:
+				dropChance = 0;
+				break;
+		}
+
+		if (player.hasPermission("rp.vinylrate.duke")) {
+			dropChance=(dropChance*125)/100;
+		}
+		if (player.hasPermission("rp.vinylrate.baron")) {
+			dropChance=(dropChance*125)/100;
+		}
+		if (player.hasPermission("rp.vinylrate.count")) {
+			dropChance=(dropChance*125)/100;
+		}
+		if (player.hasPermission("rp.vinylrate.lord")) {
+			dropChance=(dropChance*125)/100;
+		}
+
+		int roll = r.nextInt(chancePool)+1;
+
+		getLogger().log(Level.INFO, "[RoyalRankDrops] " + player.getName() + " killed a " +
+				killedEntity.name() + ". Roll " + roll + ". Drop Chance " + dropChance + ".");
+
+		if (roll <= dropChance){
+			Bukkit.dispatchCommand(Bukkit.getConsoleSender(),
+					"cmi kit DropVinylShard " + player.getName());
+
+			getLogger().log(Level.INFO, "[RoyalRankDrops] " + player.getName() + " has been awarded a vinyl shard!");
+
+		}
+
+	}
 
 	private void updatePlayerInfoOnJoin(String name, UUID pUUID) {
 		Date now = new Date();

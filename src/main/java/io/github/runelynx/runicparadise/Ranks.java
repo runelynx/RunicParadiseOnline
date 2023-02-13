@@ -7,6 +7,9 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
+import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -15,21 +18,20 @@ import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.Plugin;
 
+import java.io.File;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.logging.Level;
 
 import static io.github.runelynx.runicparadise.RunicParadise.economy;
 import static io.github.runelynx.runicparadise.RunicParadise.perms;
 import static org.bukkit.Bukkit.getLogger;
+import static org.bukkit.Bukkit.getServer;
 
 class Ranks {
 	private Plugin instance = RunicParadise.getInstance();
@@ -78,7 +80,37 @@ class Ranks {
 	final int BARON_RUNICS = 300000;
 	final int BARON_MASTER_JOBS = 12;
 
-	Ranks() { }
+	public static HashMap<String, Integer> royalRanksSettingsMap = new HashMap<String, Integer>();
+
+	public Ranks (){
+		initializeRoyalRankSystem();
+	}
+
+	public void initializeRoyalRankSystem() {
+
+		ConfigurationSection royalRankSection = Ranks.getRoyalRankDropConfig().getConfigurationSection("Settings");
+
+		royalRanksSettingsMap.put("ChancePool", royalRankSection.getInt("ChancePool"));
+
+		Bukkit.getLogger().log(Level.INFO,">>> Completed loading Royal Ranks Config!");
+
+	}
+
+
+	public static void shutdownRoyalRankDropSystem() {
+
+		royalRanksSettingsMap.clear();
+	}
+
+	public static FileConfiguration getRoyalRankDropConfig() {
+
+		File announceFile = new File(
+				getServer().getPluginManager().getPlugin("RunicParadise").getDataFolder().getAbsolutePath(),
+				"royalranksettings.yml");
+
+		return YamlConfiguration.loadConfiguration(announceFile);
+
+	}
 
 	private void congratsPromotion(String promoted, String newRank) {
 		// RG.sendMessage(true, promoted, ChatColor.GOLD
