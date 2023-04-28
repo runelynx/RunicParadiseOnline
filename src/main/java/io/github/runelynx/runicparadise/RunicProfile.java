@@ -97,8 +97,10 @@ public class RunicProfile {
 				statement.setString(1, this.getPlayerID().toString());
 				statement.executeUpdate();
 			} catch (SQLException e) {
-				getLogger().log(Level.SEVERE, "Failed setChatColor because: " + e.getMessage());
+				RunicUtilities.notifyStaffErrors("DB error. Failed setChatColor because: " + e.getMessage());
+				RunicUtilities.notifyLogErrors("DB error. Failed setChatColor because: " + e.getMessage());
 			}
+
 		}
 	}
 
@@ -111,6 +113,8 @@ public class RunicProfile {
 			if (result.isPresent()) {
 				color = result.get().getValue();
 			} else {
+				RunicUtilities.notifyStaffErrors("Failed setChatColor because: " + e.getMessage());
+				RunicUtilities.notifyLogErrors("Failed setChatColor because: " + e.getMessage());
 				return;
 			}
 		}
@@ -158,17 +162,13 @@ public class RunicProfile {
 		if (updateDB) {
 
 			MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
-
-			try {
-				Connection connection = MySQL.openConnection();
-
+			try (Connection connection = DatabaseConnectionPool.getConnection()) {
 				PreparedStatement statement = connection.prepareStatement("UPDATE rp_PlayerInfo SET Gender ='" + newGender + "' WHERE UUID = ?");
 				statement.setString(1, this.getPlayerID().toString());
 				statement.executeUpdate();
-
-				connection.close();
 			} catch (SQLException e) {
-				getLogger().log(Level.SEVERE, "Failed setGender because: " + e.getMessage());
+				RunicUtilities.notifyStaffErrors("DB error. Failed setGender because: " + e.getMessage());
+				RunicUtilities.notifyLogErrors("DB error. Failed setGender because: " + e.getMessage());
 			}
 		}
 	}
@@ -291,8 +291,9 @@ public class RunicProfile {
 				connection.close();
 
 			} catch (SQLException e) {
-				getLogger().log(Level.SEVERE,
-						"Failed processPitContribution update (change " + this.playerName + "  because: " + e.getMessage());
+
+				RunicUtilities.notifyStaffErrors("Failed processPitContribution update (change " + this.playerName + "  because: " + e.getMessage());
+				RunicUtilities.notifyLogErrors("Failed processPitContribution update (change " + this.playerName + "  because: " + e.getMessage());
 			}
 
 
@@ -365,8 +366,9 @@ public class RunicProfile {
 			connection.close();
 
 		} catch (SQLException e) {
-			getLogger().log(Level.SEVERE,
-					"Failed grantCurrency update (change " + this.playerName + "  because: " + e.getMessage());
+			RunicUtilities.notifyStaffErrors("Failed grantCurrency update (change " + this.playerName + "  because: " + e.getMessage());
+			RunicUtilities.notifyLogErrors("Failed grantCurrency update (change " + this.playerName + "  because: " + e.getMessage());
+
 		}
 
 		// Sync up old profile method ... for now ...
@@ -432,8 +434,8 @@ public class RunicProfile {
 			connection.close();
 
 		} catch (SQLException e) {
-			getLogger().log(Level.SEVERE,
-					"Failed reduceCurrency update (change " + this.playerName + "  because: " + e.getMessage());
+			RunicUtilities.notifyStaffErrors("Failed reduceCurrency update (change " + this.playerName + "  because: " + e.getMessage());
+			RunicUtilities.notifyLogErrors("Failed reduceCurrency update (change " + this.playerName + "  because: " + e.getMessage());
 		}
 
 		// Sync up old profile method ... for now ...
@@ -492,13 +494,16 @@ public class RunicProfile {
 			statement.executeUpdate();
 
 		} catch (SQLException e) {
-			getLogger().log(Level.SEVERE, "Failed setJobMasteryCount because: " + e.getMessage());
+
+			RunicUtilities.notifyStaffErrors("Failed setJobMasteryCount because: " + e.getMessage());
+			RunicUtilities.notifyLogErrors("Failed setJobMasteryCount because: " + e.getMessage());
 		}
 
 		try {
 			connection.close();
 		} catch (SQLException e) {
-			getLogger().log(Level.SEVERE, "Failed setJobMasteryCount because: " + e.getMessage());
+			RunicUtilities.notifyStaffErrors("Failed setJobMasteryCount because: " + e.getMessage());
+			RunicUtilities.notifyLogErrors("Failed setJobMasteryCount because: " + e.getMessage());
 		}
 
 	}
@@ -520,13 +525,16 @@ public class RunicProfile {
 					statement.executeUpdate();
 
 			} catch (SQLException e) {
-				getLogger().log(Level.SEVERE, "Failed setJobMasteryString because: " + e.getMessage());
+
+				RunicUtilities.notifyStaffErrors("Failed setJobMasteryString because: " + e.getMessage());
+				RunicUtilities.notifyLogErrors("Failed setJobMasteryString because: " + e.getMessage());
 			}
 
 		try {
 			connection.close();
 		} catch (SQLException e) {
-			getLogger().log(Level.SEVERE, "Failed setJobMasteryString because: " + e.getMessage());
+			RunicUtilities.notifyStaffErrors("Failed setJobMasteryString because: " + e.getMessage());
+			RunicUtilities.notifyLogErrors("Failed setJobMasteryString because: " + e.getMessage());
 		}
 
 	}
@@ -611,7 +619,9 @@ public class RunicProfile {
 			statement.executeUpdate();
 			connection.close();
 		} catch (SQLException e) {
-			Bukkit.getLogger().log(Level.SEVERE, "Failed logSpecialRankDrop " + e.getMessage());
+
+			RunicUtilities.notifyStaffErrors("Failed logSpecialRankDrop " + e.getMessage());
+			RunicUtilities.notifyLogErrors("Failed logSpecialRankDrop " + e.getMessage());
 		}
 	}
 
@@ -675,7 +685,9 @@ public class RunicProfile {
 			}
 
 		} catch (SQLException e) {
-			getLogger().log(Level.SEVERE, "Failed getCountGraves because: " + e.getMessage());
+
+			RunicUtilities.notifyStaffErrors("Failed getCountGraves because: " + e.getMessage());
+			RunicUtilities.notifyLogErrors("Failed getCountGraves because: " + e.getMessage());
 			return 0;
 		}
 	}
@@ -775,7 +787,8 @@ public class RunicProfile {
 				this.currentJobLevel = 0;
 			}
 		} catch (SQLException e) {
-			getLogger().log(Level.SEVERE, "Failed DB check [refreshPlayerObject] because: " + e.getMessage());
+			RunicUtilities.notifyStaffErrors("Failed DB check [refreshPlayerObject] because: " + e.getMessage());
+			RunicUtilities.notifyLogErrors("Failed DB check [refreshPlayerObject] because: " + e.getMessage());
 		}
 	}
 

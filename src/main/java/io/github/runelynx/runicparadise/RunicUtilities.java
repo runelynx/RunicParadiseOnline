@@ -17,6 +17,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.Level;
+
+import static org.bukkit.Bukkit.getLogger;
 
 public class RunicUtilities {
 	public static Boolean isInteger(String x) {
@@ -326,4 +329,13 @@ public class RunicUtilities {
 				config.getString("dbPort"), config.getString("dbDatabase"),
 				config.getString("dbUser"), config.getString("dbPassword"));
 	}
+
+	static void notifyStaffErrors(String message) {
+		Bukkit.getOnlinePlayers().stream().filter(p -> p.hasPermission("rp.staff.dberrors")).forEach(p -> RunicMessaging.sendMessage(p, RunicMessaging.RunicFormat.ERROR, message));
+	}
+
+	static void notifyLogErrors(String message) {
+		getLogger().log(Level.SEVERE, message);
+	}
+
 }
