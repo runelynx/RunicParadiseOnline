@@ -467,27 +467,6 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 		new Raffle();
 		new Ranks();
 
-
-
-		//TODO Move this to its own method and link to init method. Maybe just kill it for RP 5.0.
-		/*
-		//This stops players from gliding in the RP4.0 big spawn
-		scheduler.runTaskTimerAsynchronously(this, new Runnable() {
-
-			@Override
-			public void run() {
-
-				for (Player p : Bukkit.getWorld("RunicSky").getPlayers()) {
-					if (p.isGliding()) {
-						p.setGliding(false);
-						p.setVelocity(new Vector(0, -2, 0));
-						p.teleport(new Location(p.getWorld(), -438.476, 104.7000, 385.464, 8.159058F, 89.7F));
-
-					}
-				}
-
-			}
-		}, 0L, 70L);  */
 	}
 
 	public void onDisable() {

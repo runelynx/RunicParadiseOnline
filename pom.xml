@@ -20,11 +20,16 @@
 	</pluginRepositories>
 
 	<dependencies>
+		<dependency>
+			<groupId>com.zaxxer</groupId>
+			<artifactId>HikariCP</artifactId>
+			<version>4.0.3</version>
+		</dependency>
 		<!-- https://mvnrepository.com/artifact/com.sendgrid/sendgrid-java -->
 		<dependency>
 			<groupId>io.papermc.paper</groupId>
 			<artifactId>paper-api</artifactId>
-			<version>1.18.1-R0.1-SNAPSHOT</version>
+			<version>1.20.2-R0.1-SNAPSHOT</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
@@ -45,18 +50,22 @@
 			<version>1.5.21</version>
 			<scope>provided</scope>
 		</dependency>
-		<dependency>
-			<groupId>LibsDisguises</groupId>
-			<artifactId>LibsDisguises</artifactId>
-			<version>10.0.5</version>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>com.comphenix.protocol</groupId>
-			<artifactId>ProtocolLib-API</artifactId>
-			<version>4.3.0</version>
-			<scope>provided</scope>
-		</dependency>
+		<!-- https://mvnrepository.com/artifact/LibsDisguises/LibsDisguises -->
+		<!-- https://mvnrepository.com/artifact/LibsDisguises/LibsDisguises -->
+<!--		<dependency>-->
+<!--			<groupId>LibsDisguises</groupId>-->
+<!--			<artifactId>LibsDisguises</artifactId>-->
+<!--			<version>10.0.40</version>-->
+<!--			<scope>provided</scope>-->
+<!--		</dependency>-->
+		<!-- https://mvnrepository.com/artifact/com.comphenix.protocol/ProtocolLib-API -->
+<!--		<dependency>-->
+<!--			<groupId>com.comphenix.protocol</groupId>-->
+<!--			<artifactId>ProtocolLib-API</artifactId>-->
+<!--			<version>4.8.0</version>-->
+<!--			<scope>provided</scope>-->
+<!--		</dependency>-->
+
 			<dependency>
 				<groupId>com.github.Slimefun</groupId>
 				<artifactId>Slimefun4</artifactId>
@@ -186,10 +195,6 @@
 			<url>https://repo.dmulloy2.net/nexus/repository/public/</url>
 		</repository>
 		<repository>
-			<id>Noteblock-repo</id>
-			<url>https://repository.lasers-enigma.eu/r/com/github/koca2000/</url>
-		</repository>
-		<repository>
 			<id>sk89q-repo</id>
 			<url>https://maven.enginehub.org/repo</url>
 		</repository>
@@ -199,11 +204,15 @@
 		</repository>
 		<repository>
 			<id>md5</id>
-			<url>https://repo.md-5.net/content/groups/public</url>
+			<url>https://repo.md-5.net/content/repositories/releases/</url>
 		</repository>
 		<repository>
 			<id>authlib</id>
 			<url>https://libraries.minecraft.net</url>
+		</repository>
+		<repository>
+			<id>minevolt</id>
+			<url>https://minevolt.net/repo</url>
 		</repository>
 	</repositories>
 

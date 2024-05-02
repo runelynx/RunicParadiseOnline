@@ -70,19 +70,32 @@ public class RunicProfile {
 		return this.playerUUID;
 	}
 
+//	void setChatColor(ChatColor newSetting, boolean updateDB) {
+//		this.chatColor = newSetting.toString();
+//		if (updateDB) {
+//			MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
+//
+//			try {
+//				Connection connection = MySQL.openConnection();
+//
+//				PreparedStatement statement = connection.prepareStatement("UPDATE rp_PlayerInfo SET ChatColor ='" + newSetting.name() + "' WHERE UUID = ?");
+//				statement.setString(1, this.getPlayerID().toString());
+//				statement.executeUpdate();
+//
+//				connection.close();
+//			} catch (SQLException e) {
+//				getLogger().log(Level.SEVERE, "Failed setChatColor because: " + e.getMessage());
+//			}
+//		}
+//	}
+
 	void setChatColor(ChatColor newSetting, boolean updateDB) {
 		this.chatColor = newSetting.toString();
 		if (updateDB) {
-			MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
-
-			try {
-				Connection connection = MySQL.openConnection();
-
+			try (Connection connection = DatabaseConnectionPool.getConnection()) {
 				PreparedStatement statement = connection.prepareStatement("UPDATE rp_PlayerInfo SET ChatColor ='" + newSetting.name() + "' WHERE UUID = ?");
 				statement.setString(1, this.getPlayerID().toString());
 				statement.executeUpdate();
-
-				connection.close();
 			} catch (SQLException e) {
 				getLogger().log(Level.SEVERE, "Failed setChatColor because: " + e.getMessage());
 			}
