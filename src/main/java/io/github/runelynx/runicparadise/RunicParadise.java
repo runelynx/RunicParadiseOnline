@@ -101,7 +101,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 	public static Random randomSeed = new Random();
 
 
-	Ranks ranks = new Ranks();
+	Ranks ranks;
 
 	public static RunicParadise getInstance() {
 		return instance;
@@ -135,11 +135,16 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 	}
 
 	private void initializeRunicSystems() throws IOException, JSONException {
+
+
+
 		this.getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
 		Bukkit.getServer().getPluginManager().registerEvents(this, this);
 		BukkitScheduler scheduler = Bukkit.getServer().getScheduler();
 
 		RunicMessaging.initializeAnnouncements(instance);
+
+		ranks = new Ranks();
 
 		registerSlimefunItems();
 
