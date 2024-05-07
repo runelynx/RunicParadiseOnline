@@ -1167,7 +1167,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 
 
 		// Runic Profile - Main Menu
-		if (event.getView().getTitle().contains("Profile :: Main Menu")) {
+		if (event.getView().getOriginalTitle().contains("Profile :: Main Menu")) {
 			if (event.getSlot() == 10) {
 				// Player wants to open Kill Counts menu
 				// Close the inventory screen
@@ -1181,6 +1181,9 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 				// Close the inventory screen
 				event.getWhoClicked().closeInventory();
 				// Open new menu
+				log.info("MenuClickDebug - " + event.getWhoClicked().getName() + " clicked Chat Options");
+				log.info("MenuClickDebug - " + playerProfiles.get(event.getWhoClicked().getUniqueId()).playerName + " (" +
+								playerProfiles.get(event.getWhoClicked().getUniqueId()).activeFaith + ") has a valid Profile loaded.");
 				playerProfiles.get(event.getWhoClicked().getUniqueId())
 						.showProfileOptionsMenu(((Player) event.getWhoClicked()));
 
@@ -3305,7 +3308,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 		item.setDurability((short) 3);
 		SkullMeta headMeta = (SkullMeta) item.getItemMeta();
 		headMeta.setDisplayName(name);
-		GameProfile profile = new GameProfile(UUID.randomUUID(), null);
+		GameProfile profile = new GameProfile(UUID.randomUUID(), name);
 		profile.getProperties().put("textures", new Property("textures", data, "signed"));
 		try {
 			Field profileField = headMeta.getClass().getDeclaredField("profile");
