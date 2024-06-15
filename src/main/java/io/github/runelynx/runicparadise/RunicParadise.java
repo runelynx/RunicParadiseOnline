@@ -472,6 +472,10 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 		new Raffle();
 		new Ranks();
 
+		if (getServer().getPluginManager().getPlugin("DiscordSRV") != null) {
+			DiscordSRVHook.register();
+		}
+
 	}
 
 	public void onDisable() {
@@ -498,6 +502,10 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 		}
 
 		getLogger().info("RunicParadise Plugin: onDisable has been invoked!");
+
+		if (getServer().getPluginManager().getPlugin("DiscordSRV") != null) {
+			DiscordSRVHook.unregister();
+		}
 
 		// em.dispose();
 	}
@@ -546,6 +554,11 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 				}
 			}
 		}
+
+	}
+
+	@EventHandler
+	public void onChat(AsyncPlayerChatEvent event) {
 
 	}
 
@@ -2284,14 +2297,16 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 
 				// /////////////////////
 				PreparedStatement dStmt = connection.prepareStatement(
-						"INSERT INTO rp_PlayerInfo (`PlayerName`, `UUID`, `ActiveFaith`, `LastIP`, `FirstSeen`, `LastSeen`) VALUES "
-								+ "(?, ?, ?, ?, ?, ?);");
+						"INSERT INTO rp_PlayerInfo (`PlayerName`, `UUID`, `ActiveFaith`, `LastIP`, `FirstSeen`, `LastSeen`, `Gender`, `StaffRank`) VALUES "
+								+ "(?, ?, ?, ?, ?, ?, ?, ?);");
 				dStmt.setString(1, playerName);
 				dStmt.setString(2, playerUUID.toString());
 				dStmt.setString(3, "Sun");
 				dStmt.setString(4, Bukkit.getPlayer(playerUUID).getAddress().getAddress().getHostAddress());
 				dStmt.setLong(5, now.getTime());
 				dStmt.setLong(6, now.getTime());
+				dStmt.setString(7, "M");
+				dStmt.setString(8, "None");
 
 				dStmt.executeUpdate();
 

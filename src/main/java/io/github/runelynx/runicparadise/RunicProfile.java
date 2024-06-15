@@ -99,6 +99,7 @@ public class RunicProfile {
 			} catch (SQLException e) {
 				RunicUtilities.notifyStaffErrors("DB error. Failed setChatColor because: " + e.getMessage());
 				RunicUtilities.notifyLogErrors("DB error. Failed setChatColor because: " + e.getMessage());
+				DiscordSRVHook.sendMessage("plugin-errors", ":red_circle: DB error. Failed setChatColor because: " + e.getMessage());
 			}
 
 		}
@@ -115,6 +116,7 @@ public class RunicProfile {
 			} else {
 				RunicUtilities.notifyStaffErrors("Failed setChatColor because: " + e.getMessage());
 				RunicUtilities.notifyLogErrors("Failed setChatColor because: " + e.getMessage());
+				DiscordSRVHook.sendMessage("plugin-errors", ":red_circle: Failed setChatColor because: " + e.getMessage());
 				return;
 			}
 		}
@@ -160,8 +162,6 @@ public class RunicProfile {
 		this.gender = newGender;
 
 		if (updateDB) {
-
-			MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
 			try (Connection connection = DatabaseConnectionPool.getConnection()) {
 				PreparedStatement statement = connection.prepareStatement("UPDATE rp_PlayerInfo SET Gender ='" + newGender + "' WHERE UUID = ?");
 				statement.setString(1, this.getPlayerID().toString());
@@ -169,6 +169,7 @@ public class RunicProfile {
 			} catch (SQLException e) {
 				RunicUtilities.notifyStaffErrors("DB error. Failed setGender because: " + e.getMessage());
 				RunicUtilities.notifyLogErrors("DB error. Failed setGender because: " + e.getMessage());
+				DiscordSRVHook.sendMessage("plugin-errors", "DB error. Failed setGender because: " + e.getMessage());
 			}
 		}
 	}
@@ -274,6 +275,8 @@ public class RunicProfile {
 			this.activePitContribution = interimContrib;
 			this.lifetimePitContribution = previousLifetimeContribution + amount;
 
+
+
 			MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
 
 			try {
@@ -350,25 +353,23 @@ public class RunicProfile {
 			break;
 		}
 
-		MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
-
-		try {
-			Connection connection = MySQL.openConnection();
-			Statement statement = connection.createStatement();
-			statement.executeUpdate("UPDATE `rp_PlayerInfo` SET " + column + " = " + column + " + " + amount
-					+ " WHERE UUID= '" + this.getPlayerID() + "';");
+		try (Connection connection = DatabaseConnectionPool.getConnection()) {
+			PreparedStatement statement = connection.prepareStatement("UPDATE `rp_PlayerInfo` SET ? = ? + ? WHERE UUID= '" + this.getPlayerID() + "';");
+			statement.setString(1, column);
+			statement.setString(2, column);
+			statement.setInt(3, amount);
+			statement.executeUpdate();
 
 			if (column.equals("Tokens")) {
-				statement.executeUpdate("UPDATE `rp_PlayerInfo` SET LifetimeTokens = LifetimeTokens + " + amount
-						+ " WHERE UUID= '" + this.getPlayerID() + "';");
+				PreparedStatement statement2 = connection.prepareStatement("UPDATE `rp_PlayerInfo` SET LifetimeTokens = LifetimeTokens + ? WHERE UUID= '" + this.getPlayerID() + "';");
+				statement2.setInt(1, amount);
+				statement2.executeUpdate();
 			}
-
-			connection.close();
 
 		} catch (SQLException e) {
 			RunicUtilities.notifyStaffErrors("Failed grantCurrency update (change " + this.playerName + "  because: " + e.getMessage());
 			RunicUtilities.notifyLogErrors("Failed grantCurrency update (change " + this.playerName + "  because: " + e.getMessage());
-
+			DiscordSRVHook.sendMessage("plugin-errors", "Failed grantCurrency update (change " + this.playerName + "  because: " + e.getMessage());
 		}
 
 		// Sync up old profile method ... for now ...
@@ -794,6 +795,8 @@ public class RunicProfile {
 
 	private void retrieveBasicData() {
 		MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
+		String tempGender = "";
+		String tempStaffRank = "";
 
 		try {
 			// TODO: Get data from DB based on UUID to protect vs name changes
@@ -835,8 +838,14 @@ public class RunicProfile {
 				getLogger().log(Level.INFO, "[RP] Player " + this.playerName + " isn't in our DB yet.");
 			} else {
 				// Player does exist in the DB
+
 				playerData.next();
-				this.setStaffRank(playerData.getString("StaffRank"));
+				if (playerData.getString("StaffRank") == null) {
+					tempStaffRank = "None";
+				} else {
+					tempStaffRank = playerData.getString("StaffRank");
+				}
+				this.setStaffRank(tempStaffRank);
 				this.setPlayerIP(playerData.getString("LastIP"));
 				this.setCurrency("Karma", (playerData.getInt("Karma")));
 				this.setCurrency("Tokens", (playerData.getInt("Tokens")));
@@ -849,7 +858,12 @@ public class RunicProfile {
 				this.setJoinDate(new Date(playerData.getLong("FirstSeen")));
 				this.setVoteCount(playerData.getInt("Votes"));
 				this.setActiveFaith(playerData.getString("ActiveFaith"));
-				this.changeGender(playerData.getString("Gender"), false);
+				if (playerData.getString("Gender") == null) {
+					tempGender = "M";
+				} else {
+					tempGender = playerData.getString("Gender");
+				}
+				this.changeGender(tempGender, false);
 				this.setSkyblockRank(playerData.getString("SkyblockRankText"));
 				this.setSkyblockRankNum(playerData.getInt("SkyblockRank"));
 
