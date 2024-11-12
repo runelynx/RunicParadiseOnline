@@ -219,6 +219,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 
 	private void defineRankColors() {
 		rankColors.put("ghost", ChatColor.GRAY);
+		rankColors.put("ghöst", ChatColor.GRAY);
 		rankColors.put("seeker", ChatColor.GREEN);
 		rankColors.put("runner", ChatColor.DARK_GREEN);
 		rankColors.put("singer", ChatColor.YELLOW);
@@ -234,6 +235,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 		rankColors.put("baron", ChatColor.WHITE);
 		rankColors.put("count", ChatColor.WHITE);
 		rankColors.put("lord", ChatColor.WHITE);
+		rankColors.put("dreamer", ChatColor.WHITE);
 		rankColors.put("god", ChatColor.DARK_BLUE);
 	}
 
