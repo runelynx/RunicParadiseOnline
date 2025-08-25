@@ -1215,18 +1215,21 @@ public class RunicProfile {
 						}
 
 						p.sendMessage(ChatColor.GOLD + "Congratulations! You've earned a special reward for this first-time completion!");
-						for (Player q : Bukkit.getOnlinePlayers()) {
-							Bukkit.dispatchCommand(
-									Bukkit.getConsoleSender(),
-									"cmi titlemsg all " + ChatColor.DARK_PURPLE + "" + ChatColor.BOLD + p.getName() +
-											" %subtitle% " + ChatColor.GRAY + "just completed the " + mzResult.getString("GameName") + " for the first time!"
-							);
-						}
+
 					} else {
 						p.sendMessage(ChatColor.RED + "Error: Reward chest world not found. Please notify an admin.");
 					}
 				}
 
+				if (mzResult.getInt("AnnounceFirstCompletion") == 1) {
+					for (Player q : Bukkit.getOnlinePlayers()) {
+						Bukkit.dispatchCommand(
+								Bukkit.getConsoleSender(),
+								"cmi titlemsg all " + ChatColor.DARK_PURPLE + "" + ChatColor.BOLD + p.getName() +
+										" %subtitle% " + ChatColor.GRAY + "just completed the " + mzResult.getString("GameName") + " for the first time!"
+						);
+					}
+				}
 
 //				if (mzResult.getInt("ID") == 21) {
 //					// Anguish Maze
