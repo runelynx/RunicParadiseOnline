@@ -354,10 +354,10 @@ public class RunicProfile {
 		}
 
 		try (Connection connection = DatabaseConnectionPool.getConnection()) {
-			PreparedStatement statement = connection.prepareStatement("UPDATE `rp_PlayerInfo` SET ? = ? + ? WHERE UUID= '" + this.getPlayerID() + "';");
-			statement.setString(1, column);
-			statement.setString(2, column);
-			statement.setInt(3, amount);
+			String sql = "UPDATE `rp_PlayerInfo` SET " + column + " = " + column + " + ? WHERE UUID= ?";
+			PreparedStatement statement = connection.prepareStatement(sql);
+			statement.setInt(1, amount);
+			statement.setString(2, this.getPlayerID().toString());
 			statement.executeUpdate();
 
 			if (column.equals("Tokens")) {
@@ -1086,7 +1086,7 @@ public class RunicProfile {
 		}
 	}
 
-	public void addMazeCompletion(int puzzleID) {
+	public void addMazeCompletion(int puzzleID) throws SQLException {
 
 		Player p = Bukkit.getPlayer(this.getPlayerID());
 
@@ -1197,70 +1197,100 @@ public class RunicProfile {
 						p.sendMessage(ChatColor.GOLD + "You received a Thanksgiving pie trophy for first completion here before Thanksgiving 2018!");
 					}
 				}
-				
-				if (mzResult.getInt("ID") == 21) {
-					// Anguish Maze
 
-					ItemStack[] rewards = Commands
-							.carnivalChestReward(new Location(Bukkit.getWorld("RunicSky"), 1098, 121, 1166));
+				if (mzResult.getInt("ChestReward") == 1) {
+					int x = mzResult.getInt("ChestLocationX");
+					int y = mzResult.getInt("ChestLocationY");
+					int z = mzResult.getInt("ChestLocationZ");
+					String rewardWorld = "RunicSky";
 
-					for (ItemStack i : rewards) {
-						if ( i != null && i.getType() != null && i.getType() != Material.AIR) {
+					if (rewardWorld != null) {
+						Location chestLocation = new Location(Bukkit.getWorld(rewardWorld), x, y, z);
+						ItemStack[] rewards = Commands.carnivalChestReward(chestLocation);
 
-							p.getWorld().dropItemNaturally(p.getLocation(), i);
+						for (ItemStack i : rewards) {
+							if (i != null && i.getType() != null && i.getType() != Material.AIR) {
+								p.getWorld().dropItemNaturally(p.getLocation(), i);
+							}
 						}
-					}
 
-					p.sendMessage(ChatColor.GOLD
-							+ "Congratulations! You've earned a special reward for this first-time completion!");
-					for (Player q : Bukkit.getOnlinePlayers()) {
-						Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "cmi titlemsg all "+ ChatColor.DARK_PURPLE + "" + ChatColor.BOLD + p.getName() +" %subtitle% "+ ChatColor.GRAY
-								+ "just completed the " + mzResult.getString("GameName")	+ " for the first time!");
-
-					}
-				} else 	if (mzResult.getInt("ID") == 22) {
-					// Heart of Anguish
-					p.sendMessage(ChatColor.GOLD
-							+ "Congratulations! You've earned a special reward for this first-time completion!");
-					ItemStack[] rewards = Commands
-							.carnivalChestReward(new Location(Bukkit.getWorld("RunicSky"), 1098, 121, 1162));
-
-					for (ItemStack i : rewards) {
-						if ( i != null && i.getType() != null && i.getType() != Material.AIR) {
-
-							p.getWorld().dropItemNaturally(p.getLocation(), i);
+						p.sendMessage(ChatColor.GOLD + "Congratulations! You've earned a special reward for this first-time completion!");
+						for (Player q : Bukkit.getOnlinePlayers()) {
+							Bukkit.dispatchCommand(
+									Bukkit.getConsoleSender(),
+									"cmi titlemsg all " + ChatColor.DARK_PURPLE + "" + ChatColor.BOLD + p.getName() +
+											" %subtitle% " + ChatColor.GRAY + "just completed the " + mzResult.getString("GameName") + " for the first time!"
+							);
 						}
-					}
-
-					for (Player q : Bukkit.getOnlinePlayers()) {
-						Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "cmi titlemsg all "+ ChatColor.DARK_PURPLE + "" + ChatColor.BOLD + p.getName() +" %subtitle% "+ ChatColor.GRAY + "has freed the Souls of Anguish!");
-					}
-				}  else 	if (mzResult.getInt("ID") == 32) {  //Glitch Maze
-					// Heart of Anguish
-					p.sendMessage(ChatColor.GOLD
-							+ "Congratulations! You've earned a special reward for this first-time completion!");
-					ItemStack[] rewards = Commands
-							.carnivalChestReward(new Location(Bukkit.getWorld("RunicSky"), -1043, 22, 14));
-
-					for (ItemStack i : rewards) {
-						if ( i != null && i.getType() != null && i.getType() != Material.AIR) {
-
-							p.getWorld().dropItemNaturally(p.getLocation(), i);
-						}
-					}
-
-					for (Player q : Bukkit.getOnlinePlayers()) {
-						Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "cmi titlemsg all "+ ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + p.getName() +" %subtitle% "+ ChatColor.YELLOW + "has debugged the Glitch Maz"+
-								ChatColor.MAGIC + ChatColor.DARK_RED
-								+"e!1234561"+ ChatColor.RESET +"" + ChatColor.YELLOW + "" + ChatColor.BOLD + "" + ChatColor.ITALIC + " Uh oh...");
-					}
-				}else {
-
-					for (Player q : Bukkit.getOnlinePlayers()) {
-						Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "cmi titlemsg all "+ ChatColor.DARK_PURPLE + "" + ChatColor.BOLD + p.getName() +" %subtitle% "+ ChatColor.GRAY
-								+ "just completed the " + mzResult.getString("GameName")	+ " for the first time!");
+					} else {
+						p.sendMessage(ChatColor.RED + "Error: Reward chest world not found. Please notify an admin.");
 					}
 				}
+
+
+//				if (mzResult.getInt("ID") == 21) {
+//					// Anguish Maze
+//
+//					ItemStack[] rewards = Commands
+//							.carnivalChestReward(new Location(Bukkit.getWorld("RunicSky"), 1098, 121, 1166));
+//
+//					for (ItemStack i : rewards) {
+//						if ( i != null && i.getType() != null && i.getType() != Material.AIR) {
+//
+//							p.getWorld().dropItemNaturally(p.getLocation(), i);
+//						}
+//					}
+//
+//					p.sendMessage(ChatColor.GOLD
+//							+ "Congratulations! You've earned a special reward for this first-time completion!");
+//					for (Player q : Bukkit.getOnlinePlayers()) {
+//						Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "cmi titlemsg all "+ ChatColor.DARK_PURPLE + "" + ChatColor.BOLD + p.getName() +" %subtitle% "+ ChatColor.GRAY
+//								+ "just completed the " + mzResult.getString("GameName")	+ " for the first time!");
+//
+//					}
+//				} else 	if (mzResult.getInt("ID") == 22) {
+//					// Heart of Anguish
+//					p.sendMessage(ChatColor.GOLD
+//							+ "Congratulations! You've earned a special reward for this first-time completion!");
+//					ItemStack[] rewards = Commands
+//							.carnivalChestReward(new Location(Bukkit.getWorld("RunicSky"), 1098, 121, 1162));
+//
+//					for (ItemStack i : rewards) {
+//						if ( i != null && i.getType() != null && i.getType() != Material.AIR) {
+//
+//							p.getWorld().dropItemNaturally(p.getLocation(), i);
+//						}
+//					}
+//
+//					for (Player q : Bukkit.getOnlinePlayers()) {
+//						Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "cmi titlemsg all "+ ChatColor.DARK_PURPLE + "" + ChatColor.BOLD + p.getName() +" %subtitle% "+ ChatColor.GRAY + "has freed the Souls of Anguish!");
+//					}
+//				}  else 	if (mzResult.getInt("ID") == 32) {  //Glitch Maze
+//					// Heart of Anguish
+//					p.sendMessage(ChatColor.GOLD
+//							+ "Congratulations! You've earned a special reward for this first-time completion!");
+//					ItemStack[] rewards = Commands
+//							.carnivalChestReward(new Location(Bukkit.getWorld("RunicSky"), -1043, 22, 14));
+//
+//					for (ItemStack i : rewards) {
+//						if ( i != null && i.getType() != null && i.getType() != Material.AIR) {
+//
+//							p.getWorld().dropItemNaturally(p.getLocation(), i);
+//						}
+//					}
+//
+//					for (Player q : Bukkit.getOnlinePlayers()) {
+//						Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "cmi titlemsg all "+ ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + p.getName() +" %subtitle% "+ ChatColor.YELLOW + "has debugged the Glitch Maz"+
+//								ChatColor.MAGIC + ChatColor.DARK_RED
+//								+"e!1234561"+ ChatColor.RESET +"" + ChatColor.YELLOW + "" + ChatColor.BOLD + "" + ChatColor.ITALIC + " Uh oh...");
+//					}
+//				}else {
+//
+//					for (Player q : Bukkit.getOnlinePlayers()) {
+//						Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "cmi titlemsg all "+ ChatColor.DARK_PURPLE + "" + ChatColor.BOLD + p.getName() +" %subtitle% "+ ChatColor.GRAY
+//								+ "just completed the " + mzResult.getString("GameName")	+ " for the first time!");
+//					}
+//				}
 
 				statement.close();
 				connection.close();
