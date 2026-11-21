@@ -656,7 +656,11 @@ public class Commands implements CommandExecutor {
 	}
 
 	private static void adventureParkourPrizeCommand(CommandSender sender, String[] args) {
-		RunicParadise.playerProfiles.get(Bukkit.getPlayer(args[0]).getUniqueId()).addMazeCompletion(7);
+		try {
+			RunicParadise.playerProfiles.get(Bukkit.getPlayer(args[0]).getUniqueId()).addMazeCompletion(7);
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	private static void discordCommand(CommandSender sender) {
@@ -1438,7 +1442,11 @@ public class Commands implements CommandExecutor {
 		} else if (args.length == 3 && args[0].equals("mazewin")) {
 			Player p = Bukkit.getPlayer(args[1]);
 
-			RunicParadise.playerProfiles.get(p.getUniqueId()).addMazeCompletion(Integer.parseInt(args[2]));
+			try {
+				RunicParadise.playerProfiles.get(p.getUniqueId()).addMazeCompletion(Integer.parseInt(args[2]));
+			} catch (SQLException e) {
+				throw new RuntimeException(e);
+			}
 
 		} else if (sender instanceof Player) {
 			RunicPlayerBukkit senderPlayer = new RunicPlayerBukkit((Player) sender);
