@@ -780,7 +780,7 @@ public class Faith {
 		switch (faith) {
 
 		case "Aether":
-			if (hasPower(level, "Graceful Steps")) {
+			if (hasPower(level, "Graceful Steps") && inMainWorld(p)) { // main overworld + Mining only
 				// Cast Graceful Steps if player took fall damage
 				pfo.castAether_GracefulSteps(p);
 			}
@@ -903,7 +903,7 @@ public class Faith {
 
 			break;
 		case "Time":
-			if (hasPower(level, "Rewind")) {
+			if (hasPower(level, "Rewind") && inMainWorld(p)) { // main overworld + Mining only
 
 				// Cast Rewind if this hit would kill the player
 				pfo.castTime_Rewind(event, p);
@@ -912,7 +912,7 @@ public class Faith {
 
 			break;
 		case "Nature":
-			if (hasPower(level, "Forest Armor")) {
+			if (hasPower(level, "Forest Armor") && inMainWorld(p)) { // main overworld + Mining only
 
 				// Cast Forest Armor if player got hit
 				pfo.castNature_ForestArmor(event, p);
@@ -1042,7 +1042,7 @@ public class Faith {
 			break;
 
 		case "Aether":
-			if (hasPower(level, "Gravity Flux")) {
+			if (hasPower(level, "Gravity Flux") && inMainWorld(p)) { // main overworld + Mining only
 
 				// Cast Gravity Flux if player hit a monster
 				pfo.castAether_GravityFlux(p);
@@ -1052,7 +1052,7 @@ public class Faith {
 			break;
 
 		case "Air":
-			if (hasPower(level, "Tempest Armor")) {
+			if (hasPower(level, "Tempest Armor") && inMainWorld(p)) { // main overworld + Mining only
 
 				// Cast Tempest Armor
 				pfo.castAir_TempestArmor(p);
@@ -1071,7 +1071,7 @@ public class Faith {
 			// and that new health of mob is <20%
 			// and that player has proper Fate level
 
-			if (hasPower(level, "Inevitable Demise")) {
+			if (hasPower(level, "Inevitable Demise") && inMainWorld(p)) { // main overworld + Mining only
 				if (newHealthRatio > 0 && newHealthRatio <= 0.20 && !(monster instanceof Wither)) {
 					pfo.castFate_InevitableDemise(p.getUniqueId(), p, (LivingEntity) monster);
 				}
@@ -1483,7 +1483,7 @@ public class Faith {
 			Material.TUFF, Material.GRANITE, Material.DIORITE, Material.ANDESITE, Material.COBBLED_DEEPSLATE);
 
 	void castEarth_EarthsBounty(PlayerInteractEvent e) {
-		if (!powersAllowed(e.getPlayer().getWorld())) {
+		if (!powersAllowed(e.getPlayer().getWorld()) || !inMainWorld(e.getPlayer())) { // main overworld + Mining only
 			return;
 		}
 
@@ -1531,7 +1531,7 @@ public class Faith {
 	// Water OneWithTheSea
 
 	void castWater_DeepWader(PlayerInteractEvent e) {
-		if (!powersAllowed(e.getPlayer().getWorld())) {
+		if (!powersAllowed(e.getPlayer().getWorld()) || !inMainWorld(e.getPlayer())) { // main overworld + Mining only
 			return;
 		}
 		Player p = e.getPlayer();
