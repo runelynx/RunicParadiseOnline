@@ -131,7 +131,7 @@ public class Commands implements CommandExecutor {
     private static void playNBS(Player p, String song) {
         try {
             Song s = NBSDecoder.parse(
-                    new File("/home/AMP/.ampdata/instances/Survival/Minecraft/plugins/RunicParadise/" + song + ".nbs"));
+                    new File(RunicParadise.getInstance().getDataFolder(), song + ".nbs"));
             SongPlayer sp = new RadioSongPlayer(s);
 
             sp.setAutoDestroy(true);
@@ -313,7 +313,7 @@ public class Commands implements CommandExecutor {
         }
 
         Song s = NBSDecoder.parse(
-                new File("/home/AMP/.ampdata/instances/Survival/Minecraft/plugins/RunicParadise/ZeldaTriforce.nbs"));
+                new File(RunicParadise.getInstance().getDataFolder(), "ZeldaTriforce.nbs"));
         SongPlayer sp = new RadioSongPlayer(s);
         sp.setAutoDestroy(true);
         sp.addPlayer(p);
@@ -323,6 +323,22 @@ public class Commands implements CommandExecutor {
 
 	@SuppressWarnings("deprecation")
 	public boolean onCommand(final CommandSender sender, Command cmd, String label, String[] args) {
+		// 2026-11-23: many commands use Bukkit.getPlayer(args[n]) / args[n] without checks. Instead of a stack trace
+		// and "An internal error occurred", tell the sender what went wrong and log one line.
+		try {
+			return handleCommand(sender, cmd, label, args);
+		} catch (NullPointerException | ArrayIndexOutOfBoundsException | NumberFormatException e) {
+			String hint = e instanceof NullPointerException ? "a player or world named in the command was not found (is the player online?)"
+					: e instanceof NumberFormatException ? "a number was expected" : "missing arguments";
+			sender.sendMessage(ChatColor.RED + "/" + label + " failed: " + hint + ".");
+			StackTraceElement at = e.getStackTrace().length > 0 ? e.getStackTrace()[0] : null;
+			Bukkit.getLogger().warning("[RunicParadise] Command /" + label + " " + String.join(" ", args) + " by " + sender.getName() + " failed: "
+					+ e + (at == null ? "" : " at " + at));
+			return true;
+		}
+	}
+
+	private boolean handleCommand(final CommandSender sender, Command cmd, String label, String[] args) {
 		// general approach is that errors will return immediately;
 		// successful runs will return after the switch completes
 		switch (cmd.getName()) {
@@ -932,7 +948,7 @@ public class Commands implements CommandExecutor {
 			} else if (args[0].equals("CT") || args[0].equals("ct")) {
 				carnivalTokenCounts((Player) sender);
 			} else if (args[0].equals("NM") || args[0].equals("nm")) {
-				if (args[1].isEmpty()) {
+				if (args.length < 2 || args[1].isEmpty()) {
 					sender.sendMessage(ChatColor.GRAY + "[ERROR] You need to provide a player's name! /staff nm name");
 				} else {
 					rank.nominatePlayer((Player) sender, args[1]);
@@ -2004,14 +2020,13 @@ public class Commands implements CommandExecutor {
 	}
 
 	private void dailyKarmaCommand(CommandSender sender, String[] args) {
-		try {
-			MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
+		MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
+		try (Connection d = MySQL.openConnection()) { // auto-closed (it never was)
 
 			Date date = new Date();
 			// get time 24 hours ago
 			long timeCheck = date.getTime() - 86400000;
 
-			final Connection d = MySQL.openConnection();
 			Statement dStmt = d.createStatement();
 			ResultSet playerData = dStmt.executeQuery("SELECT * FROM rp_PlayerInfo WHERE LastSeen > " + timeCheck
 					+ " AND KillZombie > 1 ORDER BY RAND() LIMIT 1;");
@@ -2411,48 +2426,48 @@ public class Commands implements CommandExecutor {
 	}
 
 	private void miningResetCommand(CommandSender sender, String[] args) {
-		Bukkit.getServer().getScheduler().scheduleAsyncDelayedTask(instance, () -> {
+		Bukkit.getServer().getScheduler().runTaskLater(instance, () -> {
 			Bukkit.broadcast("Mining world is resetting in 2 minutes!", "*");
 		}, 20);
 
 		Random rand = new Random();
 		int tempRand = rand.nextInt(5001);
 
-		Bukkit.getServer().getScheduler().scheduleAsyncDelayedTask(instance, () -> {
+		Bukkit.getServer().getScheduler().runTaskLater(instance, () -> {
 			Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "mv load Mining");
 			sender.sendMessage("Sent command to load Mining world");
 		}, 2200);
 
-		Bukkit.getServer().getScheduler().scheduleAsyncDelayedTask(instance, () -> {
+		Bukkit.getServer().getScheduler().runTaskLater(instance, () -> {
 			Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "mvconfirm");
 			sender.sendMessage("Confirmed load command");
 		}, 2250);
 
-		Bukkit.getServer().getScheduler().scheduleAsyncDelayedTask(instance, () -> {
+		Bukkit.getServer().getScheduler().runTaskLater(instance, () -> {
 			Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "mv regen Mining -s " + tempRand);
 			sender.sendMessage("Sent command to regen Mining world");
 			sender.sendMessage("Used: regen Mining -s " + tempRand);
 		}, 2400);
 
-		Bukkit.getServer().getScheduler().scheduleAsyncDelayedTask(instance, () -> {
+		Bukkit.getServer().getScheduler().runTaskLater(instance, () -> {
 			Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "mvconfirm");
 			sender.sendMessage("Confirmed regen command");
 		}, 2475);
 
-		Bukkit.getServer().getScheduler().scheduleAsyncDelayedTask(instance, () -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(),
+		Bukkit.getServer().getScheduler().runTaskLater(instance, () -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(),
 				"essentials:bc Mining world reset is now complete!"), 2599);
 
-		Bukkit.getServer().getScheduler().scheduleAsyncDelayedTask(instance, () -> {
+		Bukkit.getServer().getScheduler().runTaskLater(instance, () -> {
 			Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "mv load Mining");
 			sender.sendMessage("Sent command to load Mining world");
 		}, 2600);
 
-		Bukkit.getServer().getScheduler().scheduleAsyncDelayedTask(instance, () -> {
+		Bukkit.getServer().getScheduler().runTaskLater(instance, () -> {
 			Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "mvconfirm");
 			sender.sendMessage("Confirmed load command");
 		}, 2640);
 
-		Bukkit.getServer().getScheduler().scheduleAsyncDelayedTask(instance, () -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "mvrule keepInventory true Mining"), 2700);
+		Bukkit.getServer().getScheduler().runTaskLater(instance, () -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "mvrule keepInventory true Mining"), 2700);
 	}
 
 	private void casinoCommand(CommandSender sender, String[] args) {

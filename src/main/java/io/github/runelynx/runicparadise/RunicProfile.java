@@ -758,9 +758,8 @@ public class RunicProfile {
 	private void retrieveJobsData() {
 		MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
 
-		try {
+		try (Connection connection = MySQL.openConnection()) { // auto-closed (it never was)
 			// TODO: Get data from DB based on UUID to protect vs name changes
-			Connection connection = MySQL.openConnection();
 			Statement dStmt = connection.createStatement();
 
 			int jobsID = 0;
@@ -920,8 +919,7 @@ public class RunicProfile {
 	private void retrieveMobKillsData() {
 		MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
 
-		try {
-			Connection connection = MySQL.openConnection();
+		try (Connection connection = MySQL.openConnection()) { // auto-closed (it never was)
 
 			PreparedStatement statement = connection.prepareStatement("SELECT * FROM rp_PlayerMobKills WHERE UUID = ?;");
 			statement.setString(1, this.getPlayerID().toString());
@@ -932,57 +930,12 @@ public class RunicProfile {
 				this.mobKillCountsMap.clear();
 
 				// Load data!
-				this.mobKillCountsMap.put(EntityType.BLAZE, playerData.getInt("BLAZE"));
-				this.mobKillCountsMap.put(EntityType.CAVE_SPIDER, playerData.getInt("CAVE_SPIDER"));
-				this.mobKillCountsMap.put(EntityType.CREEPER, playerData.getInt("CREEPER"));
-				this.mobKillCountsMap.put(EntityType.ELDER_GUARDIAN, playerData.getInt("ELDER_GUARDIAN"));
-				this.mobKillCountsMap.put(EntityType.ENDER_DRAGON, playerData.getInt("ENDER_DRAGON"));
-				this.mobKillCountsMap.put(EntityType.ENDERMAN, playerData.getInt("ENDERMAN"));
-				this.mobKillCountsMap.put(EntityType.ENDERMITE, playerData.getInt("ENDERMITE"));
-				this.mobKillCountsMap.put(EntityType.EVOKER, playerData.getInt("EVOKER"));
-				this.mobKillCountsMap.put(EntityType.GHAST, playerData.getInt("GHAST"));
-				this.mobKillCountsMap.put(EntityType.GIANT, playerData.getInt("GIANT"));
-				this.mobKillCountsMap.put(EntityType.GUARDIAN, playerData.getInt("GUARDIAN"));
-				this.mobKillCountsMap.put(EntityType.MAGMA_CUBE, playerData.getInt("MAGMA_CUBE"));
-				this.mobKillCountsMap.put(EntityType.PIGLIN, playerData.getInt("PIG_ZOMBIE"));
-				this.mobKillCountsMap.put(EntityType.SHULKER, playerData.getInt("SHULKER"));
-				this.mobKillCountsMap.put(EntityType.SILVERFISH, playerData.getInt("SILVERFISH"));
-				this.mobKillCountsMap.put(EntityType.SLIME, playerData.getInt("SLIME"));
-				this.mobKillCountsMap.put(EntityType.SPIDER, playerData.getInt("SPIDER"));
-				this.mobKillCountsMap.put(EntityType.VEX, playerData.getInt("VEX"));
-				this.mobKillCountsMap.put(EntityType.VINDICATOR, playerData.getInt("VINDICATOR"));
-				this.mobKillCountsMap.put(EntityType.WITCH, playerData.getInt("WITCH"));
-				this.mobKillCountsMap.put(EntityType.WITHER, playerData.getInt("WITHER"));
-
-				this.mobKillCountsMap.put(EntityType.BAT, playerData.getInt("BAT"));
-				this.mobKillCountsMap.put(EntityType.CHICKEN, playerData.getInt("CHICKEN"));
-				this.mobKillCountsMap.put(EntityType.COW, playerData.getInt("COW"));
-				this.mobKillCountsMap.put(EntityType.IRON_GOLEM, playerData.getInt("IRON_GOLEM"));
-				this.mobKillCountsMap.put(EntityType.LLAMA, playerData.getInt("LLAMA"));
-				this.mobKillCountsMap.put(EntityType.MULE, playerData.getInt("MULE"));
-				this.mobKillCountsMap.put(EntityType.MUSHROOM_COW, playerData.getInt("MUSHROOM_COW"));
-				this.mobKillCountsMap.put(EntityType.OCELOT, playerData.getInt("OCELOT"));
-				this.mobKillCountsMap.put(EntityType.PIG, playerData.getInt("PIG"));
-				this.mobKillCountsMap.put(EntityType.POLAR_BEAR, playerData.getInt("POLAR_BEAR"));
-				this.mobKillCountsMap.put(EntityType.RABBIT, playerData.getInt("RABBIT"));
-				this.mobKillCountsMap.put(EntityType.SHEEP, playerData.getInt("SHEEP"));
-				this.mobKillCountsMap.put(EntityType.SNOWMAN, playerData.getInt("SNOWMAN"));
-				this.mobKillCountsMap.put(EntityType.SQUID, playerData.getInt("SQUID"));
-				this.mobKillCountsMap.put(EntityType.VILLAGER, playerData.getInt("VILLAGER"));
-				this.mobKillCountsMap.put(EntityType.WOLF, playerData.getInt("WOLF"));
-
-				this.mobKillCountsMap.put(EntityType.DONKEY, playerData.getInt("DONKEY"));
-				this.mobKillCountsMap.put(EntityType.HORSE, playerData.getInt("HORSE"));
-				this.mobKillCountsMap.put(EntityType.SKELETON_HORSE, playerData.getInt("SKELETON_HORSE"));
-				this.mobKillCountsMap.put(EntityType.ZOMBIE_HORSE, playerData.getInt("ZOMBIE_HORSE"));
-
-				this.mobKillCountsMap.put(EntityType.HUSK, playerData.getInt("HUSK"));
-				this.mobKillCountsMap.put(EntityType.ZOMBIE, playerData.getInt("ZOMBIE"));
-				this.mobKillCountsMap.put(EntityType.ZOMBIE_VILLAGER, playerData.getInt("ZOMBIE_VILLAGER")); // 3
-
-				this.mobKillCountsMap.put(EntityType.SKELETON, playerData.getInt("SKELETON")); // 3
-				this.mobKillCountsMap.put(EntityType.STRAY, playerData.getInt("STRAY"));
-				this.mobKillCountsMap.put(EntityType.WITHER_SKELETON, playerData.getInt("WITHER_SKELETON"));
+				// Load every tracked mob from its column (one list: RunicParadise.trackableEntityKillsMap)
+				for (Map.Entry<EntityType, Integer> tracked : RunicParadise.trackableEntityKillsMap.entrySet()) {
+					if (tracked.getValue() > 0) {
+						this.mobKillCountsMap.put(tracked.getKey(), playerData.getInt(killColumn(tracked.getKey())));
+					}
+				}
 			}
 
 		} catch (SQLException e) {
@@ -1434,118 +1387,83 @@ public class RunicProfile {
 		return false;
 	}
 
+	/** DB column for a tracked mob. Zombified piglins keep their historical "PIG_ZOMBIE" column. */
+	static String killColumn(EntityType type) {
+		return type == EntityType.ZOMBIFIED_PIGLIN ? "PIG_ZOMBIE" : type.name();
+	}
+
+	/** Kill count for a mob type (0 if none / not tracked). */
+	public int getKillCount(EntityType type) {
+		return this.mobKillCountsMap.getOrDefault(type, 0);
+	}
+
 	public Boolean trackMobKill(EntityDeathEvent mobKillEvent) {
-
-		int trackStatus = RunicParadise.trackableEntityKillsMap.get(mobKillEvent.getEntityType());
-		String keyString = "";
-		int newValue;
-
-		// Is the dead entity one to track?
-		if (trackStatus == 0) {
-			// We don't want to track this entity
+		// Untracked types (and anything not in the map) are simply ignored.
+		// (Was map.get(...) unboxed directly: newer mobs like Drowned or Phantom threw a NullPointerException.)
+		EntityType type = mobKillEvent.getEntityType();
+		if (RunicParadise.trackableEntityKillsMap.getOrDefault(type, 0) == 0) {
 			return false;
 		}
 
-		// Is the killer a player?
+		// Only kills by a player, outside plotworld (this compared a World to a String, so it never excluded it)
 		if (mobKillEvent.getEntity().getLastDamageCause() instanceof EntityDamageByEntityEvent
 				&& mobKillEvent.getEntity().getKiller() != null
-				&& mobKillEvent.getEntity().getKiller() instanceof Player
-				&& !mobKillEvent.getEntity().getWorld().equals("plotworld")) {
-			// The killer is a player and world is NOT plotworld
-			// Record!
+				&& !mobKillEvent.getEntity().getWorld().getName().equalsIgnoreCase("plotworld")) {
 
-			keyString = mobKillEvent.getEntityType().toString()
-					+ ((Player) mobKillEvent.getEntity().getKiller()).getName();
+			// Pending increments, added to the DB total on save (quit / shutdown)
+			RunicParadise.mobKillTracker.computeIfAbsent(this.getPlayerID(), k -> new HashMap<>())
+					.merge(type, 1, Integer::sum);
 
-			// INCREMENT THE HASHMAP THAT WILL EVENTUALLY UPDATE THE DB RECORD
-			// Remember this hashmap holds the count that will periodically add
-			// onto the player's DB-stored total
-			// it is not their total kills for each entity.
-
-			// Check if the tracker HashMap already has an entry for this player
-			if (RunicParadise.mobKillTracker.containsKey(this.getPlayerID())) {
-				// Entry found, increment that record
-
-				if (RunicParadise.mobKillTracker.get(this.getPlayerID()).containsKey(mobKillEvent.getEntityType())) {
-					// Entry found for this entity type, so just increment it
-					newValue = RunicParadise.mobKillTracker.get(this.getPlayerID()).get(mobKillEvent.getEntityType())
-							+ 1;
-					RunicParadise.mobKillTracker.get(this.getPlayerID()).replace(mobKillEvent.getEntityType(),
-							newValue);
-
-				} else {
-					// No entry found for this entity type. Need to create a new
-					// record.
-					HashMap<EntityType, Integer> tempSecondaryMap = new HashMap<EntityType, Integer>();
-					tempSecondaryMap.put(mobKillEvent.getEntityType(), 1);
-
-					RunicParadise.mobKillTracker.get(this.getPlayerID()).put(mobKillEvent.getEntityType(), 1);
-				}
-
-			} else {
-				// No entry found in main map for this player, so we need to
-				// create one!
-				HashMap<EntityType, Integer> tempSecondaryMap = new HashMap<EntityType, Integer>();
-				tempSecondaryMap.put(mobKillEvent.getEntityType(), 1);
-
-				RunicParadise.mobKillTracker.put(this.getPlayerID(), tempSecondaryMap);
-			}
-
-			// INCREMENT THE PLAYER'S LOADED PROFILE [so they can see the kill
-			// without waiting for the hashmap tracker to update]
-			// Remember this is the memory-stored total kill count for each
-			// entity to show in profile checks, rank up checks, etc.
-
-			if (mobKillEvent.getEntity() != null) {
-				int newTrackerValue = this.mobKillCountsMap.get(mobKillEvent.getEntityType()) + 1;
-				this.mobKillCountsMap.replace(mobKillEvent.getEntityType(), newTrackerValue);
-			}
-
+			// In-memory running total, shown in the profile menu and used for rank checks
+			this.mobKillCountsMap.merge(type, 1, Integer::sum);
+			return true;
 		}
-
-		// if you got this far, then you must have recorded the death. So return
-		// true!
-		return true;
+		return false;
 	}
 
 	public boolean saveMobKillsForPlayer() {
-		MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
-
-		Connection connection = MySQL.openConnection();
-
-		for (EntityType et : RunicParadise.mobKillTracker.get(this.getPlayerID()).keySet()) {
-			try {
-
-				int killIncrement = RunicParadise.mobKillTracker.get(this.getPlayerID()).get(et);
-
-				// Zeroes shouldn't really exist except for BAT, which I use as
-				// a dummy to force creation of the map for everyone.
-				// Restricting the zeroes out just keeps things clean.
-				if (killIncrement != 0) {
-					PreparedStatement statement = connection.prepareStatement("UPDATE rp_PlayerMobKills SET " + et.toString() + "="
-							+ et.toString() + " + " + killIncrement + " WHERE UUID = ?");
-					statement.setString(1, this.getPlayerID().toString());
-					statement.executeUpdate();
-
-				}
-			} catch (SQLException e) {
-				getLogger().log(Level.SEVERE, "Failed saveMobKillsForPlayer because: " + e.getMessage());
-				return false;
-			}
-
+		HashMap<EntityType, Integer> pending = RunicParadise.mobKillTracker.get(this.getPlayerID());
+		if (pending == null || pending.isEmpty()) {
+			return true;
 		}
 
-		// Updated for this entity... so remove the records from the hashmap
-		RunicParadise.mobKillTracker.get(this.getPlayerID()).clear();
+		// One UPDATE for all pending types. (Was one per type, and the first failure - e.g. PIGLIN, which had no
+		// column - aborted the rest, so those kills were never saved.)
+		StringBuilder sql = new StringBuilder("UPDATE rp_PlayerMobKills SET ");
+		List<EntityType> types = new ArrayList<>();
+		for (Map.Entry<EntityType, Integer> entry : pending.entrySet()) {
+			if (entry.getValue() == null || entry.getValue() == 0
+					|| RunicParadise.trackableEntityKillsMap.getOrDefault(entry.getKey(), 0) == 0) {
+				continue;
+			}
+			String col = killColumn(entry.getKey());
+			if (!types.isEmpty()) {
+				sql.append(", ");
+			}
+			sql.append('`').append(col).append("` = `").append(col).append("` + ?");
+			types.add(entry.getKey());
+		}
+		if (types.isEmpty()) {
+			pending.clear();
+			return true;
+		}
+		sql.append(" WHERE UUID = ?");
 
-		try {
-			connection.close();
+		MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
+		try (Connection connection = MySQL.openConnection();
+			 PreparedStatement statement = connection.prepareStatement(sql.toString())) {
+			int i = 1;
+			for (EntityType t : types) {
+				statement.setInt(i++, pending.get(t));
+			}
+			statement.setString(i, this.getPlayerID().toString());
+			statement.executeUpdate();
+			pending.clear();
+			return true;
 		} catch (SQLException e) {
 			getLogger().log(Level.SEVERE, "Failed saveMobKillsForPlayer because: " + e.getMessage());
 			return false;
 		}
-
-		return true;
 	}
 
 	public void showKillCountMenu(Player p) {
@@ -1583,13 +1501,14 @@ public class RunicProfile {
 		ItemMeta farmMeta;
 		ArrayList<String> farmLore = new ArrayList<String>();
 		farmLore.add("");
-		farmLore.add(ChatColor.BLUE + "Cows: " + ChatColor.WHITE + this.mobKillCountsMap.get(EntityType.COW));
-		farmLore.add(ChatColor.BLUE + "Chickens: " + ChatColor.WHITE + this.mobKillCountsMap.get(EntityType.CHICKEN));
+		farmLore.add(ChatColor.BLUE + "Cows: " + ChatColor.WHITE + this.getKillCount(EntityType.COW));
+		farmLore.add(ChatColor.BLUE + "Chickens: " + ChatColor.WHITE + this.getKillCount(EntityType.CHICKEN));
 		farmLore.add(ChatColor.BLUE + "Mushroom Cows: " + ChatColor.WHITE
-				+ this.mobKillCountsMap.get(EntityType.MUSHROOM_COW));
-		farmLore.add(ChatColor.BLUE + "Pigs: " + ChatColor.WHITE + this.mobKillCountsMap.get(EntityType.PIG));
-		farmLore.add(ChatColor.BLUE + "Rabbits: " + ChatColor.WHITE + this.mobKillCountsMap.get(EntityType.RABBIT));
-		farmLore.add(ChatColor.BLUE + "Sheep: " + ChatColor.WHITE + this.mobKillCountsMap.get(EntityType.SHEEP));
+				+ this.getKillCount(EntityType.MUSHROOM_COW));
+		farmLore.add(ChatColor.BLUE + "Pigs: " + ChatColor.WHITE + this.getKillCount(EntityType.PIG));
+		farmLore.add(ChatColor.BLUE + "Rabbits: " + ChatColor.WHITE + this.getKillCount(EntityType.RABBIT));
+		farmLore.add(ChatColor.BLUE + "Sheep: " + ChatColor.WHITE + this.getKillCount(EntityType.SHEEP));
+		farmLore.add(ChatColor.BLUE + "Goats: " + ChatColor.WHITE + this.getKillCount(EntityType.GOAT));
 
 		ItemStack farmAnimals = RunicParadise.createHead(ChatColor.GOLD + "Farm Animals",
 				"eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMWU5NWM0MWMxNmFiY2RkMzdhNDAxZjBmZjFiNGUxMDIxMTgzNGQ0YzY4YTgzOGM2ODkxYzNhMWUyZTM5NjEifX19");
@@ -1604,12 +1523,21 @@ public class RunicProfile {
 		ItemMeta wildMeta;
 		ArrayList<String> wildLore = new ArrayList<String>();
 		wildLore.add("");
-		wildLore.add(ChatColor.BLUE + "Bats: " + ChatColor.WHITE + this.mobKillCountsMap.get(EntityType.BAT));
-		wildLore.add(ChatColor.BLUE + "Llamas: " + ChatColor.WHITE + this.mobKillCountsMap.get(EntityType.LLAMA));
-		wildLore.add(ChatColor.BLUE + "Ocelots: " + ChatColor.WHITE + this.mobKillCountsMap.get(EntityType.OCELOT));
+		wildLore.add(ChatColor.BLUE + "Bats: " + ChatColor.WHITE + this.getKillCount(EntityType.BAT));
+		wildLore.add(ChatColor.BLUE + "Llamas: " + ChatColor.WHITE + this.getKillCount(EntityType.LLAMA));
+		wildLore.add(ChatColor.BLUE + "Ocelots: " + ChatColor.WHITE + this.getKillCount(EntityType.OCELOT));
 		wildLore.add(
-				ChatColor.BLUE + "Polar Bears: " + ChatColor.WHITE + this.mobKillCountsMap.get(EntityType.POLAR_BEAR));
-		wildLore.add(ChatColor.BLUE + "Wolves: " + ChatColor.WHITE + this.mobKillCountsMap.get(EntityType.WOLF));
+				ChatColor.BLUE + "Polar Bears: " + ChatColor.WHITE + this.getKillCount(EntityType.POLAR_BEAR));
+		wildLore.add(ChatColor.BLUE + "Wolves: " + ChatColor.WHITE + this.getKillCount(EntityType.WOLF));
+		wildLore.add(ChatColor.BLUE + "Foxes: " + ChatColor.WHITE + this.getKillCount(EntityType.FOX));
+		wildLore.add(ChatColor.BLUE + "Cats: " + ChatColor.WHITE + this.getKillCount(EntityType.CAT));
+		wildLore.add(ChatColor.BLUE + "Pandas: " + ChatColor.WHITE + this.getKillCount(EntityType.PANDA));
+		wildLore.add(ChatColor.BLUE + "Parrots: " + ChatColor.WHITE + this.getKillCount(EntityType.PARROT));
+		wildLore.add(ChatColor.BLUE + "Bees: " + ChatColor.WHITE + this.getKillCount(EntityType.BEE));
+		wildLore.add(ChatColor.BLUE + "Frogs: " + ChatColor.WHITE + this.getKillCount(EntityType.FROG));
+		wildLore.add(ChatColor.BLUE + "Trader Llamas: " + ChatColor.WHITE + this.getKillCount(EntityType.TRADER_LLAMA));
+		wildLore.add(ChatColor.BLUE + "Sniffers: " + ChatColor.WHITE + this.getKillCount(EntityType.SNIFFER));
+		wildLore.add(ChatColor.BLUE + "Allays: " + ChatColor.WHITE + this.getKillCount(EntityType.ALLAY));
 
 		ItemStack wildAnimals = RunicParadise.createHead(ChatColor.GOLD + "Wild Animals",
 				"eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYTM4MTM3ZWEzMTI4NmJiMGEyNGI4YTZkYjkxZmMwMWVlMGJiYWQ4NTFkNWUxOGFmMGViZTI5YTk3ZTcifX19");
@@ -1624,13 +1552,14 @@ public class RunicProfile {
 		ItemMeta horseMeta;
 		ArrayList<String> horseLore = new ArrayList<String>();
 		horseLore.add("");
-		horseLore.add(ChatColor.BLUE + "Donkeys: " + ChatColor.WHITE + this.mobKillCountsMap.get(EntityType.DONKEY));
-		horseLore.add(ChatColor.BLUE + "Horses: " + ChatColor.WHITE + this.mobKillCountsMap.get(EntityType.HORSE));
-		horseLore.add(ChatColor.BLUE + "Mules: " + ChatColor.WHITE + this.mobKillCountsMap.get(EntityType.MULE));
+		horseLore.add(ChatColor.BLUE + "Donkeys: " + ChatColor.WHITE + this.getKillCount(EntityType.DONKEY));
+		horseLore.add(ChatColor.BLUE + "Horses: " + ChatColor.WHITE + this.getKillCount(EntityType.HORSE));
+		horseLore.add(ChatColor.BLUE + "Mules: " + ChatColor.WHITE + this.getKillCount(EntityType.MULE));
 		horseLore.add(ChatColor.BLUE + "Skeleton Horses: " + ChatColor.WHITE
-				+ this.mobKillCountsMap.get(EntityType.SKELETON_HORSE));
+				+ this.getKillCount(EntityType.SKELETON_HORSE));
 		horseLore.add(ChatColor.BLUE + "Zombie Horses: " + ChatColor.WHITE
-				+ this.mobKillCountsMap.get(EntityType.ZOMBIE_HORSE));
+				+ this.getKillCount(EntityType.ZOMBIE_HORSE));
+		horseLore.add(ChatColor.BLUE + "Camels: " + ChatColor.WHITE + this.getKillCount(EntityType.CAMEL));
 
 		ItemStack horseAnimals = RunicParadise.createHead(ChatColor.GOLD + "Horse Animals",
 				"eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYmU3OGM0NzYyNjc0ZGRlOGIxYTVhMWU4NzNiMzNmMjhlMTNlN2MxMDJiMTkzZjY4MzU0OWIzOGRjNzBlMCJ9fX0=");
@@ -1646,10 +1575,17 @@ public class RunicProfile {
 		ArrayList<String> oceanLore = new ArrayList<String>();
 		oceanLore.add("");
 		oceanLore.add(ChatColor.BLUE + "Elder Guardians: " + ChatColor.WHITE
-				+ this.mobKillCountsMap.get(EntityType.ELDER_GUARDIAN));
+				+ this.getKillCount(EntityType.ELDER_GUARDIAN));
 		oceanLore
-				.add(ChatColor.BLUE + "Guardians: " + ChatColor.WHITE + this.mobKillCountsMap.get(EntityType.GUARDIAN));
-		oceanLore.add(ChatColor.BLUE + "Squids: " + ChatColor.WHITE + this.mobKillCountsMap.get(EntityType.SQUID));
+				.add(ChatColor.BLUE + "Guardians: " + ChatColor.WHITE + this.getKillCount(EntityType.GUARDIAN));
+		oceanLore.add(ChatColor.BLUE + "Squids: " + ChatColor.WHITE + this.getKillCount(EntityType.SQUID));
+		oceanLore.add(ChatColor.BLUE + "Glow Squids: " + ChatColor.WHITE + this.getKillCount(EntityType.GLOW_SQUID));
+		oceanLore.add(ChatColor.BLUE + "Dolphins: " + ChatColor.WHITE + this.getKillCount(EntityType.DOLPHIN));
+		oceanLore.add(ChatColor.BLUE + "Turtles: " + ChatColor.WHITE + this.getKillCount(EntityType.TURTLE));
+		oceanLore.add(ChatColor.BLUE + "Axolotls: " + ChatColor.WHITE + this.getKillCount(EntityType.AXOLOTL));
+		oceanLore.add(ChatColor.BLUE + "Fish: " + ChatColor.WHITE + (this.getKillCount(EntityType.COD)
+				+ this.getKillCount(EntityType.SALMON) + this.getKillCount(EntityType.PUFFERFISH)
+				+ this.getKillCount(EntityType.TROPICAL_FISH)) + ChatColor.GRAY + " (cod, salmon, puffer, tropical)");
 
 		ItemStack oceanAnimals = RunicParadise.createHead(ChatColor.GOLD + "Creatures of the Sea",
 				"eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYTBiZjM0YTcxZTc3MTViNmJhNTJkNWRkMWJhZTVjYjg1Zjc3M2RjOWIwZDQ1N2I0YmZjNWY5ZGQzY2M3Yzk0In19fQ==");
@@ -1664,13 +1600,20 @@ public class RunicProfile {
 		ItemMeta netherMeta;
 		ArrayList<String> netherLore = new ArrayList<String>();
 		netherLore.add("");
-		netherLore.add(ChatColor.BLUE + "Blazes: " + ChatColor.WHITE + this.mobKillCountsMap.get(EntityType.BLAZE));
-		netherLore.add(ChatColor.BLUE + "Ghasts: " + ChatColor.WHITE + this.mobKillCountsMap.get(EntityType.GHAST));
+		netherLore.add(ChatColor.BLUE + "Blazes: " + ChatColor.WHITE + this.getKillCount(EntityType.BLAZE));
+		netherLore.add(ChatColor.BLUE + "Ghasts: " + ChatColor.WHITE + this.getKillCount(EntityType.GHAST));
 		netherLore.add(
-				ChatColor.BLUE + "Magma Cubes: " + ChatColor.WHITE + this.mobKillCountsMap.get(EntityType.MAGMA_CUBE));
+				ChatColor.BLUE + "Magma Cubes: " + ChatColor.WHITE + this.getKillCount(EntityType.MAGMA_CUBE));
+		// "Piglins" here used to show the old zombie pigman column; zombified piglins are now listed correctly
+		netherLore.add(ChatColor.BLUE + "Zombified Piglins: " + ChatColor.WHITE
+				+ this.getKillCount(EntityType.ZOMBIFIED_PIGLIN));
 		netherLore.add(
-				ChatColor.BLUE + "Piglins: " + ChatColor.WHITE + this.mobKillCountsMap.get(EntityType.PIGLIN));
-		netherLore.add(ChatColor.BLUE + "Withers: " + ChatColor.WHITE + this.mobKillCountsMap.get(EntityType.WITHER));
+				ChatColor.BLUE + "Piglins: " + ChatColor.WHITE + this.getKillCount(EntityType.PIGLIN));
+		netherLore.add(ChatColor.BLUE + "Piglin Brutes: " + ChatColor.WHITE + this.getKillCount(EntityType.PIGLIN_BRUTE));
+		netherLore.add(ChatColor.BLUE + "Hoglins: " + ChatColor.WHITE + this.getKillCount(EntityType.HOGLIN));
+		netherLore.add(ChatColor.BLUE + "Zoglins: " + ChatColor.WHITE + this.getKillCount(EntityType.ZOGLIN));
+		netherLore.add(ChatColor.BLUE + "Striders: " + ChatColor.WHITE + this.getKillCount(EntityType.STRIDER));
+		netherLore.add(ChatColor.BLUE + "Withers: " + ChatColor.WHITE + this.getKillCount(EntityType.WITHER));
 
 		ItemStack netherAnimals = RunicParadise.createHead(ChatColor.GOLD + "Nether Demons",
 				"eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMzg5NTdkNTAyM2M5MzdjNGM0MWFhMjQxMmQ0MzQxMGJkYTIzY2Y3OWE5ZjZhYjM2Yjc2ZmVmMmQ3YzQyOSJ9fX0=");
@@ -1685,10 +1628,10 @@ public class RunicProfile {
 		ItemMeta endMeta;
 		ArrayList<String> endLore = new ArrayList<String>();
 		endLore.add("");
-		endLore.add(ChatColor.BLUE + "Endermen: " + ChatColor.WHITE + this.mobKillCountsMap.get(EntityType.ENDERMAN));
+		endLore.add(ChatColor.BLUE + "Endermen: " + ChatColor.WHITE + this.getKillCount(EntityType.ENDERMAN));
 		endLore.add(ChatColor.BLUE + "Ender Dragons: " + ChatColor.WHITE
-				+ this.mobKillCountsMap.get(EntityType.ENDER_DRAGON));
-		endLore.add(ChatColor.BLUE + "Shulkers: " + ChatColor.WHITE + this.mobKillCountsMap.get(EntityType.SHULKER));
+				+ this.getKillCount(EntityType.ENDER_DRAGON));
+		endLore.add(ChatColor.BLUE + "Shulkers: " + ChatColor.WHITE + this.getKillCount(EntityType.SHULKER));
 
 		ItemStack endAnimals = RunicParadise.createHead(ChatColor.GOLD + "Monsters of the End",
 				"eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYjFkMzUzNGQyMWZlODQ5OTI2MmRlODdhZmZiZWFjNGQyNWZmZGUzNWM4YmRjYTA2OWU2MWUxNzg3ZmYyZiJ9fX0=");
@@ -1703,16 +1646,21 @@ public class RunicProfile {
 		ItemMeta peopleMeta;
 		ArrayList<String> peopleLore = new ArrayList<String>();
 		peopleLore.add("");
-		peopleLore.add(ChatColor.BLUE + "Evokers: " + ChatColor.WHITE + this.mobKillCountsMap.get(EntityType.EVOKER));
+		peopleLore.add(ChatColor.BLUE + "Evokers: " + ChatColor.WHITE + this.getKillCount(EntityType.EVOKER));
 		peopleLore.add(
-				ChatColor.BLUE + "Iron Golems: " + ChatColor.WHITE + this.mobKillCountsMap.get(EntityType.IRON_GOLEM));
-		peopleLore.add(ChatColor.BLUE + "Snowmen: " + ChatColor.WHITE + this.mobKillCountsMap.get(EntityType.SNOWMAN));
-		peopleLore.add(ChatColor.BLUE + "Vex: " + ChatColor.WHITE + this.mobKillCountsMap.get(EntityType.VEX));
+				ChatColor.BLUE + "Iron Golems: " + ChatColor.WHITE + this.getKillCount(EntityType.IRON_GOLEM));
+		peopleLore.add(ChatColor.BLUE + "Snowmen: " + ChatColor.WHITE + this.getKillCount(EntityType.SNOWMAN));
+		peopleLore.add(ChatColor.BLUE + "Vex: " + ChatColor.WHITE + this.getKillCount(EntityType.VEX));
 		peopleLore
-				.add(ChatColor.BLUE + "Villagers: " + ChatColor.WHITE + this.mobKillCountsMap.get(EntityType.VILLAGER));
+				.add(ChatColor.BLUE + "Villagers: " + ChatColor.WHITE + this.getKillCount(EntityType.VILLAGER));
 		peopleLore.add(
-				ChatColor.BLUE + "Vindicators: " + ChatColor.WHITE + this.mobKillCountsMap.get(EntityType.VINDICATOR));
-		peopleLore.add(ChatColor.BLUE + "Witches: " + ChatColor.WHITE + this.mobKillCountsMap.get(EntityType.WITCH));
+				ChatColor.BLUE + "Vindicators: " + ChatColor.WHITE + this.getKillCount(EntityType.VINDICATOR));
+		peopleLore.add(ChatColor.BLUE + "Witches: " + ChatColor.WHITE + this.getKillCount(EntityType.WITCH));
+		peopleLore.add(ChatColor.BLUE + "Pillagers: " + ChatColor.WHITE + this.getKillCount(EntityType.PILLAGER));
+		peopleLore.add(ChatColor.BLUE + "Ravagers: " + ChatColor.WHITE + this.getKillCount(EntityType.RAVAGER));
+		peopleLore.add(ChatColor.BLUE + "Illusioners: " + ChatColor.WHITE + this.getKillCount(EntityType.ILLUSIONER));
+		peopleLore.add(ChatColor.BLUE + "Wandering Traders: " + ChatColor.WHITE
+				+ this.getKillCount(EntityType.WANDERING_TRADER));
 
 		ItemStack peopleAnimals = RunicParadise.createHead(ChatColor.GOLD + "Humans & Servants",
 				"eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvODIyZDhlNzUxYzhmMmZkNGM4OTQyYzQ0YmRiMmY1Y2E0ZDhhZThlNTc1ZWQzZWIzNGMxOGE4NmU5M2IifX19");
@@ -1728,9 +1676,11 @@ public class RunicProfile {
 		ArrayList<String> basemobsLore = new ArrayList<String>();
 		basemobsLore.add("");
 		basemobsLore
-				.add(ChatColor.BLUE + "Creepers: " + ChatColor.WHITE + this.mobKillCountsMap.get(EntityType.CREEPER));
-		basemobsLore.add(ChatColor.BLUE + "Giants: " + ChatColor.WHITE + this.mobKillCountsMap.get(EntityType.GIANT));
-		basemobsLore.add(ChatColor.BLUE + "Slime: " + ChatColor.WHITE + this.mobKillCountsMap.get(EntityType.SLIME));
+				.add(ChatColor.BLUE + "Creepers: " + ChatColor.WHITE + this.getKillCount(EntityType.CREEPER));
+		basemobsLore.add(ChatColor.BLUE + "Giants: " + ChatColor.WHITE + this.getKillCount(EntityType.GIANT));
+		basemobsLore.add(ChatColor.BLUE + "Slime: " + ChatColor.WHITE + this.getKillCount(EntityType.SLIME));
+		basemobsLore.add(ChatColor.BLUE + "Phantoms: " + ChatColor.WHITE + this.getKillCount(EntityType.PHANTOM));
+		basemobsLore.add(ChatColor.BLUE + "Wardens: " + ChatColor.WHITE + this.getKillCount(EntityType.WARDEN));
 
 		ItemStack basemobsAnimals = RunicParadise.createHead(ChatColor.GOLD + "Overworld Monsters",
 				"eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNzBkZjI2ZTc0NzUyZDU0YTk0Zjg4NWQxNzk5ODU5YjZjYTRhZGIwMTA5ODFmNTIyMDk4ZDNlMzFlMTU3NCJ9fX0=");
@@ -1747,12 +1697,12 @@ public class RunicProfile {
 		spiderLore.add("");
 
 		spiderLore.add(ChatColor.BLUE + "Cave Spiders: " + ChatColor.WHITE
-				+ this.mobKillCountsMap.get(EntityType.CAVE_SPIDER));
+				+ this.getKillCount(EntityType.CAVE_SPIDER));
 		spiderLore.add(
-				ChatColor.BLUE + "Endermites: " + ChatColor.WHITE + this.mobKillCountsMap.get(EntityType.ENDERMITE));
+				ChatColor.BLUE + "Endermites: " + ChatColor.WHITE + this.getKillCount(EntityType.ENDERMITE));
 		spiderLore.add(
-				ChatColor.BLUE + "Silverfish: " + ChatColor.WHITE + this.mobKillCountsMap.get(EntityType.SILVERFISH));
-		spiderLore.add(ChatColor.BLUE + "Spiders: " + ChatColor.WHITE + this.mobKillCountsMap.get(EntityType.SPIDER));
+				ChatColor.BLUE + "Silverfish: " + ChatColor.WHITE + this.getKillCount(EntityType.SILVERFISH));
+		spiderLore.add(ChatColor.BLUE + "Spiders: " + ChatColor.WHITE + this.getKillCount(EntityType.SPIDER));
 
 		ItemStack spiderAnimals = RunicParadise.createHead(ChatColor.GOLD + "Creepy Crawly Things",
 				"eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNzY1MmJkNzYxN2U1NmM3NTY1MTRmODNjMjhkZDFkOTZhN2U1ZTE2N2JmN2ZiNTkzNjkzZmM2NTA0NmY3OTkifX19");
@@ -1768,10 +1718,11 @@ public class RunicProfile {
 		ArrayList<String> zombieLore = new ArrayList<String>();
 		zombieLore.add("");
 
-		zombieLore.add(ChatColor.BLUE + "Husks: " + ChatColor.WHITE + this.mobKillCountsMap.get(EntityType.HUSK));
-		zombieLore.add(ChatColor.BLUE + "Zombies: " + ChatColor.WHITE + this.mobKillCountsMap.get(EntityType.ZOMBIE));
+		zombieLore.add(ChatColor.BLUE + "Husks: " + ChatColor.WHITE + this.getKillCount(EntityType.HUSK));
+		zombieLore.add(ChatColor.BLUE + "Zombies: " + ChatColor.WHITE + this.getKillCount(EntityType.ZOMBIE));
 		zombieLore.add(ChatColor.BLUE + "Zombie Villagers: " + ChatColor.WHITE
-				+ this.mobKillCountsMap.get(EntityType.ZOMBIE_VILLAGER));
+				+ this.getKillCount(EntityType.ZOMBIE_VILLAGER));
+		zombieLore.add(ChatColor.BLUE + "Drowned: " + ChatColor.WHITE + this.getKillCount(EntityType.DROWNED));
 
 		ItemStack zombieAnimals = RunicParadise.createHead(ChatColor.GOLD + "Zombies",
 				"eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYzNmYjRlNWRiOTdmNDc5YzY2YTQyYmJkOGE3ZDc4MWRhZjIwMWE4ZGRhZjc3YWZjZjRhZWY4Nzc3OWFhOGI0In19fQ==");
@@ -1788,10 +1739,10 @@ public class RunicProfile {
 		skellyLore.add("");
 
 		skellyLore
-				.add(ChatColor.BLUE + "Skeletons: " + ChatColor.WHITE + this.mobKillCountsMap.get(EntityType.SKELETON));
-		skellyLore.add(ChatColor.BLUE + "Strays: " + ChatColor.WHITE + this.mobKillCountsMap.get(EntityType.STRAY));
+				.add(ChatColor.BLUE + "Skeletons: " + ChatColor.WHITE + this.getKillCount(EntityType.SKELETON));
+		skellyLore.add(ChatColor.BLUE + "Strays: " + ChatColor.WHITE + this.getKillCount(EntityType.STRAY));
 		skellyLore.add(ChatColor.BLUE + "Wither Skeletons: " + ChatColor.WHITE
-				+ this.mobKillCountsMap.get(EntityType.WITHER_SKELETON));
+				+ this.getKillCount(EntityType.WITHER_SKELETON));
 
 		ItemStack skellyAnimals = RunicParadise.createHead(ChatColor.GOLD + "Skellies",
 				"eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYjJkMjJhNTEzNTJiYTQxMWVjNjg3MzI3NmI2MjgxOTVlODg4MzZjNjk3NWYyZDQ1MTJlNjE2Nzg4OWE1ZiJ9fX0=");

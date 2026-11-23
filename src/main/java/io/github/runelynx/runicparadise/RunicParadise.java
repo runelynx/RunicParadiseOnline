@@ -307,6 +307,40 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 		trackableEntityKillsMap.put(EntityType.SLIME, 1);
 		trackableEntityKillsMap.put(EntityType.SNOWMAN, 2);
 		trackableEntityKillsMap.put(EntityType.SPIDER, 1);
+		// 2026-11-23: mobs added since 1.13 (each has a column in rp_PlayerMobKills; see RunicProfile.killColumn).
+		// Kills of any type NOT in this map used to throw a NullPointerException and abort kill handling.
+		// 1 = hostile (counts for faith-weapon skill-ups), 2 = tracked passive mob
+		trackableEntityKillsMap.put(EntityType.ZOMBIFIED_PIGLIN, 1); // stored in the old PIG_ZOMBIE column
+		trackableEntityKillsMap.put(EntityType.PIGLIN_BRUTE, 1);
+		trackableEntityKillsMap.put(EntityType.HOGLIN, 1);
+		trackableEntityKillsMap.put(EntityType.ZOGLIN, 1);
+		trackableEntityKillsMap.put(EntityType.DROWNED, 1);
+		trackableEntityKillsMap.put(EntityType.PHANTOM, 1);
+		trackableEntityKillsMap.put(EntityType.PILLAGER, 1);
+		trackableEntityKillsMap.put(EntityType.RAVAGER, 1);
+		trackableEntityKillsMap.put(EntityType.ILLUSIONER, 1);
+		trackableEntityKillsMap.put(EntityType.WARDEN, 1);
+		trackableEntityKillsMap.put(EntityType.STRIDER, 2);
+		trackableEntityKillsMap.put(EntityType.GOAT, 2);
+		trackableEntityKillsMap.put(EntityType.FOX, 2);
+		trackableEntityKillsMap.put(EntityType.CAT, 2);
+		trackableEntityKillsMap.put(EntityType.PANDA, 2);
+		trackableEntityKillsMap.put(EntityType.PARROT, 2);
+		trackableEntityKillsMap.put(EntityType.BEE, 2);
+		trackableEntityKillsMap.put(EntityType.FROG, 2);
+		trackableEntityKillsMap.put(EntityType.TRADER_LLAMA, 2);
+		trackableEntityKillsMap.put(EntityType.CAMEL, 2);
+		trackableEntityKillsMap.put(EntityType.SNIFFER, 2);
+		trackableEntityKillsMap.put(EntityType.ALLAY, 2);
+		trackableEntityKillsMap.put(EntityType.WANDERING_TRADER, 2);
+		trackableEntityKillsMap.put(EntityType.DOLPHIN, 2);
+		trackableEntityKillsMap.put(EntityType.TURTLE, 2);
+		trackableEntityKillsMap.put(EntityType.AXOLOTL, 2);
+		trackableEntityKillsMap.put(EntityType.GLOW_SQUID, 2);
+		trackableEntityKillsMap.put(EntityType.COD, 2);
+		trackableEntityKillsMap.put(EntityType.SALMON, 2);
+		trackableEntityKillsMap.put(EntityType.PUFFERFISH, 2);
+		trackableEntityKillsMap.put(EntityType.TROPICAL_FISH, 2);
 
 		trackableEntityKillsMap.put(EntityType.PLAYER, 0);
 
@@ -510,6 +544,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 		}
 
 		// em.dispose();
+		DatabaseConnectionPool.close(); // last: everything above may still save to the DB
 	}
 
 	@EventHandler
@@ -1712,7 +1747,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 				RunicPlayerBukkit target = new RunicPlayerBukkit(pje.getPlayer().getUniqueId());
 
 				if (target.getPlayerVoteCount() >= 250) {
-					perms.playerAdd("", pje.getPlayer(), "rp.slimefun.mediumbackpack");
+					perms.playerAdd(null, pje.getPlayer(), "rp.slimefun.mediumbackpack"); // null = global ("" was rejected by LuckPerms and aborted the join handler)
 					Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "lp user " + pje.getPlayer().getName() + " permission set rp.slimefun.mediumbackpack");
 					Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "cmi toast " + pje.getPlayer().getName() + " -t:challenge -icon:chest Medium backpack unlocked!");
 
@@ -1760,7 +1795,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 				}
 
 			if (event.getClickedBlock().getType().equals(Material.SPAWNER)
-					&& event.getPlayer().getInventory().getItemInMainHand().getType().getId() == 383) {
+					&& event.getItem() != null && event.getItem().getType().name().endsWith("_SPAWN_EGG")) { // any spawn egg, either hand (was legacy id 383, which threw before cancelling)
 				event.setCancelled(true);
 				RunicMessaging.sendMessage(event.getPlayer(), RunicMessaging.RunicFormat.ERROR, "You cannot do that!");
 
@@ -2091,9 +2126,12 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 					Bukkit.getLogger().log(Level.SEVERE, monsterEnt.getKiller().getDisplayName() + " is not in the playerProfiles array! :(");
 				}
 
-				Bukkit.getServer().getScheduler().runTaskAsynchronously(instance, () -> {
-							RunicParadise.playerProfiles.get(monsterEnt.getKiller().getUniqueId())
-									.trackMobKill(ede);
+				Bukkit.getServer().getScheduler().runTask(instance, () -> { // main thread: touches the player, inventory and in-memory maps (was async)
+					if (monsterEnt.getKiller() == null || !monsterEnt.getKiller().isOnline()
+							|| RunicParadise.playerProfiles.get(monsterEnt.getKiller().getUniqueId()) == null) {
+						return; // killer left (or has no profile) before this ran
+					}
+					RunicParadise.playerProfiles.get(monsterEnt.getKiller().getUniqueId()).trackMobKill(ede);
 
 					String mobType = "";
 					boolean attemptPowersSkillUp = false;
@@ -2131,7 +2169,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 
 					// 1 in the trackable entities map represents a hostile
 					// mob
-					if (RunicParadise.trackableEntityKillsMap.get(ede.getEntityType()) == 1 && heldWeaponHasLore) {
+					if (RunicParadise.trackableEntityKillsMap.getOrDefault(ede.getEntityType(), 0) == 1 && heldWeaponHasLore && faithMap.containsKey(monsterEnt.getKiller().getUniqueId())) {
 						faithMap.get(monsterEnt.getKiller().getUniqueId()).trySkillUp(
 								monsterEnt.getKiller(),
 								faithMap.get(monsterEnt.getKiller().getUniqueId()).getPrimaryFaith(), faithStrength,
@@ -2253,7 +2291,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 
 		try {
 			PreparedStatement statement = connection
-					.prepareStatement("SELECT COUNT(*) as Total, PlayerName FROM rp_PlayerInfo WHERE UUID = ?;");
+					.prepareStatement("SELECT COUNT(*) as Total, MIN(PlayerName) as PlayerName FROM rp_PlayerInfo WHERE UUID = ?;");
 			statement.setString(1, playerUUID.toString());
 			ResultSet dbResult = statement.executeQuery();
 			while (dbResult.next()) {
@@ -2291,7 +2329,8 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 
 				RunicUtilities.sendDebugMessages("playerjoin", playerName + " not found in our database - hopefully they're new!");
 
-				Bukkit.getServer().getScheduler().scheduleAsyncDelayedTask(instance, () -> {
+				Bukkit.getServer().getScheduler().runTaskLater(instance, () -> { // main thread (was async)
+					if (Bukkit.getPlayer(playerUUID) == null) { return; } // left before the welcome went out
 					// tell the other server this one is reconnected
 					// to the universe
 					ByteArrayDataOutput out = ByteStreams.newDataOutput();
@@ -3426,7 +3465,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 	private void eliminateDefaultGroup (Player p) {
 		String groupName = perms.getPrimaryGroup(p);
 		if (groupName.equalsIgnoreCase("default")) {
-			perms.playerAddGroup("", Bukkit.getOfflinePlayer(p.getUniqueId()), "Ghost");
+			perms.playerAddGroup(null, Bukkit.getOfflinePlayer(p.getUniqueId()), "Ghost"); // null = global ("" threw on every new player's first join)
 			Bukkit.getLogger().log(Level.INFO, "Found default group! Changing " + p.getName() + " to Ghost!");
 		}
 	}

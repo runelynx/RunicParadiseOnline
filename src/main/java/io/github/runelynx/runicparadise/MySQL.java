@@ -54,6 +54,14 @@ public class MySQL extends Database {
 
     @Override
     public Connection openConnection() {
+        // Pooled connection first (2026-11-23). If the pool can't hand one out within 2 s (or failed to start),
+        // fall back to the old direct connection so nothing breaks.
+        try {
+            connection = DatabaseConnectionPool.getConnection();
+            return connection;
+        } catch (Throwable e) {
+            plugin.getLogger().log(Level.WARNING, "DB pool unavailable (" + e.getMessage() + "); using a direct connection");
+        }
         try {
             Class.forName("com.mysql.jdbc.Driver");
             connection = DriverManager.getConnection("jdbc:mysql://" + this.hostname + ":" + this.port + "/" + this.database + "?useSSL=true&verifyServerCertificate=false", this.user, this.password);

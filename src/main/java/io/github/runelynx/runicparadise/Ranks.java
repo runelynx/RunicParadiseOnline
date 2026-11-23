@@ -20,6 +20,7 @@ import org.bukkit.plugin.Plugin;
 
 import java.io.File;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -329,53 +330,46 @@ class Ranks {
 					+ " To learn about perks: http://www.runic-paradise.com/ranks.php");
 			Bukkit.dispatchCommand(Bukkit.getConsoleSender(),
 					"sc Converting " + user.getName() + " from " + rank + " to " + newRank);
-			Bukkit.getServer().getScheduler().scheduleAsyncDelayedTask(RunicParadise.getInstance(),
+			Bukkit.getServer().getScheduler().runTaskLater(RunicParadise.getInstance(), // main thread: commands cannot be dispatched async
 					() -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "faith enable " + user.getName() + " Sun"), 60);
 		}
 	}
 
 	void nominatePlayer(Player sender, String nominee) {
+		// Parameterised queries (the name used to be pasted straight into the SQL)
 		MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
-		Connection d = MySQL.openConnection();
-		int nominations = 0;
-		boolean playerFound = false;
-		try {
-			Statement dStmt = d.createStatement();
-			ResultSet playerData = dStmt.executeQuery(
-					"SELECT * FROM `rp_PlayerInfo` WHERE `PlayerName` = '" + nominee + "' ORDER BY `id` ASC LIMIT 1;");
-			// if this is true, there is a result!
-			if (playerData.isBeforeFirst()) {
-				playerData.next();
-				nominations = playerData.getInt("IsNominated");
-				playerFound = true;
-			} else {
-				sender.sendMessage(ChatColor.RED + "[ERROR] Nomination failed. Could not find player named " + nominee);
-				d.close();
+		int nominations;
+		try (Connection d = MySQL.openConnection()) {
+			try (PreparedStatement q = d.prepareStatement(
+					"SELECT IsNominated FROM `rp_PlayerInfo` WHERE `PlayerName` = ? ORDER BY `id` ASC LIMIT 1")) {
+				q.setString(1, nominee);
+				try (ResultSet playerData = q.executeQuery()) {
+					if (!playerData.next()) {
+						sender.sendMessage(ChatColor.RED + "[ERROR] Nomination failed. Could not find player named " + nominee);
+						return;
+					}
+					nominations = playerData.getInt("IsNominated");
+				}
+			}
+			try (PreparedStatement u = d.prepareStatement("UPDATE `rp_PlayerInfo` SET IsNominated = ? WHERE PlayerName = ?")) {
+				u.setInt(1, nominations + 1);
+				u.setString(2, nominee);
+				u.executeUpdate();
 			}
 		} catch (SQLException e) {
-			getLogger().log(Level.SEVERE, "Failed DB check for nominatePlayer because: " + e.getMessage());
+			getLogger().log(Level.SEVERE, "Failed nominatePlayer because: " + e.getMessage());
+			sender.sendMessage(ChatColor.RED + "[ERROR] Nomination failed (database error).");
+			return;
 		}
 
-		if (playerFound) {
-			try {
-				Statement dStmt = d.createStatement();
-				dStmt.executeUpdate("UPDATE `rp_PlayerInfo` SET IsNominated='" + (nominations + 1)
-						+ "' WHERE PlayerName='" + nominee + "';");
-				d.close();
-				sender.sendMessage(ChatColor.DARK_GREEN + "[RunicRanks] Success! " + nominee + " now has "
-						+ (nominations + 1) + " nominations");
-				sender.getServer().getPlayer(nominee)
-						.sendMessage(ChatColor.DARK_GREEN
-								+ "[RunicRanks] You have just been nominated for faster promotions by "
-								+ sender.getDisplayName());
-				sender.getServer().getPlayer(nominee)
-						.sendMessage(ChatColor.WHITE + "Type /ranks to see your new requirements.");
-				sender.getServer().getPlayer(nominee).sendMessage(ChatColor.WHITE
-						+ "While multiple nominations are very nice, only the first one has an impact. :)");
-
-			} catch (SQLException e) {
-				getLogger().log(Level.SEVERE, "Failed DB update for nominatePlayer because: " + e.getMessage());
-			}
+		sender.sendMessage(ChatColor.DARK_GREEN + "[RunicRanks] Success! " + nominee + " now has "
+				+ (nominations + 1) + " nominations");
+		Player target = sender.getServer().getPlayerExact(nominee);
+		if (target != null) {
+			target.sendMessage(ChatColor.DARK_GREEN + "[RunicRanks] You have just been nominated for faster promotions by "
+					+ sender.getDisplayName());
+			target.sendMessage(ChatColor.WHITE + "Type /ranks to see your new requirements.");
+			target.sendMessage(ChatColor.WHITE + "While multiple nominations are very nice, only the first one has an impact. :)");
 		}
 	}
 
@@ -428,28 +422,28 @@ class Ranks {
 			daysPlayed = ((now.getTime() - firstSeenTime) / 86400000f);
 
 			rank = perms.getPrimaryGroup(user);
-			killsArray[0] = RunicParadise.playerProfiles.get(user.getUniqueId()).mobKillCountsMap
-					.get(EntityType.ZOMBIE);
-			killsArray[1] = RunicParadise.playerProfiles.get(user.getUniqueId()).mobKillCountsMap
-					.get(EntityType.SPIDER);
-			killsArray[2] = RunicParadise.playerProfiles.get(user.getUniqueId()).mobKillCountsMap
-					.get(EntityType.SKELETON);
-			killsArray[3] = RunicParadise.playerProfiles.get(user.getUniqueId()).mobKillCountsMap.get(EntityType.SQUID);
-			killsArray[4] = RunicParadise.playerProfiles.get(user.getUniqueId()).mobKillCountsMap.get(EntityType.BLAZE);
-			killsArray[5] = RunicParadise.playerProfiles.get(user.getUniqueId()).mobKillCountsMap
-					.get(EntityType.PIGLIN);
-			killsArray[6] = RunicParadise.playerProfiles.get(user.getUniqueId()).mobKillCountsMap.get(EntityType.GHAST);
-			killsArray[7] = RunicParadise.playerProfiles.get(user.getUniqueId()).mobKillCountsMap
-					.get(EntityType.WITHER);
-			killsArray[8] = RunicParadise.playerProfiles.get(user.getUniqueId()).mobKillCountsMap.get(EntityType.WITCH);
-			killsArray[9] = RunicParadise.playerProfiles.get(user.getUniqueId()).mobKillCountsMap
-					.get(EntityType.ENDERMAN);
-			killsArray[10] = RunicParadise.playerProfiles.get(user.getUniqueId()).mobKillCountsMap
-					.get(EntityType.CREEPER);
-			killsArray[11] = RunicParadise.playerProfiles.get(user.getUniqueId()).mobKillCountsMap
-					.get(EntityType.CAVE_SPIDER);
-			killsArray[12] = RunicParadise.playerProfiles.get(user.getUniqueId()).mobKillCountsMap
-					.get(EntityType.IRON_GOLEM);
+			killsArray[0] = RunicParadise.playerProfiles.get(user.getUniqueId())
+					.getKillCount(EntityType.ZOMBIE);
+			killsArray[1] = RunicParadise.playerProfiles.get(user.getUniqueId())
+					.getKillCount(EntityType.SPIDER);
+			killsArray[2] = RunicParadise.playerProfiles.get(user.getUniqueId())
+					.getKillCount(EntityType.SKELETON);
+			killsArray[3] = RunicParadise.playerProfiles.get(user.getUniqueId()).getKillCount(EntityType.SQUID);
+			killsArray[4] = RunicParadise.playerProfiles.get(user.getUniqueId()).getKillCount(EntityType.BLAZE);
+			killsArray[5] = RunicParadise.playerProfiles.get(user.getUniqueId())
+					.getKillCount(EntityType.ZOMBIFIED_PIGLIN);
+			killsArray[6] = RunicParadise.playerProfiles.get(user.getUniqueId()).getKillCount(EntityType.GHAST);
+			killsArray[7] = RunicParadise.playerProfiles.get(user.getUniqueId())
+					.getKillCount(EntityType.WITHER);
+			killsArray[8] = RunicParadise.playerProfiles.get(user.getUniqueId()).getKillCount(EntityType.WITCH);
+			killsArray[9] = RunicParadise.playerProfiles.get(user.getUniqueId())
+					.getKillCount(EntityType.ENDERMAN);
+			killsArray[10] = RunicParadise.playerProfiles.get(user.getUniqueId())
+					.getKillCount(EntityType.CREEPER);
+			killsArray[11] = RunicParadise.playerProfiles.get(user.getUniqueId())
+					.getKillCount(EntityType.CAVE_SPIDER);
+			killsArray[12] = RunicParadise.playerProfiles.get(user.getUniqueId())
+					.getKillCount(EntityType.IRON_GOLEM);
 			// if you add more here, increase the array definition up above!!!
 
 			user.sendMessage(ChatColor.DARK_GREEN + "You first joined Runic Paradise " + daysPlayed
@@ -722,10 +716,10 @@ class Ranks {
 						+ "You have killed enough monsters for this promotion.");
 			} else {
 				if (killsArray[5] > 150) {
-					failureResponse.add(ChatColor.DARK_GREEN + "[✔ OK] " + ChatColor.GRAY + "Your PIGZOMBIE kills: "
+					failureResponse.add(ChatColor.DARK_GREEN + "[✔ OK] " + ChatColor.GRAY + "Your Zombified Piglin kills: "
 							+ killsArray[5] + "; Required: 150");
 				} else {
-					failureResponse.add(ChatColor.DARK_RED + "[✘ FAIL] " + ChatColor.GRAY + "Your PIGZOMBIE kills: "
+					failureResponse.add(ChatColor.DARK_RED + "[✘ FAIL] " + ChatColor.GRAY + "Your Zombified Piglin kills: "
 							+ killsArray[5] + "; Required: 150");
 				}
 				if (killsArray[9] >= 60) {
@@ -925,10 +919,10 @@ class Ranks {
 						+ "You have killed enough monsters for this promotion.");
 			} else {
 				if (killsArray[5] > 100) {
-					failureResponse.add(ChatColor.DARK_GREEN + "[✔ OK] " + ChatColor.GRAY + "Your PIGZOMBIE kills: "
+					failureResponse.add(ChatColor.DARK_GREEN + "[✔ OK] " + ChatColor.GRAY + "Your Zombified Piglin kills: "
 							+ killsArray[5] + "; Required: 100");
 				} else {
-					failureResponse.add(ChatColor.DARK_RED + "[✘ FAIL] " + ChatColor.GRAY + "Your PIGZOMBIE kills: "
+					failureResponse.add(ChatColor.DARK_RED + "[✘ FAIL] " + ChatColor.GRAY + "Your Zombified Piglin kills: "
 							+ killsArray[5] + "; Required: 100");
 				}
 				if (killsArray[9] >= 45) {
@@ -1129,10 +1123,10 @@ class Ranks {
 						+ "You have killed enough monsters for this promotion.");
 			} else {
 				if (killsArray[5] > 50) {
-					failureResponse.add(ChatColor.DARK_GREEN + "[✔ OK] " + ChatColor.GRAY + "Your PIGZOMBIE kills: "
+					failureResponse.add(ChatColor.DARK_GREEN + "[✔ OK] " + ChatColor.GRAY + "Your Zombified Piglin kills: "
 							+ killsArray[5] + "; Required: 50");
 				} else {
-					failureResponse.add(ChatColor.DARK_RED + "[✘ FAIL] " + ChatColor.GRAY + "Your PIGZOMBIE kills: "
+					failureResponse.add(ChatColor.DARK_RED + "[✘ FAIL] " + ChatColor.GRAY + "Your Zombified Piglin kills: "
 							+ killsArray[5] + "; Required: 50");
 				}
 				if (killsArray[9] >= 30) {
@@ -1322,10 +1316,10 @@ class Ranks {
 						+ "You have killed enough monsters for this promotion.");
 			} else {
 				if (killsArray[5] > 25) {
-					failureResponse.add(ChatColor.DARK_GREEN + "[✔ OK] " + ChatColor.GRAY + "Your PIGZOMBIE kills: "
+					failureResponse.add(ChatColor.DARK_GREEN + "[✔ OK] " + ChatColor.GRAY + "Your Zombified Piglin kills: "
 							+ killsArray[5] + "; Required: 25");
 				} else {
-					failureResponse.add(ChatColor.DARK_RED + "[✘ FAIL] " + ChatColor.GRAY + "Your PIGZOMBIE kills: "
+					failureResponse.add(ChatColor.DARK_RED + "[✘ FAIL] " + ChatColor.GRAY + "Your Zombified Piglin kills: "
 							+ killsArray[5] + "; Required: 25");
 				}
 				if (killsArray[9] >= 15) {
