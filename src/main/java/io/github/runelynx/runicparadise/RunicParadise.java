@@ -1096,9 +1096,17 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 	public void onEntityTargetLivingEntityEvent(EntityTargetLivingEntityEvent event) {
 		Borderlands.handleEntityTargetEventBL(event);
 
-		if (event.getEntity() instanceof Player && protectedPlayers.containsKey(event.getTarget().getUniqueId())) {
+		// Lunar Calm: monsters can't target a protected player (this checked the MOB was a player, so never matched)
+		if (event.getTarget() instanceof Player && event.getEntity() instanceof Monster
+				&& protectedPlayers.containsKey(event.getTarget().getUniqueId())) {
 			event.setCancelled(true);
 		}
+	}
+
+	// Netherborn: world changes include nether portals (the teleport-event version missed some travel)
+	@EventHandler
+	public void onPlayerChangedWorldFaith(PlayerChangedWorldEvent event) {
+		Faith.tryCast_PlayerChangedWorld(event.getPlayer(), event.getFrom());
 	}
 
 
@@ -1773,14 +1781,18 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 			} else {
 				// not a redstone lamp
 
-				if (faithMap.get(event.getPlayer().getUniqueId()).checkEquippedFaithLevel("Earth",
-						RunicParadise.powerReqsMap.get("Earth's Bounty"))) {
-					faithMap.get(event.getPlayer().getUniqueId()).castEarth_EarthsBounty(event);
-				}
+				// Only bother when holding glowstone dust (both powers need it); this runs on every right-click
+				Faith rcFaith = faithMap.get(event.getPlayer().getUniqueId());
+				if (rcFaith != null && event.getItem() != null && event.getItem().getType() == Material.GLOWSTONE_DUST) {
+					Integer earthReq = RunicParadise.powerReqsMap.get("Earth's Bounty");
+					if (earthReq != null && rcFaith.checkEquippedFaithLevel("Earth", earthReq)) {
+						rcFaith.castEarth_EarthsBounty(event);
+					}
 
-				if (faithMap.get(event.getPlayer().getUniqueId()).checkEquippedFaithLevel("Water",
-						RunicParadise.powerReqsMap.get("Deep Wader"))) {
-					faithMap.get(event.getPlayer().getUniqueId()).castWater_DeepWader(event);
+					Integer waterReq = RunicParadise.powerReqsMap.get("Deep Wader");
+					if (waterReq != null && rcFaith.checkEquippedFaithLevel("Water", waterReq)) {
+						rcFaith.castWater_DeepWader(event);
+					}
 				}
 			}
 		} else if (event.getAction() == Action.LEFT_CLICK_BLOCK) {
@@ -1934,6 +1946,15 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 				&& faithMap.containsKey(edbe.getDamager().getUniqueId())) {
 
 			Faith.tryCast_PlayerHitMonster(edbe, edbe.getEntity(), (Player) edbe.getDamager());
+		}
+
+		// Nature: Locust Swarm - a player's arrow/projectile hit a monster
+		if (edbe.getDamager() instanceof Projectile && edbe.getEntity() instanceof Monster
+				&& ((Projectile) edbe.getDamager()).getShooter() instanceof Player) {
+			Player shooter = (Player) ((Projectile) edbe.getDamager()).getShooter();
+			if (faithMap.containsKey(shooter.getUniqueId())) {
+				Faith.tryCast_PlayerShotMonster(edbe, (LivingEntity) edbe.getEntity(), shooter);
+			}
 		}
 
 		/*
