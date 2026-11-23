@@ -1529,7 +1529,13 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 
 			String faith = "";
 
-			switch (event.getSlot()) {
+			// Only clicks in the menu itself (raw slots 0-44). getSlot() also matched the player's own
+			// inventory, so clicking hotbar slot 3/4/5 while the menu was open switched faith.
+			if (event.getRawSlot() < 0 || event.getRawSlot() >= event.getView().getTopInventory().getSize()) {
+				return;
+			}
+
+			switch (event.getRawSlot()) {
 			case 3:
 				if (event.getWhoClicked().hasPermission("rp.faith.sun")) {
 					faith = "Sun";
@@ -1604,6 +1610,8 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 			}
 
 			if (!faith.equals("")) {
+				final org.bukkit.entity.HumanEntity clicker = event.getWhoClicked();
+				Bukkit.getScheduler().runTask(RunicParadise.getInstance(), (Runnable) clicker::closeInventory);
 				getServer().dispatchCommand(getServer().getConsoleSender(),
 						"faith enable " + event.getWhoClicked().getName() + " " + faith);
 			}
