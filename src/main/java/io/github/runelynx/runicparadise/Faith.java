@@ -767,6 +767,9 @@ public class Faith {
 	}
 
 	public static void tryCast_PlayerTookFallDamage(Player p) {
+		if (!powersAllowed(p.getWorld())) {
+			return; // no faith powers in RunicSky, its nether/end, or the Museum
+		}
 		Faith pfo = RunicParadise.faithMap.get(p.getUniqueId());
 		if (pfo == null || pfo.getPrimaryFaith() == null) {
 			return;
@@ -790,6 +793,9 @@ public class Faith {
 	}
 
 	public static int tryCast_CropsAreGrowing(BlockGrowEvent event, Player p) {
+		if (!powersAllowed(p.getWorld())) {
+			return 0;
+		}
 		Faith pfo = RunicParadise.faithMap.get(p.getUniqueId());
 		if (pfo == null || pfo.getPrimaryFaith() == null) {
 			return 0;
@@ -815,6 +821,9 @@ public class Faith {
 	}
 
 	public static void tryCast_PlayerTookEntityDamage(final EntityDamageEvent event, Player p) {
+		if (!powersAllowed(p.getWorld())) {
+			return; // no faith powers in RunicSky, its nether/end, or the Museum
+		}
 
 		Faith pfo = RunicParadise.faithMap.get(p.getUniqueId());
 		if (pfo == null || pfo.getPrimaryFaith() == null) {
@@ -822,7 +831,7 @@ public class Faith {
 		}
 		String faith = pfo.getPrimaryFaith();
 		int level = pfo.getPrimaryFaithLevel();
-		final boolean daytime = (Bukkit.getWorld("RunicKingdom").getTime() <= 14000 || Bukkit.getWorld("RunicKingdom").getTime() >= 23000);
+		final boolean daytime = isDay(p.getWorld());
 
 		// Only damage dealt by an entity (melee, sweep, projectile, explosion) triggers these powers.
 		// (Was "&&", which can never be true, so none of these powers had ever fired.)
@@ -838,7 +847,7 @@ public class Faith {
 			if (hasPower(level, "Sunflare") && daytime) {
 
 				// Cast Sunflare if player got hit and its daytime
-				if (p.getWorld().getName().equals("RunicKingdom")) {
+				if (inMainWorld(p)) {
 					pfo.castSun_Sunflare(p.getUniqueId(), p);
 				}
 
@@ -849,7 +858,7 @@ public class Faith {
 			if (hasPower(level, "Lunar Calm") && !daytime) {
 
 				// Cast Lunar Calm if player got hit and its night (was mistakenly casting Sunflare)
-				if (p.getWorld().getName().equals("RunicKingdom")) {
+				if (inMainWorld(p)) {
 					pfo.castMoon_LunarCalm(p.getUniqueId(), p);
 				}
 
@@ -859,7 +868,7 @@ public class Faith {
 			if (hasPower(level, "Unstable Embers")) {
 
 				// Cast Unstable Embers if player got hit
-				if (p.getWorld().getName().equals("RunicKingdom")) {
+				if (inMainWorld(p)) {
 					pfo.castFlame_UnstableEmbers(p);
 				}
 			}
@@ -869,7 +878,7 @@ public class Faith {
 			if (hasPower(level, "Arctic Frost")) {
 
 				// Cast Unstable Embers if player got hit
-				if (p.getWorld().getName().equals("RunicKingdom")) {
+				if (inMainWorld(p)) {
 					pfo.castWater_ArcticFrost(p);
 				}
 			}
@@ -877,7 +886,7 @@ public class Faith {
 			if (hasPower(level, "Protective Bubble")) {
 
 				// Cast Unstable Embers if player got hit
-				if (p.getWorld().getName().equals("RunicKingdom")) {
+				if (inMainWorld(p)) {
 					pfo.castWater_ProtectiveBubble(p);
 				}
 			}
@@ -887,7 +896,7 @@ public class Faith {
 			if (hasPower(level, "Healing Breeze")) {
 
 				// Cast Healing Breeze if player got hit
-				if (p.getWorld().getName().equals("RunicKingdom")) {
+				if (inMainWorld(p)) {
 					pfo.castAir_HealingBreeze(p);
 				}
 			}
@@ -916,15 +925,36 @@ public class Faith {
 
 	}
 
-	public static final String NETHER_WORLD = "RunicKingdom_nether";
+	// ---- Where faith powers work (2026-11-23, per Rune) ----
+	/** No faith power ever works in these worlds. */
+	private static final Set<String> NO_POWER_WORLDS = new HashSet<>(
+			Arrays.asList("RunicSky", "RunicSkyNether", "RunicSkyEnd", "RunicMuseum"));
+	/** Powers marked "main world" (Sun, Moon, Fire, Water, Air damage powers, Locust Swarm) work in these. */
+	private static final Set<String> MAIN_WORLDS = new HashSet<>(Arrays.asList("RunicKingdom", "Mining"));
+	/** Netherborn applies in these nethers. */
+	public static final Set<String> NETHER_WORLDS = new HashSet<>(Arrays.asList("RunicKingdom_nether", "MiningNether"));
+
+	static boolean powersAllowed(World w) {
+		return w != null && !NO_POWER_WORLDS.contains(w.getName());
+	}
+
+	static boolean inMainWorld(Player p) {
+		return MAIN_WORLDS.contains(p.getWorld().getName());
+	}
+
+	/** Day by the player's own world clock (Mining has its own day cycle). */
+	static boolean isDay(World w) {
+		long t = w.getTime();
+		return t <= 14000 || t >= 23000;
+	}
 
 	/**
 	 * Netherborn: on ANY world change (portals included; the old teleport-event version missed portal travel)
-	 * grant the buff when entering RunicKingdom's nether and remove it when leaving.
+	 * grant the buff when entering a Netherborn nether and remove it when leaving for a non-nether world.
 	 */
 	public static void tryCast_PlayerChangedWorld(Player p, World from) {
-		boolean nowInNether = p.getWorld().getName().equals(NETHER_WORLD);
-		boolean wasInNether = from != null && from.getName().equals(NETHER_WORLD);
+		boolean nowInNether = NETHER_WORLDS.contains(p.getWorld().getName());
+		boolean wasInNether = from != null && NETHER_WORLDS.contains(from.getName());
 		if (wasInNether && !nowInNether) {
 			// Remove only Netherborn's never-ending effects (so normal potions are kept), whatever the faith now is
 			for (PotionEffectType t : new PotionEffectType[] { PotionEffectType.HEALTH_BOOST, PotionEffectType.DAMAGE_RESISTANCE }) {
@@ -950,24 +980,30 @@ public class Faith {
 
 	/** Nature: Locust Swarm - the player's projectile hit a monster. */
 	public static void tryCast_PlayerShotMonster(EntityDamageByEntityEvent event, LivingEntity monster, Player p) {
+		if (!powersAllowed(p.getWorld())) {
+			return; // no faith powers in RunicSky, its nether/end, or the Museum
+		}
 		Faith pfo = RunicParadise.faithMap.get(p.getUniqueId());
 		if (pfo == null || pfo.getPrimaryFaith() == null) {
 			return;
 		}
 		if (pfo.getPrimaryFaith().equals("Nature") && hasPower(pfo.getPrimaryFaithLevel(), "Locust Swarm")
-				&& p.getWorld().getName().equals("RunicKingdom")) {
+				&& inMainWorld(p)) {
 			pfo.castNature_LocustSwarm(p, monster.getLocation());
 		}
 	}
 
 	public static void tryCast_PlayerHitMonster(EntityDamageByEntityEvent event, Entity monster, Player p) {
+		if (!powersAllowed(p.getWorld())) {
+			return; // no faith powers in RunicSky, its nether/end, or the Museum
+		}
 		Faith pfo = RunicParadise.faithMap.get(p.getUniqueId());
 		if (pfo == null || pfo.getPrimaryFaith() == null) {
 			return;
 		}
 		String faith = pfo.getPrimaryFaith();
 		int level = pfo.getPrimaryFaithLevel();
-		final boolean daytime = (Bukkit.getWorld("RunicKingdom").getTime() <= 14000 || Bukkit.getWorld("RunicKingdom").getTime() >= 23000);
+		final boolean daytime = isDay(p.getWorld());
 
 		switch (faith) {
 
@@ -975,7 +1011,7 @@ public class Faith {
 			if (hasPower(level, "Solar Power") && daytime) {
 
 				// Cast Solar Power if player hit a monster
-				if (p.getWorld().getName().equals("RunicKingdom")) {
+				if (inMainWorld(p)) {
 					pfo.castSun_SolarPower(p.getUniqueId(), p);
 				}
 
@@ -986,7 +1022,7 @@ public class Faith {
 			if (hasPower(level, "Volcanic Fury")) {
 
 				// Cast Volcanic Fury if player hit a monster (was casting Solar Power, daytime only)
-				if (p.getWorld().getName().equals("RunicKingdom")) {
+				if (inMainWorld(p)) {
 					pfo.castFlame_VolcanicFury(p.getUniqueId(), p);
 				}
 
@@ -997,7 +1033,7 @@ public class Faith {
 			if (hasPower(level, "Celestial Healing") && !daytime) {
 
 				// Cast Celestial Healing if player got hit and its night
-				if (p.getWorld().getName().equals("RunicKingdom")) {
+				if (inMainWorld(p)) {
 					pfo.castMoon_CelestialHealing(p.getUniqueId(), p);
 				}
 
@@ -1051,6 +1087,9 @@ public class Faith {
 	}
 
 	public static void tryCast_PlayerKilledMonster(final EntityDeathEvent ede, Player p) {
+		if (!powersAllowed(p.getWorld())) {
+			return; // no faith powers in RunicSky, its nether/end, or the Museum
+		}
 		Faith pfo = RunicParadise.faithMap.get(p.getUniqueId());
 		String faith = pfo == null ? null : pfo.getPrimaryFaith();
 		int level = pfo == null ? 0 : pfo.getPrimaryFaithLevel();
@@ -1444,6 +1483,9 @@ public class Faith {
 			Material.TUFF, Material.GRANITE, Material.DIORITE, Material.ANDESITE, Material.COBBLED_DEEPSLATE);
 
 	void castEarth_EarthsBounty(PlayerInteractEvent e) {
+		if (!powersAllowed(e.getPlayer().getWorld())) {
+			return;
+		}
 
 		Player p = e.getPlayer();
 		if ((p.getItemInHand() != null) && (p.getItemInHand().getType().equals(Material.GLOWSTONE_DUST))) {
@@ -1489,6 +1531,9 @@ public class Faith {
 	// Water OneWithTheSea
 
 	void castWater_DeepWader(PlayerInteractEvent e) {
+		if (!powersAllowed(e.getPlayer().getWorld())) {
+			return;
+		}
 		Player p = e.getPlayer();
 		if ((p.getItemInHand() != null) && (p.getItemInHand().getType().equals(Material.GLOWSTONE_DUST))) {
 

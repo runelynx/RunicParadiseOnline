@@ -961,6 +961,10 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 	@EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
 	public void onPlayerChat(AsyncPlayerChatEvent event) {
 		String playerRankColor;
+		// No profile loaded (e.g. mid-join): leave the message to default chat formatting instead of throwing
+		if (RunicParadise.playerProfiles.get(event.getPlayer().getUniqueId()) == null) {
+			return;
+		}
 
 		if (RunicParadise.playerProfiles.get(event.getPlayer().getUniqueId()).getChatColor() == null) {
 			playerRankColor = ChatColor.GRAY + "";
@@ -1239,9 +1243,6 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 				// Close the inventory screen
 				event.getWhoClicked().closeInventory();
 				// Open new menu
-				log.info("MenuClickDebug - " + event.getWhoClicked().getName() + " clicked Chat Options");
-				log.info("MenuClickDebug - " + playerProfiles.get(event.getWhoClicked().getUniqueId()).playerName + " (" +
-								playerProfiles.get(event.getWhoClicked().getUniqueId()).activeFaith + ") has a valid Profile loaded.");
 				playerProfiles.get(event.getWhoClicked().getUniqueId())
 						.showProfileOptionsMenu(((Player) event.getWhoClicked()));
 
@@ -1267,78 +1268,33 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 		} else
 		// Runic Profile - Chat Options
 		if (event.getView().getTitle().contains("Profile :: Chat Options")) {
-
-			if (event.getSlot() == 12) {
-				// Player is toggling their gender setting
-				// Close the inventory screen
-				event.getWhoClicked().closeInventory();
-				// Change the setting
-				playerProfiles.get(event.getWhoClicked().getUniqueId()).changeGender("T", true);
-				// Reopen the inventory screen
-				playerProfiles.get(event.getWhoClicked().getUniqueId())
-						.showProfileOptionsMenu(((Player) event.getWhoClicked()));
-
-			} else if (event.getSlot() == 53) {
-				// Player is returning to main menu
-				// Close the inventory screen
-				event.getWhoClicked().closeInventory();
-				// Open main menu
-				playerProfiles.get(event.getWhoClicked().getUniqueId())
-						.showServerMenu(((Player) event.getWhoClicked()), ((Player) event.getWhoClicked()));
-
-			} else if (event.getSlot() == 28 && event.getWhoClicked().hasPermission("rp.chatcolors.green")) {
-
-				playerProfiles.get(event.getWhoClicked().getUniqueId()).setChatColor(ChatColor.GREEN, true);
-
-			} else if (event.getSlot() == 29
-					&& event.getWhoClicked().hasPermission("rp.chatcolors.dark_green")) {
-
-				playerProfiles.get(event.getWhoClicked().getUniqueId()).setChatColor(ChatColor.DARK_GREEN, true);
-
-			} else if (event.getSlot() == 30
-					&& event.getWhoClicked().hasPermission("rp.chatcolors.yellow")) {
-
-				playerProfiles.get(event.getWhoClicked().getUniqueId()).setChatColor(ChatColor.YELLOW, true);
-
-			} else if (event.getSlot() == 31 && event.getWhoClicked().hasPermission("rp.chatcolors.gold")) {
-
-				playerProfiles.get(event.getWhoClicked().getUniqueId()).setChatColor(ChatColor.GOLD, true);
-
-			} else if (event.getSlot() == 32 && event.getWhoClicked().hasPermission("rp.chatcolors.aqua")) {
-
-				playerProfiles.get(event.getWhoClicked().getUniqueId()).setChatColor(ChatColor.AQUA, true);
-
-			} else if (event.getSlot() == 33
-					&& event.getWhoClicked().hasPermission("rp.chatcolors.dark_aqua")) {
-
-				playerProfiles.get(event.getWhoClicked().getUniqueId()).setChatColor(ChatColor.DARK_AQUA, true);
-
-			} else if (event.getSlot() == 34 && event.getWhoClicked().hasPermission("rp.chatcolors.blue")) {
-
-				playerProfiles.get(event.getWhoClicked().getUniqueId()).setChatColor(ChatColor.BLUE, true);
-
-			} else if (event.getSlot() == 38
-					&& event.getWhoClicked().hasPermission("rp.chatcolors.light_purple")) {
-
-				playerProfiles.get(event.getWhoClicked().getUniqueId()).setChatColor(ChatColor.LIGHT_PURPLE, true);
-
-			} else if (event.getSlot() == 39
-					&& event.getWhoClicked().hasPermission("rp.chatcolors.dark_purple")) {
-
-				playerProfiles.get(event.getWhoClicked().getUniqueId()).setChatColor(ChatColor.DARK_PURPLE, true);
-
-			} else if (event.getSlot() == 41 && event.getWhoClicked().hasPermission("rp.chatcolors.red")) {
-
-				playerProfiles.get(event.getWhoClicked().getUniqueId()).setChatColor(ChatColor.RED, true);
-
-			} else if (event.getSlot() == 42 && event.getWhoClicked().hasPermission("rp.chatcolors.white")) {
-
-				playerProfiles.get(event.getWhoClicked().getUniqueId()).setChatColor(ChatColor.WHITE, true);
-
-			}
-
 			event.setCancelled(true);
-
+			// Only clicks inside the menu (raw slots); getSlot() also matched the player's own inventory
+			int raw = event.getRawSlot();
+			if (raw < 0 || raw >= event.getView().getTopInventory().getSize() || !(event.getWhoClicked() instanceof Player)) {
+				return;
+			}
+			final Player clicker = (Player) event.getWhoClicked();
+			final RunicProfile profile = playerProfiles.get(clicker.getUniqueId());
+			if (profile == null) {
+				return;
+			}
+			if (raw == 12) {
+				// Toggle gender, then refresh the menu (next tick: never reopen inventories inside a click event)
+				profile.changeGender("T", true);
+				Bukkit.getScheduler().runTask(instance, () -> profile.showProfileOptionsMenu(clicker));
+			} else if (raw == 53) {
+				Bukkit.getScheduler().runTask(instance, () -> profile.showServerMenu(clicker, clicker));
+			} else {
+				RunicProfile.ChatColorOption opt = RunicProfile.chatColorOptionAt(raw);
+				// Same rule as the menu display (permission, or rank reached), so what you see is what you can pick
+				if (opt != null && RunicProfile.canUseChatColor(clicker, opt)) {
+					profile.setChatColor(opt.color, true);
+					RunicMessaging.sendMessage(clicker, RunicFormat.SYSTEM,
+							"Your rank and name now appear " + opt.color + opt.name.toLowerCase() + ChatColor.GRAY + " in chat.");
+					Bukkit.getScheduler().runTask(instance, () -> profile.showProfileOptionsMenu(clicker));
+				}
+			}
 		} else
 		// Skynet Spawn Menu
 		if (event.getView().getTitle().contains("SkyNet Warp Orb")) {

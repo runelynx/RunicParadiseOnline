@@ -1392,6 +1392,42 @@ public class RunicProfile {
 		return type == EntityType.ZOMBIFIED_PIGLIN ? "PIG_ZOMBIE" : type.name();
 	}
 
+	private static final java.util.regex.Pattern KILL_LINE = java.util.regex.Pattern
+			.compile("^" + ChatColor.BLUE + "(.+?): " + ChatColor.WHITE + "(\\d+)(.*)$");
+
+	/**
+	 * Kill-count tooltip polish: "1,002" separators, zero counts dimmed, then a category total and
+	 * how many of the category's mobs the player has killed at least once.
+	 */
+	static List<String> polishKillLore(List<String> lore) {
+		List<String> out = new ArrayList<>();
+		long total = 0;
+		int types = 0;
+		int discovered = 0;
+		for (String line : lore) {
+			java.util.regex.Matcher m = KILL_LINE.matcher(line);
+			if (!m.matches()) {
+				out.add(line);
+				continue;
+			}
+			long n = Long.parseLong(m.group(2));
+			types++;
+			total += n;
+			if (n > 0) {
+				discovered++;
+				out.add(ChatColor.BLUE + m.group(1) + ": " + ChatColor.WHITE + String.format("%,d", n) + m.group(3));
+			} else {
+				out.add(ChatColor.DARK_GRAY + m.group(1) + ": 0" + ChatColor.stripColor(m.group(3)));
+			}
+		}
+		if (types > 0) {
+			out.add("");
+			out.add(ChatColor.GOLD + "Total: " + ChatColor.WHITE + String.format("%,d", total));
+			out.add(ChatColor.GOLD + "Discovered: " + ChatColor.WHITE + discovered + "/" + types);
+		}
+		return out;
+	}
+
 	/** Kill count for a mob type (0 if none / not tracked). */
 	public int getKillCount(EntityType type) {
 		return this.mobKillCountsMap.getOrDefault(type, 0);
@@ -1808,8 +1844,73 @@ public class RunicProfile {
 		bl4Animals.setItemMeta(bl4Meta);
 		kcMenu.setItem(43, bl4Animals);
 
+		// Polish every category's tooltip: thousands separators, dim zero counts, category total and
+		// "Discovered a/b"; plus the all-time total on the center head.
+		for (int slot = 0; slot < kcMenu.getSize(); slot++) {
+			if (slot == 4) {
+				continue;
+			}
+			ItemStack item = kcMenu.getItem(slot);
+			if (item == null || !item.hasItemMeta() || !item.getItemMeta().hasLore()) {
+				continue;
+			}
+			ItemMeta im = item.getItemMeta();
+			im.setLore(polishKillLore(im.getLore()));
+			item.setItemMeta(im);
+		}
+		ItemStack center = kcMenu.getItem(4);
+		if (center != null && center.hasItemMeta()) {
+			ItemMeta cm = center.getItemMeta();
+			List<String> lore = cm.hasLore() ? new ArrayList<>(cm.getLore()) : new ArrayList<>();
+			long allTime = 0;
+			for (int v : this.mobKillCountsMap.values()) {
+				allTime += v;
+			}
+			lore.add("");
+			lore.add(ChatColor.GOLD + "All-time kills: " + ChatColor.WHITE + String.format("%,d", allTime));
+			cm.setLore(lore);
+			center.setItemMeta(cm);
+		}
+
 		p.openInventory(kcMenu);
 
+	}
+
+	/** A chat colour choice in the Chat Options menu. rank == null means permission (donor) only. */
+	static final class ChatColorOption {
+		final int slot; final ChatColor color; final Material wool; final String name; final String perm; final String rank;
+		ChatColorOption(int slot, ChatColor color, Material wool, String name, String perm, String rank) {
+			this.slot = slot; this.color = color; this.wool = wool; this.name = name; this.perm = perm; this.rank = rank;
+		}
+		String rankLabel() {
+			return rank.substring(0, 1).toUpperCase() + rank.substring(1);
+		}
+	}
+
+	static final List<ChatColorOption> CHAT_COLOR_OPTIONS = Arrays.asList(
+			new ChatColorOption(28, ChatColor.GREEN, Material.LIME_WOOL, "Green", "rp.chatcolors.green", "seeker"),
+			new ChatColorOption(29, ChatColor.DARK_GREEN, Material.GREEN_WOOL, "Dark Green", "rp.chatcolors.dark_green", "runner"),
+			new ChatColorOption(30, ChatColor.YELLOW, Material.YELLOW_WOOL, "Yellow", "rp.chatcolors.yellow", "singer"),
+			new ChatColorOption(31, ChatColor.GOLD, Material.ORANGE_WOOL, "Gold", "rp.chatcolors.gold", "brawler"),
+			new ChatColorOption(32, ChatColor.AQUA, Material.LIGHT_BLUE_WOOL, "Aqua", "rp.chatcolors.aqua", "keeper"),
+			new ChatColorOption(33, ChatColor.DARK_AQUA, Material.CYAN_WOOL, "Dark Aqua", "rp.chatcolors.dark_aqua", "guard"),
+			new ChatColorOption(34, ChatColor.BLUE, Material.BLUE_WOOL, "Blue", "rp.chatcolors.blue", "hunter"),
+			new ChatColorOption(38, ChatColor.LIGHT_PURPLE, Material.MAGENTA_WOOL, "Light Purple", "rp.chatcolors.light_purple", "warder"),
+			new ChatColorOption(39, ChatColor.DARK_PURPLE, Material.PURPLE_WOOL, "Dark Purple", "rp.chatcolors.dark_purple", "champion"),
+			new ChatColorOption(41, ChatColor.RED, Material.RED_WOOL, "Red", "rp.chatcolors.red", "master"),
+			new ChatColorOption(42, ChatColor.WHITE, Material.WHITE_WOOL, "White", "rp.chatcolors.white", null));
+
+	static boolean canUseChatColor(Player p, ChatColorOption opt) {
+		return p != null && (p.hasPermission(opt.perm) || (opt.rank != null && p.hasPermission("group." + opt.rank)));
+	}
+
+	static ChatColorOption chatColorOptionAt(int slot) {
+		for (ChatColorOption o : CHAT_COLOR_OPTIONS) {
+			if (o.slot == slot) {
+				return o;
+			}
+		}
+		return null;
 	}
 
 	public void showProfileOptionsMenu(Player p) {
@@ -1882,189 +1983,31 @@ public class RunicProfile {
 
 		poMenu.setItem(12, genderIcon);
 
-		// CHAT COLORS
-
-		ItemStack colorIcon;
-		ItemMeta colorMeta;
-		ArrayList<String> colorLore = new ArrayList<String>();
-		colorLore.add(ChatColor.YELLOW + "Move your mouse over each icon below");
-		colorLore.add(ChatColor.YELLOW + "to see what options are available");
-		colorLore.add(ChatColor.YELLOW + "and how to change each of them.");
-
+		// CHAT COLORS (2026-11-23): one table drives what is shown AND what a click allows.
+		// A colour is available with its rp.chatcolors.* permission (donor groups) or once the player has
+		// reached its rank: "group.<rank>" is true for the player's rank and every rank below it.
 		Player player = Bukkit.getPlayer(this.getPlayerID());
-
-		// 28 GREEN
-		if (player.hasPermission("rp.chatcolors.green")
-				|| RunicParadise.perms.getPrimaryGroup(player).equals("Seeker")) {
-			colorIcon = new ItemStack(Material.LIME_WOOL);
-			colorMeta = colorIcon.getItemMeta();
-			colorMeta.setDisplayName(ChatColor.GREEN + "" + ChatColor.BOLD + "Green");
-
-			colorLore.clear();
-			colorLore.add(ChatColor.GREEN + "Click here to make your rank");
-			colorLore.add(ChatColor.GREEN + "and name in chat appear green!");
-
+		for (ChatColorOption opt : CHAT_COLOR_OPTIONS) {
+			if (!canUseChatColor(player, opt)) {
+				continue;
+			}
+			boolean active = opt.color.toString().equals(this.getChatColor());
+			ItemStack colorIcon = new ItemStack(opt.wool);
+			ItemMeta colorMeta = colorIcon.getItemMeta();
+			colorMeta.setDisplayName(opt.color + "" + ChatColor.BOLD + opt.name);
+			List<String> colorLore = new ArrayList<>();
+			if (active) {
+				colorLore.add(ChatColor.GREEN + "✔ Currently active");
+				colorMeta.addEnchant(org.bukkit.enchantments.Enchantment.LUCK, 1, true);
+				colorMeta.addItemFlags(org.bukkit.inventory.ItemFlag.HIDE_ENCHANTS);
+			} else {
+				colorLore.add(opt.color + "Click here to make your rank");
+				colorLore.add(opt.color + "and name in chat appear " + opt.name.toLowerCase() + "!");
+			}
+			colorLore.add(ChatColor.DARK_GRAY + (opt.rank == null ? "Donor colour" : "Unlocked at rank " + opt.rankLabel()));
 			colorMeta.setLore(colorLore);
 			colorIcon.setItemMeta(colorMeta);
-			poMenu.setItem(28, colorIcon);
-		}
-
-		// 29 D GREEN
-		if (player.hasPermission("rp.chatcolors.dark_green")
-				|| RunicParadise.perms.getPrimaryGroup(player).equals("Runner")) {
-			colorIcon = new ItemStack(Material.GREEN_WOOL);
-			colorMeta = colorIcon.getItemMeta();
-			colorMeta.setDisplayName(ChatColor.DARK_GREEN + "" + ChatColor.BOLD + "Dark Green");
-
-			colorLore.clear();
-			colorLore.add(ChatColor.DARK_GREEN + "Click here to make your rank");
-			colorLore.add(ChatColor.DARK_GREEN + "and name in chat appear dark green!");
-
-			colorMeta.setLore(colorLore);
-			colorIcon.setItemMeta(colorMeta);
-			poMenu.setItem(29, colorIcon);
-		}
-
-		// 30 YELLOW
-		if (player.hasPermission("rp.chatcolors.yellow")
-				|| RunicParadise.perms.getPrimaryGroup(player).equals("Singer")) {
-			colorIcon = new ItemStack(Material.YELLOW_WOOL);
-			colorMeta = colorIcon.getItemMeta();
-			colorMeta.setDisplayName(ChatColor.YELLOW + "" + ChatColor.BOLD + "Yellow");
-
-			colorLore.clear();
-			colorLore.add(ChatColor.YELLOW + "Click here to make your rank");
-			colorLore.add(ChatColor.YELLOW + "and name in chat appear yellow!");
-
-			colorMeta.setLore(colorLore);
-			colorIcon.setItemMeta(colorMeta);
-			poMenu.setItem(30, colorIcon);
-		}
-
-		// 31 GOLD
-		if (player.hasPermission("rp.chatcolors.gold")
-				|| RunicParadise.perms.getPrimaryGroup(player).equals("Brawler")) {
-			colorIcon = new ItemStack(Material.ORANGE_WOOL);
-			colorMeta = colorIcon.getItemMeta();
-			colorMeta.setDisplayName(ChatColor.GOLD + "" + ChatColor.BOLD + "Gold");
-
-			colorLore.clear();
-			colorLore.add(ChatColor.GOLD + "Click here to make your rank");
-			colorLore.add(ChatColor.GOLD + "and name in chat appear gold!");
-
-			colorMeta.setLore(colorLore);
-			colorIcon.setItemMeta(colorMeta);
-			poMenu.setItem(31, colorIcon);
-		}
-
-		// 32 AQUA
-		if (player.hasPermission("rp.chatcolors.aqua")
-				|| RunicParadise.perms.getPrimaryGroup(player).equals("Keeper")) {
-			colorIcon = new ItemStack(Material.LIGHT_BLUE_WOOL);
-			colorMeta = colorIcon.getItemMeta();
-			colorMeta.setDisplayName(ChatColor.AQUA + "" + ChatColor.BOLD + "Aqua");
-
-			colorLore.clear();
-			colorLore.add(ChatColor.AQUA + "Click here to make your rank");
-			colorLore.add(ChatColor.AQUA + "and name in chat appear aqua!");
-
-			colorMeta.setLore(colorLore);
-			colorIcon.setItemMeta(colorMeta);
-			poMenu.setItem(32, colorIcon);
-		}
-
-		// 33 D AQUA
-		if (player.hasPermission("rp.chatcolors.dark_aqua")
-				|| RunicParadise.perms.getPrimaryGroup(player).equals("Guard")) {
-			colorIcon = new ItemStack(Material.CYAN_WOOL);
-			colorMeta = colorIcon.getItemMeta();
-			colorMeta.setDisplayName(ChatColor.DARK_AQUA + "" + ChatColor.BOLD + "Dark Aqua");
-
-			colorLore.clear();
-			colorLore.add(ChatColor.DARK_AQUA + "Click here to make your rank");
-			colorLore.add(ChatColor.DARK_AQUA + "and name in chat appear dark aqua!");
-
-			colorMeta.setLore(colorLore);
-			colorIcon.setItemMeta(colorMeta);
-			poMenu.setItem(33, colorIcon);
-		}
-
-		// 34 BLUE
-		if (player.hasPermission("rp.chatcolors.blue")
-				|| RunicParadise.perms.getPrimaryGroup(player).equals("Hunter")) {
-			colorIcon = new ItemStack(Material.BLUE_WOOL);
-			colorMeta = colorIcon.getItemMeta();
-			colorMeta.setDisplayName(ChatColor.BLUE + "" + ChatColor.BOLD + "Blue");
-
-			colorLore.clear();
-			colorLore.add(ChatColor.BLUE + "Click here to make your rank");
-			colorLore.add(ChatColor.BLUE + "and name in chat appear blue!");
-
-			colorMeta.setLore(colorLore);
-			colorIcon.setItemMeta(colorMeta);
-			poMenu.setItem(34, colorIcon);
-		}
-
-		// 38 L PURPLE
-		if (player.hasPermission("rp.chatcolors.light_purple")
-				|| RunicParadise.perms.getPrimaryGroup(player).equals("Warder")) {
-			colorIcon = new ItemStack(Material.MAGENTA_WOOL);
-			colorMeta = colorIcon.getItemMeta();
-			colorMeta.setDisplayName(ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + "Light Purple");
-
-			colorLore.clear();
-			colorLore.add(ChatColor.LIGHT_PURPLE + "Click here to make your rank");
-			colorLore.add(ChatColor.LIGHT_PURPLE + "and name in chat appear light purple!");
-
-			colorMeta.setLore(colorLore);
-			colorIcon.setItemMeta(colorMeta);
-			poMenu.setItem(38, colorIcon);
-		}
-
-		// 39 D PURPLE
-		if (player.hasPermission("rp.chatcolors.dark_purple")
-				|| RunicParadise.perms.getPrimaryGroup(player).equals("Champion")) {
-			colorIcon = new ItemStack(Material.PURPLE_WOOL);
-			colorMeta = colorIcon.getItemMeta();
-			colorMeta.setDisplayName(ChatColor.DARK_PURPLE + "" + ChatColor.BOLD + "Dark Purple");
-
-			colorLore.clear();
-			colorLore.add(ChatColor.DARK_PURPLE + "Click here to make your rank");
-			colorLore.add(ChatColor.DARK_PURPLE + "and name in chat appear dark purple!");
-
-			colorMeta.setLore(colorLore);
-			colorIcon.setItemMeta(colorMeta);
-			poMenu.setItem(39, colorIcon);
-		}
-
-		// 41 RED
-		if (player.hasPermission("rp.chatcolors.red") || RunicParadise.perms.getPrimaryGroup(player).equals("Master")) {
-			colorIcon = new ItemStack(Material.RED_WOOL);
-			colorMeta = colorIcon.getItemMeta();
-			colorMeta.setDisplayName(ChatColor.RED + "" + ChatColor.BOLD + "Red");
-
-			colorLore.clear();
-			colorLore.add(ChatColor.RED + "Click here to make your rank");
-			colorLore.add(ChatColor.RED + "and name in chat appear red!");
-
-			colorMeta.setLore(colorLore);
-			colorIcon.setItemMeta(colorMeta);
-			poMenu.setItem(41, colorIcon);
-		}
-
-		// 42 WHITE
-		if (player.hasPermission("rp.chatcolors.white")) {
-			colorIcon = new ItemStack(Material.WHITE_WOOL);
-			colorMeta = colorIcon.getItemMeta();
-			colorMeta.setDisplayName(ChatColor.WHITE + "" + ChatColor.BOLD + "White");
-
-			colorLore.clear();
-			colorLore.add(ChatColor.WHITE + "Click here to make your rank");
-			colorLore.add(ChatColor.WHITE + "and name in chat appear white!");
-
-			colorMeta.setLore(colorLore);
-			colorIcon.setItemMeta(colorMeta);
-			poMenu.setItem(42, colorIcon);
+			poMenu.setItem(opt.slot, colorIcon);
 		}
 
 		p.openInventory(poMenu);
