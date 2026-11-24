@@ -43,30 +43,66 @@ final class FaithEffects {
 				p.getLocation().add(0, 0.1, 0), 6, 0.35, 0.05, 0.35, 0, SUN_GOLD));
 	}
 
-	/** Sunflare: a ring of fire expanding to the spell radius, then a flame puff on each ignited monster. */
+	private static final Particle.DustOptions SUN_WHITE = new Particle.DustOptions(Color.fromRGB(255, 245, 200), 1.6f);
+
+	/**
+	 * Sunflare, a small sun going off around the player:
+	 * 1. a bright flash and a burst of light at chest height,
+	 * 2. twelve sunburst rays shooting out to the spell radius over half a second (gold light + flame tips),
+	 * 3. a beam of sunlight from the player to each ignited monster, ending in a flame burst on it.
+	 */
 	static void sunflare(final Player p, final double radius, final List<Entity> ignited) {
-		final Location center = p.getLocation().add(0, 0.3, 0);
+		final Location center = p.getLocation().add(0, 1.0, 0);
 		final World w = center.getWorld();
-		w.playSound(center, Sound.ENTITY_BLAZE_SHOOT, 0.7f, 0.8f);
-		w.playSound(center, Sound.ITEM_FIRECHARGE_USE, 0.6f, 1.0f);
+		w.spawnParticle(Particle.FLASH, center, 1);
+		w.spawnParticle(Particle.END_ROD, center, 40, 0.2, 0.2, 0.2, 0.25);
+		w.spawnParticle(Particle.REDSTONE, center, 30, 0.6, 0.6, 0.6, 0, SUN_WHITE);
+		w.playSound(center, Sound.ENTITY_BLAZE_SHOOT, 0.8f, 0.7f);
+		w.playSound(center, Sound.ITEM_FIRECHARGE_USE, 0.7f, 0.9f);
+		w.playSound(center, Sound.BLOCK_BEACON_POWER_SELECT, 0.6f, 2.0f);
+
+		final int rays = 12;
 		new BukkitRunnable() {
-			double r = 1;
+			double r = 0.8;
 			@Override
 			public void run() {
-				ring(w, center, r, Particle.FLAME, null, 0.02);
-				r += 1;
+				for (int i = 0; i < rays; i++) {
+					double a = 2 * Math.PI * i / rays;
+					// each tick draws the next stretch of every ray, so the burst visibly travels outward
+					for (double d = r; d < r + 1.6 && d <= radius; d += 0.4) {
+						Location at = center.clone().add(Math.cos(a) * d, -0.4, Math.sin(a) * d);
+						w.spawnParticle(Particle.REDSTONE, at, 1, 0, 0, 0, 0, SUN_GOLD);
+					}
+					Location tip = center.clone().add(Math.cos(a) * Math.min(r + 1.6, radius), -0.4, Math.sin(a) * Math.min(r + 1.6, radius));
+					w.spawnParticle(Particle.FLAME, tip, 2, 0.05, 0.05, 0.05, 0.01);
+				}
+				r += 1.6;
 				if (r > radius) {
 					for (Entity e : ignited) {
-						if (e.isValid()) {
-							Location at = e.getLocation().add(0, e.getHeight() * 0.6, 0);
-							w.spawnParticle(Particle.FLAME, at, 12, 0.25, 0.3, 0.25, 0.03);
-							w.spawnParticle(Particle.SMOKE_NORMAL, at, 6, 0.2, 0.3, 0.2, 0.02);
+						if (!e.isValid()) {
+							continue;
 						}
+						Location target = e.getLocation().add(0, e.getHeight() * 0.6, 0);
+						beam(w, center, target, Particle.END_ROD);
+						w.spawnParticle(Particle.FLAME, target, 16, 0.25, 0.35, 0.25, 0.04);
+						w.spawnParticle(Particle.LAVA, target, 3, 0.2, 0.2, 0.2, 0);
 					}
+					w.playSound(center, Sound.ENTITY_GENERIC_BURN, 0.6f, 1.2f);
 					cancel();
 				}
 			}
-		}.runTaskTimer(RunicParadise.getInstance(), 0, 1);
+		}.runTaskTimer(RunicParadise.getInstance(), 2, 1);
+	}
+
+	/** A straight line of particles from a to b (about 3 per block). */
+	private static void beam(World w, Location a, Location b, Particle type) {
+		double dist = a.distance(b);
+		int steps = (int) Math.max(2, Math.min(60, dist * 3));
+		for (int i = 0; i <= steps; i++) {
+			double t = (double) i / steps;
+			Location at = a.clone().add((b.getX() - a.getX()) * t, (b.getY() - a.getY()) * t, (b.getZ() - a.getZ()) * t);
+			w.spawnParticle(type, at, 1, 0, 0, 0, 0);
+		}
 	}
 
 	// ---------------------------------------------------------------- Moon

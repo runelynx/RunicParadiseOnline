@@ -1197,12 +1197,34 @@ public class Faith {
 			}
 
 		} else {
-			// Player is maxxed
-			p.sendMessage(ChatColor.GRAY + "[" + ChatColor.BLUE + "Runic" + ChatColor.DARK_AQUA + "Faith"
-					+ ChatColor.GRAY + "] " + ChatColor.BLUE + "Your " + faithName + ChatColor.BLUE
-					+ " faith cannot grow any stronger!");
+			// Player is maxxed. Faith-weapon kills used to repeat this in chat on EVERY kill; now it shows in the
+			// action bar at most once every 10 minutes per player.
+			long now = System.currentTimeMillis();
+			Long last = MAXED_NOTICE.get(p.getUniqueId());
+			if (last == null || now - last > 10 * 60 * 1000L) {
+				MAXED_NOTICE.put(p.getUniqueId(), now);
+				p.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(ChatColor.BLUE + "Your "
+						+ faithName + " faith is at its maximum level and cannot grow any stronger."));
+			}
 			return 0;
 		}
+	}
+
+	private static final Map<UUID, Long> MAXED_NOTICE = new HashMap<>();
+
+	private static final Map<String, String> FAITH_ICONS = new HashMap<>();
+	static {
+		FAITH_ICONS.put("Sun", ChatColor.GOLD + "☀");
+		FAITH_ICONS.put("Moon", ChatColor.AQUA + "☾");
+		FAITH_ICONS.put("Fire", ChatColor.RED + "✹");
+		FAITH_ICONS.put("Water", ChatColor.BLUE + "≈");
+		FAITH_ICONS.put("Air", ChatColor.WHITE + "≋");
+		FAITH_ICONS.put("Earth", ChatColor.DARK_GREEN + "◆");
+		FAITH_ICONS.put("Nature", ChatColor.GREEN + "❀");
+		FAITH_ICONS.put("Nether", ChatColor.DARK_RED + "✦");
+		FAITH_ICONS.put("Aether", ChatColor.YELLOW + "✧");
+		FAITH_ICONS.put("Time", ChatColor.LIGHT_PURPLE + "⌛");
+		FAITH_ICONS.put("Fate", ChatColor.DARK_PURPLE + "✪");
 	}
 
 	private int trySkillUpViaPrayer(Player p, String faithName, boolean withKarma) {
@@ -1253,11 +1275,16 @@ public class Faith {
 		return this.primaryFaithName;
 	}
 
+	/**
+	 * Power cast notice in the action bar (above the hotbar) instead of two lines of chat:
+	 * "☀ Solar Power  You feel the explosive fury of the sun within you."
+	 */
 	private void sendCastMessage(Player p, String spellName, String faithName) {
-		p.sendMessage(ChatColor.GRAY + "[" + ChatColor.BLUE + "Runic" + ChatColor.DARK_AQUA + "Faith" + ChatColor.GRAY
-				+ "] " + ChatColor.BLUE + RunicParadise.faithSettingsMap.get(faithName)[5] + " Casting "
-				+ ChatColor.GRAY + spellName + ChatColor.BLUE + "!");
-
+		String icon = FAITH_ICONS.getOrDefault(faithName, ChatColor.BLUE + "✦");
+		String flavour = RunicParadise.faithSettingsMap.containsKey(faithName)
+				? RunicParadise.faithSettingsMap.get(faithName)[5] : "";
+		p.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(icon + " " + ChatColor.WHITE
+				+ ChatColor.BOLD + spellName + "  " + ChatColor.GRAY + ChatColor.ITALIC + flavour));
 	}
 
 	private void castSun_Sunflare(UUID pUUID, Player p) {
