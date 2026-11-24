@@ -733,7 +733,7 @@ public class Faith {
 					+ ChatColor.GRAY + "] " + ChatColor.BLUE + "Your " + faithName + ChatColor.BLUE
 					+ " faith grows stronger! " + ChatColor.GREEN + this.faithLevels.get(faithName) + ChatColor.GRAY
 					+ "/" + RunicParadise.faithSettingsMap.get(faithName)[4];
-			p.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&', msg1)));
+			ActionBars.send(p, ChatColor.translateAlternateColorCodes('&', msg1));
 
 			if (this.faithLevels.get(faithName) == maxLevel) {
 				for (Player q : Bukkit.getOnlinePlayers()) {
@@ -1203,8 +1203,8 @@ public class Faith {
 			Long last = MAXED_NOTICE.get(p.getUniqueId());
 			if (last == null || now - last > 10 * 60 * 1000L) {
 				MAXED_NOTICE.put(p.getUniqueId(), now);
-				p.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(ChatColor.BLUE + "Your "
-						+ faithName + " faith is at its maximum level and cannot grow any stronger."));
+				ActionBars.send(p, ChatColor.BLUE + "Your "
+						+ faithName + " faith is at its maximum level and cannot grow any stronger.");
 			}
 			return 0;
 		}
@@ -1283,14 +1283,19 @@ public class Faith {
 		String icon = FAITH_ICONS.getOrDefault(faithName, ChatColor.BLUE + "✦");
 		String flavour = RunicParadise.faithSettingsMap.containsKey(faithName)
 				? RunicParadise.faithSettingsMap.get(faithName)[5] : "";
-		p.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(icon + " " + ChatColor.WHITE
-				+ ChatColor.BOLD + spellName + "  " + ChatColor.GRAY + ChatColor.ITALIC + flavour));
+		ActionBars.send(p, icon + " " + ChatColor.WHITE
+				+ ChatColor.BOLD + spellName + "  " + ChatColor.GRAY + ChatColor.ITALIC + flavour);
 	}
 
+	private static final Map<UUID, Long> SUNFLARE_LAST = new HashMap<>();
+
 	private void castSun_Sunflare(UUID pUUID, Player p) {
-		// 2% chance on receiving damage to set all nearby monsters on fire
+		// 15% chance on receiving damage, at most once every 30 s per player (was ~3% with no cooldown)
 		String spellName = "Sunflare";
-		if ((RunicParadise.randomSeed.nextInt(101)) <= 2) {
+		Long lastFlare = SUNFLARE_LAST.get(p.getUniqueId());
+		boolean ready = lastFlare == null || System.currentTimeMillis() - lastFlare >= 30_000L;
+		if (ready && RunicParadise.randomSeed.nextInt(100) < 15) {
+			SUNFLARE_LAST.put(p.getUniqueId(), System.currentTimeMillis());
 			List<Entity> ignited = new ArrayList<>();
 			for (Entity tmp : p.getNearbyEntities(8, 8, 8)) {
 				if (tmp instanceof Monster) {
@@ -1505,7 +1510,7 @@ public class Faith {
 			for (Entity entity : targets) {
 				if (entity instanceof Player) {
 					((LivingEntity) entity).addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 200, 1));
-					entity.sendMessage(ChatColor.GRAY + "" + ChatColor.ITALIC + "You feel refreshed by a soothing breeze");
+					ActionBars.send((Player) entity, ChatColor.WHITE + "≋ " + ChatColor.GRAY + ChatColor.ITALIC + "You feel refreshed by a soothing breeze");
 				} else if (entity instanceof Wolf && ((Wolf) entity).isTamed()) {
 					((Wolf) entity).addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 200, 1));
 				}
@@ -2161,12 +2166,12 @@ public class Faith {
 				if (p.getInventory().firstEmpty() != -1) {
 					p.getInventory().addItem(Borderlands.specialLootDrops("DukeEssence", p.getUniqueId()));
 					RunicMessaging.sendMessage(p, RunicFormat.RANKS,
-							"Your faith has crystallized a memory into your inventory!");
+							"✦ Your faith crystallized a memory!");
 					RunicParadise.playerProfiles.get(p.getUniqueId()).logSpecialRankDrop("DukeEssence",
 							"Faith " + info);
 				} else {
 					RunicMessaging.sendMessage(p, RunicFormat.ERROR,
-							"Make room in your inventory for memory drops please.");
+							"Inventory full! A faith memory could not drop.");
 				}
 
 			}

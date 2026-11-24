@@ -505,6 +505,8 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 		}
 
 		faithSystem = new FaithCore();
+		// Clear KillerMoney's kill message from the action bar after 1 s (registered once all plugins are enabled)
+		Bukkit.getScheduler().runTask(this, () -> ActionBars.registerKillerMoneyShortener(this));
 		new Raffle();
 		new Ranks();
 

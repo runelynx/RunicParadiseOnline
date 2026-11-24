@@ -333,7 +333,7 @@ public class Borderlands {
 													// 1000)
 			Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "crate give to " + p.getName() + " SlimefunCrate 1");
 			RunicMessaging.sendMessage(p, RunicFormat.BORDERLANDS,
-					"You found a key left behind by the " + event.getEntity().getCustomName());
+					"Key found on the " + event.getEntity().getCustomName() + ChatColor.GRAY + "!");
 		}
 
 	}

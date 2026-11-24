@@ -107,17 +107,40 @@ final class FaithEffects {
 
 	// ---------------------------------------------------------------- Moon
 
-	/** Celestial Healing: pale moonlight drifting down onto the player, ending in a few hearts. */
+	/**
+	 * Celestial Healing: a moonbeam pours down onto the player, then moonlight keeps falling around them
+	 * (following as they move) for the whole 15 s Regeneration, with a heart each time Regeneration I heals.
+	 */
 	static void celestialHealing(final Player p) {
 		final World w = p.getWorld();
 		final Location base = p.getLocation();
-		for (int i = 0; i < 30; i++) {
-			Location at = base.clone().add((Math.random() - 0.5) * 1.2, 1.2 + Math.random() * 2.3, (Math.random() - 0.5) * 1.2);
-			w.spawnParticle(Particle.REDSTONE, at, 1, 0, 0, 0, 0, MOON_SILVER);
+		// opening moonbeam: a column of light from 4 blocks up down to the player
+		for (double y = 4.0; y >= 0.2; y -= 0.25) {
+			Location at = base.clone().add(0, y, 0);
+			w.spawnParticle(Particle.END_ROD, at, 1, 0.05, 0, 0.05, 0);
+			w.spawnParticle(Particle.REDSTONE, at, 2, 0.25, 0.05, 0.25, 0, MOON_SILVER);
 		}
-		w.spawnParticle(Particle.END_ROD, base.clone().add(0, 2.6, 0), 8, 0.3, 0.4, 0.3, -0.02);
-		w.spawnParticle(Particle.HEART, base.clone().add(0, 1.9, 0), 4, 0.4, 0.3, 0.4, 0);
-		w.playSound(base, Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.8f, 0.7f);
+		w.spawnParticle(Particle.HEART, base.clone().add(0, 2.0, 0), 3, 0.4, 0.2, 0.4, 0);
+		w.playSound(base, Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.9f, 0.7f);
+		w.playSound(base, Sound.BLOCK_BEACON_POWER_SELECT, 0.35f, 1.4f);
+
+		final int[] tick = { 0 };
+		aura(p, 300, 5, () -> {
+			Location at = p.getLocation();
+			World pw = at.getWorld();
+			// moonlight motes drifting down around the player
+			for (int i = 0; i < 4; i++) {
+				double a = Math.random() * 2 * Math.PI;
+				double r = 0.4 + Math.random() * 0.5;
+				pw.spawnParticle(Particle.REDSTONE, at.clone().add(Math.cos(a) * r, 2.2 + Math.random() * 0.6, Math.sin(a) * r),
+						1, 0, 0, 0, 0, MOON_SILVER);
+			}
+			pw.spawnParticle(Particle.END_ROD, at.clone().add(0, 2.6, 0), 1, 0.3, 0.1, 0.3, 0.0);
+			tick[0] += 5;
+			if (tick[0] % 50 == 0) { // Regeneration I heals about every 2.5 s
+				pw.spawnParticle(Particle.HEART, at.clone().add(0, 2.1, 0), 1, 0.2, 0.1, 0.2, 0);
+			}
+		});
 	}
 
 	/**
