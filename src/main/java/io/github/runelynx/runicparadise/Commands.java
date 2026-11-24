@@ -164,7 +164,7 @@ public class Commands implements CommandExecutor {
             Connection connection = MySQL.openConnection();
             Statement statement = connection.createStatement();
             ResultSet explorerLocData = statement.executeQuery(
-                    "SELECT * FROM rp_ExplorerLocations WHERE Status != 'Disabled' ORDER BY `Order` ASC;");
+                    "SELECT * FROM rp_ExplorerLocations WHERE Status = 'Enabled' ORDER BY `Order` ASC;");
             // if (!playerData.first() && !playerData.next()) {
             if (!explorerLocData.isBeforeFirst()) {
                 // No results

@@ -102,6 +102,7 @@
 			<groupId>com.github.runelynx</groupId>
 			<artifactId>RunicUniverse</artifactId>
 			<version>master</version>
+			<scope>provided</scope><!-- 2026-11-24: use the RunicUniverse plugin at runtime (one shared /rs registry), do not bundle a copy -->
 		</dependency>
 		<dependency>
 			<groupId>org.projectlombok</groupId>

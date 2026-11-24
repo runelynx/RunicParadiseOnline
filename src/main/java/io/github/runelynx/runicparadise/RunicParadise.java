@@ -140,6 +140,10 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 
 		this.getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
 		Bukkit.getServer().getPluginManager().registerEvents(this, this);
+		// /rs staff tools for Survival + Explorer's League admin (2026-11-24)
+		Bukkit.getServer().getPluginManager().registerEvents(new ChatPrompt(), this);
+		Bukkit.getServer().getPluginManager().registerEvents(new ExplorerAdmin(), this);
+		StaffModule.register();
 		BukkitScheduler scheduler = Bukkit.getServer().getScheduler();
 
 		RunicMessaging.initializeAnnouncements(instance);
