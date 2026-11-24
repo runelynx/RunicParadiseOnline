@@ -1264,12 +1264,14 @@ public class Faith {
 		// 2% chance on receiving damage to set all nearby monsters on fire
 		String spellName = "Sunflare";
 		if ((RunicParadise.randomSeed.nextInt(101)) <= 2) {
-			List<Entity> nearby = p.getNearbyEntities(8, 8, 8);
-			for (Entity tmp : nearby) {
-				if (tmp instanceof Monster)
+			List<Entity> ignited = new ArrayList<>();
+			for (Entity tmp : p.getNearbyEntities(8, 8, 8)) {
+				if (tmp instanceof Monster) {
 					tmp.setFireTicks(60);
+					ignited.add(tmp);
+				}
 			}
-			nearby = null;
+			FaithEffects.sunflare(p, 8, ignited);
 			sendCastMessage(p, spellName, "Sun");
 			tryForRankItem(p, "Sun Sunflare");
 			getLogger().log(Level.INFO, "Faith Info: " + p.getName() + " just cast " + spellName + "!");
@@ -1295,6 +1297,13 @@ public class Faith {
 					((Monster) tmp).setTarget(null);
 				}
 			}
+			List<Entity> calmed = new ArrayList<>();
+			for (Entity tmp : nearby) {
+				if (tmp instanceof Monster) {
+					calmed.add(tmp);
+				}
+			}
+			FaithEffects.lunarCalm(p, 15, calmed, 100);
 
 			int count = nearby.size();
 			boolean playerProtected = RunicParadise.protectedPlayers.containsKey(p.getUniqueId());
@@ -1312,6 +1321,7 @@ public class Faith {
 		if ((RunicParadise.randomSeed.nextInt(101)) <= 2) {
 			p.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 300, 1));
 			p.addPotionEffect(new PotionEffect(PotionEffectType.INCREASE_DAMAGE, 300, 1));
+			FaithEffects.solarPower(p);
 
 			sendCastMessage(p, spellName, "Sun");
 
@@ -1340,6 +1350,7 @@ public class Faith {
 		if ((RunicParadise.randomSeed.nextInt(101)) <= 2) {
 			p.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 300, 0));
 			p.addPotionEffect(new PotionEffect(PotionEffectType.HEAL, 1, 0));
+			FaithEffects.celestialHealing(p);
 
 			sendCastMessage(p, spellName, "Moon");
 			tryForRankItem(p, "Moon CelestialHealing");
