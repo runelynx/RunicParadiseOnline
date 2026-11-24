@@ -1288,6 +1288,22 @@ public class Faith {
 	}
 
 	private static final Map<UUID, Long> SUNFLARE_LAST = new HashMap<>();
+	private static final Map<UUID, Long> LUNARCALM_LAST = new HashMap<>();
+	private static final Map<UUID, Long> CELESTIAL_LAST = new HashMap<>();
+
+	/** percent% chance, but never within cooldownMs of this player's last cast; records the cast when it fires. */
+	private static boolean rollWithCooldown(Map<UUID, Long> last, Player p, int percent, long cooldownMs) {
+		Long prev = last.get(p.getUniqueId());
+		long now = System.currentTimeMillis();
+		if (prev != null && now - prev < cooldownMs) {
+			return false;
+		}
+		if (RunicParadise.randomSeed.nextInt(100) >= percent) {
+			return false;
+		}
+		last.put(p.getUniqueId(), now);
+		return true;
+	}
 
 	private void castSun_Sunflare(UUID pUUID, Player p) {
 		// 15% chance on receiving damage, at most once every 30 s per player (was ~3% with no cooldown)
@@ -1312,9 +1328,9 @@ public class Faith {
 
 	@SuppressWarnings("deprecation")
 	public void castMoon_LunarCalm(UUID pUUID, final Player p) {
-		// 1% chance to stop mobs from targeting player for 4 seconds
+		// 10% chance on receiving damage, at most once every 30 s per player (was ~2%, no cooldown)
 		String spellName = "Lunar Calm";
-		if ((RunicParadise.randomSeed.nextInt(101)) <= 1) {
+		if (rollWithCooldown(LUNARCALM_LAST, p, 10, 30_000L)) {
 
 			// register protection now (the target listener in RunicParadise cancels monster targeting while protected)
 			RunicParadise.protectedPlayers.put(p.getUniqueId(), p.getDisplayName());
@@ -1377,9 +1393,9 @@ public class Faith {
 	}
 
 	private void castMoon_CelestialHealing(UUID pUUID, Player p) {
-		// 1% chance to gain regeneration
+		// 5% chance on hitting a monster, at most once every 20 s per player (was ~3%, no cooldown)
 		String spellName = "Celestial Healing";
-		if ((RunicParadise.randomSeed.nextInt(101)) <= 2) {
+		if (rollWithCooldown(CELESTIAL_LAST, p, 5, 20_000L)) {
 			p.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 300, 0));
 			p.addPotionEffect(new PotionEffect(PotionEffectType.HEAL, 1, 0));
 			FaithEffects.celestialHealing(p);
