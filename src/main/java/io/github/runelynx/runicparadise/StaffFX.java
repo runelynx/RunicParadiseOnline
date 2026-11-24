@@ -277,6 +277,334 @@ final class StaffFX {
 		}
 	}
 
+	// ================================================================== /beam
+
+	static final int BEAM_CHARGE_END = 25;   // sparkles / low aura build up
+	static final int BEAM_DESCEND_END = 40;  // beam comes down from the sky to the ground
+	static final int BEAM_VANISH_AT = 50;    // player disappears inside the solid beam
+	static final int BEAM_FULL_END = 80;     // fully charged, opaque column
+	static final int BEAM_END = 110;         // dissipated
+	static final int BEAM_AFTER_TICKS = 100; // player stays invisible 5 s after the beam has gone
+	static final double BEAM_HEIGHT = 14;
+	static final double BEAM_RADIUS = 0.95;
+
+	static void beamCommand(Player sender, String[] args) {
+		if (!sender.hasPermission("rp.fx")) {
+			sender.sendMessage(ChatColor.RED + "That's a staff effect.");
+			return;
+		}
+		int version = 1;
+		try {
+			if (args.length >= 1) {
+				version = Integer.parseInt(args[0]);
+			}
+		} catch (NumberFormatException e) {
+			sender.sendMessage(ChatColor.RED + "Usage: /beam <version 1-3> [player]");
+			return;
+		}
+		if (version < 1 || version > 3) {
+			sender.sendMessage(ChatColor.RED + "Versions: 1 Arcane Transporter, 2 Solar Lance, 3 Void Rift");
+			return;
+		}
+		Player target = sender;
+		if (args.length >= 2) {
+			target = org.bukkit.Bukkit.getPlayerExact(args[1]);
+			if (target == null) {
+				sender.sendMessage(ChatColor.RED + "No online player named " + args[1] + ".");
+				return;
+			}
+		}
+		beam(target, version);
+		String[] names = { "", "Arcane Transporter", "Solar Lance", "Void Rift" };
+		ActionBars.send(sender, ChatColor.AQUA + "⇩ " + ChatColor.WHITE + names[version]
+				+ (target == sender ? "" : ChatColor.GRAY + " on " + target.getName()));
+	}
+
+	static void beam(final Player target, final int version) {
+		final Location base = target.getLocation().clone();
+		base.setX(base.getBlockX() + 0.5);
+		base.setZ(base.getBlockZ() + 0.5);
+		final World w = base.getWorld();
+		final java.util.List<Player> hiddenFrom = new java.util.ArrayList<>();
+
+		switch (version) {
+			case 1:
+				w.playSound(base, Sound.BLOCK_BEACON_ACTIVATE, 1.0f, 1.4f);
+				break;
+			case 2:
+				w.playSound(base, Sound.BLOCK_RESPAWN_ANCHOR_CHARGE, 1.0f, 1.2f);
+				break;
+			default:
+				w.playSound(base, Sound.BLOCK_RESPAWN_ANCHOR_SET_SPAWN, 1.0f, 0.6f);
+				w.playSound(base, Sound.ENTITY_WARDEN_SONIC_CHARGE, 0.6f, 1.3f);
+				break;
+		}
+
+		new BukkitRunnable() {
+			int t = 0;
+
+			@Override
+			public void run() {
+				if (t > BEAM_END) {
+					cancel();
+					// reappear 5 s after the beam is fully gone (only to viewers we hid them from)
+					new BukkitRunnable() {
+						@Override
+						public void run() {
+							for (Player viewer : hiddenFrom) {
+								if (viewer.isOnline() && target.isOnline()) {
+									viewer.showPlayer(RunicParadise.getInstance(), target);
+								}
+							}
+						}
+					}.runTaskLater(RunicParadise.getInstance(), BEAM_AFTER_TICKS);
+					return;
+				}
+
+				if (t == BEAM_VANISH_AT && target.isOnline()) {
+					// fully hidden: armour, held items and name tag too. Viewers who already couldn't see the target
+					// (e.g. a vanished staff member) are left alone, so this never reveals anyone.
+					for (Player viewer : org.bukkit.Bukkit.getOnlinePlayers()) {
+						if (viewer != target && viewer.canSee(target)) {
+							viewer.hidePlayer(RunicParadise.getInstance(), target);
+							hiddenFrom.add(viewer);
+						}
+					}
+					target.addPotionEffect(new org.bukkit.potion.PotionEffect(org.bukkit.potion.PotionEffectType.INVISIBILITY,
+							(BEAM_END - BEAM_VANISH_AT) + BEAM_AFTER_TICKS, 0, false, false, true));
+					beamVanish(w, base, version);
+				}
+
+				if (t < BEAM_CHARGE_END) {
+					beamCharge(w, base, t, t / (double) BEAM_CHARGE_END, version);
+				} else if (t < BEAM_DESCEND_END) {
+					double k = (t - BEAM_CHARGE_END) / (double) (BEAM_DESCEND_END - BEAM_CHARGE_END);
+					beamCharge(w, base, t, 1.0, version);
+					// the beam's lower edge travels from the sky down to the ground
+					double bottom = BEAM_HEIGHT * (1 - k);
+					beamColumn(w, base, bottom, BEAM_HEIGHT, 0.35 + 0.45 * k, t, version);
+					if (t == BEAM_DESCEND_END - 1) {
+						beamImpact(w, base, version);
+					}
+				} else if (t <= BEAM_FULL_END) {
+					beamColumn(w, base, 0, BEAM_HEIGHT, 1.0, t, version);
+				} else {
+					double k = (t - BEAM_FULL_END) / (double) (BEAM_END - BEAM_FULL_END); // 0 -> 1
+					beamDissipate(w, base, t, k, version);
+				}
+				t++;
+			}
+		}.runTaskTimer(RunicParadise.getInstance(), 0, 1);
+	}
+
+	/** Low-energy build-up around the target; k = 0..1 intensity. */
+	private static void beamCharge(World w, Location b, int t, double k, int version) {
+		int n = (int) (6 + 30 * k);
+		for (int i = 0; i < n; i++) {
+			double a = RNG.nextDouble() * 2 * Math.PI;
+			double r = 0.4 + RNG.nextDouble() * 1.1;
+			double y = RNG.nextDouble() * 2.4;
+			Location at = b.clone().add(Math.cos(a) * r, y, Math.sin(a) * r);
+			switch (version) {
+				case 1:
+					w.spawnParticle(Particle.END_ROD, at, 0, -Math.cos(a) * 0.3, 0.2, -Math.sin(a) * 0.3, 0.05);
+					w.spawnParticle(Particle.REDSTONE, at, 1, 0, 0, 0, 0,
+							new Particle.DustOptions(Color.fromRGB(120, 200, 255), 0.9f));
+					break;
+				case 2:
+					w.spawnParticle(Particle.WAX_ON, at, 1, 0, 0, 0, 0.05);
+					if (i % 3 == 0) {
+						w.spawnParticle(Particle.FLAME, at, 0, 0, 1, 0, 0.04);
+					}
+					break;
+				default:
+					// portal particles drift toward their spawn offset, so they visibly converge on the target
+					w.spawnParticle(Particle.PORTAL, b.clone().add(0, y, 0), 0, Math.cos(a) * r * 1.5, 0.2, Math.sin(a) * r * 1.5, 1);
+					if (i % 3 == 0) {
+						w.spawnParticle(Particle.REVERSE_PORTAL, at, 1, 0, 0, 0, 0.02);
+					}
+					break;
+			}
+		}
+		// rotating ring on the ground that tightens as the charge builds
+		double ringR = 1.6 - 0.6 * k;
+		for (int i = 0; i < 24; i++) {
+			double a = i * (2 * Math.PI / 24) + t * 0.25;
+			Location at = b.clone().add(Math.cos(a) * ringR, 0.05, Math.sin(a) * ringR);
+			switch (version) {
+				case 1:
+					w.spawnParticle(Particle.REDSTONE, at, 1, 0, 0, 0, 0, new Particle.DustOptions(Color.fromRGB(80, 170, 255), 1.1f));
+					break;
+				case 2:
+					w.spawnParticle(Particle.ENCHANTMENT_TABLE, at, 1, 0, 0.3, 0, 0.3);
+					w.spawnParticle(Particle.REDSTONE, at, 1, 0, 0, 0, 0, new Particle.DustOptions(Color.fromRGB(255, 190, 40), 1.1f));
+					break;
+				default:
+					w.spawnParticle(Particle.DRAGON_BREATH, at, 1, 0, 0, 0, 0.005);
+					break;
+			}
+		}
+		if (t % 5 == 0) {
+			Sound s = version == 1 ? Sound.BLOCK_AMETHYST_BLOCK_CHIME : version == 2 ? Sound.BLOCK_BEACON_POWER_SELECT : Sound.BLOCK_PORTAL_AMBIENT;
+			w.playSound(b, s, 0.5f, (float) (0.8 + k * 1.0));
+		}
+	}
+
+	/** Solid beam between two heights; density 0..1 (1 = opaque). */
+	private static void beamColumn(World w, Location b, double from, double to, double density, int t, int version) {
+		Particle.DustTransition core;
+		Particle.DustOptions shell;
+		switch (version) {
+			case 1:
+				core = new Particle.DustTransition(Color.fromRGB(245, 252, 255), Color.fromRGB(140, 215, 255), 3.0f);
+				shell = new Particle.DustOptions(Color.fromRGB(60, 160, 255), 2.2f);
+				break;
+			case 2:
+				core = new Particle.DustTransition(Color.fromRGB(255, 255, 235), Color.fromRGB(255, 205, 70), 3.0f);
+				shell = new Particle.DustOptions(Color.fromRGB(255, 150, 20), 2.2f);
+				break;
+			default:
+				core = new Particle.DustTransition(Color.fromRGB(70, 0, 110), Color.fromRGB(10, 0, 20), 3.2f);
+				shell = new Particle.DustOptions(Color.fromRGB(150, 40, 230), 2.0f);
+				break;
+		}
+		int perLayer = (int) (2 + 9 * density);
+		for (double y = from; y <= to; y += 0.16) {
+			for (int i = 0; i < perLayer; i++) {
+				double a = RNG.nextDouble() * 2 * Math.PI;
+				double r = Math.sqrt(RNG.nextDouble()) * BEAM_RADIUS; // uniform over the disc
+				w.spawnParticle(Particle.DUST_COLOR_TRANSITION, b.clone().add(Math.cos(a) * r, y, Math.sin(a) * r), 1, 0, 0, 0, 0, core);
+			}
+			// bright shell spinning around the outside of the beam
+			double a = t * 0.7 + y * 1.3;
+			w.spawnParticle(Particle.REDSTONE, b.clone().add(Math.cos(a) * BEAM_RADIUS * 1.08, y, Math.sin(a) * BEAM_RADIUS * 1.08), 1, 0, 0, 0, 0, shell);
+			w.spawnParticle(Particle.REDSTONE, b.clone().add(-Math.cos(a) * BEAM_RADIUS * 1.08, y, -Math.sin(a) * BEAM_RADIUS * 1.08), 1, 0, 0, 0, 0, shell);
+		}
+		// accents
+		for (int i = 0; i < (int) (8 * density); i++) {
+			double a = RNG.nextDouble() * 2 * Math.PI;
+			Location at = b.clone().add(Math.cos(a) * BEAM_RADIUS, from + RNG.nextDouble() * (to - from), Math.sin(a) * BEAM_RADIUS);
+			switch (version) {
+				case 1:
+					w.spawnParticle(Particle.END_ROD, at, 0, 0, -1, 0, 0.6); // streaks pouring down the beam
+					break;
+				case 2:
+					w.spawnParticle(Particle.FIREWORKS_SPARK, at, 0, Math.cos(a), 0.1, Math.sin(a), 0.15);
+					break;
+				default:
+					w.spawnParticle(Particle.SQUID_INK, at, 0, Math.cos(a), 0, Math.sin(a), 0.08);
+					w.spawnParticle(Particle.DRAGON_BREATH, at, 1, 0, 0, 0, 0.01);
+					break;
+			}
+		}
+		if (density >= 1.0 && t % 12 == 0) {
+			Sound s = version == 1 ? Sound.BLOCK_BEACON_AMBIENT : version == 2 ? Sound.BLOCK_CONDUIT_AMBIENT : Sound.BLOCK_END_PORTAL_FRAME_FILL;
+			w.playSound(b, s, 0.9f, version == 3 ? 0.5f : 1.5f);
+		}
+	}
+
+	/** The moment the beam hits the ground. */
+	private static void beamImpact(World w, Location b, int version) {
+		Location g = b.clone().add(0, 0.1, 0);
+		switch (version) {
+			case 1:
+				ringBurst(w, g, Particle.END_ROD, 2.5, 48, 0.25);
+				w.spawnParticle(Particle.FLASH, b.clone().add(0, 1, 0), 1);
+				w.playSound(b, Sound.BLOCK_BEACON_POWER_SELECT, 1.0f, 0.8f);
+				break;
+			case 2:
+				ringBurst(w, g, Particle.FLAME, 2.8, 56, 0.3);
+				ringBurst(w, g, Particle.FIREWORKS_SPARK, 2.0, 32, 0.35);
+				w.spawnParticle(Particle.FLASH, b.clone().add(0, 1, 0), 1);
+				w.playSound(b, Sound.BLOCK_CONDUIT_ACTIVATE, 1.0f, 1.2f);
+				break;
+			default:
+				ringBurst(w, g, Particle.REVERSE_PORTAL, 2.5, 60, 0.4);
+				w.spawnParticle(Particle.SONIC_BOOM, b.clone().add(0, 1, 0), 1);
+				w.playSound(b, Sound.ENTITY_WARDEN_SONIC_BOOM, 0.5f, 1.6f);
+				break;
+		}
+	}
+
+	/** The instant the player disappears inside the beam. */
+	private static void beamVanish(World w, Location b, int version) {
+		Location c = b.clone().add(0, 1, 0);
+		switch (version) {
+			case 1:
+				w.spawnParticle(Particle.END_ROD, c, 60, 0.3, 0.6, 0.3, 0.3);
+				w.playSound(b, Sound.ENTITY_ENDERMAN_TELEPORT, 1.0f, 1.4f);
+				break;
+			case 2:
+				w.spawnParticle(Particle.TOTEM, c, 80, 0.3, 0.6, 0.3, 0.6);
+				w.playSound(b, Sound.ITEM_TOTEM_USE, 0.6f, 1.5f);
+				break;
+			default:
+				w.spawnParticle(Particle.DRAGON_BREATH, c, 80, 0.3, 0.6, 0.3, 0.08);
+				w.spawnParticle(Particle.SCULK_SOUL, c, 20, 0.3, 0.5, 0.3, 0.05);
+				w.playSound(b, Sound.ENTITY_ENDERMAN_TELEPORT, 1.0f, 0.5f);
+				break;
+		}
+	}
+
+	/** Beam breaking up; k = 0..1 through the dissipation. */
+	private static void beamDissipate(World w, Location b, int t, double k, int version) {
+		switch (version) {
+			case 1: {
+				// the column lifts off the ground and thins out upwards, shedding rising rings of light
+				double bottom = BEAM_HEIGHT * k;
+				beamColumn(w, b, bottom, BEAM_HEIGHT, 1.0 - k, t, version);
+				if (t % 3 == 0) {
+					ringBurst(w, b.clone().add(0, bottom + 0.2, 0), Particle.END_ROD, BEAM_RADIUS * 1.3, 24, 0.0);
+				}
+				w.spawnParticle(Particle.END_ROD, b.clone().add(0, 1.2, 0), (int) (12 * (1 - k)), 0.5, 0.8, 0.5, 0.05);
+				break;
+			}
+			case 2: {
+				// the lance fades top-down while golden rays burst outward and dust settles
+				double top = BEAM_HEIGHT * (1 - k);
+				beamColumn(w, b, 0, top, 1.0 - k, t, version);
+				if (t % 4 == 0) {
+					for (int i = 0; i < 12; i++) {
+						double a = i * (Math.PI / 6) + t * 0.1;
+						w.spawnParticle(Particle.FIREWORKS_SPARK, b.clone().add(0, 1.2, 0), 0, Math.cos(a), 0, Math.sin(a), 0.4);
+					}
+				}
+				w.spawnParticle(Particle.FALLING_DUST, b.clone().add(0, 3, 0), 10, 1.2, 1.5, 1.2, 0,
+						Material.GOLD_BLOCK.createBlockData());
+				break;
+			}
+			default: {
+				// the rift collapses: the column shrinks down into a point on the ground and implodes
+				double top = BEAM_HEIGHT * (1 - k) + 0.2;
+				beamColumn(w, b, 0, top, 1.0 - 0.6 * k, t, version);
+				w.spawnParticle(Particle.REVERSE_PORTAL, b.clone().add(0, top / 2, 0), 25, 0.6, top / 3, 0.6, 0.05);
+				if (t == BEAM_END) {
+					w.spawnParticle(Particle.SCULK_SOUL, b.clone().add(0, 0.3, 0), 30, 0.3, 0.2, 0.3, 0.08);
+					w.spawnParticle(Particle.FLASH, b.clone().add(0, 0.5, 0), 1);
+					w.playSound(b, Sound.BLOCK_RESPAWN_ANCHOR_DEPLETE, 1.0f, 0.6f);
+				}
+				break;
+			}
+		}
+		if (t == BEAM_FULL_END + 1) {
+			Sound s = version == 1 ? Sound.BLOCK_BEACON_DEACTIVATE : version == 2 ? Sound.BLOCK_CONDUIT_DEACTIVATE : Sound.BLOCK_PORTAL_TRAVEL;
+			w.playSound(b, s, version == 3 ? 0.35f : 1.0f, version == 3 ? 1.6f : 1.2f);
+		}
+	}
+
+	/** Particles thrown outward in a flat ring. */
+	private static void ringBurst(World w, Location c, Particle type, double r, int points, double speed) {
+		for (int i = 0; i < points; i++) {
+			double a = 2 * Math.PI * i / points;
+			Location at = c.clone().add(Math.cos(a) * r * 0.3, 0, Math.sin(a) * r * 0.3);
+			if (speed > 0) {
+				w.spawnParticle(type, at, 0, Math.cos(a), 0.05, Math.sin(a), speed);
+			} else {
+				w.spawnParticle(type, c.clone().add(Math.cos(a) * r, 0, Math.sin(a) * r), 1, 0, 0, 0, 0);
+			}
+		}
+	}
+
 	private static Color lerp(Color a, Color b, double f) {
 		f = Math.max(0, Math.min(1, f));
 		return Color.fromRGB((int) (a.getRed() + (b.getRed() - a.getRed()) * f),

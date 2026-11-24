@@ -290,6 +290,10 @@ commands:
       usage: /<command>
       permission: runicparadise.rpreload
       permission-message: "You don't have permission: <permission>"
+   beam:
+      description: "Staff effect: beam a player away (the sender, or a named player)."
+      usage: /<command> <version 1-3> [player]
+      permission: rp.fx
    tornado:
       description: "Staff effect: summon a tornado in front of you."
       usage: /<command> <distance 1-50> <version 1-3>
