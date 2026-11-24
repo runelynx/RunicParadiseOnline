@@ -72,6 +72,18 @@ final class ActionBars {
 			final Method getPlayer = eventClass.getMethod("getPlayer");
 			final Method getAmount = eventClass.getMethod("getAmount");
 			final Method getVictim = eventClass.getMethod("getVictim");
+			// Each player's own "/km enable-messages on|off" choice, read live from KillerMoney's in-memory player
+			// data (KMPlayerManager.getKMPlayer(player).isEnableMessages()), so toggling it applies immediately.
+			Method getKMPlayer = null, isEnableMessages = null;
+			try {
+				Class<?> mgr = Class.forName("net.diecode.killermoney.managers.KMPlayerManager", true, km.getClass().getClassLoader());
+				Class<?> kmPlayer = Class.forName("net.diecode.killermoney.objects.KMPlayer", true, km.getClass().getClassLoader());
+				getKMPlayer = mgr.getMethod("getKMPlayer", Player.class);
+				isEnableMessages = kmPlayer.getMethod("isEnableMessages");
+			} catch (ReflectiveOperationException | LinkageError e) {
+				plugin.getLogger().log(Level.WARNING, "Can't read KillerMoney's per-player message setting; showing payouts to everyone: " + e);
+			}
+			final Method getKMPlayerF = getKMPlayer, isEnableMessagesF = isEnableMessages;
 			Bukkit.getPluginManager().registerEvent(eventClass, new Listener() {}, EventPriority.MONITOR, (listener, event) -> {
 				if (!eventClass.isInstance(event) || ((Cancellable) event).isCancelled()) {
 					return;
@@ -80,6 +92,12 @@ final class ActionBars {
 					final Player p = (Player) getPlayer.invoke(event);
 					if (p == null) {
 						return;
+					}
+					if (getKMPlayerF != null) {
+						Object kmp = getKMPlayerF.invoke(null, p);
+						if (kmp != null && !((Boolean) isEnableMessagesF.invoke(kmp))) {
+							return; // the player turned kill messages off with /km enable-messages off
+						}
 					}
 					// KillerMoney 4.6.0 can't use the action bar on this server version (it falls back to chat), so
 					// its own messages are DISABLED in its config and we show the payout here instead.
