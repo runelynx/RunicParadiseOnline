@@ -16,7 +16,9 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Survival-only /rs actions (2026-11-24). These are thin wrappers: each one runs the existing command
@@ -145,6 +147,37 @@ final class StaffModule {
 					Confirm.ask(s, "Give " + a[0] + " one vote reward", () -> {
 						Bukkit.dispatchCommand(s, "staff vt " + a[0]);
 						Audit.log(s, "give vote reward", a[0]);
+					});
+				}));
+
+		reg(StaffAction.of("cratekey", "Rewards").icon("TRIPWIRE_HOOK").targetsPlayer()
+				.desc("Give a player crate keys (1-5) for any key crate (runs CrateReloaded's /crate give to)")
+				.usage("<player> <crate> <amount>")
+				.complete((s, a) -> {
+					if (a.length == 1) return CoreActions.onlineNames();
+					if (a.length == 2) return new ArrayList<>(keyCrates().keySet());
+					if (a.length == 3) return Arrays.asList("1", "2", "3", "4", "5");
+					return null;
+				})
+				.choiceIcon((argIndex, choice) -> {
+					if (argIndex == 1) {
+						String[] c = keyCrates().get(choice);
+						return c == null ? null : Gui.item(c[0], c[1], "&8" + choice, "&eClick to choose");
+					}
+					return null;
+				})
+				.exec((s, a) -> {
+					Map<String, String[]> crates = keyCrates();
+					String crate = a.length >= 2 ? crates.keySet().stream().filter(k -> k.equalsIgnoreCase(a[1])).findFirst().orElse(null) : null;
+					if (a.length != 3 || crate == null || !a[2].matches("[1-5]")) {
+						Ui.error(s, "Usage: /rs cratekey <player> <" + String.join("|", crates.keySet()) + "> <1-5>");
+						return;
+					}
+					if (Bukkit.getPlayerExact(a[0]) == null) { Ui.error(s, a[0] + " isn't online."); return; }
+					String keyName = (net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer.plainText().serialize(Ui.legacy(crates.get(crate)[1])));
+					Confirm.ask(s, "Give " + a[0] + " " + a[2] + " × " + keyName, () -> {
+						Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "crate give to " + a[0] + " " + crate + " " + a[2]);
+						Audit.log(s, "give crate keys", a[0] + " " + a[2] + " x " + crate);
 					});
 				}));
 
@@ -296,6 +329,38 @@ final class StaffModule {
 			return Ui.legacy(cc + pretty(cc.name()));
 		}
 		return Component.text(pretty(cc.name()) + " (no colour, not a Chat Options choice)", NamedTextColor.WHITE);
+	}
+
+	/**
+	 * Key crates defined in CrateReloaded (type KEYCRATE), read from its crates/*.yml so new ones appear by themselves.
+	 * Value: [material of the key item, display name]. Cached for a minute.
+	 */
+	private static Map<String, String[]> keyCratesCache = new LinkedHashMap<>();
+	private static long keyCratesAt = 0;
+
+	static synchronized Map<String, String[]> keyCrates() {
+		if (System.currentTimeMillis() - keyCratesAt < 60_000 && !keyCratesCache.isEmpty()) {
+			return keyCratesCache;
+		}
+		Map<String, String[]> out = new LinkedHashMap<>();
+		org.bukkit.plugin.Plugin cr = Bukkit.getPluginManager().getPlugin("CrateReloaded");
+		java.io.File[] files = cr == null ? null : new java.io.File(cr.getDataFolder(), "crates").listFiles((d, n) -> n.endsWith(".yml"));
+		if (files != null) {
+			java.util.Arrays.sort(files);
+			for (java.io.File f : files) {
+				org.bukkit.configuration.file.YamlConfiguration y = org.bukkit.configuration.file.YamlConfiguration.loadConfiguration(f);
+				for (String key : y.getKeys(false)) {
+					if (!"KEYCRATE".equalsIgnoreCase(y.getString(key + ".type", "").trim())) continue;
+					String item = y.getString(key + ".item", "TRIPWIRE_HOOK");
+					String material = item.trim().split("\\s+")[0].toUpperCase();
+					String display = y.getString(key + ".display-name", "&f" + key);
+					out.put(key, new String[] { material, display });
+				}
+			}
+		}
+		keyCratesCache = out;
+		keyCratesAt = System.currentTimeMillis();
+		return out;
 	}
 
 	private static String pretty(String enumName) {
