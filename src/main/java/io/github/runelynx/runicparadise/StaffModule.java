@@ -257,11 +257,11 @@ final class StaffModule {
 				if (!rs.next()) {
 					return out;
 				}
-				out.add(line("Faith", nz(rs.getString("ActiveFaith"), "none") + "   Staff rank: " + nz(rs.getString("StaffRank"), "none")));
-				out.add(line("Tokens / souls / karma", rs.getInt("Tokens") + " / " + rs.getInt("SoulCount") + " / " + rs.getInt("Karma")));
-				out.add(line("Votes", rs.getInt("Votes") + "   Nominations: " + rs.getInt("IsNominated")
-						+ "   Chat colour: " + nz(rs.getString("ChatColor"), "default").toLowerCase()));
-				out.add(line("Explorer's League", rs.getInt("ELFinds") + " location(s) found"));
+				out.add(CoreActions.fields("Faith", nz(rs.getString("ActiveFaith"), "none"), "Staff rank", nz(rs.getString("StaffRank"), "none")));
+				out.add(CoreActions.fields("Tokens", rs.getInt("Tokens"), "Souls", rs.getInt("SoulCount"), "Karma", rs.getInt("Karma")));
+				out.add(CoreActions.fields("Votes", rs.getInt("Votes"), "Nominations", rs.getInt("IsNominated"),
+						"Chat colour", chatColour(op, rs.getString("ChatColor"))));
+				out.add(CoreActions.fields("Explorer's League", rs.getInt("ELFinds") + " found"));
 			}
 		} catch (SQLException e) {
 			RunicParadise.getInstance().getLogger().warning("[rs] player info failed: " + e.getMessage());
@@ -269,8 +269,38 @@ final class StaffModule {
 		return out;
 	}
 
-	private static Component line(String label, String value) {
-		return Component.text(label + ": ", NamedTextColor.GRAY).append(Component.text(value, NamedTextColor.WHITE));
+	/**
+	 * The colour this player's rank and name use in chat, named as in the Chat Options menu and shown in that colour.
+	 * Online players: the live value chat uses. Offline: the saved value. Values the menu can't set (e.g. BOLD from an
+	 * old /staff setplayercolor) are flagged so staff know the player should pick one in Chat Options.
+	 */
+	private static Component chatColour(OfflinePlayer op, String saved) {
+		ChatColor cc = null;
+		RunicProfile prof = op.isOnline() ? RunicParadise.playerProfiles.get(op.getUniqueId()) : null;
+		String live = prof == null ? null : prof.getChatColor();
+		for (ChatColor c : ChatColor.values()) {
+			if ((live != null && c.toString().equals(live)) || (live == null && c.name().equalsIgnoreCase(saved))) {
+				cc = c;
+				break;
+			}
+		}
+		if (cc == null) {
+			return Component.text("grey (default)", NamedTextColor.GRAY);
+		}
+		for (RunicProfile.ChatColorOption opt : RunicProfile.CHAT_COLOR_OPTIONS) {
+			if (opt.color == cc) {
+				return Ui.legacy(cc + opt.name);
+			}
+		}
+		if (cc.isColor()) {
+			return Ui.legacy(cc + pretty(cc.name()));
+		}
+		return Component.text(pretty(cc.name()) + " (no colour, not a Chat Options choice)", NamedTextColor.WHITE);
+	}
+
+	private static String pretty(String enumName) {
+		String s = enumName.toLowerCase().replace('_', ' ');
+		return Character.toUpperCase(s.charAt(0)) + s.substring(1);
 	}
 
 	private static String nz(String s, String dflt) {
