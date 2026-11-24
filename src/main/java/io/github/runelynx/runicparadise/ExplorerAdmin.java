@@ -294,8 +294,34 @@ final class ExplorerAdmin implements Listener {
 			return;
 		}
 		p.closeInventory();
-		p.teleport(to);
-		Ui.info(p, "Teleported to #" + l.id + " " + l.name + ".");
+		to.setYaw(p.getLocation().getYaw());
+		to.setPitch(p.getLocation().getPitch());
+		// Next tick (never teleport inside a menu click), after the chunk has loaded, onto a spot you can stand in.
+		Bukkit.getScheduler().runTask(RunicParadise.getInstance(), () ->
+				to.getWorld().getChunkAtAsync(to).thenAccept(chunk -> {
+					Location safe = standable(to);
+					p.teleportAsync(safe).thenAccept(ok -> {
+						if (!ok) {
+							Ui.error(p, "Teleport to #" + l.id + " was blocked.");
+						} else if (safe.getBlockY() != to.getBlockY()) {
+							Ui.info(p, "Teleported to #" + l.id + " " + l.name + " (moved up " + (safe.getBlockY() - to.getBlockY())
+									+ " block(s): the spot itself is inside blocks).");
+						} else {
+							Ui.info(p, "Teleported to #" + l.id + " " + l.name + ".");
+						}
+					});
+				}));
+	}
+
+	/** The location itself if feet and head are free; otherwise the first free 2-block gap above it (up to 20). */
+	static Location standable(Location at) {
+		for (int up = 0; up <= 20; up++) {
+			Location c = at.clone().add(0, up, 0);
+			if (c.getBlock().isPassable() && c.clone().add(0, 1, 0).getBlock().isPassable()) {
+				return c;
+			}
+		}
+		return at;
 	}
 
 	// ------------------------------------------------------------------ detail menu
