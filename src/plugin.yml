@@ -290,6 +290,10 @@ commands:
       usage: /<command>
       permission: runicparadise.rpreload
       permission-message: "You don't have permission: <permission>"
+   rpentitydump:
+      description: "Staff: save the exact live data of every entity within 100 blocks to a file."
+      usage: /<command> [radius]
+      permission: rp.entitydump
    beam:
       description: "Staff effect: beam a player away (the sender, or a named player)."
       usage: /<command> <version 1-3> [player]
