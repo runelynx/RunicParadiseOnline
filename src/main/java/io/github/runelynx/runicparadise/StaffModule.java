@@ -124,7 +124,7 @@ final class StaffModule {
 		reg(StaffAction.of("souls", "Rewards").icon("SOUL_LANTERN").playersOnly().targetsPlayer()
 				.desc("Give a player souls (same as /staff gs)")
 				.usage("<player> <amount>")
-				.complete((s, a) -> a.length == 1 ? CoreActions.onlineNames() : a.length == 2 ? Arrays.asList("1", "5", "10", "25") : null)
+				.complete((s, a) -> a.length == 1 ? CoreActions.onlineNames() : a.length == 2 ? Arrays.asList("1", "5", "10", "25", "50", "100") : null)
 				.exec((s, a) -> {
 					if (a.length != 2 || !a[1].matches("\\d+") || Integer.parseInt(a[1]) < 1) {
 						Ui.error(s, "Usage: /rs souls <player> <amount>");
