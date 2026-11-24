@@ -737,13 +737,13 @@ final class ExplorerAdmin implements Listener {
 			start();
 		}
 
-		private static final Particle.DustOptions ENABLED = new Particle.DustOptions(Color.fromRGB(40, 230, 90), 2.0f);
-		private static final Particle.DustOptions DISABLED = new Particle.DustOptions(Color.fromRGB(235, 50, 50), 2.0f);
+		private static final Particle.DustOptions ENABLED = new Particle.DustOptions(Color.fromRGB(40, 230, 90), 1.7f);
+		private static final Particle.DustOptions DISABLED = new Particle.DustOptions(Color.fromRGB(235, 50, 50), 1.7f);
 		private static final Particle.DustOptions[] BANDS = {
-				new Particle.DustOptions(Color.fromRGB(255, 200, 40), 1.6f),  // found (r)
-				new Particle.DustOptions(Color.fromRGB(60, 220, 80), 1.5f),   // very close (2r)
-				new Particle.DustOptions(Color.fromRGB(240, 230, 60), 1.5f),  // kinda close (4r)
-				new Particle.DustOptions(Color.fromRGB(230, 60, 50), 1.5f) }; // general area (6r)
+				new Particle.DustOptions(Color.fromRGB(255, 200, 40), 1.35f),  // found (r)
+				new Particle.DustOptions(Color.fromRGB(60, 220, 80), 1.25f),   // very close (2r)
+				new Particle.DustOptions(Color.fromRGB(240, 230, 60), 1.25f),  // kinda close (4r)
+				new Particle.DustOptions(Color.fromRGB(230, 60, 50), 1.25f) }; // general area (6r)
 		private static final int[] MULT = { 1, 2, 4, 6 };
 		private static final String[] BAND_NAMES = { "&6found zone", "&agreen \"very close\"", "&eyellow \"kinda close\"", "&cred \"general area\"" };
 
@@ -782,7 +782,7 @@ final class ExplorerAdmin implements Listener {
 			String world = me.getWorld().getName();
 			Loc nearest = null;
 			double nearestD = Double.MAX_VALUE;
-			int budget = 6000;
+			int budget = 4000;
 			for (Loc l : locs) {
 				if (l.archived() || !l.world.equals(world)) continue;
 				double dx = l.x + 0.5 - me.getX(), dz = l.z + 0.5 - me.getZ(), dy = l.y - me.getY();
@@ -793,10 +793,10 @@ final class ExplorerAdmin implements Listener {
 					nearest = l;
 				}
 				// marker on the location's block: a dense column, taller and visible from further away
-				if (horiz <= 160) {
+				if (horiz <= 100) {
 					Particle.DustOptions c = l.enabled() ? ENABLED : DISABLED;
 					double top = horiz > 48 ? 8 : 3.5; // far away: a tall beacon-like beam you can spot
-					for (double h = 0.1; h <= top; h += 0.15) {
+					for (double h = 0.1; h <= top; h += 0.2) {
 						dot(p, Particle.REDSTONE, l.x + 0.5, l.y + h, l.z + 0.5, c);
 					}
 					if (l.enabled()) {
@@ -804,20 +804,20 @@ final class ExplorerAdmin implements Listener {
 					}
 				}
 				// zone walls, enabled locations only, when we're anywhere near the outer zone
-				if (!l.enabled() || horiz > 6 * l.radius + 64) continue;
+				if (!l.enabled() || horiz > 6 * l.radius + 48) continue;
 				for (int b = 3; b >= 0 && budget > 0; b--) {
 					double R = l.radius * MULT[b];
-					for (double hy = -1; hy <= 3; hy += 0.5) {
+					for (double hy = -1; hy <= 3; hy += 0.75) {
 						double wy = Math.floor(me.getY()) + hy + 0.1;
 						double ddy = wy - l.y;
 						if (Math.abs(ddy) >= R) continue;
 						double slice = Math.sqrt(R * R - ddy * ddy);
-						int points = (int) Math.max(16, Math.min(4000, 2 * Math.PI * slice / 0.35));
+						int points = (int) Math.max(16, Math.min(4000, 2 * Math.PI * slice / 0.5));
 						for (int i = 0; i < points && budget > 0; i++) {
 							double ang = 2 * Math.PI * i / points;
 							double px = l.x + 0.5 + Math.cos(ang) * slice, pz = l.z + 0.5 + Math.sin(ang) * slice;
 							double ex = px - me.getX(), ez = pz - me.getZ();
-							if (ex * ex + ez * ez > 64 * 64) continue; // only draw the part of the wall near you
+							if (ex * ex + ez * ez > 48 * 48) continue; // only draw the part of the wall near you
 							dot(p, Particle.REDSTONE, px, wy, pz, BANDS[b]);
 							budget--;
 						}
