@@ -501,6 +501,11 @@ public class Commands implements CommandExecutor {
 		case "face":
 			faceCommand(sender, args);
 			break;
+		case "tornado":
+			if (sender instanceof Player) {
+				StaffFX.tornadoCommand((Player) sender, args);
+			}
+			break;
 		case "rpgames":
 		case "games":
 			gamesCommand(sender, args);

@@ -462,6 +462,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 		getCommand("wild").setExecutor(new Commands());
 		getCommand("rpgames").setExecutor(new Commands());
 		getCommand("games").setExecutor(new Commands());
+		getCommand("tornado").setExecutor(new Commands());
 		getCommand("adventureparkourprize").setExecutor(new Commands());
 		getCommand("sc").setExecutor(new Commands());
 		getCommand("staffchat").setExecutor(new Commands());
