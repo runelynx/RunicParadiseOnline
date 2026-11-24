@@ -911,6 +911,11 @@ public class Faith {
 			}
 
 			break;
+		case "Earth":
+			if (hasPower(level, "Earthen Shield") && inMainWorld(p)) { // main overworld + Mining only
+				pfo.castEarth_EarthenShield(event, p);
+			}
+			break;
 		case "Nature":
 			if (hasPower(level, "Forest Armor") && inMainWorld(p)) { // main overworld + Mining only
 
@@ -1328,9 +1333,9 @@ public class Faith {
 
 	@SuppressWarnings("deprecation")
 	public void castMoon_LunarCalm(UUID pUUID, final Player p) {
-		// 10% chance on receiving damage, at most once every 30 s per player (was ~2%, no cooldown)
+		// 8% chance on receiving damage, at most once every 30 s per player (was ~2%, no cooldown)
 		String spellName = "Lunar Calm";
-		if (rollWithCooldown(LUNARCALM_LAST, p, 10, 30_000L)) {
+		if (rollWithCooldown(LUNARCALM_LAST, p, 8, 30_000L)) {
 
 			// register protection now (the target listener in RunicParadise cancels monster targeting while protected)
 			RunicParadise.protectedPlayers.put(p.getUniqueId(), p.getDisplayName());
@@ -1378,19 +1383,6 @@ public class Faith {
 		}
 	}
 
-	public void castFlame_VolcanicFury(UUID pUUID, Player p) {
-		// 2% chance to +damage when dealing damage to monsters
-		String spellName = "Volcanic Fury";
-		if ((RunicParadise.randomSeed.nextInt(101)) <= 4) {
-			p.addPotionEffect(new PotionEffect(PotionEffectType.INCREASE_DAMAGE, 150, 2));
-
-			sendCastMessage(p, spellName, "Fire");
-
-			tryForRankItem(p, "Fire VolcanicFury");
-			getLogger().log(Level.INFO, "Faith Info: " + p.getName() + " just cast " + spellName + "!");
-
-		}
-	}
 
 	private void castMoon_CelestialHealing(UUID pUUID, Player p) {
 		// 5% chance on hitting a monster, at most once every 20 s per player (was ~3%, no cooldown)
@@ -1406,291 +1398,42 @@ public class Faith {
 		}
 	}
 
-	private void castFate_InevitableDemise(UUID pUUID, Player player, LivingEntity monster) {
-		if (player.getHealth() <= 6) {
-			Random rand = new Random();
-			int number = rand.nextInt(100) + 1;
-			if (number >= 80) {
 
-				sendCastMessage(player, "Inevitable Demise", "Fate");
-				tryForRankItem(player, "Fate InevitableDemise");
 
-				// Only monsters (used to kill ANY living thing within 2 blocks: pets, villagers, other players)
-				for (final Entity entity : player.getNearbyEntities(2, 2, 2)) {
-					if (entity instanceof Monster && !(entity instanceof Wither)) {
-						((LivingEntity) entity).setHealth(0);
-					}
-				}
-				if (!monster.isDead() && monster instanceof Monster) {
-					monster.setHealth(0);
-				}
-			}
-		}
 
-	}
-
-	// Time : Rewind - chance to reverse death when receiving a killing blow
-	private void castTime_Rewind(EntityDamageEvent event, Player p) {
-		if (p.getHealth() - event.getFinalDamage() > 0) {
-			return; // not a killing blow
-		}
-		if (RunicParadise.randomSeed.nextInt(100) < 10) { // 10% of killing blows
-			event.setCancelled(true);
-			p.setHealth(Math.min(16, p.getMaxHealth()));
-			p.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 200, 1));
-			sendCastMessage(p, "Rewind", "Time");
-			tryForRankItem(p, "Time Rewind");
-			getLogger().log(Level.INFO, "Faith Info: " + p.getName() + " just cast Rewind!");
-		}
-	}
-
-	void castNether_Netherborn(Player p) {
-		// Boost player for as long as they're in the nether (removed when they leave)
-		String spellName = "Netherborn";
-
-		p.addPotionEffect(new PotionEffect(PotionEffectType.HEALTH_BOOST, PotionEffect.INFINITE_DURATION, 1));
-		p.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, PotionEffect.INFINITE_DURATION, 0));
-		sendCastMessage(p, spellName, "Nether");
-		getLogger().log(Level.INFO, "Faith Info: " + p.getName() + " just cast " + spellName + "!");
-	}
-
-	// Flame : Unstable Embers
-	private void castFlame_UnstableEmbers(Player p) {
-		Random rand = new Random();
-		int number = rand.nextInt(100) + 1;
-		if (number >= 90) {
-			String spellName = "Unstable Embers";
-			sendCastMessage(p, spellName, "Fire");
-			tryForRankItem(p, "Flame UnstableEmbers");
-
-			p.getWorld().spawnParticle(Particle.EXPLOSION_LARGE, p.getLocation(), 1);
-			p.getWorld().playSound(p.getLocation(), Sound.ENTITY_GENERIC_EXPLODE, 0.6f, 1.2f);
-			// Monsters only (used to hit pets, villagers and other players too)
-			for (Entity entity : p.getNearbyEntities(4, 4, 4)) {
-				if (entity instanceof Monster) {
-					((LivingEntity) entity).damage(4, p);
-				}
-			}
-		}
-	}
 
 	// ==========================
 	// Wind : TempestArmor
 
-	@SuppressWarnings("deprecation")
-	private void castAir_TempestArmor(Player player) {
-		ItemStack i = player.getInventory().getHelmet();
-		ItemStack j = player.getInventory().getChestplate();
-		ItemStack k = player.getInventory().getLeggings();
-		ItemStack l = player.getInventory().getBoots();
-		if (i != null && j != null && k != null && l != null) {
-			if (i.getType() == Material.GOLDEN_HELMET && j.getType() == Material.GOLDEN_CHESTPLATE
-					&& k.getType() == Material.GOLDEN_LEGGINGS && l.getType() == Material.GOLDEN_BOOTS) {
-				Random rand = new Random();
-				int number = rand.nextInt(100) + 1;
-				if (number >= 96) {
-
-					String spellName = "Tempest Armor";
-					sendCastMessage(player, spellName, "Air");
-					tryForRankItem(player, "Air TempestArmor");
-
-					for (final Entity entity : player.getNearbyEntities(5, 5, 5)) {
-						if (entity instanceof Monster) {
-							entity.setVelocity(entity.getLocation().getDirection().multiply(2.5D).setY(0.7D));
-							// lightning 1 s later, on the main thread (async version failed)
-							runLater(() -> {
-								if (entity.isValid()) {
-									entity.getWorld().strikeLightning(entity.getLocation());
-								}
-							}, 20);
-						}
-					}
-				}
-			}
-		}
-	}
 
 	// ==========================
 	// Wind : Healing Breeze
 
-	private void castAir_HealingBreeze(Player player) {
-		Random rand = new Random();
-		int number = rand.nextInt(100) + 1;
-		if (number >= 97) {
-			// cast message + rank-item roll once (used to repeat per nearby player)
-			sendCastMessage(player, "Healing Breeze", "Air");
-			tryForRankItem(player, "Air HealingBreeze");
-
-			List<Entity> targets = new ArrayList<>(player.getNearbyEntities(40, 40, 40));
-			targets.add(player);
-			for (Entity entity : targets) {
-				if (entity instanceof Player) {
-					((LivingEntity) entity).addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 200, 1));
-					ActionBars.send((Player) entity, ChatColor.WHITE + "≋ " + ChatColor.GRAY + ChatColor.ITALIC + "You feel refreshed by a soothing breeze");
-				} else if (entity instanceof Wolf && ((Wolf) entity).isTamed()) {
-					((Wolf) entity).addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 200, 1));
-				}
-			}
-		}
-	}
 
 	// ==========================
 	// Earth : Earth's Bounty
 
-	// Blocks Earth's Bounty can be used on (was plain stone only; most diamonds are in deepslate since 1.18)
-	private static final Set<Material> EARTHS_BOUNTY_BLOCKS = EnumSet.of(Material.STONE, Material.DEEPSLATE,
-			Material.TUFF, Material.GRANITE, Material.DIORITE, Material.ANDESITE, Material.COBBLED_DEEPSLATE);
 
-	void castEarth_EarthsBounty(PlayerInteractEvent e) {
-		if (!powersAllowed(e.getPlayer().getWorld()) || !inMainWorld(e.getPlayer())) { // main overworld + Mining only
-			return;
-		}
-
-		Player p = e.getPlayer();
-		if ((p.getItemInHand() != null) && (p.getItemInHand().getType().equals(Material.GLOWSTONE_DUST))) {
-			ItemStack glowstone = p.getItemInHand();
-			if (e.getAction() == Action.RIGHT_CLICK_BLOCK) {
-				Block block = e.getClickedBlock();
-				if (EARTHS_BOUNTY_BLOCKS.contains(block.getType())) {
-					if (p.getLevel() >= 2) {
-						int removel = 2;
-						int plevel = p.getLevel() - removel;
-						p.setLevel(plevel);
-						p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1, 1);
-						int radius = 15;
-						Location location = p.getLocation();
-						int diamonds = 0;
-						int emeralds = 0;
-						Block center = location.getBlock().getRelative(p.getFacing(), radius);
-						for (int x = -radius; x < radius; x++) {
-							for (int y = -radius; y < radius; y++) {
-								for (int z = -radius; z < radius; z++) {
-									Material m = center.getRelative(x, y, z).getType();
-									if (m == Material.DIAMOND_ORE || m == Material.DEEPSLATE_DIAMOND_ORE) {
-										diamonds++;
-									} else if (m == Material.EMERALD_ORE || m == Material.DEEPSLATE_EMERALD_ORE) {
-										emeralds++;
-									}
-								}
-							}
-						}
-						String spellName = "Earths Bounty";
-						sendCastMessage(e.getPlayer(), spellName, "Earth");
-
-						p.sendMessage(ChatColor.GREEN + "There are " + diamonds + " diamond(s) and " + emeralds
-								+ " emerald(s) near you!");
-
-					}
-				}
-			}
-		}
-	}
 
 	// ==========================
 	// Water OneWithTheSea
 
-	void castWater_DeepWader(PlayerInteractEvent e) {
-		if (!powersAllowed(e.getPlayer().getWorld()) || !inMainWorld(e.getPlayer())) { // main overworld + Mining only
-			return;
-		}
-		Player p = e.getPlayer();
-		if ((p.getItemInHand() != null) && (p.getItemInHand().getType().equals(Material.GLOWSTONE_DUST))) {
-
-			Block block = e.getPlayer().getLocation().getBlock();
-			// TODO: might need fixing
-			if (block.getType() == Material.WATER || block.getType() == Material.WATER) {
-				if (p.getLevel() >= 2) {
-					int removel = 2;
-					int plevel = p.getLevel() - removel;
-					p.setLevel(plevel);
-					p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1, 1);
-					p.addPotionEffect(new PotionEffect(PotionEffectType.WATER_BREATHING, 12000, 1));
-
-					String spellName = "Deep Wader";
-
-					sendCastMessage(e.getPlayer(), spellName, "Water");
-					tryForRankItem(e.getPlayer(), "Water DeepWader");
-				}
-			}
-		}
-	}
 
 	// ===========================
 	// Water : Protective Bubble
 
-	private void castWater_ProtectiveBubble(final Player player) {
-		Random rand = new Random();
-		int number = rand.nextInt(100) + 1;
-		if (number >= 97) {
-			player.removePotionEffect(PotionEffectType.ABSORPTION);
-			player.addPotionEffect(new PotionEffect(PotionEffectType.ABSORPTION, 300, 0));
-			String spellName = "Protective Bubble";
-
-			sendCastMessage(player, spellName, "Water");
-			tryForRankItem(player, "Water ProtectiveBubble");
-
-			runLater(() -> player.removePotionEffect(PotionEffectType.ABSORPTION), 320);
-		}
-	}
 
 	// ==========================
 	// Nether : Vampirism
 
-	private void castNether_Vampirism(EntityDeathEvent event) {
-		Entity e = event.getEntity();
-
-		EntityDamageByEntityEvent nEvent = (EntityDamageByEntityEvent) e.getLastDamageCause();
-
-		Random rand = new Random();
-		int number = rand.nextInt(100) + 1;
-		if (number >= 80) {
-			Player p = (Player) nEvent.getDamager();
-
-			if (p.getHealth() >= p.getMaxHealth() - 3) {
-				p.setHealth(p.getMaxHealth());
-			} else {
-				p.setHealth(p.getHealth() + 3);
-			}
-			String spellName = "Vampirism";
-			sendCastMessage(p, spellName, "Nether");
-			tryForRankItem(p, "Nether Vampirism");
-		}
-	}
 
 	// ==========================
 	// Aether : Gravity Flux
 
-	private void castAether_GravityFlux(Player p) {
-		Random rand = new Random();
-		int number = rand.nextInt(100) + 1;
-		if (number <= 4) {
-			String spellName = "Gravity Flux";
-			sendCastMessage(p, spellName, "Aether");
-			tryForRankItem(p, "Aether GravityFlux");
-
-			for (Entity e : p.getNearbyEntities(7, 7, 7)) {
-				if (e instanceof Monster) {
-					e.setVelocity(new Vector(e.getVelocity().getX(), 1, e.getVelocity().getZ()));
-				}
-			}
-		}
-	}
 
 	// ==========================
 	// Aether : Graceful Steps
 
-	private void castAether_GracefulSteps(Player p) {
-		Random rand = new Random();
-		int number = rand.nextInt(100) + 1;
-		if (number <= 20) {
-			String spellName = "Graceful Steps";
-			sendCastMessage(p, spellName, "Aether");
-
-			// tryForRankItem(p, "Aether GracefulSteps");
-
-			p.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 300, 0));
-		}
-	}
 
 	// ==========================
 	// Nature: Wild Growth
@@ -1727,21 +1470,389 @@ public class Faith {
 	// =========================
 	// Nature : Forest Armor
 
-	@SuppressWarnings("deprecation")
-	// Nature : Locust Swarm - a swarm damages monsters around where the arrow hit, once a second for 5 seconds
+
+
+	// =========================
+	// Water :: Arctic Frost
+
+
+	// ======================================================================
+	// Power casts (rewritten 2026-11-23: chances/cooldowns per Rune, particle effects in FaithEffects)
+
+	private static final Map<UUID, Long> BUBBLE_LAST = new HashMap<>();
+	private static final Map<UUID, Long> FROST_LAST = new HashMap<>();
+	private static final Map<UUID, Long> BREEZE_LAST = new HashMap<>();
+	private static final Map<UUID, Long> SHIELD_LAST = new HashMap<>();
+	private static final Map<UUID, Long> BOUNTY_LAST = new HashMap<>();
+
+	private static void logCast(Player p, String spell) {
+		getLogger().log(Level.INFO, "Faith Info: " + p.getName() + " just cast " + spell + "!");
+	}
+
+	// Fire : Volcanic Fury - 5% on hitting a monster: Strength III for 7.5 s
+	public void castFlame_VolcanicFury(UUID pUUID, Player p) {
+		if (RunicParadise.randomSeed.nextInt(100) < 5) {
+			p.addPotionEffect(new PotionEffect(PotionEffectType.INCREASE_DAMAGE, 150, 2));
+			FaithEffects.volcanicFury(p, 150);
+			sendCastMessage(p, "Volcanic Fury", "Fire");
+			tryForRankItem(p, "Fire VolcanicFury");
+			logCast(p, "Volcanic Fury");
+		}
+	}
+
+	// Fire : Unstable Embers - 11% on taking damage: 4 damage to monsters within 4 blocks
+	private void castFlame_UnstableEmbers(Player p) {
+		if (RunicParadise.randomSeed.nextInt(100) < 11) {
+			sendCastMessage(p, "Unstable Embers", "Fire");
+			tryForRankItem(p, "Flame UnstableEmbers");
+			FaithEffects.unstableEmbers(p, 4);
+			for (Entity entity : p.getNearbyEntities(4, 4, 4)) {
+				if (entity instanceof Monster) {
+					((LivingEntity) entity).damage(4, p);
+				}
+			}
+			logCast(p, "Unstable Embers");
+		}
+	}
+
+	// Fate : Inevitable Demise - at 3 hearts or less, 21% to kill monsters within 2 blocks
+	private void castFate_InevitableDemise(UUID pUUID, Player player, LivingEntity monster) {
+		if (player.getHealth() > 6 || RunicParadise.randomSeed.nextInt(100) >= 21) {
+			return;
+		}
+		List<Location> reaped = new ArrayList<>();
+		for (final Entity entity : player.getNearbyEntities(2, 2, 2)) {
+			if (entity instanceof Monster && !(entity instanceof Wither)) {
+				reaped.add(entity.getLocation());
+				((LivingEntity) entity).setHealth(0);
+			}
+		}
+		if (!monster.isDead() && monster instanceof Monster) {
+			reaped.add(monster.getLocation());
+			monster.setHealth(0);
+		}
+		FaithEffects.inevitableDemise(player, reaped);
+		sendCastMessage(player, "Inevitable Demise", "Fate");
+		tryForRankItem(player, "Fate InevitableDemise");
+		logCast(player, "Inevitable Demise");
+	}
+
+	// Time : Rewind - 10% of killing blows are undone
+	private void castTime_Rewind(EntityDamageEvent event, Player p) {
+		if (p.getHealth() - event.getFinalDamage() > 0) {
+			return; // not a killing blow
+		}
+		if (RunicParadise.randomSeed.nextInt(100) < 10) {
+			event.setCancelled(true);
+			p.setHealth(Math.min(16, p.getMaxHealth()));
+			p.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 200, 1));
+			FaithEffects.rewind(p);
+			sendCastMessage(p, "Rewind", "Time");
+			tryForRankItem(p, "Time Rewind");
+			logCast(p, "Rewind");
+		}
+	}
+
+	// Nether : Netherborn - lasts while in a Netherborn nether
+	void castNether_Netherborn(Player p) {
+		p.addPotionEffect(new PotionEffect(PotionEffectType.HEALTH_BOOST, PotionEffect.INFINITE_DURATION, 1));
+		p.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, PotionEffect.INFINITE_DURATION, 0));
+		FaithEffects.netherborn(p);
+		sendCastMessage(p, "Netherborn", "Nether");
+		logCast(p, "Netherborn");
+	}
+
+	// Nether : Vampirism - 21% on killing a monster: heal 3 HP
+	private void castNether_Vampirism(EntityDeathEvent event) {
+		Entity e = event.getEntity();
+		if (!(e.getLastDamageCause() instanceof EntityDamageByEntityEvent)) {
+			return;
+		}
+		Entity damager = ((EntityDamageByEntityEvent) e.getLastDamageCause()).getDamager();
+		if (!(damager instanceof Player) || RunicParadise.randomSeed.nextInt(100) >= 21) {
+			return;
+		}
+		Player p = (Player) damager;
+		p.setHealth(Math.min(p.getMaxHealth(), p.getHealth() + 3));
+		FaithEffects.vampirism(p, e.getLocation());
+		sendCastMessage(p, "Vampirism", "Nether");
+		tryForRankItem(p, "Nether Vampirism");
+	}
+
+	// Air : Tempest Armor - FULL GOLD ARMOUR required (all 4 pieces); 5% on hitting a monster
+	private void castAir_TempestArmor(Player player) {
+		if (!wearingFullSet(player, Material.GOLDEN_HELMET, Material.GOLDEN_CHESTPLATE, Material.GOLDEN_LEGGINGS,
+				Material.GOLDEN_BOOTS) || RunicParadise.randomSeed.nextInt(100) >= 5) {
+			return;
+		}
+		sendCastMessage(player, "Tempest Armor", "Air");
+		tryForRankItem(player, "Air TempestArmor");
+		List<Entity> flung = new ArrayList<>();
+		for (final Entity entity : player.getNearbyEntities(5, 5, 5)) {
+			if (entity instanceof Monster) {
+				flung.add(entity);
+				entity.setVelocity(entity.getLocation().getDirection().multiply(2.5D).setY(0.7D));
+				runLater(() -> {
+					if (entity.isValid()) {
+						entity.getWorld().strikeLightning(entity.getLocation());
+					}
+				}, 20);
+			}
+		}
+		FaithEffects.tempestArmor(player, 5, flung);
+		logCast(player, "Tempest Armor");
+	}
+
+	// Air : Healing Breeze - 5% on taking damage, 30 s cooldown: Regeneration II 10 s for you, players within 40, tamed wolves
+	private void castAir_HealingBreeze(Player player) {
+		if (!rollWithCooldown(BREEZE_LAST, player, 5, 30_000L)) {
+			return;
+		}
+		sendCastMessage(player, "Healing Breeze", "Air");
+		tryForRankItem(player, "Air HealingBreeze");
+		List<Entity> targets = new ArrayList<>(player.getNearbyEntities(40, 40, 40));
+		targets.add(player);
+		List<LivingEntity> healed = new ArrayList<>();
+		for (Entity entity : targets) {
+			if (entity instanceof Player) {
+				((LivingEntity) entity).addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 200, 1));
+				healed.add((LivingEntity) entity);
+				if (entity != player) {
+					ActionBars.send((Player) entity, ChatColor.WHITE + "≋ " + ChatColor.GRAY + ChatColor.ITALIC
+							+ "You feel refreshed by a soothing breeze");
+				}
+			} else if (entity instanceof Wolf && ((Wolf) entity).isTamed()) {
+				((Wolf) entity).addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 200, 1));
+				healed.add((LivingEntity) entity);
+			}
+		}
+		FaithEffects.healingBreeze(player, healed);
+		logCast(player, "Healing Breeze");
+	}
+
+	// Water : Protective Bubble - 10% on taking damage, 20 s cooldown: Absorption I for 15 s
+	private void castWater_ProtectiveBubble(final Player player) {
+		if (!rollWithCooldown(BUBBLE_LAST, player, 10, 20_000L)) {
+			return;
+		}
+		player.removePotionEffect(PotionEffectType.ABSORPTION);
+		player.addPotionEffect(new PotionEffect(PotionEffectType.ABSORPTION, 300, 0));
+		FaithEffects.protectiveBubble(player, 300);
+		sendCastMessage(player, "Protective Bubble", "Water");
+		tryForRankItem(player, "Water ProtectiveBubble");
+		runLater(() -> player.removePotionEffect(PotionEffectType.ABSORPTION), 320);
+		logCast(player, "Protective Bubble");
+	}
+
+	// Water : Arctic Frost - 8% on taking damage, 25 s cooldown: Slowness III 7.5 s on monsters within 7 blocks
+	private void castWater_ArcticFrost(Player p) {
+		if (!rollWithCooldown(FROST_LAST, p, 8, 25_000L)) {
+			return;
+		}
+		sendCastMessage(p, "Arctic Frost", "Water");
+		tryForRankItem(p, "Water ArcticFrost");
+		List<Entity> slowed = new ArrayList<>();
+		for (Entity e : p.getNearbyEntities(7, 7, 7)) {
+			if (e instanceof Monster) {
+				((Monster) e).addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 150, 2));
+				slowed.add(e);
+			}
+		}
+		FaithEffects.arcticFrost(p, 7, slowed, 150);
+		logCast(p, "Arctic Frost");
+	}
+
+	// Water : Deep Wader - right-click (air or block) with glowstone dust while in water: costs 1 level,
+	// Water Breathing for 10 minutes. (Was 2 levels, and only worked when right-clicking a block while the
+	// feet block was plain water; waterlogged blocks and clicking into open water did nothing.)
+	void castWater_DeepWader(PlayerInteractEvent e) {
+		Player p = e.getPlayer();
+		if (!powersAllowed(p.getWorld()) || !inMainWorld(p)) { // main overworld + Mining only
+			return;
+		}
+		if (e.getItem() == null || e.getItem().getType() != Material.GLOWSTONE_DUST || !p.isInWater()) {
+			return;
+		}
+		if (p.getLevel() < 1) {
+			ActionBars.send(p, ChatColor.RED + "Deep Wader needs 1 XP level.");
+			return;
+		}
+		p.setLevel(p.getLevel() - 1);
+		p.addPotionEffect(new PotionEffect(PotionEffectType.WATER_BREATHING, 12000, 0));
+		FaithEffects.deepWader(p);
+		sendCastMessage(p, "Deep Wader", "Water");
+		tryForRankItem(p, "Water DeepWader");
+		logCast(p, "Deep Wader");
+	}
+
+	// Earth : Earth's Bounty - right-click stone/deepslate/etc. with glowstone dust: costs 1 level, counts diamond
+	// and emerald ores within 30 blocks of the player in every direction. (Was 2 levels, and scanned a 30-block cube
+	// centred 15 blocks IN FRONT of the player.) The count runs off the main thread on chunk snapshots.
+	static final int EARTHS_BOUNTY_RADIUS = 30;
+	private static final Set<Material> EARTHS_BOUNTY_BLOCKS = EnumSet.of(Material.STONE, Material.DEEPSLATE,
+			Material.TUFF, Material.GRANITE, Material.DIORITE, Material.ANDESITE, Material.COBBLED_DEEPSLATE);
+
+	void castEarth_EarthsBounty(PlayerInteractEvent e) {
+		final Player p = e.getPlayer();
+		if (!powersAllowed(p.getWorld()) || !inMainWorld(p)) { // main overworld + Mining only
+			return;
+		}
+		if (e.getAction() != Action.RIGHT_CLICK_BLOCK || e.getItem() == null
+				|| e.getItem().getType() != Material.GLOWSTONE_DUST
+				|| !EARTHS_BOUNTY_BLOCKS.contains(e.getClickedBlock().getType())) {
+			return;
+		}
+		Long last = BOUNTY_LAST.get(p.getUniqueId());
+		if (last != null && System.currentTimeMillis() - last < 3000) {
+			return; // stops double clicks from charging twice
+		}
+		if (p.getLevel() < 1) {
+			ActionBars.send(p, ChatColor.RED + "Earth's Bounty needs 1 XP level.");
+			return;
+		}
+		BOUNTY_LAST.put(p.getUniqueId(), System.currentTimeMillis());
+		p.setLevel(p.getLevel() - 1);
+		FaithEffects.earthsBountyPulse(p, e.getClickedBlock().getBlockData());
+		sendCastMessage(p, "Earth's Bounty", "Earth");
+
+		final int r = EARTHS_BOUNTY_RADIUS;
+		final Location c = p.getLocation();
+		final World w = c.getWorld();
+		final int px = c.getBlockX(), py = c.getBlockY(), pz = c.getBlockZ();
+		final int minY = Math.max(w.getMinHeight(), py - r);
+		final int maxY = Math.min(w.getMaxHeight() - 1, py + r);
+		final List<ChunkSnapshot> snaps = new ArrayList<>();
+		for (int cx = (px - r) >> 4; cx <= (px + r) >> 4; cx++) {
+			for (int cz = (pz - r) >> 4; cz <= (pz + r) >> 4; cz++) {
+				if (w.isChunkLoaded(cx, cz)) {
+					snaps.add(w.getChunkAt(cx, cz).getChunkSnapshot(false, false, false));
+				}
+			}
+		}
+		Bukkit.getScheduler().runTaskAsynchronously(instance, () -> {
+			int diamonds = 0, emeralds = 0;
+			for (ChunkSnapshot s : snaps) {
+				int bx = s.getX() << 4, bz = s.getZ() << 4;
+				for (int x = 0; x < 16; x++) {
+					if (Math.abs(bx + x - px) > r) {
+						continue;
+					}
+					for (int z = 0; z < 16; z++) {
+						if (Math.abs(bz + z - pz) > r) {
+							continue;
+						}
+						for (int y = minY; y <= maxY; y++) {
+							Material m = s.getBlockType(x, y, z);
+							if (m == Material.DIAMOND_ORE || m == Material.DEEPSLATE_DIAMOND_ORE) {
+								diamonds++;
+							} else if (m == Material.EMERALD_ORE || m == Material.DEEPSLATE_EMERALD_ORE) {
+								emeralds++;
+							}
+						}
+					}
+				}
+			}
+			final int d = diamonds, em = emeralds;
+			Bukkit.getScheduler().runTask(instance, () -> {
+				if (!p.isOnline()) {
+					return;
+				}
+				p.sendMessage(ChatColor.DARK_GREEN + "◆ " + ChatColor.GREEN + "Within " + r + " blocks: " + ChatColor.AQUA
+						+ d + " diamond ore" + ChatColor.GREEN + ", " + ChatColor.DARK_GREEN + em + " emerald ore");
+				FaithEffects.earthsBountyResult(p, d, em);
+			});
+		});
+		logCast(p, "Earth's Bounty");
+	}
+
+	// Earth : Earthen Shield (new, level 150) - while standing on natural ground, 10% on taking a hit (25 s cooldown):
+	// the earth rises and BLOCKS the hit completely, and the blocked damage (2-8) is thrown back at a mob attacker
+	// with a knockback. Unique among the "on damage" powers: it negates the hit instead of buffing or debuffing.
+	private static final Set<Material> EARTH_GROUND = EnumSet.of(Material.STONE, Material.COBBLESTONE,
+			Material.MOSSY_COBBLESTONE, Material.DEEPSLATE, Material.COBBLED_DEEPSLATE, Material.TUFF, Material.CALCITE,
+			Material.GRANITE, Material.DIORITE, Material.ANDESITE, Material.DIRT, Material.COARSE_DIRT, Material.ROOTED_DIRT,
+			Material.GRASS_BLOCK, Material.PODZOL, Material.MYCELIUM, Material.DIRT_PATH, Material.FARMLAND, Material.MUD,
+			Material.PACKED_MUD, Material.CLAY, Material.GRAVEL, Material.SAND, Material.RED_SAND, Material.SANDSTONE,
+			Material.RED_SANDSTONE, Material.TERRACOTTA, Material.MOSS_BLOCK, Material.DRIPSTONE_BLOCK,
+			Material.SMOOTH_BASALT, Material.BASALT, Material.BLACKSTONE, Material.NETHERRACK);
+
+	static boolean isEarthGround(Material m) {
+		return EARTH_GROUND.contains(m) || m.name().endsWith("_ORE") || m.name().endsWith("_TERRACOTTA");
+	}
+
+	private void castEarth_EarthenShield(EntityDamageEvent event, Player p) {
+		Block below = p.getLocation().subtract(0, 0.2, 0).getBlock();
+		if (!isEarthGround(below.getType()) || !rollWithCooldown(SHIELD_LAST, p, 10, 25_000L)) {
+			return;
+		}
+		double blocked = event.getDamage();
+		event.setCancelled(true);
+		LivingEntity attacker = null;
+		if (event instanceof EntityDamageByEntityEvent) {
+			Entity d = ((EntityDamageByEntityEvent) event).getDamager();
+			if (d instanceof Projectile && ((Projectile) d).getShooter() instanceof Entity) {
+				d = (Entity) ((Projectile) d).getShooter();
+			}
+			if (d instanceof LivingEntity && !(d instanceof Player)) {
+				attacker = (LivingEntity) d;
+			}
+		}
+		if (attacker != null) {
+			attacker.damage(Math.min(8, Math.max(2, blocked)), p);
+			Vector push = attacker.getLocation().toVector().subtract(p.getLocation().toVector()).setY(0);
+			if (push.lengthSquared() > 0.001) {
+				attacker.setVelocity(push.normalize().multiply(0.9).setY(0.35));
+			}
+		}
+		FaithEffects.earthenShield(p, below.getBlockData(), attacker);
+		sendCastMessage(p, "Earthen Shield", "Earth");
+		tryForRankItem(p, "Earth EarthenShield");
+		logCast(p, "Earthen Shield");
+	}
+
+	// Aether : Gravity Flux - 4% on hitting a monster: launch monsters within 7 blocks
+	private void castAether_GravityFlux(Player p) {
+		if (RunicParadise.randomSeed.nextInt(100) >= 4) {
+			return;
+		}
+		sendCastMessage(p, "Gravity Flux", "Aether");
+		tryForRankItem(p, "Aether GravityFlux");
+		List<Entity> launched = new ArrayList<>();
+		for (Entity e : p.getNearbyEntities(7, 7, 7)) {
+			if (e instanceof Monster) {
+				e.setVelocity(new Vector(e.getVelocity().getX(), 1, e.getVelocity().getZ()));
+				launched.add(e);
+			}
+		}
+		FaithEffects.gravityFlux(p, launched);
+		logCast(p, "Gravity Flux");
+	}
+
+	// Aether : Graceful Steps - 20% on taking fall damage: Speed I for 15 s
+	private void castAether_GracefulSteps(Player p) {
+		if (RunicParadise.randomSeed.nextInt(100) >= 20) {
+			return;
+		}
+		p.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 300, 0));
+		FaithEffects.gracefulSteps(p, 300);
+		sendCastMessage(p, "Graceful Steps", "Aether");
+	}
+
+	// Nature : Locust Swarm - 8% per arrow hit: monsters within 3 blocks of the hit take 2 damage/s for 5 s
 	void castNature_LocustSwarm(final Player p, final Location where) {
-		if (RunicParadise.randomSeed.nextInt(100) >= 8) { // 8% chance per arrow hit
+		if (RunicParadise.randomSeed.nextInt(100) >= 8) {
 			return;
 		}
 		sendCastMessage(p, "Locust Swarm", "Nature");
 		tryForRankItem(p, "Nature LocustSwarm");
 		where.getWorld().playSound(where, Sound.ENTITY_BEE_LOOP_AGGRESSIVE, 1f, 0.6f);
+		FaithEffects.locustPulse(where);
 		for (int i = 0; i < 5; i++) {
 			runLater(() -> {
 				if (!p.isOnline() || where.getWorld() == null) {
 					return;
 				}
-				where.getWorld().spawnParticle(Particle.SPORE_BLOSSOM_AIR, where.clone().add(0, 1, 0), 40, 2, 1, 2, 0);
+				FaithEffects.locustPulse(where);
 				for (Entity e : where.getWorld().getNearbyEntities(where, 3, 3, 3)) {
 					if (e instanceof Monster && !e.isDead()) {
 						((LivingEntity) e).damage(2, p);
@@ -1749,74 +1860,58 @@ public class Faith {
 				}
 			}, 20L * (i + 1));
 		}
+		logCast(p, "Locust Swarm");
 	}
 
+	// Nature : Forest Armor - FULL LEATHER ARMOUR required (all 4 pieces); 5% on taking damage: 2 wolves for 20 s,
+	// attacker poisoned
 	private void castNature_ForestArmor(EntityDamageEvent event, Player player) {
-		ItemStack i = player.getInventory().getHelmet();
-		ItemStack j = player.getInventory().getChestplate();
-		ItemStack k = player.getInventory().getLeggings();
-		ItemStack l = player.getInventory().getBoots();
-		if (i != null && j != null && k != null && l != null) {
-			if (i.getType() == Material.LEATHER_HELMET && j.getType() == Material.LEATHER_CHESTPLATE
-					&& k.getType() == Material.LEATHER_LEGGINGS && l.getType() == Material.LEATHER_BOOTS) {
-				Random rand = new Random();
-				int number = rand.nextInt(100) + 1;
-				if (number >= 96) {
-					String spellName = "Forest Armor";
-					sendCastMessage(player, spellName, "Nature");
-					final Wolf wolf1 = (Wolf) player.getWorld().spawnEntity(player.getLocation(), EntityType.WOLF);
-					final Wolf wolf2 = (Wolf) player.getWorld().spawnEntity(player.getLocation(), EntityType.WOLF);
-					wolf1.setOwner(player);
-					wolf1.setAdult();
-					wolf1.setTamed(true);
-					wolf1.setCustomName(ChatColor.YELLOW + player.getName() + "'s Wolf");
-					wolf1.setCustomNameVisible(true);
-					wolf2.setOwner(player);
-					wolf2.setAdult();
-					wolf2.setTamed(true);
-					wolf2.setCustomName(ChatColor.YELLOW + player.getName() + "'s Wolf");
-					wolf2.setCustomNameVisible(true);
-					// Poison the attacker (in the power description, never implemented)
-					if (event instanceof EntityDamageByEntityEvent) {
-						Entity damager = ((EntityDamageByEntityEvent) event).getDamager();
-						if (damager instanceof Projectile && ((Projectile) damager).getShooter() instanceof Entity) {
-							damager = (Entity) ((Projectile) damager).getShooter();
-						}
-						if (damager instanceof LivingEntity && !(damager instanceof Player)) {
-							((LivingEntity) damager).addPotionEffect(new PotionEffect(PotionEffectType.POISON, 100, 1));
-							wolf1.setTarget((LivingEntity) damager);
-							wolf2.setTarget((LivingEntity) damager);
-						}
-					}
-					// Remove the wolves after 20 s on the main thread (the async version failed, so they never left)
-					runLater(() -> {
-						wolf1.remove();
-						wolf2.remove();
-					}, 400);
+		if (!wearingFullSet(player, Material.LEATHER_HELMET, Material.LEATHER_CHESTPLATE, Material.LEATHER_LEGGINGS,
+				Material.LEATHER_BOOTS) || RunicParadise.randomSeed.nextInt(100) >= 5) {
+			return;
+		}
+		sendCastMessage(player, "Forest Armor", "Nature");
+		final List<Wolf> wolves = new ArrayList<>();
+		for (int i = 0; i < 2; i++) {
+			Wolf wolf = (Wolf) player.getWorld().spawnEntity(player.getLocation(), EntityType.WOLF);
+			wolf.setOwner(player);
+			wolf.setAdult();
+			wolf.setTamed(true);
+			wolf.setCustomName(ChatColor.YELLOW + player.getName() + "'s Wolf");
+			wolf.setCustomNameVisible(true);
+			wolves.add(wolf);
+		}
+		LivingEntity poisoned = null;
+		if (event instanceof EntityDamageByEntityEvent) {
+			Entity damager = ((EntityDamageByEntityEvent) event).getDamager();
+			if (damager instanceof Projectile && ((Projectile) damager).getShooter() instanceof Entity) {
+				damager = (Entity) ((Projectile) damager).getShooter();
+			}
+			if (damager instanceof LivingEntity && !(damager instanceof Player)) {
+				poisoned = (LivingEntity) damager;
+				poisoned.addPotionEffect(new PotionEffect(PotionEffectType.POISON, 100, 1));
+				for (Wolf wolf : wolves) {
+					wolf.setTarget(poisoned);
 				}
 			}
 		}
+		FaithEffects.forestArmor(player, wolves, poisoned);
+		runLater(() -> {
+			for (Wolf wolf : wolves) {
+				if (wolf.isValid()) {
+					FaithEffects.wolfDepart(wolf.getLocation());
+				}
+				wolf.remove();
+			}
+		}, 400);
+		logCast(player, "Forest Armor");
 	}
 
-	// =========================
-	// Water :: Arctic Frost
-
-	@SuppressWarnings("deprecation")
-	private void castWater_ArcticFrost(Player p) {
-		Random rand = new Random();
-		int number = rand.nextInt(100) + 1;
-		if (number <= 3) {
-			String spellName = "Arctic Frost";
-			sendCastMessage(p, spellName, "Water");
-
-			tryForRankItem(p, "Water ArcticFrost");
-
-			for (Entity e : p.getNearbyEntities(7, 7, 7)) {
-				if (e instanceof Monster) {
-					((Monster) e).addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 150, 2));
-				}
-			}
-		}
+	private static boolean wearingFullSet(Player p, Material helmet, Material chest, Material legs, Material boots) {
+		ItemStack h = p.getInventory().getHelmet(), c = p.getInventory().getChestplate(),
+				l = p.getInventory().getLeggings(), b = p.getInventory().getBoots();
+		return h != null && c != null && l != null && b != null && h.getType() == helmet && c.getType() == chest
+				&& l.getType() == legs && b.getType() == boots;
 	}
 
 	/**

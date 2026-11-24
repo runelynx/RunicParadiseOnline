@@ -1735,6 +1735,15 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 
 	@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
 	public void onPlayerInteract(PlayerInteractEvent event) {
+		// Deep Wader also works when right-clicking into open water (that is a RIGHT_CLICK_AIR action)
+		if (event.getAction() == Action.RIGHT_CLICK_AIR && event.getItem() != null
+				&& event.getItem().getType() == Material.GLOWSTONE_DUST) {
+			Faith airFaith = faithMap.get(event.getPlayer().getUniqueId());
+			Integer wadeReq = RunicParadise.powerReqsMap.get("Deep Wader");
+			if (airFaith != null && wadeReq != null && airFaith.checkEquippedFaithLevel("Water", wadeReq)) {
+				airFaith.castWater_DeepWader(event);
+			}
+		}
 		if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
 
 			// Run FaithBall summoning logic
