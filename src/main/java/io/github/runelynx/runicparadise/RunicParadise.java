@@ -1378,6 +1378,19 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 			}
 			event.setCancelled(true);
 		} else
+		// /games (Carnival) menus, shared handling (2026-11-23):
+		// - clicks in the player's OWN inventory are ignored (getSlot() matched those too, so clicking your hotbar
+		//   while a menu was open could teleport you);
+		// - the beacon at the top of every submenu (slot 4) returns to the main Carnival menu (it did nothing).
+		if ((event.getView().getTitle().contains("Runic Carnival") || event.getView().getTitle().contains("Explorer's League"))
+				&& (event.getRawSlot() < 0 || event.getRawSlot() >= event.getView().getTopInventory().getSize()
+						|| (event.getRawSlot() == 4 && !event.getView().getTitle().contains("Runic Carnival Menu")))) {
+			event.setCancelled(true);
+			if (event.getRawSlot() == 4 && event.getWhoClicked() instanceof Player) {
+				final Player carnivalPlayer = (Player) event.getWhoClicked();
+				Bukkit.getScheduler().runTask(instance, () -> RunicParadise.showRunicCarnivalMenu(carnivalPlayer));
+			}
+		} else
 		// Carnival menu - MAZES
 		if (event.getView().getTitle().contains("Runic Carnival - Mazes")) {
 			switch (event.getSlot()) {
@@ -1488,10 +1501,19 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 				// explorer's league
 				RunicParadise.showRunicCarnivalMenu_Explorers((Player) event.getWhoClicked(), 1);
 				break;
-			case 32:
-				// adventure islands
-				event.getWhoClicked().sendMessage("Croc's adventure islands are coming soon!");
+			case 32: {
+				// Adventure Islands (2026-11-23, per Croc): close the menu and send the player to the islands
+				// entrance in RunicSky at 356.5 55.05 522.5 facing yaw 90, pitch 0.
+				final Player islander = (Player) event.getWhoClicked();
+				final World sky = Bukkit.getWorld("RunicSky");
+				Bukkit.getScheduler().runTask(instance, () -> {
+					islander.closeInventory();
+					if (sky != null) {
+						islander.teleport(new Location(sky, 356.5, 55.05, 522.5, 90f, 0f));
+					}
+				});
 				break;
+			}
 			case 33:
 				// open battle tower menu
 				RunicParadise.showRunicCarnivalMenu_BattleTower(((Player) event.getWhoClicked()));
