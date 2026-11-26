@@ -1639,6 +1639,11 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 
 			}
 
+			// 2026-11-26: staff can close a faith (/rs Faith); it shows as closed and can't be picked here
+			if (!faith.equals("") && !FaithConfig.faithOpen(faith)) {
+				event.getWhoClicked().sendMessage(ChatColor.GRAY + faith + " is closed for now.");
+				faith = "";
+			}
 			if (!faith.equals("")) {
 				final org.bukkit.entity.HumanEntity clicker = event.getWhoClicked();
 				Bukkit.getScheduler().runTask(RunicParadise.getInstance(), (Runnable) clicker::closeInventory);

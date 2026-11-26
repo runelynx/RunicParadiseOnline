@@ -104,6 +104,8 @@ final class FaithSystemAdmin {
 			Ui.ok(pl, "Faith settings reloaded.");
 			main(pl);
 		});
+		g.set(33, Gui.item("GOLDEN_SWORD", "&f&lFaith weapons", "&7Charges, chances, zeal cost and", "&7stats of craftable faith weapons"),
+				(pl, t) -> FaithWeaponsAdmin.list(pl));
 		g.set(36, Gui.item("ARROW", "&7« Staff menu"), (pl, t) -> StaffMenu.main(pl));
 		g.frameRow(0).frameRow(4);
 		g.openLater(p);
@@ -130,6 +132,15 @@ final class FaithSystemAdmin {
 		faithField(g, 11, p, faith, "PAPER", "Cast message", "CastMessage", fs[5], false, edit);
 		faithField(g, 12, p, faith, "NAME_TAG", "Chat prefix", "ChatPrefix", fs[1], false, edit);
 		faithField(g, 13, p, faith, "NAME_TAG", "Chat prefix 2", "ChatPrefix2", fs[6], false, edit);
+		boolean open = FaithConfig.faithOpen(faith);
+		g.set(15, Gui.item(open ? "LIME_CONCRETE" : "RED_CONCRETE", open ? "&a&lOpen" : "&c&lClosed",
+				open ? "&7Players can pick it in the faith menu." : "&7Shown as closed in the faith menu;", open ? null : "&7players already using it keep it.",
+				edit ? "&eClick to " + (open ? "close" : "open") : null), edit ? (pl, t) -> Confirm.menu(pl, (open ? "Close " : "Open ") + faith,
+				open ? Arrays.asList("&7It can't be picked in the faith menu.", "&7Players already following it keep it.") : null, () -> {
+					FaithConfig.setFaithOpen(faith, !open, pl.getName());
+					Audit.log(pl, open ? "faith closed" : "faith opened", faith);
+					faith(pl, faith);
+				}, () -> faith(pl, faith)) : null);
 
 		int slot = 18;
 		for (PowerRow r : powers()) {
@@ -240,16 +251,17 @@ final class FaithSystemAdmin {
 
 	static void global(Player p) {
 		boolean edit = p.hasPermission(EDIT_PERM);
-		Gui g = new Gui(3, "&8Faith · global settings");
-		int slot = 10;
+		Gui g = new Gui(4, "&8Faith · global settings");
+		int slot = 9;
 		for (FaithConfig.Setting s : FaithConfig.DEFS.get(FaithConfig.GLOBAL)) {
+			if (slot >= 27) break;
 			g.set(slot++, settingIcon(p, s, edit), edit ? (pl, t) -> {
 				if (t.isRightClick()) resetSetting(pl, s, () -> global(pl));
 				else changeSetting(pl, s, () -> global(pl));
 			} : null);
 		}
-		g.set(18, Gui.item("ARROW", "&7« All faiths"), (pl, t) -> main(pl));
-		g.frameRow(0).frameRow(2);
+		g.set(27, Gui.item("ARROW", "&7« All faiths"), (pl, t) -> main(pl));
+		g.frameRow(0).frameRow(3);
 		g.openLater(p);
 	}
 
@@ -428,9 +440,11 @@ final class FaithSystemAdmin {
 			while (rs.next()) {
 				String power = rs.getString(1), key = rs.getString(2);
 				FaithConfig.Setting def = FaithConfig.find(power, key);
-				String label = key.equals("enabled") ? "On" : def == null ? key : def.label;
-				String val = def == null ? (key.equals("enabled") ? (Boolean.parseBoolean(rs.getString(3)) ? "yes" : "no") : rs.getString(3)) : show(def, rs.getString(3));
-				CoreActions.row(s, (power.equals(FaithConfig.GLOBAL) ? "Global" : power) + " · " + label,
+				boolean yesNo = key.equals("enabled") || key.equals("open");
+				String label = key.equals("enabled") ? "On" : key.equals("open") ? "Open" : def == null ? key : def.label;
+				String val = def == null ? (yesNo ? (Boolean.parseBoolean(rs.getString(3)) ? "yes" : "no") : rs.getString(3)) : show(def, rs.getString(3));
+				String owner = power.equals(FaithConfig.GLOBAL) ? "Global" : power.startsWith("*Faith:") ? power.substring(7) + " faith" : power;
+				CoreActions.row(s, owner + " · " + label,
 						val + (def != null ? "  (default " + show(def, def.def) + ")" : "") + "  by " + rs.getString(4)
 								+ (rs.getLong(5) > 0 ? ", " + DF.format(new Date(rs.getLong(5))) : ""));
 				n++;

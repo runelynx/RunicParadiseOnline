@@ -57,6 +57,15 @@ final class FaithConfig {
 				"Powers marked main-world-only (Graceful Steps, Rewind, Earthen Shield, Forest Armor, Gravity Flux, Tempest Armor, Inevitable Demise, Deep Wader, Earth's Bounty) only work here");
 		def(GLOBAL, "netherWorlds", "Netherborn nethers", Kind.WORLDS, "RunicKingdom_nether,MiningNether", 0, 0,
 				"Netherborn applies while in these worlds");
+		def(GLOBAL, "rankItemChance", "Faith memory drop", Kind.INT, "30", 0, 100,
+				"% chance a Master-rank player (not farming) gets a faith memory (Duke Essence) when a power fires");
+		def(GLOBAL, "prayerKarmaCost", "Karma prayer cost", Kind.INT, "2", 0, 100, "Karma spent by a karma prayer (prayer book)");
+		def(GLOBAL, "prayerSkillups", "Prayer skill-ups", Kind.INT, "1", 0, 20, "Faith levels gained from a normal prayer");
+		def(GLOBAL, "prayerKarmaSkillups", "Karma prayer skill-ups", Kind.INT, "3", 0, 20, "Faith levels gained from a karma prayer");
+		def(GLOBAL, "unlockFireWater", "Unlock Fire/Water", Kind.INT, "125", 0, 10000, "Total faith levels needed to unlock Fire and Water at the Cathedral");
+		def(GLOBAL, "unlockAirEarth", "Unlock Air/Earth", Kind.INT, "300", 0, 10000, "Total faith levels needed to unlock Air and Earth");
+		def(GLOBAL, "unlockAetherNether", "Unlock Aether/Nether", Kind.INT, "600", 0, 10000, "Total faith levels needed to unlock Aether and Nether");
+		def(GLOBAL, "unlockNatureTech", "Unlock Nature/Tech", Kind.INT, "900", 0, 10000, "Total faith levels needed to unlock Nature and Tech");
 
 		roll("Sunflare", 15, 30);
 		def("Sunflare", "radius", "Radius", Kind.INT, "8", 1, 32, "Blocks around the player");
@@ -138,6 +147,29 @@ final class FaithConfig {
 		def("Forest Armor", "wolfSeconds", "Wolf time", Kind.INT, "20", 1, 120, "Seconds before the wolves leave");
 		def("Forest Armor", "effect1", "Attacker effect", Kind.EFFECT, "POISON,2,5", 0, 0, "Given to the attacker");
 		def("Forest Armor", "fullLeather", "Needs full leather armor", Kind.BOOL, "true", 0, 0, "All four leather armor pieces required");
+
+		// cast feedback switches for every power (lag / quieter play)
+		for (String power : new ArrayList<>(DEFS.keySet())) {
+			if (power.equals(GLOBAL)) continue;
+			def(power, "particles", "Particles", Kind.BOOL, "true", 0, 0, "Show this power's particle effects");
+			def(power, "castMessage", "Cast message", Kind.BOOL, "true", 0, 0, "Show the action-bar message when it fires");
+		}
+	}
+
+	/** A yes/no setting that counts as "yes" when the power has no such setting. */
+	static boolean flag(String power, String key) {
+		String v = raw(power, key);
+		return v == null || Boolean.parseBoolean(v);
+	}
+
+	/** Faiths can be closed by staff: hidden from the faith picker (players already using it keep it). */
+	static boolean faithOpen(String faith) {
+		String v = VALUES.get("*Faith:" + faith + "|open");
+		return v == null || Boolean.parseBoolean(v);
+	}
+
+	static boolean setFaithOpen(String faith, boolean open, String by) {
+		return open ? reset("*Faith:" + faith, "open") : set("*Faith:" + faith, "open", "false", by);
 	}
 
 	// ------------------------------------------------------------------ storage

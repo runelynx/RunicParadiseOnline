@@ -72,6 +72,16 @@ public class Faith {
 		return this.trueUUID;
 	}
 
+	/** Shown in the faith picker for a faith staff have closed (/rs Faith). */
+	static ItemStack closedFaith(String faith) {
+		ItemStack it = new ItemStack(Material.GRAY_STAINED_GLASS_PANE);
+		ItemMeta m = it.getItemMeta();
+		m.setDisplayName(ChatColor.GRAY + faith + " is closed for now");
+		m.setLore(Collections.singletonList(ChatColor.DARK_GRAY + "Players already following it keep it."));
+		it.setItemMeta(m);
+		return it;
+	}
+
 	public static void showFaithMenu(Player p) {
 		Inventory faithInventory = Bukkit.createInventory(null, 45,
 				ChatColor.BLUE + "Runic " + ChatColor.DARK_AQUA + "Faith " + ChatColor.DARK_GRAY + "Selection Menu");
@@ -146,71 +156,97 @@ public class Faith {
 		blockedMeta.setDisplayName("This faith is not available to you");
 		blocked.setItemMeta(blockedMeta);
 
-		if (p.hasPermission("rp.faith.sun")) {
+		if (!FaithConfig.faithOpen("Sun")) {
+			faithInventory.setItem(3, closedFaith("Sun")); // staff closed this faith
+		} else if (p.hasPermission("rp.faith.sun")) {
 			faithInventory.setItem(3, sun);
 		} else {
 			faithInventory.setItem(3, blocked);
 		}
-		if (p.hasPermission("rp.faith.moon")) {
+		if (!FaithConfig.faithOpen("Moon")) {
+			faithInventory.setItem(4, closedFaith("Moon")); // staff closed this faith
+		} else if (p.hasPermission("rp.faith.moon")) {
 			faithInventory.setItem(4, moon);
 		} else {
 			faithInventory.setItem(4, blocked);
 		}
-		if (p.hasPermission("rp.faith.fire")) {
+		if (!FaithConfig.faithOpen("Fire")) {
+			faithInventory.setItem(5, closedFaith("Fire")); // staff closed this faith
+		} else if (p.hasPermission("rp.faith.fire")) {
 			faithInventory.setItem(5, flame);
 		} else {
 			faithInventory.setItem(5, blocked);
 		}
 
-		if (p.hasPermission("rp.faith.water")) {
+		if (!FaithConfig.faithOpen("Water")) {
+			faithInventory.setItem(12, closedFaith("Water")); // staff closed this faith
+		} else if (p.hasPermission("rp.faith.water")) {
 			faithInventory.setItem(12, water);
 		} else {
 			faithInventory.setItem(12, blocked);
 		}
-		if (p.hasPermission("rp.faith.air")) {
+		if (!FaithConfig.faithOpen("Air")) {
+			faithInventory.setItem(13, closedFaith("Air")); // staff closed this faith
+		} else if (p.hasPermission("rp.faith.air")) {
 			faithInventory.setItem(13, air);
 		} else {
 			faithInventory.setItem(13, blocked);
 		}
-		if (p.hasPermission("rp.faith.earth")) {
+		if (!FaithConfig.faithOpen("Earth")) {
+			faithInventory.setItem(14, closedFaith("Earth")); // staff closed this faith
+		} else if (p.hasPermission("rp.faith.earth")) {
 			faithInventory.setItem(14, earth);
 		} else {
 			faithInventory.setItem(14, blocked);
 		}
 
-		if (p.hasPermission("rp.faith.aether")) {
+		if (!FaithConfig.faithOpen("Aether")) {
+			faithInventory.setItem(21, closedFaith("Aether")); // staff closed this faith
+		} else if (p.hasPermission("rp.faith.aether")) {
 			faithInventory.setItem(21, aether);
 		} else {
 			faithInventory.setItem(21, blocked);
 		}
-		if (p.hasPermission("rp.faith.nether")) {
+		if (!FaithConfig.faithOpen("Nether")) {
+			faithInventory.setItem(22, closedFaith("Nether")); // staff closed this faith
+		} else if (p.hasPermission("rp.faith.nether")) {
 			faithInventory.setItem(22, nether);
 		} else {
 			faithInventory.setItem(22, blocked);
 		}
-		if (p.hasPermission("rp.faith.nature")) {
+		if (!FaithConfig.faithOpen("Nature")) {
+			faithInventory.setItem(23, closedFaith("Nature")); // staff closed this faith
+		} else if (p.hasPermission("rp.faith.nature")) {
 			faithInventory.setItem(23, nature);
 		} else {
 			faithInventory.setItem(23, blocked);
 		}
 
-		if (p.hasPermission("rp.faith.tech")) {
+		if (!FaithConfig.faithOpen("Tech")) {
+			faithInventory.setItem(30, closedFaith("Tech")); // staff closed this faith
+		} else if (p.hasPermission("rp.faith.tech")) {
 			faithInventory.setItem(30, tech);
 		} else {
 			faithInventory.setItem(30, blocked);
 		}
-		if (p.hasPermission("rp.faith.fate")) {
+		if (!FaithConfig.faithOpen("Fate")) {
+			faithInventory.setItem(31, closedFaith("Fate")); // staff closed this faith
+		} else if (p.hasPermission("rp.faith.fate")) {
 			faithInventory.setItem(31, fate);
 		} else {
 			faithInventory.setItem(31, blocked);
 		}
-		if (p.hasPermission("rp.faith.time")) {
+		if (!FaithConfig.faithOpen("Time")) {
+			faithInventory.setItem(32, closedFaith("Time")); // staff closed this faith
+		} else if (p.hasPermission("rp.faith.time")) {
 			faithInventory.setItem(32, time);
 		} else {
 			faithInventory.setItem(32, blocked);
 		}
 
-		if (p.hasPermission("rp.faith.stars")) {
+		if (!FaithConfig.faithOpen("Stars")) {
+			faithInventory.setItem(40, closedFaith("Stars")); // staff closed this faith
+		} else if (p.hasPermission("rp.faith.stars")) {
 			faithInventory.setItem(40, stars);
 		} else {
 			faithInventory.setItem(40, blocked);
@@ -1249,7 +1285,7 @@ public class Faith {
 			int limit;
 
 			if (withKarma) {
-				limit = 3;
+				limit = FaithConfig.num(FaithConfig.GLOBAL, "prayerKarmaSkillups"); // was 3
 				while (counter < limit) {
 					this.incrementSkill(p, faithName);
 					if (this.checkEquippedFaithLevel(faithName,
@@ -1260,7 +1296,7 @@ public class Faith {
 				}
 
 			} else {
-				limit = 1;
+				limit = FaithConfig.num(FaithConfig.GLOBAL, "prayerSkillups"); // was 1
 
 				while (counter < limit) {
 					this.incrementSkill(p, faithName);
@@ -1293,6 +1329,9 @@ public class Faith {
 	 * "☀ Solar Power  You feel the explosive fury of the sun within you."
 	 */
 	private void sendCastMessage(Player p, String spellName, String faithName) {
+		if (!FaithConfig.flag(spellName, "castMessage")) {
+			return; // staff switched this power's cast message off
+		}
 		String icon = FAITH_ICONS.getOrDefault(faithName, ChatColor.BLUE + "✦");
 		String flavour = RunicParadise.faithSettingsMap.containsKey(faithName)
 				? RunicParadise.faithSettingsMap.get(faithName)[5] : "";
@@ -2047,13 +2086,13 @@ public class Faith {
 			if (p.getInventory().contains(item1)) {
 				// Player has enough of first item!
 
-				if (needKarma && targetPlayer.getKarma() >= 2) {
+				if (needKarma && targetPlayer.getKarma() >= FaithConfig.num(FaithConfig.GLOBAL, "prayerKarmaCost")) {
 					// Player is trying to pray at a Book - costs 2 karma! they
 					// have enough karma, so take it!
 
 					if (RunicParadise.faithMap.get(p.getUniqueId()).trySkillUpViaPrayer(p,
 							RunicParadise.faithMap.get(p.getUniqueId()).getPrimaryFaith(), true) == 1) {
-						targetPlayer.adjustPlayerKarma(-2);
+						targetPlayer.adjustPlayerKarma(-FaithConfig.num(FaithConfig.GLOBAL, "prayerKarmaCost"));
 						p.getInventory().removeItem(item1a);
 						p.sendMessage("Your karma prayer has been answered!");
 					} else {
@@ -2075,7 +2114,7 @@ public class Faith {
 				} else {
 					// Karma is needed for this prayer and player doesnt have
 					// enough!
-					p.sendMessage("This prayer costs 2 karma; you don't have enough!!");
+					p.sendMessage("This prayer costs " + FaithConfig.num(FaithConfig.GLOBAL, "prayerKarmaCost") + " karma; you don't have enough!!");
 					return;
 				}
 			} else {
@@ -2089,13 +2128,13 @@ public class Faith {
 			if (p.getInventory().contains(item1) && p.getInventory().contains(item2)) {
 				// Player has enough of first item!
 
-				if (needKarma && targetPlayer.getKarma() >= 2) {
+				if (needKarma && targetPlayer.getKarma() >= FaithConfig.num(FaithConfig.GLOBAL, "prayerKarmaCost")) {
 					// Player is trying to pray at a Book - costs 2 karma! they
 					// have enough karma, so take it!
 
 					if (RunicParadise.faithMap.get(p.getUniqueId()).trySkillUpViaPrayer(p,
 							RunicParadise.faithMap.get(p.getUniqueId()).getPrimaryFaith(), true) == 1) {
-						targetPlayer.adjustPlayerKarma(-2);
+						targetPlayer.adjustPlayerKarma(-FaithConfig.num(FaithConfig.GLOBAL, "prayerKarmaCost"));
 						p.getInventory().removeItem(item1a);
 						p.getInventory().removeItem(item2a);
 						p.sendMessage("Your karma prayer has been answered!");
@@ -2118,7 +2157,7 @@ public class Faith {
 				} else {
 					// Karma is needed for this prayer and player doesnt have
 					// enough!
-					p.sendMessage("This prayer costs 2 karma; you don't have enough!!");
+					p.sendMessage("This prayer costs " + FaithConfig.num(FaithConfig.GLOBAL, "prayerKarmaCost") + " karma; you don't have enough!!");
 					return;
 				}
 			} else {
@@ -2133,13 +2172,13 @@ public class Faith {
 					&& p.getInventory().contains(item3)) {
 				// Player has enough of first item!
 
-				if (needKarma && targetPlayer.getKarma() >= 2) {
+				if (needKarma && targetPlayer.getKarma() >= FaithConfig.num(FaithConfig.GLOBAL, "prayerKarmaCost")) {
 					// Player is trying to pray at a Book - costs 2 karma! they
 					// have enough karma, so take it!
 
 					if (RunicParadise.faithMap.get(p.getUniqueId()).trySkillUpViaPrayer(p,
 							RunicParadise.faithMap.get(p.getUniqueId()).getPrimaryFaith(), true) == 1) {
-						targetPlayer.adjustPlayerKarma(-2);
+						targetPlayer.adjustPlayerKarma(-FaithConfig.num(FaithConfig.GLOBAL, "prayerKarmaCost"));
 						p.getInventory().removeItem(item1a);
 						p.getInventory().removeItem(item2a);
 						p.getInventory().removeItem(item3a);
@@ -2166,7 +2205,7 @@ public class Faith {
 				} else {
 					// Karma is needed for this prayer and player doesnt have
 					// enough!
-					p.sendMessage("This prayer costs 2 karma; you don't have enough!!");
+					p.sendMessage("This prayer costs " + FaithConfig.num(FaithConfig.GLOBAL, "prayerKarmaCost") + " karma; you don't have enough!!");
 					return;
 				}
 			} else {
@@ -2181,13 +2220,13 @@ public class Faith {
 					&& p.getInventory().contains(item4)) {
 				// Player has enough of first item!
 
-				if (needKarma && targetPlayer.getKarma() >= 2) {
+				if (needKarma && targetPlayer.getKarma() >= FaithConfig.num(FaithConfig.GLOBAL, "prayerKarmaCost")) {
 					// Player is trying to pray at a Book - costs 2 karma! they
 					// have enough karma, so take it!
 
 					if (RunicParadise.faithMap.get(p.getUniqueId()).trySkillUpViaPrayer(p,
 							RunicParadise.faithMap.get(p.getUniqueId()).getPrimaryFaith(), true) == 1) {
-						targetPlayer.adjustPlayerKarma(-2);
+						targetPlayer.adjustPlayerKarma(-FaithConfig.num(FaithConfig.GLOBAL, "prayerKarmaCost"));
 						p.getInventory().removeItem(item1a);
 						p.getInventory().removeItem(item2a);
 						p.getInventory().removeItem(item3a);
@@ -2215,7 +2254,7 @@ public class Faith {
 				} else {
 					// Karma is needed for this prayer and player doesnt have
 					// enough!
-					p.sendMessage("This prayer costs 2 karma; you don't have enough!!");
+					p.sendMessage("This prayer costs " + FaithConfig.num(FaithConfig.GLOBAL, "prayerKarmaCost") + " karma; you don't have enough!!");
 					return;
 				}
 			} else {
@@ -2336,7 +2375,7 @@ public class Faith {
 		int value = rand.nextInt(1000);
 
 		if (rank.equalsIgnoreCase("Master")) {
-			if (value >= 250 && value <= (250 + (1000 * .30))) {
+			if (value < FaithConfig.num(FaithConfig.GLOBAL, "rankItemChance") * 10) { // staff-set % (was 30%)
 				if (p.getInventory().firstEmpty() != -1) {
 					p.getInventory().addItem(Borderlands.specialLootDrops("DukeEssence", p.getUniqueId()));
 					RunicMessaging.sendMessage(p, RunicFormat.RANKS,

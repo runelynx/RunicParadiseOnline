@@ -1794,7 +1794,7 @@ public class Commands implements CommandExecutor {
 
 		} else if (args[0].toLowerCase().equals("checkaccess")) {
 			if (args[2].equals("nether") || args[2].equals("aether")) {
-				if (new RunicPlayerBukkit(Bukkit.getPlayer(args[1])).getFaithPowerLevel() >= 600) {
+				if (new RunicPlayerBukkit(Bukkit.getPlayer(args[1])).getFaithPowerLevel() >= FaithConfig.num(FaithConfig.GLOBAL, "unlockAetherNether")) {
 
 					TitleAPI.sendTitle(Bukkit.getPlayer(args[1]), 2, 8, 2, ChatColor.GREEN + "",
 							ChatColor.GREEN + "You have access to this faith!");
@@ -1805,11 +1805,11 @@ public class Commands implements CommandExecutor {
 
 				} else {
 					TitleAPI.sendTitle(Bukkit.getPlayer(args[1]), 2, 3, 2, ChatColor.RED + "",
-							ChatColor.RED + "You do not have access to this faith! Need 600 faith levels but have "
+							ChatColor.RED + "You do not have access to this faith! Need " + FaithConfig.num(FaithConfig.GLOBAL, "unlockAetherNether") + " faith levels but have "
 									+ new RunicPlayerBukkit(Bukkit.getPlayer(args[1])).getFaithPowerLevel() + ".");
 				}
 			} else if (args[2].equals("air") || args[2].equals("earth")) {
-				if (new RunicPlayerBukkit(Bukkit.getPlayer(args[1])).getFaithPowerLevel() >= 300) {
+				if (new RunicPlayerBukkit(Bukkit.getPlayer(args[1])).getFaithPowerLevel() >= FaithConfig.num(FaithConfig.GLOBAL, "unlockAirEarth")) {
 
 					TitleAPI.sendTitle(Bukkit.getPlayer(args[1]), 2, 8, 2, ChatColor.GREEN + "",
 							ChatColor.GREEN + "You have access to this faith!");
@@ -1819,11 +1819,11 @@ public class Commands implements CommandExecutor {
 
 				} else {
 					TitleAPI.sendTitle(Bukkit.getPlayer(args[1]), 2, 3, 2, ChatColor.RED + "",
-							ChatColor.RED + "You do not have access to this faith! Need 300 faith levels but have "
+							ChatColor.RED + "You do not have access to this faith! Need " + FaithConfig.num(FaithConfig.GLOBAL, "unlockAirEarth") + " faith levels but have "
 									+ new RunicPlayerBukkit(Bukkit.getPlayer(args[1])).getFaithPowerLevel() + ".");
 				}
 			} else if (args[2].equals("nature") || args[2].equals("tech")) {
-				if (new RunicPlayerBukkit(Bukkit.getPlayer(args[1])).getFaithPowerLevel() >= 900) {
+				if (new RunicPlayerBukkit(Bukkit.getPlayer(args[1])).getFaithPowerLevel() >= FaithConfig.num(FaithConfig.GLOBAL, "unlockNatureTech")) {
 
 					TitleAPI.sendTitle(Bukkit.getPlayer(args[1]), 2, 8, 2, ChatColor.GREEN + "",
 							ChatColor.GREEN + "You have access to this faith!");
@@ -1833,11 +1833,11 @@ public class Commands implements CommandExecutor {
 
 				} else {
 					TitleAPI.sendTitle(Bukkit.getPlayer(args[1]), 2, 3, 2, ChatColor.RED + "",
-							ChatColor.RED + "You do not have access to this faith! Need 900 faith levels but have "
+							ChatColor.RED + "You do not have access to this faith! Need " + FaithConfig.num(FaithConfig.GLOBAL, "unlockNatureTech") + " faith levels but have "
 									+ new RunicPlayerBukkit(Bukkit.getPlayer(args[1])).getFaithPowerLevel() + ".");
 				}
 			} else if (args[2].equals("fire") || args[2].equals("water")) {
-				if (new RunicPlayerBukkit(Bukkit.getPlayer(args[1])).getFaithPowerLevel() >= 125) {
+				if (new RunicPlayerBukkit(Bukkit.getPlayer(args[1])).getFaithPowerLevel() >= FaithConfig.num(FaithConfig.GLOBAL, "unlockFireWater")) {
 
 					TitleAPI.sendTitle(Bukkit.getPlayer(args[1]), 2, 8, 2, ChatColor.GREEN + "",
 							ChatColor.GREEN + "You have access to this faith!");
@@ -1847,7 +1847,7 @@ public class Commands implements CommandExecutor {
 
 				} else {
 					TitleAPI.sendTitle(Bukkit.getPlayer(args[1]), 2, 3, 2, ChatColor.RED + "",
-							ChatColor.RED + "You do not have access to this faith! Need 125 faith levels but have "
+							ChatColor.RED + "You do not have access to this faith! Need " + FaithConfig.num(FaithConfig.GLOBAL, "unlockFireWater") + " faith levels but have "
 									+ new RunicPlayerBukkit(Bukkit.getPlayer(args[1])).getFaithPowerLevel() + ".");
 				}
 			} else if (Bukkit.getPlayer(args[1]).hasPermission("rp.faith." + args[2])) {

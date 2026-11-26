@@ -31,6 +31,9 @@ final class FaithEffects {
 
 	/** Solar Power: rising gold spiral, then a faint gold shimmer at the feet while the 15 s buff lasts. */
 	static void solarPower(final Player p) {
+		if (!FaithConfig.flag("Solar Power", "particles")) {
+			return; // staff switched this power's particles off
+		}
 		final World w = p.getWorld();
 		final Location base = p.getLocation();
 		for (int i = 0; i < 24; i++) {
@@ -55,6 +58,9 @@ final class FaithEffects {
 	 * 3. a beam of sunlight from the player to each ignited monster, ending in a flame burst on it.
 	 */
 	static void sunflare(final Player p, final double radius, final List<Entity> ignited) {
+		if (!FaithConfig.flag("Sunflare", "particles")) {
+			return; // staff switched this power's particles off
+		}
 		final Location center = p.getLocation().add(0, 1.0, 0);
 		final World w = center.getWorld();
 		w.spawnParticle(Particle.FLASH, center, 1);
@@ -115,6 +121,9 @@ final class FaithEffects {
 	 * (following as they move) for the whole 15 s Regeneration, with a heart each time Regeneration I heals.
 	 */
 	static void celestialHealing(final Player p) {
+		if (!FaithConfig.flag("Celestial Healing", "particles")) {
+			return; // staff switched this power's particles off
+		}
 		final World w = p.getWorld();
 		final Location base = p.getLocation();
 		// opening moonbeam: a column of light from 4 blocks up down to the player
@@ -151,6 +160,9 @@ final class FaithEffects {
 	 * and a faint orbit of enchantment glyphs around the player while the 5 s protection lasts.
 	 */
 	static void lunarCalm(final Player p, final double radius, final List<Entity> calmed, final int protectTicks) {
+		if (!FaithConfig.flag("Lunar Calm", "particles")) {
+			return; // staff switched this power's particles off
+		}
 		final Location center = p.getLocation().add(0, 0.2, 0);
 		final World w = center.getWorld();
 		w.playSound(center, Sound.BLOCK_BEACON_ACTIVATE, 0.5f, 1.6f);
@@ -195,6 +207,9 @@ final class FaithEffects {
 
 	/** Volcanic Fury: an eruption of lava and flame, then embers swirling around the player while Strength lasts. */
 	static void volcanicFury(final Player p, int ticks) {
+		if (!FaithConfig.flag("Volcanic Fury", "particles")) {
+			return; // staff switched this power's particles off
+		}
 		World w = p.getWorld();
 		Location body = p.getLocation().add(0, 1, 0);
 		w.spawnParticle(Particle.LAVA, body, 14, 0.4, 0.3, 0.4, 0);
@@ -217,6 +232,9 @@ final class FaithEffects {
 
 	/** Unstable Embers: a fiery explosion with a double shockwave ring and flying lava. */
 	static void unstableEmbers(Player p, double radius) {
+		if (!FaithConfig.flag("Unstable Embers", "particles")) {
+			return; // staff switched this power's particles off
+		}
 		Location c = p.getLocation().add(0, 0.8, 0);
 		World w = c.getWorld();
 		w.spawnParticle(Particle.EXPLOSION_LARGE, c, 2, 0.3, 0.2, 0.3, 0);
@@ -233,6 +251,9 @@ final class FaithEffects {
 
 	/** Protective Bubble: a shimmering water sphere forms around the player and stays while the absorption lasts. */
 	static void protectiveBubble(final Player p, int ticks) {
+		if (!FaithConfig.flag("Protective Bubble", "particles")) {
+			return; // staff switched this power's particles off
+		}
 		World w = p.getWorld();
 		Location c = p.getLocation().add(0, 1, 0);
 		sphere(w, c, 1.3, 70, Particle.REDSTONE, WATER_BLUE);
@@ -248,6 +269,9 @@ final class FaithEffects {
 
 	/** Arctic Frost: a frost nova expands outward; slowed monsters keep shedding snowflakes while slowed. */
 	static void arcticFrost(final Player p, final double radius, List<Entity> slowed, int ticks) {
+		if (!FaithConfig.flag("Arctic Frost", "particles")) {
+			return; // staff switched this power's particles off
+		}
 		final Location c = p.getLocation().add(0, 0.2, 0);
 		final World w = c.getWorld();
 		w.spawnParticle(Particle.SNOWFLAKE, c.clone().add(0, 1, 0), 50, 0.3, 0.4, 0.3, 0.18);
@@ -277,6 +301,9 @@ final class FaithEffects {
 
 	/** Deep Wader: a spiral of rising bubbles and a conduit-like glow wraps the player. */
 	static void deepWader(Player p) {
+		if (!FaithConfig.flag("Deep Wader", "particles")) {
+			return; // staff switched this power's particles off
+		}
 		World w = p.getWorld();
 		Location base = p.getLocation();
 		for (int i = 0; i < 36; i++) {
@@ -294,6 +321,9 @@ final class FaithEffects {
 
 	/** Healing Breeze: a gust spirals around the caster; everyone healed gets a puff of wind and a heart. */
 	static void healingBreeze(Player caster, List<LivingEntity> healed) {
+		if (!FaithConfig.flag("Healing Breeze", "particles")) {
+			return; // staff switched this power's particles off
+		}
 		World w = caster.getWorld();
 		Location base = caster.getLocation();
 		for (int i = 0; i < 30; i++) {
@@ -312,6 +342,9 @@ final class FaithEffects {
 
 	/** Tempest Armor: a storm burst of wind and electricity; flung monsters crackle until the lightning lands. */
 	static void tempestArmor(Player p, double radius, List<Entity> flung) {
+		if (!FaithConfig.flag("Tempest Armor", "particles")) {
+			return; // staff switched this power's particles off
+		}
 		World w = p.getWorld();
 		Location c = p.getLocation().add(0, 1, 0);
 		w.spawnParticle(Particle.CLOUD, c, 40, 0.3, 0.3, 0.3, 0.25);
@@ -328,6 +361,9 @@ final class FaithEffects {
 
 	/** Gravity Flux: a reverse-portal burst; launched monsters leave a glowing trail as they rise. */
 	static void gravityFlux(Player p, List<Entity> launched) {
+		if (!FaithConfig.flag("Gravity Flux", "particles")) {
+			return; // staff switched this power's particles off
+		}
 		World w = p.getWorld();
 		Location c = p.getLocation().add(0, 1, 0);
 		w.spawnParticle(Particle.REVERSE_PORTAL, c, 60, 0.5, 0.5, 0.5, 0.3);
@@ -345,6 +381,9 @@ final class FaithEffects {
 
 	/** Graceful Steps: a soft landing puff, then a light trail of cloud and ash behind the player while Speed lasts. */
 	static void gracefulSteps(final Player p, int ticks) {
+		if (!FaithConfig.flag("Graceful Steps", "particles")) {
+			return; // staff switched this power's particles off
+		}
 		World w = p.getWorld();
 		Location feet = p.getLocation().add(0, 0.1, 0);
 		ring(w, feet, 1.0, Particle.CLOUD, null, 0.04);
@@ -367,6 +406,9 @@ final class FaithEffects {
 
 	/** Vampirism: a stream of blood is drawn from the fallen monster into the player, with a heartbeat. */
 	static void vampirism(final Player p, final Location from) {
+		if (!FaithConfig.flag("Vampirism", "particles")) {
+			return; // staff switched this power's particles off
+		}
 		final World w = p.getWorld();
 		final Location start = from.clone().add(0, 0.8, 0);
 		w.spawnParticle(Particle.DAMAGE_INDICATOR, start, 6, 0.3, 0.3, 0.3, 0.1);
@@ -396,6 +438,9 @@ final class FaithEffects {
 
 	/** Netherborn: soul fire flares up around the player and crimson spores drift as the nether claims them. */
 	static void netherborn(Player p) {
+		if (!FaithConfig.flag("Netherborn", "particles")) {
+			return; // staff switched this power's particles off
+		}
 		World w = p.getWorld();
 		Location feet = p.getLocation().add(0, 0.1, 0);
 		ring(w, feet, 1.2, Particle.SOUL_FIRE_FLAME, null, 0.02);
@@ -412,6 +457,9 @@ final class FaithEffects {
 
 	/** Locust Swarm, each second: a buzzing cloud of insects and spores over the target area. */
 	static void locustPulse(Location where) {
+		if (!FaithConfig.flag("Locust Swarm", "particles")) {
+			return; // staff switched this power's particles off
+		}
 		World w = where.getWorld();
 		Location c = where.clone().add(0, 1, 0);
 		for (int i = 0; i < 35; i++) {
@@ -425,6 +473,9 @@ final class FaithEffects {
 
 	/** Forest Armor: leaves burst where the wolves appear, a howl, and sickly green on the poisoned attacker. */
 	static void forestArmor(Player p, List<? extends Entity> wolves, LivingEntity poisoned) {
+		if (!FaithConfig.flag("Forest Armor", "particles")) {
+			return; // staff switched this power's particles off
+		}
 		World w = p.getWorld();
 		for (Entity wolf : wolves) {
 			Location at = wolf.getLocation().add(0, 0.5, 0);
@@ -444,6 +495,9 @@ final class FaithEffects {
 
 	/** Forest Armor wolves returning to the forest. */
 	static void wolfDepart(Location at) {
+		if (!FaithConfig.flag("Forest Armor", "particles")) {
+			return; // staff switched this power's particles off
+		}
 		at.getWorld().spawnParticle(Particle.VILLAGER_HAPPY, at.clone().add(0, 0.5, 0), 8, 0.4, 0.3, 0.4, 0);
 		at.getWorld().spawnParticle(Particle.REDSTONE, at.clone().add(0, 0.5, 0), 15, 0.4, 0.3, 0.4, 0, LEAF);
 	}
@@ -452,6 +506,9 @@ final class FaithEffects {
 
 	/** Earth's Bounty: a seismic pulse ripples out through the ground. */
 	static void earthsBountyPulse(Player p, BlockData ground) {
+		if (!FaithConfig.flag("Earth's Bounty", "particles")) {
+			return; // staff switched this power's particles off
+		}
 		final Location c = p.getLocation().add(0, 0.1, 0);
 		final World w = c.getWorld();
 		final BlockData data = ground.getMaterial().isSolid() ? ground : Material.STONE.createBlockData();
@@ -472,6 +529,9 @@ final class FaithEffects {
 
 	/** Earth's Bounty result: diamond- and emerald-coloured motes rise from the ground (one per ore, up to 15). */
 	static void earthsBountyResult(Player p, int diamonds, int emeralds) {
+		if (!FaithConfig.flag("Earth's Bounty", "particles")) {
+			return; // staff switched this power's particles off
+		}
 		World w = p.getWorld();
 		Location c = p.getLocation();
 		for (int i = 0; i < Math.min(15, diamonds); i++) {
@@ -493,6 +553,9 @@ final class FaithEffects {
 	 * fly back at the attacker.
 	 */
 	static void earthenShield(Player p, BlockData ground, LivingEntity attacker) {
+		if (!FaithConfig.flag("Earthen Shield", "particles")) {
+			return; // staff switched this power's particles off
+		}
 		World w = p.getWorld();
 		Location feet = p.getLocation().add(0, 0.1, 0);
 		BlockData data = ground.getMaterial().isSolid() ? ground : Material.STONE.createBlockData();
@@ -522,6 +585,9 @@ final class FaithEffects {
 
 	/** Inevitable Demise: souls rise from each reaped monster and a death knell rings. */
 	static void inevitableDemise(Player p, List<Location> reaped) {
+		if (!FaithConfig.flag("Inevitable Demise", "particles")) {
+			return; // staff switched this power's particles off
+		}
 		World w = p.getWorld();
 		for (Location l : reaped) {
 			Location at = l.clone().add(0, 0.8, 0);
@@ -536,6 +602,9 @@ final class FaithEffects {
 
 	/** Rewind: a totem burst, then a clock hand sweeping backwards around the player for a second. */
 	static void rewind(final Player p) {
+		if (!FaithConfig.flag("Rewind", "particles")) {
+			return; // staff switched this power's particles off
+		}
 		World w = p.getWorld();
 		Location c = p.getLocation().add(0, 1, 0);
 		w.spawnParticle(Particle.TOTEM, c, 60, 0.4, 0.6, 0.4, 0.5);
