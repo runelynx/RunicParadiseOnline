@@ -38,6 +38,7 @@ final class StaffModule {
 		FaithAdmin.register();
 		RaffleAdmin.register();
 		GamesAdmin.register();
+		FaithSystemAdmin.register();
 
 		// ---------------------------------------------------------------- Players
 		reg(StaffAction.of("near", "Players").icon("ENDER_EYE").playersOnly().targetsPlayer()

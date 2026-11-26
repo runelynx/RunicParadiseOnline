@@ -322,6 +322,7 @@ public class Faith {
 	} // end method
 
 	public static void getPowerSettings() {
+		FaithConfig.load(); // staff power tuning (/rs Faith); defaults apply for anything not overridden
 		RunicParadise.powerReqsMap.clear();
 
 		MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
@@ -758,7 +759,7 @@ public class Faith {
 	/** True when the player's level meets the power's required level (>=, matching /faith powers). Unknown power = false. */
 	static boolean hasPower(int level, String powerName) {
 		Integer req = RunicParadise.powerReqsMap.get(powerName);
-		return req != null && level >= req;
+		return req != null && level >= req && FaithConfig.enabled(powerName); // staff can switch powers off (/rs Faith)
 	}
 
 	private static void runLater(Runnable r, long ticks) {
@@ -939,12 +940,13 @@ public class Faith {
 	/** Netherborn applies in these nethers. */
 	public static final Set<String> NETHER_WORLDS = new HashSet<>(Arrays.asList("RunicKingdom_nether", "MiningNether"));
 
+	// World lists are staff-editable (/rs Faith > Global); the sets above are the defaults FaithConfig starts from.
 	static boolean powersAllowed(World w) {
-		return w != null && !NO_POWER_WORLDS.contains(w.getName());
+		return w != null && !FaithConfig.worlds("noPowerWorlds").contains(w.getName());
 	}
 
 	static boolean inMainWorld(Player p) {
-		return MAIN_WORLDS.contains(p.getWorld().getName());
+		return FaithConfig.worlds("mainWorlds").contains(p.getWorld().getName());
 	}
 
 	/** Day by the player's own world clock (Mining has its own day cycle). */
@@ -958,11 +960,17 @@ public class Faith {
 	 * grant the buff when entering a Netherborn nether and remove it when leaving for a non-nether world.
 	 */
 	public static void tryCast_PlayerChangedWorld(Player p, World from) {
-		boolean nowInNether = NETHER_WORLDS.contains(p.getWorld().getName());
-		boolean wasInNether = from != null && NETHER_WORLDS.contains(from.getName());
+		Set<String> nethers = FaithConfig.worlds("netherWorlds");
+		boolean nowInNether = nethers.contains(p.getWorld().getName());
+		boolean wasInNether = from != null && nethers.contains(from.getName());
 		if (wasInNether && !nowInNether) {
 			// Remove only Netherborn's never-ending effects (so normal potions are kept), whatever the faith now is
-			for (PotionEffectType t : new PotionEffectType[] { PotionEffectType.HEALTH_BOOST, PotionEffectType.DAMAGE_RESISTANCE }) {
+			Set<PotionEffectType> types = new HashSet<>(Arrays.asList(PotionEffectType.HEALTH_BOOST, PotionEffectType.DAMAGE_RESISTANCE));
+			for (String k : new String[] { "effect1", "effect2" }) {
+				PotionEffect configured = FaithConfig.effect("Netherborn", k);
+				if (configured != null) types.add(configured.getType());
+			}
+			for (PotionEffectType t : types) {
 				PotionEffect fx = p.getPotionEffect(t);
 				if (fx != null && fx.isInfinite()) {
 					p.removePotionEffect(t);
@@ -1125,7 +1133,7 @@ public class Faith {
 
 		if (!this.checkEquippedFaithLevel(faithName,
 				Integer.parseInt(RunicParadise.faithSettingsMap.get(faithName)[4]))) {
-			if (randomNum <= (5 * chance)) {
+			if (randomNum <= (FaithConfig.num(FaithConfig.GLOBAL, "skillupPercent") * chance)) { // was 5% per point
 				this.incrementSkill(p, faithName);
 
 				// check for rank item drop
@@ -1313,18 +1321,17 @@ public class Faith {
 	private void castSun_Sunflare(UUID pUUID, Player p) {
 		// 15% chance on receiving damage, at most once every 30 s per player (was ~3% with no cooldown)
 		String spellName = "Sunflare";
-		Long lastFlare = SUNFLARE_LAST.get(p.getUniqueId());
-		boolean ready = lastFlare == null || System.currentTimeMillis() - lastFlare >= 30_000L;
-		if (ready && RunicParadise.randomSeed.nextInt(100) < 15) {
-			SUNFLARE_LAST.put(p.getUniqueId(), System.currentTimeMillis());
+		if (FaithConfig.roll(spellName, SUNFLARE_LAST, p)) {
+			int r = FaithConfig.num(spellName, "radius");
+			int fire = (int) Math.round(FaithConfig.dec(spellName, "fireSeconds") * 20);
 			List<Entity> ignited = new ArrayList<>();
-			for (Entity tmp : p.getNearbyEntities(8, 8, 8)) {
+			for (Entity tmp : p.getNearbyEntities(r, r, r)) {
 				if (tmp instanceof Monster) {
-					tmp.setFireTicks(60);
+					tmp.setFireTicks(fire);
 					ignited.add(tmp);
 				}
 			}
-			FaithEffects.sunflare(p, 8, ignited);
+			FaithEffects.sunflare(p, r, ignited);
 			sendCastMessage(p, spellName, "Sun");
 			tryForRankItem(p, "Sun Sunflare");
 			getLogger().log(Level.INFO, "Faith Info: " + p.getName() + " just cast " + spellName + "!");
@@ -1335,16 +1342,18 @@ public class Faith {
 	public void castMoon_LunarCalm(UUID pUUID, final Player p) {
 		// 8% chance on receiving damage, at most once every 30 s per player (was ~2%, no cooldown)
 		String spellName = "Lunar Calm";
-		if (rollWithCooldown(LUNARCALM_LAST, p, 8, 30_000L)) {
+		if (FaithConfig.roll(spellName, LUNARCALM_LAST, p)) {
+			int r = FaithConfig.num(spellName, "radius");
+			long calmTicks = Math.round(FaithConfig.dec(spellName, "seconds") * 20);
 
 			// register protection now (the target listener in RunicParadise cancels monster targeting while protected)
 			RunicParadise.protectedPlayers.put(p.getUniqueId(), p.getDisplayName());
 
-			// remove protection after 5 seconds (main thread)
-			runLater(() -> RunicParadise.protectedPlayers.remove(p.getUniqueId()), 100);
+			// remove protection after the calm time (main thread)
+			runLater(() -> RunicParadise.protectedPlayers.remove(p.getUniqueId()), calmTicks);
 
 			// stop all nearby monsters that are currently targeting the player
-			final List<Entity> nearby = p.getNearbyEntities(15, 15, 15);
+			final List<Entity> nearby = p.getNearbyEntities(r, r, r);
 			for (Entity tmp : nearby) {
 				if (tmp instanceof Monster && p.equals(((Monster) tmp).getTarget())) {
 					((Monster) tmp).setTarget(null);
@@ -1356,7 +1365,7 @@ public class Faith {
 					calmed.add(tmp);
 				}
 			}
-			FaithEffects.lunarCalm(p, 15, calmed, 100);
+			FaithEffects.lunarCalm(p, r, calmed, (int) calmTicks);
 
 			int count = nearby.size();
 			boolean playerProtected = RunicParadise.protectedPlayers.containsKey(p.getUniqueId());
@@ -1371,9 +1380,9 @@ public class Faith {
 	private void castSun_SolarPower(UUID pUUID, Player p) {
 		// 2% chance to empower player when dealing damage to monsters
 		String spellName = "Solar Power";
-		if ((RunicParadise.randomSeed.nextInt(101)) <= 2) {
-			p.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 300, 1));
-			p.addPotionEffect(new PotionEffect(PotionEffectType.INCREASE_DAMAGE, 300, 1));
+		if (FaithConfig.roll(spellName, SOLAR_LAST, p)) {
+			give(p, spellName, "effect1");
+			give(p, spellName, "effect2");
 			FaithEffects.solarPower(p);
 
 			sendCastMessage(p, spellName, "Sun");
@@ -1387,9 +1396,11 @@ public class Faith {
 	private void castMoon_CelestialHealing(UUID pUUID, Player p) {
 		// 5% chance on hitting a monster, at most once every 20 s per player (was ~3%, no cooldown)
 		String spellName = "Celestial Healing";
-		if (rollWithCooldown(CELESTIAL_LAST, p, 5, 20_000L)) {
-			p.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 300, 0));
-			p.addPotionEffect(new PotionEffect(PotionEffectType.HEAL, 1, 0));
+		if (FaithConfig.roll(spellName, CELESTIAL_LAST, p)) {
+			give(p, spellName, "effect1");
+			if (FaithConfig.bool(spellName, "instantHeal")) {
+				p.addPotionEffect(new PotionEffect(PotionEffectType.HEAL, 1, 0));
+			}
 			FaithEffects.celestialHealing(p);
 
 			sendCastMessage(p, spellName, "Moon");
@@ -1489,11 +1500,34 @@ public class Faith {
 		getLogger().log(Level.INFO, "Faith Info: " + p.getName() + " just cast " + spell + "!");
 	}
 
+	// 2026-11-26: cooldown trackers for powers that had none before (cooldown defaults to 0 = off)
+	private static final Map<UUID, Long> SOLAR_LAST = new HashMap<>();
+	private static final Map<UUID, Long> FURY_LAST = new HashMap<>();
+	private static final Map<UUID, Long> EMBERS_LAST = new HashMap<>();
+	private static final Map<UUID, Long> DEMISE_LAST = new HashMap<>();
+	private static final Map<UUID, Long> REWIND_LAST = new HashMap<>();
+	private static final Map<UUID, Long> VAMP_LAST = new HashMap<>();
+	private static final Map<UUID, Long> TEMPEST_LAST = new HashMap<>();
+	private static final Map<UUID, Long> FLUX_LAST = new HashMap<>();
+	private static final Map<UUID, Long> STEPS_LAST = new HashMap<>();
+	private static final Map<UUID, Long> LOCUST_LAST = new HashMap<>();
+	private static final Map<UUID, Long> FOREST_LAST = new HashMap<>();
+
+	/** Apply a staff-configured potion effect ("effect1" etc.) to an entity; returns its duration in ticks (0 if none). */
+	private static int give(LivingEntity e, String power, String key) {
+		PotionEffect fx = FaithConfig.effect(power, key);
+		if (fx == null) {
+			return 0;
+		}
+		e.addPotionEffect(fx);
+		return fx.isInfinite() ? 0 : fx.getDuration();
+	}
+
 	// Fire : Volcanic Fury - 5% on hitting a monster: Strength III for 7.5 s
 	public void castFlame_VolcanicFury(UUID pUUID, Player p) {
-		if (RunicParadise.randomSeed.nextInt(100) < 5) {
-			p.addPotionEffect(new PotionEffect(PotionEffectType.INCREASE_DAMAGE, 150, 2));
-			FaithEffects.volcanicFury(p, 150);
+		if (FaithConfig.roll("Volcanic Fury", FURY_LAST, p)) {
+			int ticks = give(p, "Volcanic Fury", "effect1");
+			FaithEffects.volcanicFury(p, ticks > 0 ? ticks : 150);
 			sendCastMessage(p, "Volcanic Fury", "Fire");
 			tryForRankItem(p, "Fire VolcanicFury");
 			logCast(p, "Volcanic Fury");
@@ -1502,13 +1536,15 @@ public class Faith {
 
 	// Fire : Unstable Embers - 11% on taking damage: 4 damage to monsters within 4 blocks
 	private void castFlame_UnstableEmbers(Player p) {
-		if (RunicParadise.randomSeed.nextInt(100) < 11) {
+		if (FaithConfig.roll("Unstable Embers", EMBERS_LAST, p)) {
+			int r = FaithConfig.num("Unstable Embers", "radius");
+			double dmg = FaithConfig.dec("Unstable Embers", "damage");
 			sendCastMessage(p, "Unstable Embers", "Fire");
 			tryForRankItem(p, "Flame UnstableEmbers");
-			FaithEffects.unstableEmbers(p, 4);
-			for (Entity entity : p.getNearbyEntities(4, 4, 4)) {
+			FaithEffects.unstableEmbers(p, r);
+			for (Entity entity : p.getNearbyEntities(r, r, r)) {
 				if (entity instanceof Monster) {
-					((LivingEntity) entity).damage(4, p);
+					((LivingEntity) entity).damage(dmg, p);
 				}
 			}
 			logCast(p, "Unstable Embers");
@@ -1517,11 +1553,13 @@ public class Faith {
 
 	// Fate : Inevitable Demise - at 3 hearts or less, 21% to kill monsters within 2 blocks
 	private void castFate_InevitableDemise(UUID pUUID, Player player, LivingEntity monster) {
-		if (player.getHealth() > 6 || RunicParadise.randomSeed.nextInt(100) >= 21) {
+		if (player.getHealth() > FaithConfig.dec("Inevitable Demise", "hearts") * 2
+				|| !FaithConfig.roll("Inevitable Demise", DEMISE_LAST, player)) {
 			return;
 		}
+		int r = FaithConfig.num("Inevitable Demise", "radius");
 		List<Location> reaped = new ArrayList<>();
-		for (final Entity entity : player.getNearbyEntities(2, 2, 2)) {
+		for (final Entity entity : player.getNearbyEntities(r, r, r)) {
 			if (entity instanceof Monster && !(entity instanceof Wither)) {
 				reaped.add(entity.getLocation());
 				((LivingEntity) entity).setHealth(0);
@@ -1542,10 +1580,10 @@ public class Faith {
 		if (p.getHealth() - event.getFinalDamage() > 0) {
 			return; // not a killing blow
 		}
-		if (RunicParadise.randomSeed.nextInt(100) < 10) {
+		if (FaithConfig.roll("Rewind", REWIND_LAST, p)) {
 			event.setCancelled(true);
-			p.setHealth(Math.min(16, p.getMaxHealth()));
-			p.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 200, 1));
+			p.setHealth(Math.min(FaithConfig.dec("Rewind", "health"), p.getMaxHealth()));
+			give(p, "Rewind", "effect1");
 			FaithEffects.rewind(p);
 			sendCastMessage(p, "Rewind", "Time");
 			tryForRankItem(p, "Time Rewind");
@@ -1555,8 +1593,8 @@ public class Faith {
 
 	// Nether : Netherborn - lasts while in a Netherborn nether
 	void castNether_Netherborn(Player p) {
-		p.addPotionEffect(new PotionEffect(PotionEffectType.HEALTH_BOOST, PotionEffect.INFINITE_DURATION, 1));
-		p.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, PotionEffect.INFINITE_DURATION, 0));
+		give(p, "Netherborn", "effect1");
+		give(p, "Netherborn", "effect2");
 		FaithEffects.netherborn(p);
 		sendCastMessage(p, "Netherborn", "Nether");
 		logCast(p, "Netherborn");
@@ -1569,11 +1607,11 @@ public class Faith {
 			return;
 		}
 		Entity damager = ((EntityDamageByEntityEvent) e.getLastDamageCause()).getDamager();
-		if (!(damager instanceof Player) || RunicParadise.randomSeed.nextInt(100) >= 21) {
+		if (!(damager instanceof Player) || !FaithConfig.roll("Vampirism", VAMP_LAST, (Player) damager)) {
 			return;
 		}
 		Player p = (Player) damager;
-		p.setHealth(Math.min(p.getMaxHealth(), p.getHealth() + 3));
+		p.setHealth(Math.min(p.getMaxHealth(), p.getHealth() + FaithConfig.dec("Vampirism", "heal")));
 		FaithEffects.vampirism(p, e.getLocation());
 		sendCastMessage(p, "Vampirism", "Nether");
 		tryForRankItem(p, "Nether Vampirism");
@@ -1581,48 +1619,54 @@ public class Faith {
 
 	// Air : Tempest Armor - FULL GOLD ARMOUR required (all 4 pieces); 5% on hitting a monster
 	private void castAir_TempestArmor(Player player) {
-		if (!wearingFullSet(player, Material.GOLDEN_HELMET, Material.GOLDEN_CHESTPLATE, Material.GOLDEN_LEGGINGS,
-				Material.GOLDEN_BOOTS) || RunicParadise.randomSeed.nextInt(100) >= 5) {
+		if ((FaithConfig.bool("Tempest Armor", "fullGold") && !wearingFullSet(player, Material.GOLDEN_HELMET,
+				Material.GOLDEN_CHESTPLATE, Material.GOLDEN_LEGGINGS, Material.GOLDEN_BOOTS))
+				|| !FaithConfig.roll("Tempest Armor", TEMPEST_LAST, player)) {
 			return;
 		}
+		int r = FaithConfig.num("Tempest Armor", "radius");
+		boolean lightning = FaithConfig.bool("Tempest Armor", "lightning");
 		sendCastMessage(player, "Tempest Armor", "Air");
 		tryForRankItem(player, "Air TempestArmor");
 		List<Entity> flung = new ArrayList<>();
-		for (final Entity entity : player.getNearbyEntities(5, 5, 5)) {
+		for (final Entity entity : player.getNearbyEntities(r, r, r)) {
 			if (entity instanceof Monster) {
 				flung.add(entity);
 				entity.setVelocity(entity.getLocation().getDirection().multiply(2.5D).setY(0.7D));
-				runLater(() -> {
-					if (entity.isValid()) {
-						entity.getWorld().strikeLightning(entity.getLocation());
-					}
-				}, 20);
+				if (lightning) {
+					runLater(() -> {
+						if (entity.isValid()) {
+							entity.getWorld().strikeLightning(entity.getLocation());
+						}
+					}, 20);
+				}
 			}
 		}
-		FaithEffects.tempestArmor(player, 5, flung);
+		FaithEffects.tempestArmor(player, r, flung);
 		logCast(player, "Tempest Armor");
 	}
 
 	// Air : Healing Breeze - 5% on taking damage, 30 s cooldown: Regeneration II 10 s for you, players within 40, tamed wolves
 	private void castAir_HealingBreeze(Player player) {
-		if (!rollWithCooldown(BREEZE_LAST, player, 5, 30_000L)) {
+		if (!FaithConfig.roll("Healing Breeze", BREEZE_LAST, player)) {
 			return;
 		}
+		int r = FaithConfig.num("Healing Breeze", "radius");
 		sendCastMessage(player, "Healing Breeze", "Air");
 		tryForRankItem(player, "Air HealingBreeze");
-		List<Entity> targets = new ArrayList<>(player.getNearbyEntities(40, 40, 40));
+		List<Entity> targets = new ArrayList<>(player.getNearbyEntities(r, r, r));
 		targets.add(player);
 		List<LivingEntity> healed = new ArrayList<>();
 		for (Entity entity : targets) {
 			if (entity instanceof Player) {
-				((LivingEntity) entity).addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 200, 1));
+				give((LivingEntity) entity, "Healing Breeze", "effect1");
 				healed.add((LivingEntity) entity);
 				if (entity != player) {
 					ActionBars.send((Player) entity, ChatColor.WHITE + "≋ " + ChatColor.GRAY + ChatColor.ITALIC
 							+ "You feel refreshed by a soothing breeze");
 				}
 			} else if (entity instanceof Wolf && ((Wolf) entity).isTamed()) {
-				((Wolf) entity).addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 200, 1));
+				give((Wolf) entity, "Healing Breeze", "effect1");
 				healed.add((LivingEntity) entity);
 			}
 		}
@@ -1632,33 +1676,43 @@ public class Faith {
 
 	// Water : Protective Bubble - 10% on taking damage, 20 s cooldown: Absorption I for 15 s
 	private void castWater_ProtectiveBubble(final Player player) {
-		if (!rollWithCooldown(BUBBLE_LAST, player, 10, 20_000L)) {
+		if (!FaithConfig.roll("Protective Bubble", BUBBLE_LAST, player)) {
 			return;
 		}
-		player.removePotionEffect(PotionEffectType.ABSORPTION);
-		player.addPotionEffect(new PotionEffect(PotionEffectType.ABSORPTION, 300, 0));
-		FaithEffects.protectiveBubble(player, 300);
+		PotionEffect bubble = FaithConfig.effect("Protective Bubble", "effect1");
+		if (bubble == null) {
+			return;
+		}
+		player.removePotionEffect(bubble.getType());
+		player.addPotionEffect(bubble);
+		int ticks = bubble.isInfinite() ? 300 : bubble.getDuration();
+		FaithEffects.protectiveBubble(player, ticks);
 		sendCastMessage(player, "Protective Bubble", "Water");
 		tryForRankItem(player, "Water ProtectiveBubble");
-		runLater(() -> player.removePotionEffect(PotionEffectType.ABSORPTION), 320);
+		if (!bubble.isInfinite()) {
+			runLater(() -> player.removePotionEffect(bubble.getType()), ticks + 20);
+		}
 		logCast(player, "Protective Bubble");
 	}
 
 	// Water : Arctic Frost - 8% on taking damage, 25 s cooldown: Slowness III 7.5 s on monsters within 7 blocks
 	private void castWater_ArcticFrost(Player p) {
-		if (!rollWithCooldown(FROST_LAST, p, 8, 25_000L)) {
+		if (!FaithConfig.roll("Arctic Frost", FROST_LAST, p)) {
 			return;
 		}
+		int r = FaithConfig.num("Arctic Frost", "radius");
 		sendCastMessage(p, "Arctic Frost", "Water");
 		tryForRankItem(p, "Water ArcticFrost");
 		List<Entity> slowed = new ArrayList<>();
-		for (Entity e : p.getNearbyEntities(7, 7, 7)) {
+		int ticks = 150;
+		for (Entity e : p.getNearbyEntities(r, r, r)) {
 			if (e instanceof Monster) {
-				((Monster) e).addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 150, 2));
+				int t = give((Monster) e, "Arctic Frost", "effect1");
+				if (t > 0) ticks = t;
 				slowed.add(e);
 			}
 		}
-		FaithEffects.arcticFrost(p, 7, slowed, 150);
+		FaithEffects.arcticFrost(p, r, slowed, ticks);
 		logCast(p, "Arctic Frost");
 	}
 
@@ -1673,12 +1727,13 @@ public class Faith {
 		if (e.getItem() == null || e.getItem().getType() != Material.GLOWSTONE_DUST || !p.isInWater()) {
 			return;
 		}
-		if (p.getLevel() < 1) {
-			ActionBars.send(p, ChatColor.RED + "Deep Wader needs 1 XP level.");
+		int cost = FaithConfig.num("Deep Wader", "xpCost");
+		if (p.getLevel() < cost) {
+			ActionBars.send(p, ChatColor.RED + "Deep Wader needs " + cost + " XP level" + (cost == 1 ? "." : "s."));
 			return;
 		}
-		p.setLevel(p.getLevel() - 1);
-		p.addPotionEffect(new PotionEffect(PotionEffectType.WATER_BREATHING, 12000, 0));
+		p.setLevel(p.getLevel() - cost);
+		give(p, "Deep Wader", "effect1");
 		FaithEffects.deepWader(p);
 		sendCastMessage(p, "Deep Wader", "Water");
 		tryForRankItem(p, "Water DeepWader");
@@ -1706,16 +1761,17 @@ public class Faith {
 		if (last != null && System.currentTimeMillis() - last < 3000) {
 			return; // stops double clicks from charging twice
 		}
-		if (p.getLevel() < 1) {
-			ActionBars.send(p, ChatColor.RED + "Earth's Bounty needs 1 XP level.");
+		int cost = FaithConfig.num("Earth's Bounty", "xpCost");
+		if (p.getLevel() < cost) {
+			ActionBars.send(p, ChatColor.RED + "Earth's Bounty needs " + cost + " XP level" + (cost == 1 ? "." : "s."));
 			return;
 		}
 		BOUNTY_LAST.put(p.getUniqueId(), System.currentTimeMillis());
-		p.setLevel(p.getLevel() - 1);
+		p.setLevel(p.getLevel() - cost);
 		FaithEffects.earthsBountyPulse(p, e.getClickedBlock().getBlockData());
 		sendCastMessage(p, "Earth's Bounty", "Earth");
 
-		final int r = EARTHS_BOUNTY_RADIUS;
+		final int r = FaithConfig.num("Earth's Bounty", "radius");
 		final Location c = p.getLocation();
 		final World w = c.getWorld();
 		final int px = c.getBlockX(), py = c.getBlockY(), pz = c.getBlockZ();
@@ -1782,7 +1838,7 @@ public class Faith {
 
 	private void castEarth_EarthenShield(EntityDamageEvent event, Player p) {
 		Block below = p.getLocation().subtract(0, 0.2, 0).getBlock();
-		if (!isEarthGround(below.getType()) || !rollWithCooldown(SHIELD_LAST, p, 10, 25_000L)) {
+		if (!isEarthGround(below.getType()) || !FaithConfig.roll("Earthen Shield", SHIELD_LAST, p)) {
 			return;
 		}
 		double blocked = event.getDamage();
@@ -1798,7 +1854,8 @@ public class Faith {
 			}
 		}
 		if (attacker != null) {
-			attacker.damage(Math.min(8, Math.max(2, blocked)), p);
+			attacker.damage(Math.min(FaithConfig.dec("Earthen Shield", "reflectMax"),
+					Math.max(FaithConfig.dec("Earthen Shield", "reflectMin"), blocked)), p);
 			Vector push = attacker.getLocation().toVector().subtract(p.getLocation().toVector()).setY(0);
 			if (push.lengthSquared() > 0.001) {
 				attacker.setVelocity(push.normalize().multiply(0.9).setY(0.35));
@@ -1812,15 +1869,17 @@ public class Faith {
 
 	// Aether : Gravity Flux - 4% on hitting a monster: launch monsters within 7 blocks
 	private void castAether_GravityFlux(Player p) {
-		if (RunicParadise.randomSeed.nextInt(100) >= 4) {
+		if (!FaithConfig.roll("Gravity Flux", FLUX_LAST, p)) {
 			return;
 		}
+		int r = FaithConfig.num("Gravity Flux", "radius");
+		double launch = FaithConfig.dec("Gravity Flux", "launch");
 		sendCastMessage(p, "Gravity Flux", "Aether");
 		tryForRankItem(p, "Aether GravityFlux");
 		List<Entity> launched = new ArrayList<>();
-		for (Entity e : p.getNearbyEntities(7, 7, 7)) {
+		for (Entity e : p.getNearbyEntities(r, r, r)) {
 			if (e instanceof Monster) {
-				e.setVelocity(new Vector(e.getVelocity().getX(), 1, e.getVelocity().getZ()));
+				e.setVelocity(new Vector(e.getVelocity().getX(), launch, e.getVelocity().getZ()));
 				launched.add(e);
 			}
 		}
@@ -1830,32 +1889,35 @@ public class Faith {
 
 	// Aether : Graceful Steps - 20% on taking fall damage: Speed I for 15 s
 	private void castAether_GracefulSteps(Player p) {
-		if (RunicParadise.randomSeed.nextInt(100) >= 20) {
+		if (!FaithConfig.roll("Graceful Steps", STEPS_LAST, p)) {
 			return;
 		}
-		p.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 300, 0));
-		FaithEffects.gracefulSteps(p, 300);
+		int ticks = give(p, "Graceful Steps", "effect1");
+		FaithEffects.gracefulSteps(p, ticks > 0 ? ticks : 300);
 		sendCastMessage(p, "Graceful Steps", "Aether");
 	}
 
 	// Nature : Locust Swarm - 8% per arrow hit: monsters within 3 blocks of the hit take 2 damage/s for 5 s
 	void castNature_LocustSwarm(final Player p, final Location where) {
-		if (RunicParadise.randomSeed.nextInt(100) >= 8) {
+		if (!FaithConfig.roll("Locust Swarm", LOCUST_LAST, p)) {
 			return;
 		}
+		final int r = FaithConfig.num("Locust Swarm", "radius");
+		final double dmg = FaithConfig.dec("Locust Swarm", "damage");
+		final int seconds = Math.max(1, FaithConfig.num("Locust Swarm", "seconds"));
 		sendCastMessage(p, "Locust Swarm", "Nature");
 		tryForRankItem(p, "Nature LocustSwarm");
 		where.getWorld().playSound(where, Sound.ENTITY_BEE_LOOP_AGGRESSIVE, 1f, 0.6f);
 		FaithEffects.locustPulse(where);
-		for (int i = 0; i < 5; i++) {
+		for (int i = 0; i < seconds; i++) {
 			runLater(() -> {
 				if (!p.isOnline() || where.getWorld() == null) {
 					return;
 				}
 				FaithEffects.locustPulse(where);
-				for (Entity e : where.getWorld().getNearbyEntities(where, 3, 3, 3)) {
+				for (Entity e : where.getWorld().getNearbyEntities(where, r, r, r)) {
 					if (e instanceof Monster && !e.isDead()) {
-						((LivingEntity) e).damage(2, p);
+						((LivingEntity) e).damage(dmg, p);
 					}
 				}
 			}, 20L * (i + 1));
@@ -1866,13 +1928,14 @@ public class Faith {
 	// Nature : Forest Armor - FULL LEATHER ARMOUR required (all 4 pieces); 5% on taking damage: 2 wolves for 20 s,
 	// attacker poisoned
 	private void castNature_ForestArmor(EntityDamageEvent event, Player player) {
-		if (!wearingFullSet(player, Material.LEATHER_HELMET, Material.LEATHER_CHESTPLATE, Material.LEATHER_LEGGINGS,
-				Material.LEATHER_BOOTS) || RunicParadise.randomSeed.nextInt(100) >= 5) {
+		if ((FaithConfig.bool("Forest Armor", "fullLeather") && !wearingFullSet(player, Material.LEATHER_HELMET,
+				Material.LEATHER_CHESTPLATE, Material.LEATHER_LEGGINGS, Material.LEATHER_BOOTS))
+				|| !FaithConfig.roll("Forest Armor", FOREST_LAST, player)) {
 			return;
 		}
 		sendCastMessage(player, "Forest Armor", "Nature");
 		final List<Wolf> wolves = new ArrayList<>();
-		for (int i = 0; i < 2; i++) {
+		for (int i = 0; i < FaithConfig.num("Forest Armor", "wolves"); i++) {
 			Wolf wolf = (Wolf) player.getWorld().spawnEntity(player.getLocation(), EntityType.WOLF);
 			wolf.setOwner(player);
 			wolf.setAdult();
@@ -1889,7 +1952,7 @@ public class Faith {
 			}
 			if (damager instanceof LivingEntity && !(damager instanceof Player)) {
 				poisoned = (LivingEntity) damager;
-				poisoned.addPotionEffect(new PotionEffect(PotionEffectType.POISON, 100, 1));
+				give(poisoned, "Forest Armor", "effect1");
 				for (Wolf wolf : wolves) {
 					wolf.setTarget(poisoned);
 				}
@@ -1903,7 +1966,7 @@ public class Faith {
 				}
 				wolf.remove();
 			}
-		}, 400);
+		}, 20L * FaithConfig.num("Forest Armor", "wolfSeconds"));
 		logCast(player, "Forest Armor");
 	}
 
