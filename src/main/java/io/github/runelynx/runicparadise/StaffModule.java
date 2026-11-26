@@ -33,6 +33,11 @@ final class StaffModule {
 
 	static void register() {
 		ExplorerAdmin.register();
+		// 2026-11-26 menu layout: Ranks sub-menu under Players; per-player Faith; raffle and mazes/parkours managers.
+		StaffRegistry.subArea("Ranks", "Players", "LADDER");
+		FaithAdmin.register();
+		RaffleAdmin.register();
+		GamesAdmin.register();
 
 		// ---------------------------------------------------------------- Players
 		reg(StaffAction.of("near", "Players").icon("ENDER_EYE").playersOnly().targetsPlayer()
@@ -45,15 +50,15 @@ final class StaffModule {
 					Bukkit.dispatchCommand(s, "staff np " + a[0]);
 				}));
 
-		reg(StaffAction.of("promocheck", "Players").icon("EXPERIENCE_BOTTLE").playersOnly()
+		reg(StaffAction.of("promocheck", "Ranks").icon("EXPERIENCE_BOTTLE").playersOnly()
 				.desc("Online players' stats for rank promotions (same as /staff pe)")
 				.exec((s, a) -> Bukkit.dispatchCommand(s, "staff pe")));
 
-		reg(StaffAction.of("ranks", "Players").icon("LADDER").playersOnly()
+		reg(StaffAction.of("ranks", "Ranks").icon("LADDER").playersOnly()
 				.desc("Rank promotion requirements (same as /staff sr)")
 				.exec((s, a) -> Bukkit.dispatchCommand(s, "staff sr")));
 
-		reg(StaffAction.of("nominate", "Players").icon("GOLDEN_CARROT").playersOnly().targetsPlayer()
+		reg(StaffAction.of("nominate", "Ranks").icon("GOLDEN_CARROT").playersOnly().targetsPlayer()
 				.desc("Nominate a player for faster promotions (same as /staff nm)")
 				.usage("<player>")
 				.complete((s, a) -> a.length == 1 ? CoreActions.onlineNames() : null)
@@ -63,7 +68,7 @@ final class StaffModule {
 					Audit.log(s, "nominate", a[0]);
 				}));
 
-		reg(StaffAction.of("farming", "Players").icon("WHEAT").playersOnly()
+		reg(StaffAction.of("farming", "Tools").icon("WHEAT").playersOnly()
 				.desc("Who is mob farming right now, with rank drop counts (same as /staff cf)")
 				.exec((s, a) -> Bukkit.dispatchCommand(s, "staff cf")));
 
@@ -210,21 +215,14 @@ final class StaffModule {
 				}));
 
 		// ---------------------------------------------------------------- Faith / Events
-		reg(StaffAction.of("faithreload", "Faith").icon("NETHER_STAR").playersOnly()
+		reg(StaffAction.of("faithreload", "Server").icon("NETHER_STAR").playersOnly()
 				.desc("Reload the Faith config file (same as /staff rf). Faith powers pause briefly.")
 				.menu(p -> Confirm.menu(p, "Reload the Faith config", Collections.singletonList("&7Faith powers pause for a moment."),
-						() -> { Bukkit.dispatchCommand(p, "staff rf"); Audit.log(p, "faith reload", "-"); }, () -> StaffMenu.area(p, "Faith")))
+						() -> { Bukkit.dispatchCommand(p, "staff rf"); Audit.log(p, "faith reload", "-"); }, () -> StaffMenu.area(p, "Server")))
 				.exec((s, a) -> Confirm.ask(s, "Reload the Faith config (powers pause for a moment)", () -> {
 					Bukkit.dispatchCommand(s, "staff rf");
 					Audit.log(s, "faith reload", "-");
 				})));
-
-		reg(StaffAction.of("rafflereload", "Events & Games").icon("PAPER").playersOnly()
-				.desc("Reload the raffle config file (same as /staff rr)")
-				.exec((s, a) -> {
-					Bukkit.dispatchCommand(s, "staff rr");
-					Audit.log(s, "raffle reload", "-");
-				}));
 
 		// ---------------------------------------------------------------- Tools
 		reg(StaffAction.of("entities", "Tools").icon("ZOMBIE_HEAD").playersOnly()
