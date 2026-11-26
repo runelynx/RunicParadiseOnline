@@ -151,8 +151,15 @@ final class FaithAdmin {
 			}
 			String icon = ICONS.getOrDefault(faith, "BOOK");
 			final String f = faith;
-			g.set(slots[i++], Gui.item(icon, (isActive ? "&a&l" : r != null ? "&f" : "&7") + faith, lore),
-					canEdit ? (pl, t) -> click(pl, online, f, t) : null);
+			org.bukkit.inventory.ItemStack faithIcon = Gui.item(icon, (isActive ? "&a&l" : r != null ? "&f" : "&7") + faith, lore);
+			if (isActive) {
+				// enchanted shimmer on the active faith (hidden enchant, same trick as the Chat Options menu)
+				org.bukkit.inventory.meta.ItemMeta im = faithIcon.getItemMeta();
+				im.addEnchant(org.bukkit.enchantments.Enchantment.LUCK, 1, true);
+				im.addItemFlags(org.bukkit.inventory.ItemFlag.HIDE_ENCHANTS);
+				faithIcon.setItemMeta(im);
+			}
+			g.set(slots[i++], faithIcon, canEdit ? (pl, t) -> click(pl, online, f, t) : null);
 		}
 		g.set(40, Gui.item("BOOK", "&fFaith stats in chat", "&7Same as /faith stats " + name), online == null ? null : (pl, t) -> {
 			pl.closeInventory();
