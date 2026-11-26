@@ -1134,7 +1134,8 @@ public class RunicDeathChest implements Serializable {
 		/// INVENTORY
 		if (type.equals("Inventory")) {
 			String filename = graveID + "-inventory.yml";
-			File graveFile = new File("/home/AMP/.ampdata/instances/Survival/Minecraft/plugins/RunicParadise/graves",
+			File graveFile = new File(new File(RunicParadise.getInstance().getDataFolder(), "graves"), // was the GCP Linux path (2026-11-26)
+					
 					filename);
 			FileConfiguration graveConfig = YamlConfiguration.loadConfiguration(graveFile);
 
@@ -1167,7 +1168,8 @@ public class RunicDeathChest implements Serializable {
 			/// EQUIPMENT
 		} else if (type.equals("Equipment")) {
 			String filename = graveID + "-equipment.yml";
-			File graveFile = new File("/home/AMP/.ampdata/instances/Survival/Minecraft/plugins/RunicParadise/graves",
+			File graveFile = new File(new File(RunicParadise.getInstance().getDataFolder(), "graves"), // was the GCP Linux path (2026-11-26)
+					
 					filename);
 			FileConfiguration graveConfig = YamlConfiguration.loadConfiguration(graveFile);
 
@@ -1204,7 +1206,8 @@ public class RunicDeathChest implements Serializable {
 		if (type.equals("Inventory")) {
 
 			String filename = graveID + "-inventory.yml";
-			File graveFile = new File("/home/AMP/.ampdata/instances/Survival/Minecraft/plugins/RunicParadise/graves",
+			File graveFile = new File(new File(RunicParadise.getInstance().getDataFolder(), "graves"), // was the GCP Linux path (2026-11-26)
+					
 					filename);
 			FileConfiguration graveConfig = YamlConfiguration.loadConfiguration(graveFile);
 
@@ -1215,7 +1218,8 @@ public class RunicDeathChest implements Serializable {
 			return inv.toArray(new ItemStack[0]);
 		} else if (type.equals("Equipment")) {
 			String filename = graveID + "-equipment.yml";
-			File graveFile = new File("/home/AMP/.ampdata/instances/Survival/Minecraft/plugins/RunicParadise/graves",
+			File graveFile = new File(new File(RunicParadise.getInstance().getDataFolder(), "graves"), // was the GCP Linux path (2026-11-26)
+					
 					filename);
 			FileConfiguration graveConfig = YamlConfiguration.loadConfiguration(graveFile);
 
