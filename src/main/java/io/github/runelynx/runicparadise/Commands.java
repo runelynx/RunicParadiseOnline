@@ -2327,6 +2327,14 @@ public class Commands implements CommandExecutor {
 		boolean empty = true;
 
 		if (args.length == 3 && args[0].equals("enter")) {
+			// 2026-11-26: refuse entry while staff have the maze closed (/rs games)
+			int gameId = args[1].equalsIgnoreCase("glitch") ? 32 : args[1].equalsIgnoreCase("dungeon") ? 6 : args[1].equalsIgnoreCase("anguish") ? 21 : 0;
+			String closed = GamesAdmin.closedMessageFor(gameId);
+			if (closed != null) {
+				Player entrant = Bukkit.getPlayer(args[2]);
+				if (entrant != null) entrant.sendMessage(closed);
+				return;
+			}
 			Player victim = Bukkit.getPlayer(args[2]);
 
 			// check for players in the maze or entry zone

@@ -1080,6 +1080,12 @@ public class RunicProfile {
 			} else {
 				// results found!
 				mzResult.next();
+				// 2026-11-26: a game closed by staff (/rs games) neither counts nor pays; staff "Give completion" overrides.
+				if ("Closed".equalsIgnoreCase(mzResult.getString("Status")) && !GamesAdmin.override) {
+					p.sendMessage(GamesAdmin.closedText(mzResult.getString("GameName"), mzResult.getString("ClosedReason"), true));
+					connection.close();
+					return;
+				}
 				prizeKarma = mzResult.getInt("KarmaReward");
 				prizeSouls = mzResult.getInt("SoulReward");
 				prizeRunics = mzResult.getInt("CashReward");

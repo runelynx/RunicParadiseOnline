@@ -861,6 +861,14 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 					meta.setDisplayName(ChatColor.RESET + "" + ChatColor.BLUE + menuResult.getString("GameName"));
 
 					ArrayList<String> mazeLore = new ArrayList<String>();
+					// 2026-11-26: staff can close a game (/rs games); show it as closed with the reason
+					if ("Closed".equalsIgnoreCase(menuResult.getString("Status"))) {
+						mazeLore.add(ChatColor.RED + "" + ChatColor.BOLD + "CLOSED" + ChatColor.RED + " right now");
+						String why = menuResult.getString("ClosedReason");
+						if (why != null && !why.isEmpty()) mazeLore.add(ChatColor.GRAY + why);
+						mazeLore.add(ChatColor.GRAY + "Finishing it won't count until it reopens.");
+						mazeLore.add(null);
+					}
 					mazeLore.add(ChatColor.GREEN + "Times Completed: " + ChatColor.YELLOW + playerMazeCount);
 					mazeLore.add(null);
 					if (playerMazeCount == 0) {

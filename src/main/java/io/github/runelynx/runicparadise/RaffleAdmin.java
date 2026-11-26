@@ -76,13 +76,13 @@ final class RaffleAdmin {
 		});
 		if (p.hasPermission(STAFF_PERM)) {
 			g.set(11, Gui.item("PAPER", "&fGive tickets", on ? "&7Pick a player, then an amount" : "&cTurn the raffle on first",
-					"&8(same as /raffle give)"), on ? (pl, t) -> StaffMenu.pickPlayer(pl, "&8Raffle: give tickets to", target ->
+					StaffPrefs.cmd(p, "&8(same as /raffle give)")), on ? (pl, t) -> StaffMenu.pickPlayer(pl, "&8Raffle: give tickets to", target ->
 					pickAmount(pl, target.getName()), () -> menu(pl)) : null);
 			g.set(12, Gui.item("NETHER_STAR", "&6&lDraw a winner", "&7Picks one player at random, weighted",
 					"&7by tickets. Shown to you only:", "&7nothing is announced or changed.", "&7You can draw again for runners-up."),
 					h.isEmpty() ? null : (pl, t) -> Confirm.menu(pl, "Draw a winner from " + tickets + " tickets", null, () -> draw(pl), () -> menu(pl)));
 		}
-		g.set(13, Gui.item("COMPARATOR", "&fReload from file", "&7Re-read rafflesettings.yml", "&8(same as /staff rr)"), (pl, t) -> {
+		g.set(13, Gui.item("COMPARATOR", "&fReload from file", "&7Re-read rafflesettings.yml", StaffPrefs.cmd(p, "&8(same as /staff rr)")), (pl, t) -> {
 			reload();
 			Audit.log(pl, "raffle reload", "-");
 			Ui.ok(pl, "Raffle settings reloaded.");

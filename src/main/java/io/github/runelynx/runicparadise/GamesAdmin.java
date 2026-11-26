@@ -30,6 +30,62 @@ final class GamesAdmin {
 	static final class Game {
 		int id; String name; String type; int karma, tokens, souls, cash; double repeat; boolean chest; boolean announce;
 		int chestX, chestY, chestZ; int completions; int players; long last;
+		boolean closed; String closedReason; String changedBy; long changedAt;
+	}
+
+	// ------------------------------------------------------------------ open / closed (2026-11-26)
+
+	/** Set while staff "Give completion" runs, so a closed game can still be paid out deliberately. */
+	static boolean override = false;
+
+	/** Games some rank promotions require by ID (see Ranks.java); closing them makes those players wait. */
+	static final Set<Integer> RANK_REQUIRED = new HashSet<>(Arrays.asList(1, 2, 4, 5, 6));
+
+	/** The message a player sees for a closed game. */
+	static String closedText(String name, String reason, boolean finished) {
+		return org.bukkit.ChatColor.RED + name + " is closed right now" + (reason == null || reason.isEmpty() ? "" : ": " + reason)
+				+ org.bukkit.ChatColor.GRAY + (finished ? ". This finish wasn't counted; try again when it reopens." : ". Please try again when it reopens.");
+	}
+
+	/** Null if the game is open (or unknown), otherwise the "closed" message for someone trying to enter. */
+	static String closedMessageFor(int gameId) {
+		if (gameId <= 0) return null;
+		MySQL db = RunicUtilities.getMysqlFromPlugin(RunicParadise.getInstance());
+		try (Connection c = db.openConnection();
+			 PreparedStatement ps = c.prepareStatement("SELECT GameName, Status, ClosedReason FROM rp_RunicGames WHERE ID = ?")) {
+			ps.setInt(1, gameId);
+			try (ResultSet rs = ps.executeQuery()) {
+				if (rs.next() && "Closed".equalsIgnoreCase(rs.getString("Status"))) {
+					return closedText(rs.getString("GameName"), rs.getString("ClosedReason"), false);
+				}
+			}
+		} catch (SQLException e) {
+			RunicParadise.getInstance().getLogger().warning("[rs games] status check failed: " + e.getMessage());
+		}
+		return null;
+	}
+
+	static void setOpen(CommandSender s, Game g, boolean open, String reason) {
+		if (write("UPDATE rp_RunicGames SET Status = ?, ClosedReason = ?, StatusChangedBy = ?, StatusChangedAt = ? WHERE ID = ?",
+				open ? "Open" : "Closed", open ? null : reason, s.getName(), System.currentTimeMillis(), g.id)) {
+			Audit.log(s, open ? "game opened" : "game closed", "#" + g.id + " " + g.name + (open ? "" : ": " + reason));
+			Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "sc " + s.getName() + (open ? " reopened " + g.name : " closed " + g.name + ": " + reason));
+			Ui.ok(s, g.name + " is now " + (open ? "open." : "closed."));
+		} else {
+			Ui.error(s, "Couldn't save that change.");
+		}
+	}
+
+	static List<String> closeWarnings(Game g) {
+		List<String> l = new ArrayList<>();
+		l.add("&7Reason shown to players: &f" + "%REASON%");
+		l.add("&7Finishing it won't count or pay");
+		l.add("&7until it's reopened.");
+		if (RANK_REQUIRED.contains(g.id)) {
+			l.add("&c⚠ Some rank promotions require this");
+			l.add("&cgame: those players must wait.");
+		}
+		return l;
 	}
 
 	static List<Game> load() {
@@ -56,6 +112,10 @@ final class GamesAdmin {
 				g.completions = rs.getInt("Comp");
 				g.players = rs.getInt("Players");
 				g.last = rs.getLong("Last");
+				g.closed = "Closed".equalsIgnoreCase(rs.getString("Status"));
+				g.closedReason = rs.getString("ClosedReason");
+				g.changedBy = rs.getString("StatusChangedBy");
+				g.changedAt = rs.getLong("StatusChangedAt");
 				l.add(g);
 			}
 		} catch (SQLException e) {
@@ -101,23 +161,28 @@ final class GamesAdmin {
 	static void list(Player p) {
 		String filter = FILTER.getOrDefault(p.getUniqueId(), "All");
 		List<Game> games = new ArrayList<>();
-		for (Game g : load()) if (filter.equals("All") || filter.equalsIgnoreCase(g.type)) games.add(g);
+		for (Game g : load()) {
+			boolean keep = filter.equals("All") || filter.equalsIgnoreCase(g.type)
+					|| (filter.equals("Open") && !g.closed) || (filter.equals("Closed") && g.closed);
+			if (keep) games.add(g);
+		}
 		Gui gui = new Gui(6, "&8Mazes & Parkours &7(" + games.size() + ")");
 		int slot = 0;
 		for (Game g : games) {
 			if (slot >= 45) break;
 			List<String> lore = new ArrayList<>();
 			lore.add("&7" + g.type + " &8· ID " + g.id);
+			if (g.closed) lore.add("&c● Closed" + (g.closedReason == null ? "" : ": &7" + g.closedReason));
 			lore.addAll(rewardLore(g));
 			lore.add("&7Finished by &f" + g.players + " &7player(s), &f" + g.completions + " &7time(s)");
 			lore.add("&7Last finish: &f" + (g.last > 0 ? DF.format(new Date(g.last)) : "never"));
 			lore.add("");
 			lore.add("&eClick to manage");
-			gui.set(slot++, Gui.item(icon(g), "&b" + g.name, lore), (pl, t) -> detail(pl, g.id));
+			gui.set(slot++, Gui.item(g.closed ? "RED_STAINED_GLASS" : icon(g), (g.closed ? "&c[Closed] &7" : "&b") + g.name, lore), (pl, t) -> detail(pl, g.id));
 		}
 		gui.set(45, Gui.item("ARROW", "&7« Back"), (pl, t) -> StaffMenu.area(pl, "Events & Games"));
-		List<String> types = Arrays.asList("All", "Maze", "Parkour");
-		gui.set(48, Gui.item("HOPPER", "&fShowing: &b" + filter, "&7Click to cycle All / Maze / Parkour"), (pl, t) -> {
+		List<String> types = Arrays.asList("All", "Maze", "Parkour", "Open", "Closed");
+		gui.set(48, Gui.item("HOPPER", "&fShowing: &b" + filter, "&7Click to cycle All / Maze / Parkour", "&7/ Open / Closed"), (pl, t) -> {
 			FILTER.put(pl.getUniqueId(), types.get((types.indexOf(filter) + 1) % types.size()));
 			list(pl);
 		});
@@ -182,7 +247,10 @@ final class GamesAdmin {
 		head.add("&7Last finish: &f" + (g.last > 0 ? DF.format(new Date(g.last)) : "never"));
 		head.add("&7First finish announced: &f" + (g.announce ? "yes" : "no"));
 		if (g.chest) head.add("&7Chest reward at &f" + g.chestX + " " + g.chestY + " " + g.chestZ);
-		head.add("&8Finish command: /rptokens mazewin <player> " + g.id);
+		head.add(StaffPrefs.cmd(p, "&8Finish command: /rptokens mazewin <player> " + g.id));
+		head.add(g.closed ? "&c● Closed" + (g.closedReason == null ? "" : ": &7" + g.closedReason) : "&a● Open");
+		if (g.changedBy != null) head.add("&8Status changed by " + g.changedBy + (g.changedAt > 0 ? " on " + DF.format(new Date(g.changedAt)) : ""));
+		head.removeIf(java.util.Objects::isNull);
 		gui.set(4, Gui.item(icon(g), "&b&l" + g.name, head), null);
 
 		reward(gui, 19, "SUNFLOWER", "Tokens", "TokenReward", g.tokens, g, edit);
@@ -206,6 +274,20 @@ final class GamesAdmin {
 			detail(pl, g.id);
 		} : null);
 
+		if (edit) {
+			if (g.closed) {
+				gui.set(25, Gui.item("LIME_CONCRETE", "&a&lReopen this game", "&7Finishing it counts and pays again."),
+						(pl, t) -> Confirm.menu(pl, "Reopen " + g.name, null, () -> { setOpen(pl, g, true, null); detail(pl, g.id); }, () -> detail(pl, g.id)));
+			} else {
+				gui.set(25, Gui.item("RED_CONCRETE", "&c&lClose this game", "&7For repairs or a break. Players", "&7see it as closed with your reason;", "&7finishing it won't count or pay."),
+						(pl, t) -> ChatPrompt.ask(pl, "Reason players will see for closing " + g.name + " (e.g. Being repaired)", reason -> {
+							String r = reason.trim().length() > 200 ? reason.trim().substring(0, 200) : reason.trim();
+							List<String> w = new ArrayList<>();
+							for (String line : closeWarnings(g)) w.add(line.replace("%REASON%", r));
+							Confirm.menu(pl, "Close " + g.name, w, () -> { setOpen(pl, g, false, r); detail(pl, g.id); }, () -> detail(pl, g.id));
+						}));
+			}
+		}
 		gui.set(28, Gui.item("BOOK", "&fRecent finishers", "&7The last 15, in chat"), (pl, t) -> {
 			pl.closeInventory();
 			recent(pl, g, 15);
@@ -214,7 +296,7 @@ final class GamesAdmin {
 				(pl, t) -> ChatPrompt.ask(pl, "Player name to look up for " + g.name, name -> playerForGame(pl, name.trim(), g.id)));
 		gui.set(30, Gui.item("EMERALD", "&fGive a completion", "&7Pays this game's rewards to an", "&7online player, exactly like the", "&7finish command block"),
 				(pl, t) -> StaffMenu.pickPlayer(pl, "&8" + g.name + ": give to", target ->
-						Confirm.menu(pl, "Give " + target.getName() + " a " + g.name + " completion", rewardLore(g),
+						Confirm.menu(pl, "Give " + target.getName() + " a " + g.name + " completion", giveLore(g),
 								() -> giveCompletion(pl, target.getName(), g), () -> detail(pl, g.id)), () -> detail(pl, g.id)));
 		if (edit && g.players == 0) {
 			gui.set(44, Gui.item("TNT", "&cRemove this game", "&7Nobody has finished it, so it", "&7can be removed completely."),
@@ -341,12 +423,23 @@ final class GamesAdmin {
 		s.sendMessage(btns);
 	}
 
+	static List<String> giveLore(Game g) {
+		List<String> l = new ArrayList<>(rewardLore(g));
+		if (g.closed) l.add("&e⚠ This game is closed; this staff give still pays.");
+		return l;
+	}
+
 	static void giveCompletion(CommandSender s, String player, Game g) {
 		if (Bukkit.getPlayerExact(player) == null) {
 			Ui.error(s, player + " must be online.");
 			return;
 		}
-		Bukkit.dispatchCommand(s, "rptokens mazewin " + player + " " + g.id);
+		override = true; // staff deliberately paying out, even if the game is closed
+		try {
+			Bukkit.dispatchCommand(s, "rptokens mazewin " + player + " " + g.id);
+		} finally {
+			override = false;
+		}
 		Audit.log(s, "game completion given", player + " " + g.name + " (#" + g.id + ")");
 	}
 
@@ -366,14 +459,15 @@ final class GamesAdmin {
 	static void register() {
 		StaffRegistry.register(StaffAction.of("games", "Events & Games").icon("OAK_LEAVES")
 				.desc("Mazes and parkours: rewards, who finished, give or reset completions, add games")
-				.usage("[list|info <id>|player <name> [id]|give <player> <id>|reset <player> <id>]")
+				.usage("[list|info <id>|open <id>|close <id> <reason...>|player <name> [id]|give <player> <id>|reset <player> <id>]")
 				.menu(GamesAdmin::list)
 				.complete((s, a) -> {
-					if (a.length == 1) return Arrays.asList("list", "info", "player", "give", "reset");
+					if (a.length == 1) return Arrays.asList("list", "info", "open", "close", "player", "give", "reset");
 					List<String> ids = new ArrayList<>();
 					for (Game g : load()) ids.add(String.valueOf(g.id));
-					if (a.length == 2) return a[0].equalsIgnoreCase("info") ? ids : CoreActions.onlineNames();
-					if (a.length == 3 && !a[0].equalsIgnoreCase("info")) return ids;
+					boolean byId = a[0].equalsIgnoreCase("info") || a[0].equalsIgnoreCase("open") || a[0].equalsIgnoreCase("close");
+					if (a.length == 2) return byId ? ids : CoreActions.onlineNames();
+					if (a.length == 3 && !byId) return ids;
 					return null;
 				})
 				.exec(GamesAdmin::command));
@@ -400,10 +494,10 @@ final class GamesAdmin {
 			default:
 				break;
 		}
-		int idArg = sub.equals("info") ? 1 : 2;
+		int idArg = sub.equals("info") || sub.equals("open") || sub.equals("close") ? 1 : 2;
 		Game g = a.length > idArg && a[idArg].matches("\\d+") ? get(Integer.parseInt(a[idArg])) : null;
 		if (g == null) {
-			Ui.error(s, "Usage: /rs games [list|info <id>|player <name> [id]|give <player> <id>|reset <player> <id>]");
+			Ui.error(s, "Usage: /rs games [list|info <id>|open <id>|close <id> <reason...>|player <name> [id]|give <player> <id>|reset <player> <id>]");
 			return;
 		}
 		switch (sub) {
@@ -419,6 +513,24 @@ final class GamesAdmin {
 			case "give":
 				Confirm.ask(s, "Give " + a[1] + " a " + g.name + " completion (pays its rewards)", () -> giveCompletion(s, a[1], g));
 				return;
+			case "open":
+			case "close":
+				if (!s.hasPermission(EDIT_PERM)) {
+					Ui.error(s, "Only directors can open or close games.");
+					return;
+				}
+				if (sub.equals("open")) {
+					if (!g.closed) { Ui.info(s, g.name + " is already open."); return; }
+					Confirm.ask(s, "Reopen " + g.name, () -> setOpen(s, g, true, null));
+				} else {
+					if (g.closed) { Ui.info(s, g.name + " is already closed."); return; }
+					if (a.length < 3) { Ui.error(s, "Usage: /rs games close <id> <reason players will see...>"); return; }
+					String reason = String.join(" ", Arrays.copyOfRange(a, 2, a.length));
+					if (reason.length() > 200) reason = reason.substring(0, 200);
+					final String r = reason;
+					Confirm.ask(s, "Close " + g.name + " (finishes won't count or pay" + (RANK_REQUIRED.contains(g.id) ? "; some rank promotions need it, so those players must wait" : "") + ")", () -> setOpen(s, g, false, r));
+				}
+				return;
 			case "reset":
 				if (!s.hasPermission(EDIT_PERM)) {
 					Ui.error(s, "Only directors can reset completion records.");
@@ -427,7 +539,7 @@ final class GamesAdmin {
 				Confirm.ask(s, "Reset " + a[1] + "'s " + g.name + " record (can't be undone; affects rank requirements)", () -> reset(s, a[1], g));
 				return;
 			default:
-				Ui.error(s, "Usage: /rs games [list|info <id>|player <name> [id]|give <player> <id>|reset <player> <id>]");
+				Ui.error(s, "Usage: /rs games [list|info <id>|open <id>|close <id> <reason...>|player <name> [id]|give <player> <id>|reset <player> <id>]");
 		}
 	}
 }

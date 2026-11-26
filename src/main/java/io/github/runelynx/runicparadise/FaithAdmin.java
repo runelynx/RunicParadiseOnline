@@ -161,7 +161,7 @@ final class FaithAdmin {
 			}
 			g.set(slots[i++], faithIcon, canEdit ? (pl, t) -> click(pl, online, f, t) : null);
 		}
-		g.set(40, Gui.item("BOOK", "&fFaith stats in chat", "&7Same as /faith stats " + name), online == null ? null : (pl, t) -> {
+		g.set(40, Gui.item("BOOK", "&fFaith stats in chat", StaffPrefs.cmd(staff, "&7Same as /faith stats " + name)), online == null ? null : (pl, t) -> {
 			pl.closeInventory();
 			Bukkit.dispatchCommand(pl, "faith stats " + name);
 		});
