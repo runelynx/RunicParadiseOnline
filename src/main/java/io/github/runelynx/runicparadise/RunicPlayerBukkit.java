@@ -559,7 +559,7 @@ public class RunicPlayerBukkit {
 					// record not found in jobs table... critical error!
 					getLogger().log(
 							Level.SEVERE,
-							"[RPJobMastery] Couldnt find record for "
+							"Couldnt find record for "
 									+ this.playerName + " in Jobs_jobs table!");
 					return false;
 				}
@@ -617,7 +617,7 @@ public class RunicPlayerBukkit {
 					// record not found in jobs table... critical error!
 					getLogger().log(
 							Level.SEVERE,
-							"[RPJobMastery] Couldnt find record for "
+							"Couldnt find record for "
 									+ this.playerName + " in Jobs_jobs table!");
 					this.sendMessageToPlayer(ChatColor.RED
 							+ "Couldn't find a job for you. Do you have level 25 in a tier1 job?");
@@ -766,9 +766,7 @@ public class RunicPlayerBukkit {
 			if (Bukkit.getPlayer(name) != null) {
 
 				Bukkit.getPlayer(name).sendMessage(
-						ChatColor.GRAY + "[" + ChatColor.BLUE + "Runic"
-								+ ChatColor.DARK_AQUA + "Faith"
-								+ ChatColor.GRAY + "] " + ChatColor.GRAY
+						"00a7d2726 " + ChatColor.GRAY
 								+ "Your karma changed by " + ChatColor.AQUA
 								+ change + ChatColor.GRAY + ".");
 			}
@@ -796,9 +794,7 @@ public class RunicPlayerBukkit {
 
 			Bukkit.getPlayer(this.playerUUID)
 					.sendMessage(
-							ChatColor.GRAY + "[" + ChatColor.BLUE + "Runic"
-									+ ChatColor.DARK_AQUA + "Faith"
-									+ ChatColor.GRAY + "] " + ChatColor.GRAY
+							"00a7d2726 " + ChatColor.GRAY
 									+ "Your karma changed by " + ChatColor.AQUA
 									+ change + ChatColor.GRAY + ". It is now "
 									+ ChatColor.DARK_AQUA + this.karma);
@@ -1013,7 +1009,7 @@ public class RunicPlayerBukkit {
 				this.tokenBalance = 0;
 				getLogger().log(
 						Level.INFO,
-						"[RP] Player " + this.playerName
+						"Player " + this.playerName
 								+ " isn't in our DB yet.");
 			} else {
 				// Player does exist in the DB

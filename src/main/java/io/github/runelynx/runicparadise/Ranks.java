@@ -115,7 +115,7 @@ class Ranks {
 
 	private void congratsPromotion(String promoted, String newRank) {
 		// RG.sendMessage(true, promoted, ChatColor.GOLD
-		// + "[RunicRanks] Congratulations, " + promoted
+		// + "\u00a7a\u25b2 \u00a7rCongratulations, " + promoted
 		// + ", on promoting to " + newRank + "!");
 
 		for (Player p : Bukkit.getOnlinePlayers()) {
@@ -133,7 +133,7 @@ class Ranks {
 	 * final Connection d = MySQL.openConnection();
 	 * 
 	 * user.sendMessage(ChatColor.GRAY +
-	 * "[RunicRanks] Listing player kill counts...");
+	 * "\u00a7a\u25b2 \u00a7rListing player kill counts...");
 	 * 
 	 * for (Player p : Bukkit.getOnlinePlayers()) { try { Statement dStmt =
 	 * d.createStatement(); ResultSet playerData = dStmt
@@ -181,7 +181,7 @@ class Ranks {
 		int balance = 0;
 		int isNominated = 0;
 
-		user.sendMessage(ChatColor.GRAY + "[RunicRanks] Listing player stats...");
+		user.sendMessage("\u00a7a\u25b2 " + ChatColor.GRAY + "Listing player stats...");
 
 		for (Player p : Bukkit.getOnlinePlayers()) {
 			try {
@@ -240,7 +240,7 @@ class Ranks {
 			nomRedux = 0;
 		}
 
-		user.sendMessage(ChatColor.GRAY + "[RunicRanks] Listing promotion requirements...");
+		user.sendMessage("\u00a7a\u25b2 " + ChatColor.GRAY + "Listing promotion requirements...");
 		user.sendMessage(ChatColor.DARK_GREEN + "Runner - " + ChatColor.GRAY + RUNNER_DAYS + " days or 15 votes, "
 				+ RUNNER_RUNICS + " R.");
 		user.sendMessage(ChatColor.GRAY + RUNNER_KILLS);
@@ -321,12 +321,12 @@ class Ranks {
 			break;
 		}
 		if (converted) {
-			user.sendMessage(ChatColor.YELLOW + "[RunicRanks]" + ChatColor.GOLD + " Welcome to the new ranks system!!");
-			user.sendMessage(ChatColor.YELLOW + "[RunicRanks]" + ChatColor.GOLD
+			user.sendMessage("\u00a7a\u25b2 " + ChatColor.YELLOW + "" + ChatColor.GOLD + " Welcome to the new ranks system!!");
+			user.sendMessage("\u00a7a\u25b2 " + ChatColor.YELLOW + "" + ChatColor.GOLD
 					+ " To learn how to get to the next rank, type /promote");
 			user.sendMessage(
-					ChatColor.YELLOW + "[RunicRanks]" + ChatColor.GOLD + " To see what ranks we have, type /ranks");
-			user.sendMessage(ChatColor.YELLOW + "[RunicRanks]" + ChatColor.GOLD
+					"\u00a7a\u25b2 " + ChatColor.YELLOW + "" + ChatColor.GOLD + " To see what ranks we have, type /ranks");
+			user.sendMessage("\u00a7a\u25b2 " + ChatColor.YELLOW + "" + ChatColor.GOLD
 					+ " To learn about perks: http://www.runic-paradise.com/ranks.php");
 			Bukkit.dispatchCommand(Bukkit.getConsoleSender(),
 					"sc Converting " + user.getName() + " from " + rank + " to " + newRank);
@@ -362,11 +362,11 @@ class Ranks {
 			return;
 		}
 
-		sender.sendMessage(ChatColor.DARK_GREEN + "[RunicRanks] Success! " + nominee + " now has "
+		sender.sendMessage("\u00a7a\u25b2 " + ChatColor.DARK_GREEN + "Success! " + nominee + " now has "
 				+ (nominations + 1) + " nominations");
 		Player target = sender.getServer().getPlayerExact(nominee);
 		if (target != null) {
-			target.sendMessage(ChatColor.DARK_GREEN + "[RunicRanks] You have just been nominated for faster promotions by "
+			target.sendMessage("\u00a7a\u25b2 " + ChatColor.DARK_GREEN + "You have just been nominated for faster promotions by "
 					+ sender.getDisplayName());
 			target.sendMessage(ChatColor.WHITE + "Type /ranks to see your new requirements.");
 			target.sendMessage(ChatColor.WHITE + "While multiple nominations are very nice, only the first one has an impact. :)");
@@ -502,7 +502,7 @@ class Ranks {
 					economy.withdrawPlayer(user.getName(), BARON_RUNICS);
 					promotePlayer(user, "Baron");
 					perms.playerRemoveGroup(user, "Duke");
-					user.sendMessage(ChatColor.DARK_GREEN + "[RunicRanks] Congratulations! You have been promoted!");
+					user.sendMessage("\u00a7a\u25b2 " + ChatColor.DARK_GREEN + "Congratulations! You have been promoted!");
 					Ranks tempRank = new Ranks();
 					tempRank.congratsPromotion(user.getName(), "Baron");
 					logPromotion(user.getName(), "Baron", new Date().getTime());
@@ -510,7 +510,7 @@ class Ranks {
 				} else {
 					// just checking... we're not executing the promotion!!
 					user.sendMessage(
-							ChatColor.DARK_GREEN + "[RunicRanks] Congratulations! You qualify for a promotion!");
+							"\u00a7a\u25b2 " + ChatColor.DARK_GREEN + "Congratulations! You qualify for a promotion!");
 					user.sendMessage(ChatColor.DARK_GREEN + "Promotion to Baron costs " + BARON_RUNICS + " Runics.");
 					user.sendMessage(ChatColor.DARK_GREEN + "Type " + ChatColor.AQUA + "/rankup now"
 							+ ChatColor.DARK_GREEN + " to accept the promotion.");
@@ -567,7 +567,7 @@ class Ranks {
 				if (execute == false) {
 					// just checking... we're not executing the promotion!!
 					user.sendMessage(
-							ChatColor.DARK_GREEN + "[RunicRanks] Congratulations! You qualify for a promotion!");
+							"\u00a7a\u25b2 " + ChatColor.DARK_GREEN + "Congratulations! You qualify for a promotion!");
 					user.sendMessage(ChatColor.DARK_GREEN + "Promotion to Duke costs " + DUKE_RUNICS + " Runics.");
 					user.sendMessage(ChatColor.DARK_GREEN + "Type " + ChatColor.AQUA + "/rankup now"
 							+ ChatColor.DARK_GREEN + " to accept the promotion.");
@@ -576,7 +576,7 @@ class Ranks {
 					economy.withdrawPlayer(user.getName(), DUKE_RUNICS);
 					promotePlayer(user, "Duke");
 					perms.playerRemoveGroup(user, "Master");
-					user.sendMessage(ChatColor.DARK_GREEN + "[RunicRanks] Congratulations! You have been promoted!");
+					user.sendMessage("\u00a7a\u25b2 " + ChatColor.DARK_GREEN + "Congratulations! You have been promoted!");
 					Ranks tempRank = new Ranks();
 					tempRank.congratsPromotion(user.getName(), "Duke");
 					logPromotion(user.getName(), "Duke", new Date().getTime());
@@ -660,7 +660,7 @@ class Ranks {
 				if (execute == false) {
 					// just checking... we're not executing the promotion!!
 					user.sendMessage(
-							ChatColor.DARK_GREEN + "[RunicRanks] Congratulations! You qualify for a promotion!");
+							"\u00a7a\u25b2 " + ChatColor.DARK_GREEN + "Congratulations! You qualify for a promotion!");
 					user.sendMessage(ChatColor.DARK_GREEN + "Promotion to Master costs " + MASTER_RUNICS + " Runics.");
 					user.sendMessage(ChatColor.DARK_GREEN + "Type " + ChatColor.AQUA + "/rankup now"
 							+ ChatColor.DARK_GREEN + " to accept the promotion.");
@@ -669,7 +669,7 @@ class Ranks {
 					economy.withdrawPlayer(user.getName(), MASTER_RUNICS);
 					promotePlayer(user, "Master");
 					perms.playerRemoveGroup(user, "Champion");
-					user.sendMessage(ChatColor.DARK_GREEN + "[RunicRanks] Congratulations! You have been promoted!");
+					user.sendMessage("\u00a7a\u25b2 " + ChatColor.DARK_GREEN + "Congratulations! You have been promoted!");
 					Ranks tempRank = new Ranks();
 					tempRank.congratsPromotion(user.getName(), "Master");
 					logPromotion(user.getName(), "Master", new Date().getTime());
@@ -758,7 +758,7 @@ class Ranks {
 				if (execute == false) {
 					// just checking... we're not executing the promotion!!
 					user.sendMessage(
-							ChatColor.DARK_GREEN + "[RunicRanks] Congratulations! You qualify for a promotion!");
+							"\u00a7a\u25b2 " + ChatColor.DARK_GREEN + "Congratulations! You qualify for a promotion!");
 					user.sendMessage(
 							ChatColor.DARK_GREEN + "Promotion to Champion costs " + CHAMPION_RUNICS + " Runics.");
 					user.sendMessage(ChatColor.DARK_GREEN + "Type " + ChatColor.AQUA + "/rankup now"
@@ -768,7 +768,7 @@ class Ranks {
 					economy.withdrawPlayer(user.getName(), CHAMPION_RUNICS);
 					promotePlayer(user, "Champion");
 					perms.playerRemoveGroup(user, "Warder");
-					user.sendMessage(ChatColor.DARK_GREEN + "[RunicRanks] Congratulations! You have been promoted!");
+					user.sendMessage("\u00a7a\u25b2 " + ChatColor.DARK_GREEN + "Congratulations! You have been promoted!");
 					Ranks tempRank = new Ranks();
 					tempRank.congratsPromotion(user.getName(), "Champion");
 					logPromotion(user.getName(), "Champion", new Date().getTime());
@@ -864,7 +864,7 @@ class Ranks {
 				if (execute == false) {
 					// just checking... we're not executing the promotion!!
 					user.sendMessage(
-							ChatColor.DARK_GREEN + "[RunicRanks] Congratulations! You qualify for a promotion!");
+							"\u00a7a\u25b2 " + ChatColor.DARK_GREEN + "Congratulations! You qualify for a promotion!");
 					user.sendMessage(ChatColor.DARK_GREEN + "Promotion to Warder costs " + WARDER_RUNICS + " Runics.");
 					user.sendMessage(ChatColor.DARK_GREEN + "Type " + ChatColor.AQUA + "/rankup now"
 							+ ChatColor.DARK_GREEN + " to accept the promotion.");
@@ -873,7 +873,7 @@ class Ranks {
 					economy.withdrawPlayer(user.getName(), WARDER_RUNICS);
 					promotePlayer(user, "Warder");
 					perms.playerRemoveGroup(user, "Slayer");
-					user.sendMessage(ChatColor.DARK_GREEN + "[RunicRanks] Congratulations! You have been promoted!");
+					user.sendMessage("\u00a7a\u25b2 " + ChatColor.DARK_GREEN + "Congratulations! You have been promoted!");
 					Ranks tempRank = new Ranks();
 					tempRank.congratsPromotion(user.getName(), "Warder");
 					logPromotion(user.getName(), "Warder", new Date().getTime());
@@ -954,7 +954,7 @@ class Ranks {
 				if (execute == false) {
 					// just checking... we're not executing the promotion!!
 					user.sendMessage(
-							ChatColor.DARK_GREEN + "[RunicRanks] Congratulations! You qualify for a promotion!");
+							"\u00a7a\u25b2 " + ChatColor.DARK_GREEN + "Congratulations! You qualify for a promotion!");
 					user.sendMessage(ChatColor.DARK_GREEN + "Promotion to Slayer costs " + SLAYER_RUNICS + " Runics.");
 					user.sendMessage(ChatColor.DARK_GREEN + "Type " + ChatColor.AQUA + "/rankup now"
 							+ ChatColor.DARK_GREEN + " to accept the promotion.");
@@ -963,7 +963,7 @@ class Ranks {
 					economy.withdrawPlayer(user.getName(), SLAYER_RUNICS);
 					promotePlayer(user, "Slayer");
 					perms.playerRemoveGroup(user, "Hunter");
-					user.sendMessage(ChatColor.DARK_GREEN + "[RunicRanks] Congratulations! You have been promoted!");
+					user.sendMessage("\u00a7a\u25b2 " + ChatColor.DARK_GREEN + "Congratulations! You have been promoted!");
 					Ranks tempRank = new Ranks();
 					tempRank.congratsPromotion(user.getName(), "Slayer");
 					logPromotion(user.getName(), "Slayer", new Date().getTime());
@@ -1068,7 +1068,7 @@ class Ranks {
 				if (execute == false) {
 					// just checking... we're not executing the promotion!!
 					user.sendMessage(
-							ChatColor.DARK_GREEN + "[RunicRanks] Congratulations! You qualify for a promotion!");
+							"\u00a7a\u25b2 " + ChatColor.DARK_GREEN + "Congratulations! You qualify for a promotion!");
 					user.sendMessage(ChatColor.DARK_GREEN + "Promotion to Hunter costs " + HUNTER_RUNICS + " Runics.");
 					user.sendMessage(ChatColor.DARK_GREEN + "Type " + ChatColor.AQUA + "/rankup now"
 							+ ChatColor.DARK_GREEN + " to accept the promotion.");
@@ -1077,7 +1077,7 @@ class Ranks {
 					economy.withdrawPlayer(user.getName(), HUNTER_RUNICS);
 					promotePlayer(user, "Hunter");
 					perms.playerRemoveGroup(user, "Guard");
-					user.sendMessage(ChatColor.DARK_GREEN + "[RunicRanks] Congratulations! You have been promoted!");
+					user.sendMessage("\u00a7a\u25b2 " + ChatColor.DARK_GREEN + "Congratulations! You have been promoted!");
 					Ranks tempRank = new Ranks();
 					tempRank.congratsPromotion(user.getName(), "Hunter");
 					logPromotion(user.getName(), "Hunter", new Date().getTime());
@@ -1158,7 +1158,7 @@ class Ranks {
 				if (execute == false) {
 					// just checking... we're not executing the promotion!!
 					user.sendMessage(
-							ChatColor.DARK_GREEN + "[RunicRanks] Congratulations! You qualify for a promotion!");
+							"\u00a7a\u25b2 " + ChatColor.DARK_GREEN + "Congratulations! You qualify for a promotion!");
 					user.sendMessage(ChatColor.DARK_GREEN + "Promotion to Guard costs " + GUARD_RUNICS + " Runics.");
 					user.sendMessage(ChatColor.DARK_GREEN + "Type " + ChatColor.AQUA + "/rankup now"
 							+ ChatColor.DARK_GREEN + " to accept the promotion.");
@@ -1167,7 +1167,7 @@ class Ranks {
 					economy.withdrawPlayer(user.getName(), GUARD_RUNICS);
 					promotePlayer(user, "Guard");
 					perms.playerRemoveGroup(user, "Keeper");
-					user.sendMessage(ChatColor.DARK_GREEN + "[RunicRanks] Congratulations! You have been promoted!");
+					user.sendMessage("\u00a7a\u25b2 " + ChatColor.DARK_GREEN + "Congratulations! You have been promoted!");
 					Ranks tempRank = new Ranks();
 					tempRank.congratsPromotion(user.getName(), "Guard");
 					logPromotion(user.getName(), "Guard", new Date().getTime());
@@ -1262,7 +1262,7 @@ class Ranks {
 				if (execute == false) {
 					// just checking... we're not executing the promotion!!
 					user.sendMessage(
-							ChatColor.DARK_GREEN + "[RunicRanks] Congratulations! You qualify for a promotion!");
+							"\u00a7a\u25b2 " + ChatColor.DARK_GREEN + "Congratulations! You qualify for a promotion!");
 					user.sendMessage(ChatColor.DARK_GREEN + "Promotion to Keeper costs " + KEEPER_RUNICS + " Runics.");
 					user.sendMessage(ChatColor.DARK_GREEN + "Type " + ChatColor.AQUA + "/rankup now"
 							+ ChatColor.DARK_GREEN + " to accept the promotion.");
@@ -1271,7 +1271,7 @@ class Ranks {
 					economy.withdrawPlayer(user.getName(), KEEPER_RUNICS);
 					promotePlayer(user, "Keeper");
 					perms.playerRemoveGroup(user, "Brawler");
-					user.sendMessage(ChatColor.DARK_GREEN + "[RunicRanks] Congratulations! You have been promoted!");
+					user.sendMessage("\u00a7a\u25b2 " + ChatColor.DARK_GREEN + "Congratulations! You have been promoted!");
 					Ranks tempRank = new Ranks();
 					tempRank.congratsPromotion(user.getName(), "Keeper");
 					logPromotion(user.getName(), "Keeper", new Date().getTime());
@@ -1351,7 +1351,7 @@ class Ranks {
 				if (execute == false) {
 					// just checking... we're not executing the promotion!!
 					user.sendMessage(
-							ChatColor.DARK_GREEN + "[RunicRanks] Congratulations! You qualify for a promotion!");
+							"\u00a7a\u25b2 " + ChatColor.DARK_GREEN + "Congratulations! You qualify for a promotion!");
 					user.sendMessage(
 							ChatColor.DARK_GREEN + "Promotion to Brawler costs " + BRAWLER_RUNICS + " Runics.");
 					user.sendMessage(ChatColor.DARK_GREEN + "Type " + ChatColor.AQUA + "/rankup now"
@@ -1361,7 +1361,7 @@ class Ranks {
 					economy.withdrawPlayer(user.getName(), BRAWLER_RUNICS);
 					promotePlayer(user, "Brawler");
 					perms.playerRemoveGroup(user, "Singer");
-					user.sendMessage(ChatColor.DARK_GREEN + "[RunicRanks] Congratulations! You have been promoted!");
+					user.sendMessage("\u00a7a\u25b2 " + ChatColor.DARK_GREEN + "Congratulations! You have been promoted!");
 					Ranks tempRank = new Ranks();
 					tempRank.congratsPromotion(user.getName(), "Brawler");
 					logPromotion(user.getName(), "Brawler", new Date().getTime());
@@ -1441,7 +1441,7 @@ class Ranks {
 				if (execute == false) {
 					// just checking... we're not executing the promotion!!
 					user.sendMessage(
-							ChatColor.DARK_GREEN + "[RunicRanks] Congratulations! You qualify for a promotion!");
+							"\u00a7a\u25b2 " + ChatColor.DARK_GREEN + "Congratulations! You qualify for a promotion!");
 					user.sendMessage(ChatColor.DARK_GREEN + "Promotion to Singer costs " + SINGER_RUNICS + " Runics.");
 					user.sendMessage(ChatColor.DARK_GREEN + "Type " + ChatColor.AQUA + "/rankup now"
 							+ ChatColor.DARK_GREEN + " to accept the promotion.");
@@ -1450,7 +1450,7 @@ class Ranks {
 					economy.withdrawPlayer(user.getName(), SINGER_RUNICS);
 					promotePlayer(user, "Singer");
 					perms.playerRemoveGroup(user, "Runner");
-					user.sendMessage(ChatColor.DARK_GREEN + "[RunicRanks] Congratulations! You have been promoted!");
+					user.sendMessage("\u00a7a\u25b2 " + ChatColor.DARK_GREEN + "Congratulations! You have been promoted!");
 					Ranks tempRank = new Ranks();
 					tempRank.congratsPromotion(user.getName(), "Singer");
 					logPromotion(user.getName(), "Singer", new Date().getTime());
@@ -1530,7 +1530,7 @@ class Ranks {
 					economy.withdrawPlayer(user.getName(), RUNNER_RUNICS);
 					promotePlayer(user, "Runner");
 					perms.playerRemoveGroup(user, "Settler");
-					user.sendMessage(ChatColor.DARK_GREEN + "[RunicRanks] Congratulations! You have been promoted!");
+					user.sendMessage("\u00a7a\u25b2 " + ChatColor.DARK_GREEN + "Congratulations! You have been promoted!");
 					Ranks tempRank = new Ranks();
 					tempRank.congratsPromotion(user.getName(), "Runner");
 					logPromotion(user.getName(), "Runner", new Date().getTime());
@@ -1538,7 +1538,7 @@ class Ranks {
 				} else {
 					// just checking... we're not executing the promotion!!
 					user.sendMessage(
-							ChatColor.DARK_GREEN + "[RunicRanks] Congratulations! You qualify for a promotion!");
+							"\u00a7a\u25b2 " + ChatColor.DARK_GREEN + "Congratulations! You qualify for a promotion!");
 					user.sendMessage(ChatColor.DARK_GREEN + "Promotion to Runner costs " + RUNNER_RUNICS + " Runics.");
 					user.sendMessage(ChatColor.DARK_GREEN + "Type " + ChatColor.AQUA + "/rankup now"
 							+ ChatColor.DARK_GREEN + " to accept the promotion.");
@@ -1548,14 +1548,14 @@ class Ranks {
 			}
 			break;
 		default:
-			user.sendMessage(ChatColor.RED + "[RunicRanks] There are no more promotions at your rank!");
+			user.sendMessage("\u00a7a\u25b2 " + ChatColor.RED + "There are no more promotions at your rank!");
 			break;
 		}
 
 		// if player isnt eligible, give them all the stored responses to tell
 		// them why
 		if (ineligible) {
-			user.sendMessage(ChatColor.RED + "[RunicRanks] You do not qualify for a promotion yet...");
+			user.sendMessage("\u00a7a\u25b2 " + ChatColor.RED + "You do not qualify for a promotion yet...");
 			String[] itemArray = new String[failureResponse.size()];
 			String[] returnedArray = failureResponse.toArray(itemArray);
 

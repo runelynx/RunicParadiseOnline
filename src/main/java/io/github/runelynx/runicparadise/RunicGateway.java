@@ -53,15 +53,15 @@ public class RunicGateway {
             if (damager instanceof Projectile) {
                 Object shooter = ((Projectile) damager).getShooter();
                 if (shooter instanceof Entity) {
-                    getLogger().log(Level.SEVERE, "[RP] Trying to log player death SHOOTER: " + shooter.toString());
+                    getLogger().log(Level.SEVERE, "Trying to log player death SHOOTER: " + shooter.toString());
                     return (Entity) shooter;
                 }
             }
             // Add other special cases if necessary
-            getLogger().log(Level.SEVERE, "[RP] Trying to log player death DAMAGER: " + damager.toString());
+            getLogger().log(Level.SEVERE, "Trying to log player death DAMAGER: " + damager.toString());
             return damager;
         }
-        getLogger().log(Level.INFO, "[RP] Trying to log player death... but returned null (or death not caused by entity)");
+        getLogger().log(Level.INFO, "Trying to log player death... but returned null (or death not caused by entity)");
         return null;
     }
 

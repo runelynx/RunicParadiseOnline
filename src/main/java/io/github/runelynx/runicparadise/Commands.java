@@ -207,7 +207,7 @@ public class Commands implements CommandExecutor {
         MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
         Connection connection = MySQL.openConnection();
 
-        player.sendMessage(ChatColor.GRAY + "[RunicCarnival] Listing player token counts...");
+        player.sendMessage("\u00a76\u2666 " + ChatColor.GRAY + "Listing player token counts...");
 
         for (Player p : Bukkit.getOnlinePlayers()) {
             try {
@@ -332,7 +332,7 @@ public class Commands implements CommandExecutor {
 					: e instanceof NumberFormatException ? "a number was expected" : "missing arguments";
 			sender.sendMessage(ChatColor.RED + "/" + label + " failed: " + hint + ".");
 			StackTraceElement at = e.getStackTrace().length > 0 ? e.getStackTrace()[0] : null;
-			Bukkit.getLogger().warning("[RunicParadise] Command /" + label + " " + String.join(" ", args) + " by " + sender.getName() + " failed: "
+			Bukkit.getLogger().warning("Command /" + label + " " + String.join(" ", args) + " by " + sender.getName() + " failed: "
 					+ e + (at == null ? "" : " at " + at));
 			return true;
 		}
@@ -555,7 +555,7 @@ public class Commands implements CommandExecutor {
 		}
 		String allArgs = sb.toString().trim();
 
-		Bukkit.getLogger().log(Level.INFO, "[RunicPEX] Processing pex command: " + allArgs);
+		Bukkit.getLogger().log(Level.INFO, "Processing pex command: " + allArgs);
 
 
 		if(args[0].equalsIgnoreCase("user") &&
@@ -567,7 +567,7 @@ public class Commands implements CommandExecutor {
 			if ((sender instanceof Player)) {
 				RunicMessaging.sendMessage(((Player)sender),RunicFormat.SYSTEM, ChatColor.GREEN + "Added " + args[3] + " perm to " + args[1]);
 			}
-			Bukkit.getLogger().log(Level.INFO, "[RunicPEX] Added " + args[3] + " perm to " + args[1]);
+			Bukkit.getLogger().log(Level.INFO, "Added " + args[3] + " perm to " + args[1]);
 
 		} else if(args[0].equalsIgnoreCase("user") &&
 				args[2].equalsIgnoreCase("remove")) {
@@ -577,7 +577,7 @@ public class Commands implements CommandExecutor {
 			if ((sender instanceof Player)) {
 				RunicMessaging.sendMessage(((Player)sender),RunicFormat.SYSTEM, ChatColor.RED + "Removed " + args[3] + " perm from " + args[1]);
 			}
-			Bukkit.getLogger().log(Level.INFO, "[RunicPEX] Removed " + args[3] + " perm from " + args[1]);
+			Bukkit.getLogger().log(Level.INFO, "Removed " + args[3] + " perm from " + args[1]);
 
 		} else if (args[0].equalsIgnoreCase("user") &&
 				args[2].equalsIgnoreCase("group") &&
@@ -588,7 +588,7 @@ public class Commands implements CommandExecutor {
 			if ((sender instanceof Player)) {
 				RunicMessaging.sendMessage(((Player)sender),RunicFormat.SYSTEM, ChatColor.RED + "Added " + args[4] + " group to " + args[1]);
 			}
-			Bukkit.getLogger().log(Level.INFO, "[RunicPEX] Added " + args[4] + " group to " + args[1]);
+			Bukkit.getLogger().log(Level.INFO, "Added " + args[4] + " group to " + args[1]);
 
 
 		} else if (args[0].equalsIgnoreCase("user") &&
@@ -600,13 +600,13 @@ public class Commands implements CommandExecutor {
 			if ((sender instanceof Player)) {
 				RunicMessaging.sendMessage(((Player)sender),RunicFormat.SYSTEM, ChatColor.RED + "Removed " + args[4] + " group from " + args[1]);
 			}
-			Bukkit.getLogger().log(Level.INFO, "[RunicPEX] Removed " + args[4] + " group from " + args[1]);
+			Bukkit.getLogger().log(Level.INFO, "Removed " + args[4] + " group from " + args[1]);
 		} else {
 			// malformed command or not something we're handling
 			if ((sender instanceof Player)) {
 				RunicMessaging.sendMessage(((Player)sender),RunicFormat.ERROR, ChatColor.DARK_RED + "Sorry... but our fake-pex commands can't handle what you just tried. Please look up the LuckPerms command for what you're trying to do. https://github.com/lucko/LuckPerms/wiki/Command-Usage");
 			}
-			Bukkit.getLogger().log(Level.INFO, "[RunicPEX] Failed to handle pex command.");
+			Bukkit.getLogger().log(Level.INFO, "Failed to handle pex command.");
 
 		}
 
@@ -735,7 +735,7 @@ public class Commands implements CommandExecutor {
 			Player player = (Player) sender;
 			RunicPlayerBukkit senderPlayer = new RunicPlayerBukkit(player.getUniqueId());
 
-			player.sendMessage(ChatColor.DARK_GRAY + "[RunicReaper] " + ChatColor.GRAY
+			player.sendMessage("\u00a74\u2620 " + ChatColor.DARK_GRAY + "" + ChatColor.GRAY
 					+ "Welcome to the Runic Afterlife...:");
 			player.sendMessage(ChatColor.GRAY + "You have " + ChatColor.AQUA + senderPlayer.getPlayerSouls()
 					+ ChatColor.GRAY + " souls remaining.");
@@ -770,10 +770,10 @@ public class Commands implements CommandExecutor {
 		instance.reloadConfig();
 		if (sender instanceof Player) {
 			Player player = (Player) sender;
-			player.sendMessage(ChatColor.GRAY + "[RP] Runic Paradise plugin reloaded.");
+			player.sendMessage(ChatColor.GRAY + "Runic Paradise plugin reloaded.");
 		}
 
-		System.out.println("[RP] Runic Paradise plugin reloaded.");
+		System.out.println("Runic Paradise plugin reloaded.");
 	}
 
 	private void rpCommand(CommandSender sender, String[] args) {
@@ -831,7 +831,7 @@ public class Commands implements CommandExecutor {
 					ChatColor.GRAY + "  Jobs mastered: " + ChatColor.GOLD + targetPlayer.getMasteredJobCount());
 
 		} else {
-			sender.sendMessage("[RP] Command RP must be used by a player");
+			sender.sendMessage("Command RP must be used by a player");
 		}
 	}
 
@@ -839,8 +839,7 @@ public class Commands implements CommandExecutor {
 		if (sender instanceof Player) {
 			if (args.length == 0) {
 				// show menu
-				sender.sendMessage(ChatColor.GRAY + "[" + ChatColor.BLUE + "RunicStaff" + ChatColor.GRAY
-						+ "] Welcome to the staff menu!");
+				sender.sendMessage(ChatColor.GRAY + "Welcome to the staff menu!");
 				sender.sendMessage(ChatColor.BLUE + "RunicRanks Commands & Tools");
 				sender.sendMessage(ChatColor.AQUA + "/staff ec" + ChatColor.GRAY + " Count entities near players");
 				sender.sendMessage(
@@ -909,13 +908,12 @@ public class Commands implements CommandExecutor {
 					) {
 				RunicPlayerBukkit targetPlayer = new RunicPlayerBukkit(args[1]);
 				int newSouls = targetPlayer.getPlayerSouls() + Integer.parseInt(args[2]);
-				targetPlayer.sendMessageToPlayer(ChatColor.GRAY + "[" + ChatColor.DARK_RED + "Runic" + ChatColor.RED
-						+ "Reaper" + ChatColor.GRAY + "] " + ChatColor.LIGHT_PURPLE + "The Reaper grants you "
+				targetPlayer.sendMessageToPlayer("00a742620 " + ChatColor.LIGHT_PURPLE + "The Reaper grants you "
 						+ ChatColor.WHITE + args[2] + ChatColor.LIGHT_PURPLE + " more souls. You have "
 						+ ChatColor.WHITE + newSouls + ChatColor.LIGHT_PURPLE + ".");
 
 				targetPlayer.setPlayerSouls(newSouls);
-				Bukkit.getLogger().log(Level.INFO, "[RP] Gave " + args[2] + " souls to " + args[1]);
+				Bukkit.getLogger().log(Level.INFO, "Gave " + args[2] + " souls to " + args[1]);
 			} else if (args[0].equals("LC") || args[0].equals("lc")) {
 				for (Player p : Bukkit.getOnlinePlayers()) {
 					for (Entity e : p.getNearbyEntities(200, 256, 200)) {
@@ -972,7 +970,7 @@ public class Commands implements CommandExecutor {
 				if (sender.hasPermission("rp.admin")) {
 					if (!args[1].isEmpty()) {
 						for (Player p : Bukkit.getOnlinePlayers()) {
-							p.sendMessage(ChatColor.DARK_RED + "[RunicRanks] Congratulations, " + ChatColor.WHITE
+							p.sendMessage("\u00a7a\u25b2 " + ChatColor.DARK_RED + "Congratulations, " + ChatColor.WHITE
 									+ args[1] + ChatColor.DARK_RED + ", on a staff promotion!");
 							// p.getWorld().playSound(p.getLocation(),
 							// .BLOCK_CHORUS_FLOWER_GROW, 10, 1);
@@ -1037,7 +1035,7 @@ public class Commands implements CommandExecutor {
 
 	private static void radioCommand(CommandSender sender, String[] args) {
 		if (sender instanceof Player) {
-			sender.sendMessage(ChatColor.AQUA + "[RunicRadio] " + ChatColor.GRAY
+			sender.sendMessage(ChatColor.AQUA + "" + ChatColor.GRAY
 					+ " Click to join > https://www.dubtrack.fm/join/runic-paradise-minecraft-server");
 		}
 	}
@@ -1146,7 +1144,7 @@ public class Commands implements CommandExecutor {
 		if (args.length == 0 || args[0].equals("help")) {
 			if (sender instanceof Player) {
 				RunicPlayerBukkit senderPlayer = new RunicPlayerBukkit((Player) sender);
-				senderPlayer.sendMessageToPlayer(ChatColor.GOLD + "[RunicCarnival] How to form rptokens commands:");
+				senderPlayer.sendMessageToPlayer("\u00a76\u2666 " + ChatColor.GOLD + "How to form rptokens commands:");
 				senderPlayer.sendMessageToPlayer(ChatColor.GRAY + "Take tokens and execute command as reward:");
 				senderPlayer.sendMessageToPlayer(ChatColor.DARK_GRAY + "/rptokens take PLAYERNAME TOKENCOUNT COMMAND");
 				senderPlayer.sendMessageToPlayer(ChatColor.GRAY + "Reward karma:");
@@ -1173,7 +1171,7 @@ public class Commands implements CommandExecutor {
 
 			RunicPlayerBukkit targetPlayer = new RunicPlayerBukkit(args[1]);
 
-			targetPlayer.sendMessageToPlayer(ChatColor.GOLD + "[RunicCarnival] Prize cost: " + args[2] + " tokens");
+			targetPlayer.sendMessageToPlayer("\u00a76\u2666 " + ChatColor.GOLD + "Prize cost: " + args[2] + " tokens");
 
 			if (targetPlayer.getPlayerTokenBalance() >= Integer.parseInt(args[2])) {
 				int newBalance = targetPlayer.getPlayerTokenBalance() - Integer.parseInt(args[2]);
@@ -1181,9 +1179,9 @@ public class Commands implements CommandExecutor {
 				// Update their balance
 				if (targetPlayer.setPlayerTokenBalance(newBalance)) {
 					// DB update finished successfully, proceed...
-					targetPlayer.sendMessageToPlayer(ChatColor.GOLD + "[RunicCarnival] You have turned in "
+					targetPlayer.sendMessageToPlayer("\u00a76\u2666 " + ChatColor.GOLD + "You have turned in "
 							+ ChatColor.DARK_RED + args[2] + ChatColor.GOLD + " tokens");
-					targetPlayer.sendMessageToPlayer(ChatColor.GOLD + "[RunicCarnival] Your new token balance is "
+					targetPlayer.sendMessageToPlayer("\u00a76\u2666 " + ChatColor.GOLD + "Your new token balance is "
 							+ ChatColor.GREEN + newBalance + ChatColor.GOLD + " tokens");
 
 					targetPlayer.adjustPlayerKarma(Integer.parseInt(args[3]));
@@ -1196,7 +1194,7 @@ public class Commands implements CommandExecutor {
 
 			} else {
 				targetPlayer.sendMessageToPlayer(
-						ChatColor.GOLD + "[RunicCarnival] Sorry, you don't have enough tokens. You have "
+						"\u00a76\u2666 " + ChatColor.GOLD + "Sorry, you don't have enough tokens. You have "
 								+ ChatColor.GREEN + targetPlayer.getPlayerTokenBalance() + ChatColor.GOLD + ".");
 			}
 
@@ -1206,7 +1204,7 @@ public class Commands implements CommandExecutor {
 
 			if (Integer.parseInt(args[2]) > 0) {
 				targetPlayer
-						.sendMessageToPlayer(ChatColor.GOLD + "[RunicCarnival] Prize cost: " + args[2] + " tokens");
+						.sendMessageToPlayer("\u00a76\u2666 " + ChatColor.GOLD + "Prize cost: " + args[2] + " tokens");
 			}
 
 			if (targetPlayer.getPlayerTokenBalance() >= Integer.parseInt(args[2])) {
@@ -1217,10 +1215,10 @@ public class Commands implements CommandExecutor {
 
 					if (Integer.parseInt(args[2]) > 0) {
 						// DB update finished successfully, proceed...
-						targetPlayer.sendMessageToPlayer(ChatColor.GOLD + "[RunicCarnival] You have turned in "
+						targetPlayer.sendMessageToPlayer("\u00a76\u2666 " + ChatColor.GOLD + "You have turned in "
 								+ ChatColor.DARK_RED + args[2] + ChatColor.GOLD + " tokens");
 						targetPlayer
-								.sendMessageToPlayer(ChatColor.GOLD + "[RunicCarnival] Your new token balance is "
+								.sendMessageToPlayer("\u00a76\u2666 " + ChatColor.GOLD + "Your new token balance is "
 										+ ChatColor.GREEN + newBalance + ChatColor.GOLD + " tokens");
 					}
 
@@ -1260,7 +1258,7 @@ public class Commands implements CommandExecutor {
 
 			} else {
 				targetPlayer.sendMessageToPlayer(
-						ChatColor.GOLD + "[RunicCarnival] Sorry, you don't have enough tokens. You have "
+						"\u00a76\u2666 " + ChatColor.GOLD + "Sorry, you don't have enough tokens. You have "
 								+ ChatColor.GREEN + targetPlayer.getPlayerTokenBalance() + ChatColor.GOLD + ".");
 			}
 			// /////////////////////////////////////////////////////
@@ -1272,7 +1270,7 @@ public class Commands implements CommandExecutor {
 
 			RunicPlayerBukkit targetPlayer = new RunicPlayerBukkit(args[1]);
 
-			targetPlayer.sendMessageToPlayer(ChatColor.GOLD + "[RunicCarnival] Prize cost: " + args[2] + " tokens");
+			targetPlayer.sendMessageToPlayer("\u00a76\u2666 " + ChatColor.GOLD + "Prize cost: " + args[2] + " tokens");
 
 			if (targetPlayer.getPlayerTokenBalance() >= Integer.parseInt(args[2])) {
 				int newBalance = targetPlayer.getPlayerTokenBalance() - Integer.parseInt(args[2]);
@@ -1280,9 +1278,9 @@ public class Commands implements CommandExecutor {
 				// Update their balance
 				if (targetPlayer.setPlayerTokenBalance(newBalance)) {
 					// DB update finished successfully, proceed...
-					targetPlayer.sendMessageToPlayer(ChatColor.GOLD + "[RunicCarnival] You have turned in "
+					targetPlayer.sendMessageToPlayer("\u00a76\u2666 " + ChatColor.GOLD + "You have turned in "
 							+ ChatColor.DARK_RED + args[2] + ChatColor.GOLD + " tokens");
-					targetPlayer.sendMessageToPlayer(ChatColor.GOLD + "[RunicCarnival] Your new token balance is "
+					targetPlayer.sendMessageToPlayer("\u00a76\u2666 " + ChatColor.GOLD + "Your new token balance is "
 							+ ChatColor.GREEN + newBalance + ChatColor.GOLD + " tokens");
 					// process the rest of the command
 					int counter = 3; // start counter at the right spot
@@ -1303,7 +1301,7 @@ public class Commands implements CommandExecutor {
 
 			} else {
 				targetPlayer.sendMessageToPlayer(
-						ChatColor.GOLD + "[RunicCarnival] Sorry, you don't have enough tokens. You have "
+						"\u00a76\u2666 " + ChatColor.GOLD + "Sorry, you don't have enough tokens. You have "
 								+ ChatColor.GREEN + targetPlayer.getPlayerTokenBalance() + ChatColor.GOLD + ".");
 			}
 
@@ -1336,15 +1334,15 @@ public class Commands implements CommandExecutor {
 					RunicPlayerBukkit senderPlayer = new RunicPlayerBukkit((Player) sender);
 					senderName = senderPlayer.getPlayerDisplayName();
 				}
-				targetPlayer.sendMessageToPlayer(ChatColor.GOLD + "[RunicCarnival] " + senderName + ChatColor.GOLD
+				targetPlayer.sendMessageToPlayer("\u00a76\u2666 " + ChatColor.GOLD + "" + senderName + ChatColor.GOLD
 						+ " has taken " + ChatColor.DARK_RED + args[2] + ChatColor.GOLD + " of your tokens!");
-				targetPlayer.sendMessageToPlayer(ChatColor.GOLD + "[RunicCarnival] Your new token balance: "
+				targetPlayer.sendMessageToPlayer("\u00a76\u2666 " + ChatColor.GOLD + "Your new token balance: "
 						+ ChatColor.GREEN + newBalance + ChatColor.GOLD + " tokens");
 				if (sender instanceof Player) {
 
 					RunicPlayerBukkit senderPlayer = new RunicPlayerBukkit((Player) sender);
 					senderPlayer.sendMessageToPlayer(
-							ChatColor.GOLD + "[RunicCarnival] " + targetPlayer.getPlayerDisplayName()
+							"\u00a76\u2666 " + ChatColor.GOLD + "" + targetPlayer.getPlayerDisplayName()
 									+ ChatColor.GOLD + "'s tokens - previous " + ChatColor.DARK_RED
 									+ (targetPlayer.getPlayerTokenBalance() + Integer.parseInt(args[2]))
 									+ ChatColor.GOLD + ", new " + ChatColor.GREEN + newBalance);
@@ -1372,15 +1370,15 @@ public class Commands implements CommandExecutor {
 			// Update their balance
 			if (targetPlayer.setPlayerTokenBalance(newBalance)) {
 				// DB update worked
-				targetPlayer.sendMessageToPlayer(ChatColor.GOLD + "[RunicCarnival] " + ChatColor.GREEN + args[2]
+				targetPlayer.sendMessageToPlayer("\u00a76\u2666 " + ChatColor.GOLD + "" + ChatColor.GREEN + args[2]
 						+ ChatColor.GOLD + " tokens awarded!");
-				targetPlayer.sendMessageToPlayer(ChatColor.GOLD + "[RunicCarnival] Your new token balance: "
+				targetPlayer.sendMessageToPlayer("\u00a76\u2666 " + ChatColor.GOLD + "Your new token balance: "
 						+ ChatColor.GREEN + newBalance + ChatColor.GOLD + " tokens");
 				if (sender instanceof Player) {
 
 					RunicPlayerBukkit senderPlayer = new RunicPlayerBukkit((Player) sender);
 					senderPlayer.sendMessageToPlayer(
-							ChatColor.GOLD + "[RunicCarnival] " + targetPlayer.getPlayerDisplayName()
+							"\u00a76\u2666 " + ChatColor.GOLD + "" + targetPlayer.getPlayerDisplayName()
 									+ ChatColor.GOLD + "'s new token balance: " + ChatColor.GREEN + newBalance);
 				}
 			} else {
@@ -1409,14 +1407,14 @@ public class Commands implements CommandExecutor {
 //					// Update their balance
 //					if (targetPlayer.setPlayerTokenBalance(newBalance)) {
 //						// DB update worked
-//						targetPlayer.sendMessageToPlayer(ChatColor.GOLD + "[RunicCarnival] You have turned in "
+//						targetPlayer.sendMessageToPlayer("\u00a76\u2666 " + ChatColor.GOLD + "You have turned in "
 //								+ ChatColor.GREEN + trophyCount + ChatColor.GOLD + " carnival trophies!");
-//						targetPlayer.sendMessageToPlayer(ChatColor.GOLD + "[RunicCarnival] Your new token balance: "
+//						targetPlayer.sendMessageToPlayer("\u00a76\u2666 " + ChatColor.GOLD + "Your new token balance: "
 //								+ ChatColor.GREEN + +newBalance + ChatColor.GOLD + " tokens");
 //						if (sender instanceof Player) {
 //
 //							RunicPlayerBukkit senderPlayer = new RunicPlayerBukkit((Player) sender);
-//							senderPlayer.sendMessageToPlayer(ChatColor.GOLD + "[RunicCarnival] "
+//							senderPlayer.sendMessageToPlayer("\u00a76\u2666 " + ChatColor.GOLD + ""
 //									+ targetPlayer.getPlayerDisplayName() + ChatColor.GOLD
 //									+ "'s new token balance after trophy turn-in: " + ChatColor.GREEN + newBalance);
 //							int removedTrophies = targetPlayer.removePlayerInventoryItemData(371, 99);
@@ -1438,7 +1436,7 @@ public class Commands implements CommandExecutor {
 //
 //				} else {
 //					targetPlayer.sendMessageToPlayer(ChatColor.GOLD
-//							+ "[RunicCarnival] You don't have any trophies! Win some games to get more.");
+//							+ "\u00a76\u2666 \u00a7rYou don't have any trophies! Win some games to get more.");
 //				}
 
 			// ////////////
@@ -1455,7 +1453,7 @@ public class Commands implements CommandExecutor {
 //							ChatColor.GRAY + "Turn these in at the Prize Center",
 //							ChatColor.GRAY + "in Runic Carnival for tokens", "");
 //
-//					targetPlayer.sendMessageToPlayer(ChatColor.GOLD + "[RunicCarnival] You have been awarded "
+//					targetPlayer.sendMessageToPlayer("\u00a76\u2666 " + ChatColor.GOLD + "You have been awarded "
 //							+ ChatColor.GREEN + args[2] + ChatColor.GOLD + " trophies!");
 //				} else {
 //					Bukkit.getLogger().log(Level.INFO,
@@ -1765,8 +1763,7 @@ public class Commands implements CommandExecutor {
 	private void faithCommand(CommandSender sender, String[] args) {
     	MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
 		if (args.length == 0) {
-			sender.sendMessage(ChatColor.GRAY + "[" + ChatColor.BLUE + "Runic" + ChatColor.DARK_AQUA + "Faith"
-					+ ChatColor.GRAY + "] " + ChatColor.BLUE + "Available commands:");
+			sender.sendMessage("00a7d2726 " + ChatColor.BLUE + "Available commands:");
 
 			// list staff commands to staff
 			if (sender.hasPermission("rp.faith.staff")) {
@@ -1864,12 +1861,10 @@ public class Commands implements CommandExecutor {
 		}
 
 		else if (args[0].toLowerCase().equals("video")) {
-			sender.sendMessage(ChatColor.GRAY + "[" + ChatColor.BLUE + "Runic" + ChatColor.DARK_AQUA + "Faith"
-					+ ChatColor.GRAY + "] " + ChatColor.BLUE + "Faith tutorial video @ " + ChatColor.WHITE
+			sender.sendMessage("00a7d2726 " + ChatColor.BLUE + "Faith tutorial video @ " + ChatColor.WHITE
 					+ "https://youtu.be/UOsNkstFSlI");
 		} else if (args[0].toLowerCase().equals("help")) {
-			sender.sendMessage(ChatColor.GRAY + "[" + ChatColor.BLUE + "Runic" + ChatColor.DARK_AQUA + "Faith"
-					+ ChatColor.GRAY + "] " + ChatColor.BLUE + "Basic Help:");
+			sender.sendMessage("00a7d2726 " + ChatColor.BLUE + "Basic Help:");
 			sender.sendMessage(ChatColor.AQUA + "Faith Area:" + ChatColor.GRAY + " /warp faith");
 			sender.sendMessage(ChatColor.AQUA + "Change Faiths:" + ChatColor.GRAY
 					+ " Go to the warp area and step on the plate in the faith temples. New players can use Sun or Moon.");
@@ -1925,8 +1920,7 @@ public class Commands implements CommandExecutor {
 			for (Player p : Bukkit.getOnlinePlayers()) {
 				RunicParadise.faithMap.put(p.getUniqueId(), new Faith(p.getUniqueId()));
 				if (p.hasPermission("rp.faith.user")) {
-					p.sendMessage(ChatColor.GRAY + "[" + ChatColor.BLUE + "Runic" + ChatColor.DARK_AQUA + "Faith"
-							+ ChatColor.GRAY + "] " + ChatColor.BLUE + "Faith system activated!");
+					p.sendMessage("00a7d2726 " + ChatColor.BLUE + "Faith system activated!");
 				}
 				counter++;
 
@@ -1941,7 +1935,7 @@ public class Commands implements CommandExecutor {
 				String response = RunicParadise.faithMap.get(p.getUniqueId()).getPlayerStats(p.getUniqueId(),
 						p.getUniqueId());
 				if (!response.equals("Success")) {
-					p.sendMessage(ChatColor.DARK_BLUE + "[RunicFaith] " + ChatColor.BLUE + "Failed! " + response);
+					p.sendMessage("\u00a7d\u2726 " + ChatColor.DARK_BLUE + "" + ChatColor.BLUE + "Failed! " + response);
 				}
 			}
 
@@ -1960,7 +1954,7 @@ public class Commands implements CommandExecutor {
 				}
 
 				if (!response.equals("Success")) {
-					p.sendMessage(ChatColor.DARK_BLUE + "[RunicFaith] " + ChatColor.BLUE + "Failed! " + response);
+					p.sendMessage("\u00a7d\u2726 " + ChatColor.DARK_BLUE + "" + ChatColor.BLUE + "Failed! " + response);
 				}
 			}
 
@@ -1999,8 +1993,7 @@ public class Commands implements CommandExecutor {
 				if (sender instanceof ConsoleCommandSender) {
 					// player used command block, notify player
 					Bukkit.getPlayer(args[1])
-							.sendMessage(ChatColor.GRAY + "[" + ChatColor.BLUE + "Runic" + ChatColor.DARK_AQUA
-									+ "Faith" + ChatColor.GRAY + "] " + ChatColor.AQUA + args[2] + ChatColor.BLUE
+							.sendMessage("00a7d2726 " + ChatColor.AQUA + args[2] + ChatColor.BLUE
 									+ " is now your active faith! Level: " + ChatColor.DARK_AQUA
 									+ RunicParadise.faithMap.get(Bukkit.getPlayer(args[1]).getUniqueId())
 									.getPrimaryFaithLevel()
@@ -2008,13 +2001,11 @@ public class Commands implements CommandExecutor {
 									+ RunicParadise.faithSettingsMap.get(args[2])[4]);
 				} else {
 					// staff used command, notify them and player
-					sender.sendMessage(ChatColor.GRAY + "[" + ChatColor.BLUE + "Runic" + ChatColor.DARK_AQUA
-							+ "Faith" + ChatColor.GRAY + "] " + ChatColor.BLUE + "Enabled " + ChatColor.AQUA
+					sender.sendMessage("00a7d2726 " + ChatColor.BLUE + "Enabled " + ChatColor.AQUA
 							+ args[2] + ChatColor.BLUE + " for " + ChatColor.GRAY + args[1] + ChatColor.BLUE
 							+ ". If other faiths were active, they are now disabled.");
 					Bukkit.getPlayer(args[1])
-							.sendMessage(ChatColor.GRAY + "[" + ChatColor.BLUE + "Runic" + ChatColor.DARK_AQUA
-									+ "Faith" + ChatColor.GRAY + "] " + ChatColor.AQUA + args[2] + ChatColor.BLUE
+							.sendMessage("00a7d2726 " + ChatColor.AQUA + args[2] + ChatColor.BLUE
 									+ " is now your active faith! Level: " + ChatColor.DARK_AQUA
 									+ RunicParadise.faithMap.get(Bukkit.getPlayer(args[1]).getUniqueId())
 									.getPrimaryFaithLevel()
@@ -2024,13 +2015,11 @@ public class Commands implements CommandExecutor {
 				}
 
 			} else {
-				sender.sendMessage(ChatColor.GRAY + "[" + ChatColor.BLUE + "Runic" + ChatColor.DARK_AQUA + "Faith"
-						+ ChatColor.GRAY + "] " + ChatColor.BLUE + "Failed! " + response);
+				sender.sendMessage("00a7d2726 " + ChatColor.BLUE + "Failed! " + response);
 
 			}
 		} else {
-			sender.sendMessage(ChatColor.GRAY + "[" + ChatColor.BLUE + "Runic" + ChatColor.DARK_AQUA + "Faith"
-					+ ChatColor.GRAY + "] " + ChatColor.RED + "Invalid command or you don't have permission!");
+			sender.sendMessage("00a7d2726 " + ChatColor.RED + "Invalid command or you don't have permission!");
 		}
 	}
 
@@ -2051,8 +2040,7 @@ public class Commands implements CommandExecutor {
 				RunicPlayerBukkit.adjustOfflinePlayerKarma(playerData.getString("PlayerName"), 10);
 
 				for (Player p : Bukkit.getOnlinePlayers()) {
-					p.sendMessage(ChatColor.GRAY + "[" + ChatColor.BLUE + "Runic" + ChatColor.DARK_AQUA + "Faith"
-							+ ChatColor.GRAY + "] " + ChatColor.GREEN + playerData.getString("PlayerName")
+					p.sendMessage("00a7d2726 " + ChatColor.GREEN + playerData.getString("PlayerName")
 							+ ChatColor.BLUE
 							+ " won 10 karma in the daily raffle! Login once a day for your chance to win!");
 
@@ -2992,7 +2980,7 @@ public class Commands implements CommandExecutor {
 
 	private void gamesCommand(CommandSender sender, String[] args) {
     	if (!(sender instanceof Player)) {
-		    sender.sendMessage("[RP] Command must be used by a player");
+		    sender.sendMessage("Command must be used by a player");
 		    return;
 	    }
 

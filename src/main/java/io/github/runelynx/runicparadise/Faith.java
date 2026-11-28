@@ -57,8 +57,7 @@ public class Faith {
 		for (Player p : Bukkit.getOnlinePlayers()) {
 
 			if (p.hasPermission("rp.faith.user")) {
-				p.sendMessage(ChatColor.GRAY + "[" + ChatColor.BLUE + "Runic" + ChatColor.DARK_AQUA + "Faith"
-						+ ChatColor.GRAY + "] " + ChatColor.BLUE + "Faith system deactivated!");
+				p.sendMessage("00a7d2726 " + ChatColor.BLUE + "Faith system deactivated!");
 			}
 
 		}
@@ -260,12 +259,10 @@ public class Faith {
 
 		if (!showAll) {
 			Bukkit.getPlayer(this.getUUID())
-					.sendMessage(ChatColor.GRAY + "[" + ChatColor.BLUE + "Runic" + ChatColor.DARK_AQUA + "Faith"
-							+ ChatColor.GRAY + "] " + ChatColor.BLUE + "Listing powers granted by your faiths:");
+					.sendMessage("00a7d2726 " + ChatColor.BLUE + "Listing powers granted by your faiths:");
 		} else {
 			Bukkit.getPlayer(this.getUUID())
-					.sendMessage(ChatColor.GRAY + "[" + ChatColor.BLUE + "Runic" + ChatColor.DARK_AQUA + "Faith"
-							+ ChatColor.GRAY + "] " + ChatColor.BLUE + "Listing all powers available:");
+					.sendMessage("00a7d2726 " + ChatColor.BLUE + "Listing all powers available:");
 		}
 
 		// Iterate through all available faiths... check each one to see if
@@ -705,8 +702,7 @@ public class Faith {
 		// Now update the object used by the map!
 		if (this.faithLevels.containsKey(faithName)) {
 			this.faithLevels.put(faithName, newValue);
-			p.sendMessage(ChatColor.GRAY + "[" + ChatColor.BLUE + "Runic" + ChatColor.DARK_AQUA + "Faith"
-					+ ChatColor.GRAY + "] " + ChatColor.BLUE + "Your " + faithName + ChatColor.BLUE
+			p.sendMessage("00a7d2726 " + ChatColor.BLUE + "Your " + faithName + ChatColor.BLUE
 					+ " faith has been changed by " + adminName + "! " + ChatColor.AQUA
 					+ this.faithLevels.get(faithName) + ChatColor.GRAY + "/"
 					+ RunicParadise.faithSettingsMap.get(faithName)[4]);
@@ -766,8 +762,7 @@ public class Faith {
 
 			connection.close();
 
-			String msg1 = ChatColor.GRAY + "[" + ChatColor.BLUE + "Runic" + ChatColor.DARK_AQUA + "Faith"
-					+ ChatColor.GRAY + "] " + ChatColor.BLUE + "Your " + faithName + ChatColor.BLUE
+			String msg1 = "00a7d2726 " + ChatColor.BLUE + "Your " + faithName + ChatColor.BLUE
 					+ " faith grows stronger! " + ChatColor.GREEN + this.faithLevels.get(faithName) + ChatColor.GRAY
 					+ "/" + RunicParadise.faithSettingsMap.get(faithName)[4];
 			ActionBars.send(p, ChatColor.translateAlternateColorCodes('&', msg1));
@@ -775,8 +770,7 @@ public class Faith {
 			if (this.faithLevels.get(faithName) == maxLevel) {
 				for (Player q : Bukkit.getOnlinePlayers()) {
 
-					q.sendMessage(ChatColor.GRAY + "[" + ChatColor.BLUE + "Runic" + ChatColor.DARK_AQUA + "Faith"
-							+ ChatColor.GRAY + "] " + ChatColor.BLUE + p.getDisplayName() + ChatColor.BLUE
+					q.sendMessage("00a7d2726 " + ChatColor.BLUE + p.getDisplayName() + ChatColor.BLUE
 							+ " just maxxed their " + ChatColor.WHITE + faithName + ChatColor.BLUE + " faith!");
 					q.getWorld().playSound(q.getLocation(), Sound.ENTITY_FIREWORK_ROCKET_LARGE_BLAST, 10, 1);
 
@@ -1182,20 +1176,17 @@ public class Faith {
 				if (RunicParadise.randomSeed.nextInt(101) <= 50 && chance == 1) {
 					p.getWorld().playSound(p.getLocation(), Sound.BLOCK_ANVIL_BREAK, 10, 1);
 					p.setItemInHand(null);
-					p.sendMessage(ChatColor.GRAY + "[" + ChatColor.BLUE + "Runic" + ChatColor.DARK_AQUA + "Faith"
-							+ ChatColor.GRAY + "] " + ChatColor.BLUE + "Your faith sword shatters into dust!");
+					p.sendMessage("00a7d2726 " + ChatColor.BLUE + "Your faith sword shatters into dust!");
 				} else if (RunicParadise.randomSeed.nextInt(101) <= 30 && chance == 2) {
 					p.getWorld().playSound(p.getLocation(), Sound.BLOCK_ANVIL_BREAK, 10, 1);
 					p.setItemInHand(null);
-					p.sendMessage(ChatColor.GRAY + "[" + ChatColor.BLUE + "Runic" + ChatColor.DARK_AQUA + "Faith"
-							+ ChatColor.GRAY + "] " + ChatColor.BLUE + "Your faith sword shatters into dust!");
+					p.sendMessage("00a7d2726 " + ChatColor.BLUE + "Your faith sword shatters into dust!");
 
 				} else if (RunicParadise.randomSeed.nextInt(101) <= 10 && chance == 3) {
 					p.getWorld().playSound(p.getLocation(), Sound.BLOCK_ANVIL_BREAK, 10, 1);
 
 					p.setItemInHand(null);
-					p.sendMessage(ChatColor.GRAY + "[" + ChatColor.BLUE + "Runic" + ChatColor.DARK_AQUA + "Faith"
-							+ ChatColor.GRAY + "] " + ChatColor.BLUE + "Your faith sword shatters into dust!");
+					p.sendMessage("00a7d2726 " + ChatColor.BLUE + "Your faith sword shatters into dust!");
 
 				} else if (RunicParadise.randomSeed.nextInt(101) <= 20 && chance == 4) {
 					ItemMeta metaQ = p.getItemInHand().getItemMeta();
@@ -1233,8 +1224,7 @@ public class Faith {
 						p.getWorld().playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_HARP, 10, 1);
 					} else if (metaQ.getLore().get(6).contains("Charges: 1")) {
 						p.setItemInHand(null);
-						p.sendMessage(ChatColor.GRAY + "[" + ChatColor.BLUE + "Runic" + ChatColor.DARK_AQUA + "Faith"
-								+ ChatColor.GRAY + "] " + ChatColor.BLUE + "Your faith hatchet shatters into dust!");
+						p.sendMessage("00a7d2726 " + ChatColor.BLUE + "Your faith hatchet shatters into dust!");
 						p.getWorld().playSound(p.getLocation(), Sound.BLOCK_ANVIL_BREAK, 10, 1);
 					}
 
@@ -1313,8 +1303,7 @@ public class Faith {
 
 		} else {
 			// Player is maxxed
-			p.sendMessage(ChatColor.GRAY + "[" + ChatColor.BLUE + "Runic" + ChatColor.DARK_AQUA + "Faith"
-					+ ChatColor.GRAY + "] " + ChatColor.BLUE + "Your " + faithName + ChatColor.BLUE
+			p.sendMessage("00a7d2726 " + ChatColor.BLUE + "Your " + faithName + ChatColor.BLUE
 					+ " faith cannot grow any stronger!");
 			return 0;
 		}

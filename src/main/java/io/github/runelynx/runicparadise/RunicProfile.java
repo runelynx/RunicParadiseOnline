@@ -834,7 +834,7 @@ public class RunicProfile {
 				// Player doesn't exist in the DB!
 				// TODO: Need to add them to DB!
 				this.tokenBalance = 0;
-				getLogger().log(Level.INFO, "[RP] Player " + this.playerName + " isn't in our DB yet.");
+				getLogger().log(Level.INFO, "Player " + this.playerName + " isn't in our DB yet.");
 			} else {
 				// Player does exist in the DB
 

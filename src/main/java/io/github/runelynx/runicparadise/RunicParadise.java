@@ -153,54 +153,54 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 		registerSlimefunItems();
 
 		if (setupPermissions()) {
-			getLogger().info("[RunicParadise] Hooked into Vault Permissions");
+			getLogger().info("Hooked into Vault Permissions");
 		}
 
 		if (setupEconomy()) {
-			getLogger().info("[RunicParadise] Hooked into Vault Economy");
+			getLogger().info("Hooked into Vault Economy");
 		}
 
 		getConfig().options().copyDefaults(true);
 		saveConfig();
 
 		if (Borderlands.initializeBorderlands()) {
-			getLogger().info("[RunicParadise] Initialized borderlands");
+			getLogger().info("Initialized borderlands");
 		}
 
 		if (controlKeepInventory()) {
-			getLogger().info("[RunicParadise] Updated KeepInventory settings");
+			getLogger().info("Updated KeepInventory settings");
 		}
 
 		if (defineEntityTracking()) {
-			getLogger().info("[RunicParadise] Defined entity kill tracking rules");
+			getLogger().info("Defined entity kill tracking rules");
 		}
 
 		if (Recipes.customRecipes()) {
-			getLogger().info("[RunicParadise] Created custom recipes");
+			getLogger().info("Created custom recipes");
 		}
 
 		defineRankColors();
-		getLogger().info("[RunicParadise] Defined default rank colors");
+		getLogger().info("Defined default rank colors");
 
 		if (startupRunicFaith(scheduler)) {
-			getLogger().info("[RunicParadise] Started up Runic Faith");
+			getLogger().info("Started up Runic Faith");
 		}
 
 		if (registerCommands()) {
-			getLogger().info("[RunicParadise] Commands registered");
+			getLogger().info("Commands registered");
 		}
 
 		int loadedProfiles = loadPlayerProfiles();
 		if (loadedProfiles >= 0) {
-			getLogger().info("[RunicParadise] Loaded " + loadedProfiles + " player profiles");
+			getLogger().info("Loaded " + loadedProfiles + " player profiles");
 		}
 
 		if (testDatabaseConnection()) {
-			getLogger().info("[RunicParadise] Database connection successful");
+			getLogger().info("Database connection successful");
 		}
 
 		if (Commands.syncExplorerLocations()) {
-			getLogger().info("[RunicParadise] Explorer locations are now synchronized");
+			getLogger().info("Explorer locations are now synchronized");
 		}
 	}
 
@@ -417,7 +417,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 			MySQL MySQL = RunicUtilities.getMysqlFromPlugin(instance);
 			return true;
 		} catch (Exception b) {
-			getLogger().warning("[RunicParadise] FAILED TO CONNECT TO DATABASE!!!");
+			getLogger().warning("FAILED TO CONNECT TO DATABASE!!!");
 			return false;
 		}
 	}
@@ -498,7 +498,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 
 	public void onEnable() {
 		instance = this;
-		getLogger().info("[RunicParadise] Enabling plugin...");
+		getLogger().info("Enabling plugin...");
 		for (Player p : Bukkit.getOnlinePlayers()) {
 			// Messaging
 			RunicMessaging.sendMessage(p, RunicMessaging.RunicFormat.SYSTEM,
@@ -2327,7 +2327,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 			Bukkit.dispatchCommand(Bukkit.getConsoleSender(),
 					"sc Name change detected for " + playerName + " (" + previousName + ")");
 			Bukkit.getLogger().log(Level.INFO,
-					"[RP] Name change detected for " + playerName + " (" + previousName + ")");
+					"Name change detected for " + playerName + " (" + previousName + ")");
 		}
 
 		try {
@@ -2409,7 +2409,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 				dStmt.setString(4, playerUUID.toString());
 				dStmt.executeUpdate();
 				dStmt.close();
-				Bukkit.getLogger().log(Level.INFO, "[RP] PlayerInfo data updated for " + playerName);
+				Bukkit.getLogger().log(Level.INFO, "PlayerInfo data updated for " + playerName);
 
 				// if this player has MORE than 1 row in the
 				// table
@@ -2434,7 +2434,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 						dStmt.close();
 
 						Bukkit.getLogger().log(Level.INFO,
-								"[RP] PlayerInfo data [row " + zResult.getInt("ID") + "] updated for " + playerName);
+								"PlayerInfo data [row " + zResult.getInt("ID") + "] updated for " + playerName);
 						RunicUtilities.sendDebugMessages("playerjoin", playerName + "'s good record has been updated.");
 						// All further rows are invalid, delete
 						// them!
@@ -2445,7 +2445,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 						dStmt.executeUpdate();
 						dStmt.close();
 						Bukkit.getLogger().log(Level.INFO,
-								"[RP] PlayerInfo dupe row cleanup (name change?)! Deleted row " + zResult.getInt("ID"));
+								"PlayerInfo dupe row cleanup (name change?)! Deleted row " + zResult.getInt("ID"));
 						RunicUtilities.sendDebugMessages("playerjoin", playerName + "'s bad record has been deleted.");
 					}
 
@@ -2670,7 +2670,7 @@ public final class RunicParadise extends JavaPlugin implements Listener, PluginM
 				statement.setString(2, playerUUID.toString());
 				statement.executeUpdate();
 				statement.close();
-				Bukkit.getLogger().log(Level.INFO, "[RP] PlayerInfo data updated for " + playerName);
+				Bukkit.getLogger().log(Level.INFO, "PlayerInfo data updated for " + playerName);
 				connection.close();
 
 			} catch (SQLException e) {

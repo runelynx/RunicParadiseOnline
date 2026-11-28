@@ -191,7 +191,7 @@ public class RunicDeathChest implements Serializable {
 		// If the items slots from death storage cant fit in the player's
 		// free inventory slots...
 		if (((36 - playerAtGrave.checkPlayerInventoryItemstackCount()) - countItemsInItemstack(items)) < 0) {
-			playerAtGrave.sendMessageToPlayer(ChatColor.DARK_GRAY + "[RunicReaper] " + ChatColor.GRAY + "Need "
+			playerAtGrave.sendMessageToPlayer("\u00a74\u2620 " + ChatColor.DARK_GRAY + "" + ChatColor.GRAY + "Need "
 					+ ChatColor.DARK_RED
 					+ ((36 - playerAtGrave.checkPlayerInventoryItemstackCount()) - countItemsInItemstack(items)) * -1
 					+ ChatColor.GRAY + " more open slots to get your items.");
@@ -200,7 +200,7 @@ public class RunicDeathChest implements Serializable {
 			// Player has room in inventory!
 			playerAtGrave.givePlayerItemStack(items);
 
-			playerAtGrave.sendMessageToPlayer(ChatColor.DARK_GRAY + "[RunicReaper] " + ChatColor.GRAY
+			playerAtGrave.sendMessageToPlayer("\u00a74\u2620 " + ChatColor.DARK_GRAY + "" + ChatColor.GRAY
 					+ "You have retrieved your items, if there were any to retrieve.");
 			// remove data
 			Plugin instance = RunicParadise.getInstance();
@@ -228,7 +228,7 @@ public class RunicDeathChest implements Serializable {
 		// free inventory slots...
 		if (Bukkit.getPlayer(playerAtGrave.getPlayerName()).getInventory().getItemInOffHand() != null && Bukkit
 				.getPlayer(playerAtGrave.getPlayerName()).getInventory().getItemInOffHand().getType() != Material.AIR) {
-			playerAtGrave.sendMessageToPlayer(ChatColor.DARK_GRAY + "[RunicReaper] " + ChatColor.GRAY
+			playerAtGrave.sendMessageToPlayer("\u00a74\u2620 " + ChatColor.DARK_GRAY + "" + ChatColor.GRAY
 					+ "Empty your offhand slot to retrieve your old offhand item!");
 			return false;
 		} else {
@@ -238,7 +238,7 @@ public class RunicDeathChest implements Serializable {
 			;
 
 			playerAtGrave.sendMessageToPlayer(
-					ChatColor.DARK_GRAY + "[RunicReaper] " + ChatColor.GRAY + "You have retrieved your offhand item.");
+					"\u00a74\u2620 " + ChatColor.DARK_GRAY + "" + ChatColor.GRAY + "You have retrieved your offhand item.");
 			// remove data
 			final Plugin instance = RunicParadise.getInstance();
 
@@ -268,7 +268,7 @@ public class RunicDeathChest implements Serializable {
 		// If the armor slots from death storage cant fit in the player's
 		// free inventory slots...
 		if (((36 - playerAtGrave.checkPlayerInventoryItemstackCount()) - countItemsInItemstack(armor)) < 0) {
-			playerAtGrave.sendMessageToPlayer(ChatColor.DARK_GRAY + "[RunicReaper] " + ChatColor.GRAY + "Need "
+			playerAtGrave.sendMessageToPlayer("\u00a74\u2620 " + ChatColor.DARK_GRAY + "" + ChatColor.GRAY + "Need "
 					+ ChatColor.DARK_RED
 					+ ((36 - playerAtGrave.checkPlayerInventoryItemstackCount()) - countItemsInItemstack(armor)) * -1
 					+ ChatColor.GRAY + " more open slots to get your armor.");
@@ -276,7 +276,7 @@ public class RunicDeathChest implements Serializable {
 		} else {
 			// Player has room in inventory!
 			playerAtGrave.givePlayerItemStack(armor);
-			playerAtGrave.sendMessageToPlayer(ChatColor.DARK_GRAY + "[RunicReaper] " + ChatColor.GRAY
+			playerAtGrave.sendMessageToPlayer("\u00a74\u2620 " + ChatColor.DARK_GRAY + "" + ChatColor.GRAY
 					+ "You have retrieved your armor, if there was any to retrieve.");
 			// remove data
 			final Plugin instance = RunicParadise.getInstance();
@@ -301,52 +301,52 @@ public class RunicDeathChest implements Serializable {
 	public static boolean handleLevels(int graveID, RunicPlayerBukkit playerAtGrave, int lostLevels, boolean isOwner) {
 
 		if (isOwner && playerAtGrave.checkPlayerPermission("rp.graves.master")) {
-			playerAtGrave.sendMessageToPlayer(ChatColor.DARK_GRAY + "[RunicReaper] " + ChatColor.GRAY
+			playerAtGrave.sendMessageToPlayer("\u00a74\u2620 " + ChatColor.DARK_GRAY + "" + ChatColor.GRAY
 					+ "Returning 95% of the lost levels to you.");
 			playerAtGrave.setPlayerLevel(playerAtGrave.getPlayerLevel() + (int) (0.95 * lostLevels));
 		} else if (isOwner && playerAtGrave.checkPlayerPermission("rp.graves.champion")) {
-			playerAtGrave.sendMessageToPlayer(ChatColor.DARK_GRAY + "[RunicReaper] " + ChatColor.GRAY
+			playerAtGrave.sendMessageToPlayer("\u00a74\u2620 " + ChatColor.DARK_GRAY + "" + ChatColor.GRAY
 					+ "Returning 90% of the lost levels to you.");
 			playerAtGrave.setPlayerLevel(playerAtGrave.getPlayerLevel() + (int) (0.90 * lostLevels));
 		} else if (isOwner && playerAtGrave.checkPlayerPermission("rp.graves.warder")) {
-			playerAtGrave.sendMessageToPlayer(ChatColor.DARK_GRAY + "[RunicReaper] " + ChatColor.GRAY
+			playerAtGrave.sendMessageToPlayer("\u00a74\u2620 " + ChatColor.DARK_GRAY + "" + ChatColor.GRAY
 					+ "Returning 85% of the lost levels to you.");
 			playerAtGrave.setPlayerLevel(playerAtGrave.getPlayerLevel() + (int) (0.85 * lostLevels));
 		} else if (isOwner && playerAtGrave.checkPlayerPermission("rp.graves.slayer")) {
-			playerAtGrave.sendMessageToPlayer(ChatColor.DARK_GRAY + "[RunicReaper] " + ChatColor.GRAY
+			playerAtGrave.sendMessageToPlayer("\u00a74\u2620 " + ChatColor.DARK_GRAY + "" + ChatColor.GRAY
 					+ "Returning 80% of the lost levels to you.");
 			playerAtGrave.setPlayerLevel(playerAtGrave.getPlayerLevel() + (int) (0.80 * lostLevels));
 		} else if (isOwner && playerAtGrave.checkPlayerPermission("rp.graves.hunter")) {
-			playerAtGrave.sendMessageToPlayer(ChatColor.DARK_GRAY + "[RunicReaper] " + ChatColor.GRAY
+			playerAtGrave.sendMessageToPlayer("\u00a74\u2620 " + ChatColor.DARK_GRAY + "" + ChatColor.GRAY
 					+ "Returning 75% of the lost levels to you.");
 			playerAtGrave.setPlayerLevel(playerAtGrave.getPlayerLevel() + (int) (0.75 * lostLevels));
 		} else if (isOwner && playerAtGrave.checkPlayerPermission("rp.graves.guard")) {
-			playerAtGrave.sendMessageToPlayer(ChatColor.DARK_GRAY + "[RunicReaper] " + ChatColor.GRAY
+			playerAtGrave.sendMessageToPlayer("\u00a74\u2620 " + ChatColor.DARK_GRAY + "" + ChatColor.GRAY
 					+ "Returning 70% of the lost levels to you.");
 			playerAtGrave.setPlayerLevel(playerAtGrave.getPlayerLevel() + (int) (0.70 * lostLevels));
 		} else if (isOwner && playerAtGrave.checkPlayerPermission("rp.graves.keeper")) {
-			playerAtGrave.sendMessageToPlayer(ChatColor.DARK_GRAY + "[RunicReaper] " + ChatColor.GRAY
+			playerAtGrave.sendMessageToPlayer("\u00a74\u2620 " + ChatColor.DARK_GRAY + "" + ChatColor.GRAY
 					+ "Returning 65% of the lost levels to you.");
 			playerAtGrave.setPlayerLevel(playerAtGrave.getPlayerLevel() + (int) (0.65 * lostLevels));
 		} else if (isOwner && playerAtGrave.checkPlayerPermission("rp.graves.brawler")) {
-			playerAtGrave.sendMessageToPlayer(ChatColor.DARK_GRAY + "[RunicReaper] " + ChatColor.GRAY
+			playerAtGrave.sendMessageToPlayer("\u00a74\u2620 " + ChatColor.DARK_GRAY + "" + ChatColor.GRAY
 					+ "Returning 60% of the lost levels to you.");
 			playerAtGrave.setPlayerLevel(playerAtGrave.getPlayerLevel() + (int) (0.60 * lostLevels));
 		} else if (isOwner && playerAtGrave.checkPlayerPermission("rp.graves.singer")) {
-			playerAtGrave.sendMessageToPlayer(ChatColor.DARK_GRAY + "[RunicReaper] " + ChatColor.GRAY
+			playerAtGrave.sendMessageToPlayer("\u00a74\u2620 " + ChatColor.DARK_GRAY + "" + ChatColor.GRAY
 					+ "Returning 55% of the lost levels to you.");
 			playerAtGrave.setPlayerLevel(playerAtGrave.getPlayerLevel() + (int) (0.55 * lostLevels));
 		} else if (isOwner && playerAtGrave.checkPlayerPermission("rp.graves.runner")) {
-			playerAtGrave.sendMessageToPlayer(ChatColor.DARK_GRAY + "[RunicReaper] " + ChatColor.GRAY
+			playerAtGrave.sendMessageToPlayer("\u00a74\u2620 " + ChatColor.DARK_GRAY + "" + ChatColor.GRAY
 					+ "Returning 50% of the lost levels to you.");
 			playerAtGrave.setPlayerLevel(playerAtGrave.getPlayerLevel() + (int) (0.50 * lostLevels));
 		} else if (isOwner && playerAtGrave.checkPlayerPermission("rp.graves.seeker")) {
-			playerAtGrave.sendMessageToPlayer(ChatColor.DARK_GRAY + "[RunicReaper] " + ChatColor.GRAY
+			playerAtGrave.sendMessageToPlayer("\u00a74\u2620 " + ChatColor.DARK_GRAY + "" + ChatColor.GRAY
 					+ "Returning 45% of the lost levels to you.");
 			playerAtGrave.setPlayerLevel(playerAtGrave.getPlayerLevel() + (int) (0.45 * lostLevels));
 		} else {
 			// PLAYER IS NOT OWNER
-			playerAtGrave.sendMessageToPlayer(ChatColor.DARK_GRAY + "[RunicReaper] " + ChatColor.GRAY
+			playerAtGrave.sendMessageToPlayer("\u00a74\u2620 " + ChatColor.DARK_GRAY + "" + ChatColor.GRAY
 					+ "You're not the owner of this grave. Returning 15% of the lost levels to you.");
 			playerAtGrave.setPlayerLevel(playerAtGrave.getPlayerLevel() + (int) (0.15 * lostLevels));
 			return true;
@@ -418,7 +418,7 @@ public class RunicDeathChest implements Serializable {
 			if (!graveData.isBeforeFirst()) {
 				// Location doesn't exist in the DB!
 				getLogger().log(Level.SEVERE,
-						"[RP] Failure in grave Restore.. couldnt find loc in the DB but prior check succeeded.");
+						"Failure in grave Restore.. couldnt find loc in the DB but prior check succeeded.");
 			} else {
 				// Location does exist in the DB and data retrieved!!
 				graveData.next();
@@ -487,12 +487,12 @@ public class RunicDeathChest implements Serializable {
 			// if (!playerData.first() && !playerData.next()) {
 			if (!graveData.isBeforeFirst()) {
 				// No results
-				commandSender.sendMessage(ChatColor.DARK_GRAY + "[RunicReaper] " + ChatColor.GRAY
+				commandSender.sendMessage("\u00a74\u2620 " + ChatColor.DARK_GRAY + "" + ChatColor.GRAY
 						+ " Searching for recent 30 graves owned by " + playerSearch);
 				commandSender.sendMessage(ChatColor.GRAY + "No graves found.");
 			} else {
 				// results found!
-				commandSender.sendMessage(ChatColor.DARK_GRAY + "[RunicReaper] " + ChatColor.GRAY
+				commandSender.sendMessage("\u00a74\u2620 " + ChatColor.DARK_GRAY + "" + ChatColor.GRAY
 						+ " Searching for recent 30 graves owned by " + playerSearch);
 
 				while (graveData.next()) {
@@ -554,14 +554,14 @@ public class RunicDeathChest implements Serializable {
 			// if (!playerData.first() && !playerData.next()) {
 			if (!graveData.isBeforeFirst()) {
 				// No results
-				sender.sendMessage(ChatColor.DARK_GRAY + "[RunicReaper] " + ChatColor.GRAY
+				sender.sendMessage("\u00a74\u2620 " + ChatColor.DARK_GRAY + "" + ChatColor.GRAY
 						+ "No graves found. Invalid grave ID specified.");
 				connection.close();
 				return;
 			} else {
 				// results found!
 				graveData.next();
-				sender.sendMessage(ChatColor.DARK_GRAY + "[RunicReaper] " + ChatColor.GRAY
+				sender.sendMessage("\u00a74\u2620 " + ChatColor.DARK_GRAY + "" + ChatColor.GRAY
 						+ "Sending you to grave ID " + ChatColor.YELLOW + ID + ChatColor.GRAY + " owned by "
 						+ ChatColor.YELLOW + graveData.getString("PlayerName"));
 				if (graveData.getString("Status").equals("Gone")) {
@@ -650,7 +650,7 @@ public class RunicDeathChest implements Serializable {
 					+ new Date().getTime() + " AND Status='Locked';");
 
 			if (expiries > 0) {
-				getLogger().log(Level.INFO, "[RP] " + expiries + " graves unlocked due to timer expiry");
+				getLogger().log(Level.INFO, "" + expiries + " graves unlocked due to timer expiry");
 				if (senderIsPlayer) {
 					Bukkit.dispatchCommand(Bukkit.getConsoleSender(),
 							"sc " + expiries + " graves unlocked due to timer expiry");
@@ -679,7 +679,7 @@ public class RunicDeathChest implements Serializable {
 			// if (!playerData.first() && !playerData.next()) {
 			if (!graveData.isBeforeFirst()) {
 				// No results
-				commandSender.sendMessage(ChatColor.DARK_GRAY + "[RunicReaper] " + ChatColor.GRAY
+				commandSender.sendMessage("\u00a74\u2620 " + ChatColor.DARK_GRAY + "" + ChatColor.GRAY
 						+ "No graves found. Invalid grave ID specified.");
 				connection.close();
 				return;
@@ -687,7 +687,7 @@ public class RunicDeathChest implements Serializable {
 				// results found!
 				graveData.next();
 				if (graveData.getString("Status").equals("Locked")) {
-					commandSender.sendMessage(ChatColor.DARK_GRAY + "[RunicReaper] " + ChatColor.GRAY
+					commandSender.sendMessage("\u00a74\u2620 " + ChatColor.DARK_GRAY + "" + ChatColor.GRAY
 							+ "Unlocking grave ID " + ChatColor.YELLOW + ID + ChatColor.GRAY + " owned by "
 							+ ChatColor.YELLOW + graveData.getString("PlayerName"));
 					Statement cStmt = connection.createStatement();
@@ -696,7 +696,7 @@ public class RunicDeathChest implements Serializable {
 
 				} else {
 					// Grave isnt locked, so cant unlock it
-					commandSender.sendMessage(ChatColor.DARK_GRAY + "[RunicReaper] " + ChatColor.GRAY
+					commandSender.sendMessage("\u00a74\u2620 " + ChatColor.DARK_GRAY + "" + ChatColor.GRAY
 							+ "That grave isn't locked! Can't unlock it.");
 				}
 
@@ -1053,9 +1053,9 @@ public class RunicDeathChest implements Serializable {
 			if (!graveData.isBeforeFirst()) {
 				// Location doesn't exist in the DB!
 				getLogger().log(Level.SEVERE,
-						"[RP] Failure in grave Restore.. couldnt find loc in the DB but prior check succeeded.");
+						"Failure in grave Restore.. couldnt find loc in the DB but prior check succeeded.");
 			} else {
-				getLogger().log(Level.INFO, "[RP] Checked for grave and found it in the DB.");
+				getLogger().log(Level.INFO, "Checked for grave and found it in the DB.");
 				// Location does exist in the DB and data retrieved!!
 				graveData.next();
 				ItemStack[] equip = null;
@@ -1075,9 +1075,9 @@ public class RunicDeathChest implements Serializable {
 						ObjectInputStream ois = new ObjectInputStream(baip);
 						items = RunicSerialization.deserializeItemStackList(
 								((List<HashMap<Map<String, Object>, Map<String, Object>>>) ois.readObject()));
-						getLogger().log(Level.INFO, "[RP] InvBlob is not null.");
+						getLogger().log(Level.INFO, "InvBlob is not null.");
 					} else {
-						getLogger().log(Level.INFO, "[RP] InvBlob is null.");
+						getLogger().log(Level.INFO, "InvBlob is null.");
 					}
 
 					if (graveData.getObject("EquipBlob") != null) {
@@ -1086,9 +1086,9 @@ public class RunicDeathChest implements Serializable {
 						ObjectInputStream ois2 = new ObjectInputStream(baip2);
 						equip = RunicSerialization.deserializeItemStackList(
 								((List<HashMap<Map<String, Object>, Map<String, Object>>>) ois2.readObject()));
-						getLogger().log(Level.INFO, "[RP] EquipBlob is not null.");
+						getLogger().log(Level.INFO, "EquipBlob is not null.");
 					} else {
-						getLogger().log(Level.INFO, "[RP] EquipBlob is null.");
+						getLogger().log(Level.INFO, "EquipBlob is null.");
 					}
 
 				}
