@@ -244,7 +244,7 @@ final class StaffModule {
 				.desc("Details of the item in your hand (same as /iteminfo)")
 				.exec((s, a) -> Bukkit.dispatchCommand(s, "iteminfo")));
 
-		reg(StaffAction.of("fx", "Tools").icon("BLAZE_POWDER").perm("rp.fx").playersOnly()
+		reg(StaffAction.of("effects", "Tools").icon("BLAZE_POWDER").perm("rp.fx").playersOnly()
 				.desc("Staff effects: a tornado in front of you, or a beam on you or a player (same as /tornado, /beam)")
 				.usage("<tornado <distance> <1-3>|beam <1-3> [player]>")
 				.complete((s, a) -> {
@@ -259,7 +259,7 @@ final class StaffModule {
 					} else if (a.length >= 2 && a[0].equalsIgnoreCase("beam")) {
 						Bukkit.dispatchCommand(s, "beam " + a[1] + (a.length > 2 ? " " + a[2] : ""));
 					} else {
-						Ui.error(s, "Usage: /rs fx tornado <distance> <1-3>  or  /rs fx beam <1-3> [player]");
+						Ui.error(s, "Usage: /rs effects tornado <distance> <1-3>  or  /rs effects beam <1-3> [player]");
 					}
 				}));
 
